@@ -4,7 +4,7 @@
 
 ## What this is
 
-**Edge Spectrum** — `edge-spectrum.mikesailab.com` 🟢 Live — a **multi-tool hub** for sports,
+**Edge Spectrum** — `edge-spectrum.ai-automation-tools.dev` 🟢 Live — a **multi-tool hub** for sports,
 betting, investing, odds, and gambling analysis. Started (2026-07-10) by merging the standalone
 **Sports-Betting-Backtester** app into the original **Betting_Spectrum** repo; built so each new
 tool is roughly *one registry entry + one page*.
@@ -107,7 +107,7 @@ Images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 ## Branch workflow (PR flow)
 
-Do **not** push directly to `main`. Work on `mike_desktop`, then open a **PR → `main`** (`gh pr create --base main --head mike_desktop`). Vercel builds a **preview deployment** for each PR — check that URL before merging. Merging to `main` deploys to production (`edge-spectrum.mikesailab.com`). Keep `mike_desktop` and `main` in sync after each merge (`git checkout mike_desktop && git merge main`).
+Do **not** push directly to `main`. Work on `mike_desktop`, then open a **PR → `main`** (`gh pr create --base main --head mike_desktop`). Vercel builds a **preview deployment** for each PR — check that URL before merging. Merging to `main` deploys to production (`edge-spectrum.ai-automation-tools.dev`). Keep `mike_desktop` and `main` in sync after each merge (`git checkout mike_desktop && git merge main`).
 
 ## Commit identity
 
