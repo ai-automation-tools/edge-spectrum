@@ -112,8 +112,8 @@ export default function Home() {
       </section>
 
       <footer className="mt-20 border-t border-zinc-800/60 pt-6 text-xs text-zinc-600">
-        <a href="https://mikesailab.com" className="transition-colors hover:text-zinc-400">
-          mikesailab.com
+        <a href="https://ai-automation-tools.dev" className="transition-colors hover:text-zinc-400">
+          ai-automation-tools.dev
         </a>
       </footer>
     </main>
