@@ -3,7 +3,7 @@
 # Edge Spectrum 🟢
 
 <p align="center">
-  <a href="https://edge-spectrum.mikesailab.com">
+  <a href="https://edge-spectrum.ai-automation-tools.dev">
     <img src="Images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
   </a>
 </p>
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://edge-spectrum.mikesailab.com">Try the Public Demo</a>
+  <a href="https://edge-spectrum.ai-automation-tools.dev">Try the Public Demo</a>
   ·
   <a href="https://github.com/ai-automation-tools/edge-spectrum/issues">Report Bug</a>
   ·
@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <a href="https://edge-spectrum.mikesailab.com"><img src="https://img.shields.io/badge/Live_Deployment-edge--spectrum.mikesailab.com-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Deployment"></a>
+  <a href="https://edge-spectrum.ai-automation-tools.dev"><img src="https://img.shields.io/badge/Live_Deployment-edge--spectrum.ai--automation--tools.dev-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Deployment"></a>
   <img src="https://img.shields.io/badge/status-active-2ea44f?style=for-the-badge" alt="Status: Active">
   <a href="Docs/roadmap.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
 </p>
@@ -115,12 +115,12 @@ edge-spectrum/
 
 ## 🚀 Try the demo or create your own site
 
-The [public demo](https://edge-spectrum.mikesailab.com) includes the interactive Spectrum,
+The [public demo](https://edge-spectrum.ai-automation-tools.dev) includes the interactive Spectrum,
 odds and parlay calculators, synthetic backtester, and live scoreboard. Its AI advisor
 shows **clearly labeled sample responses**, with no Gemini calls and no visitor API keys.
 
 The full application is included in this repository under [Apache-2.0](LICENSE).
-[Create your own site](https://edge-spectrum.mikesailab.com/setup) to deploy a copy to
+[Create your own site](https://edge-spectrum.ai-automation-tools.dev/setup) to deploy a copy to
 Vercel with your own Gemini key, private advisor passcode, and live AI responses.
 Use **Use this template** on GitHub to create a complete copy you can customize.
 
@@ -185,7 +185,7 @@ To add a new tool to the Edge Spectrum hub, follow the **three-step recipe**:
 
 ## 🚀 Deployment
 
-The public demo is hosted on **Vercel** (`edge-spectrum.mikesailab.com`). The Vercel project's **Root Directory is set to `site`**, so it builds from the app subdirectory.
+The public demo is hosted on **Vercel** (`edge-spectrum.ai-automation-tools.dev`). The Vercel project's **Root Directory is set to `site`**, so it builds from the app subdirectory.
 
 - **Demo mode:** `EDGE_SPECTRUM_MODE=demo`; no Gemini credentials are needed.
 - **Production branch:** `main` (automatically deployed on push/merge).
