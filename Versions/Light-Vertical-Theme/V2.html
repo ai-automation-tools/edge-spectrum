@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Spectrum | V21 — Light Vertical Centered</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='4' width='5' height='12' rx='1.5' fill='%2316a34a'/%3E%3Crect x='10' y='7' width='5' height='9' rx='1.5' fill='%2322c55e'/%3E%3Crect x='17' y='12' width='5' height='6' rx='1.5' fill='%23eab308'/%3E%3Crect x='24' y='16' width='5' height='12' rx='1.5' fill='%23dc2626'/%3E%3Cline x1='1' y1='16' x2='31' y2='16' stroke='%239ca3af' stroke-width='.75'/%3E%3C/svg%3E">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e8eef6;
+            --surface: #f0f4fa;
+            --surface-elevated: #e2e9f3;
+            --border: rgba(30,60,110,0.10);
+            --border-hover: rgba(30,60,110,0.18);
+            --text-main: #1a2233;
+            --text-muted: #4a5568;
+            --text-dim: #7b8ba3;
+            --accent: #3b5fc0;
+            --accent-light: rgba(59,95,192,0.10);
+            --accent-glow: rgba(59,95,192,0.14);
+            --success: #16a34a;
+            --success-bg: rgba(22,163,74,0.08);
+            --danger: #dc2626;
+            --danger-bg: rgba(220,38,38,0.08);
+            --warning: #d97706;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(20,40,80,0.06), 0 1px 2px rgba(20,40,80,0.08);
+            --shadow-md: 0 4px 16px rgba(20,40,80,0.08), 0 2px 4px rgba(20,40,80,0.05);
+            --shadow-lg: 0 12px 40px rgba(20,40,80,0.10), 0 4px 12px rgba(20,40,80,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            position: sticky;
+            top: 0;
+        }
+        .hdr-brand { display: flex; align-items: center; gap: 16px; }
+        .hdr-logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, #2d4a8a, #3b5fc0);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+        }
+        .hdr-logo svg { width: 20px; height: 20px; }
+        .hdr h1 {
+            font-size: 1.15rem; font-weight: 800; letter-spacing: -0.04em;
+            color: var(--text-main);
+        }
+        .hdr p { font-size: 0.65rem; color: var(--text-muted); margin-top: 1px; font-weight: 500; letter-spacing: 0.02em; }
+        .legend { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+        .legend-grad {
+            width: 120px; height: 5px; border-radius: 3px;
+            background: linear-gradient(90deg, var(--success), #84cc16, var(--warning), #f97316, var(--danger));
+        }
+
+        /* ── Controls Bar ── */
+        .controls-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            z-index: 900;
+            position: sticky;
+            top: 68px;
+            box-shadow: var(--shadow-sm);
+        }
+        .ctrl-group { display: flex; align-items: center; gap: 8px; }
+        .ctrl-label {
+            font-size: 0.55rem; font-weight: 800; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap;
+        }
+        .ctrl-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+        /* ── Dropdown ── */
+        .dd { position: relative; }
+        .dd-btn {
+            padding: 7px 14px; background: var(--surface-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.75rem;
+            font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s; min-width: 160px; justify-content: space-between;
+        }
+        .dd-btn:hover { border-color: var(--border-hover); box-shadow: var(--shadow-sm); }
+        .dd.open .dd-btn { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .dd-btn .caret { font-size: 0.55rem; color: var(--text-dim); transition: transform 0.3s; }
+        .dd.open .caret { transform: rotate(180deg); }
+
+        .dd-menu {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 240px;
+            background: var(--surface); border: 1px solid var(--border-hover);
+            border-radius: var(--radius-lg); z-index: 2000; box-shadow: var(--shadow-lg);
+            overflow: hidden; animation: slideIn 0.2s ease-out; max-height: 400px; overflow-y: auto;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .dd.open .dd-menu { display: block; }
+
+        .dd-item {
+            padding: 9px 14px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: all 0.1s;
+        }
+        .dd-item:hover { background: var(--surface-elevated); color: var(--text-main); }
+        .dd-item.active { color: var(--accent); font-weight: 600; background: var(--accent-light); }
+        .dd-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dd-item.toggle { position: relative; padding-left: 36px; }
+        .dd-item.toggle::before {
+            content: ''; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--border-hover);
+            background: var(--surface); transition: all 0.2s;
+        }
+        .dd-item.toggle.on::before { background: var(--accent); border-color: var(--accent); }
+        .dd-item.toggle.on::after {
+            content: ''; position: absolute; left: 16px; top: 50%; transform: translateY(-50%) rotate(45deg);
+            width: 3px; height: 7px; border: solid #fff; border-width: 0 1.5px 1.5px 0; margin-top: -1px;
+        }
+
+        /* ── Pill Buttons ── */
+        .pill-row { display: flex; gap: 4px; flex-wrap: wrap; }
+        .pbtn {
+            padding: 6px 12px; background: var(--surface-elevated); border: 1px solid var(--border);
+            border-radius: 20px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .pbtn:hover { border-color: var(--border-hover); color: var(--text-main); background: #fff; }
+        .pbtn.active {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(59,95,192,0.3);
+        }
+
+        /* ── Main Content ── */
+        .main-content {
+            display: flex; flex-direction: column;
+            padding: 20px 32px;
+            gap: 16px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── Stat Cards ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 14px 18px;
+            display: flex; flex-direction: column; gap: 4px;
+            box-shadow: var(--shadow-sm); transition: all 0.2s;
+        }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .stat-label { font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-family: 'Geist Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ── Chart Container ── */
+        .chart-container {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .chart-header {
+            padding: 14px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .chart-title {
+            font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .chart-title::before { content: ''; width: 4px; height: 14px; background: var(--accent); border-radius: 2px; }
+        #chart { width: 100%; }
+
+        /* ── Tooltip ── */
+        .tt {
+            display: none; position: fixed; z-index: 9999;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-lg); width: 400px;
+            max-height: 80vh; box-shadow: var(--shadow-lg);
+            pointer-events: none; overflow: hidden;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+        .tt-hdr { padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--surface-elevated); }
+        .tt-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); margin-bottom: 4px; }
+        .tt-meta { display: flex; align-items: center; gap: 10px; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+
+        .tt-body { overflow-y: auto; max-height: calc(80vh - 80px); }
+        .tt-section { padding: 14px 22px; border-bottom: 1px solid var(--border); }
+        .tt-section:last-child { border-bottom: none; }
+        .tt-sec-label { font-size: 0.55rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+
+        .tt-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+        .tt-row-label { font-size: 0.75rem; color: var(--text-muted); }
+        .tt-row-val { font-family: 'Geist Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--text-main); }
+
+        .tt-hz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
+        .tt-hz-item {
+            padding: 7px 10px; background: var(--surface-elevated); border-radius: var(--radius-sm);
+            border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+        }
+        .tt-hz-item.active { background: var(--accent-light); border-color: var(--accent); }
+        .tt-hz-lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
+        .tt-hz-val { font-family: 'Geist Mono', monospace; font-size: 0.65rem; font-weight: 700; }
+
+        /* ── Footer ── */
+        .footer {
+            padding: 10px 32px; font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+            background: var(--surface); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+
+        /* ── Mobile ── */
+        @media (max-width: 1024px) {
+            .controls-bar { padding: 12px 16px; gap: 12px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .main-content { padding: 16px; }
+        }
+        @media (max-width: 768px) {
+            .hdr { padding: 12px 16px; position: static; }
+            .controls-bar { padding: 10px 16px; gap: 8px; position: static; }
+            .ctrl-sep { display: none; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .main-content { padding: 12px; }
+            .tt { width: calc(100% - 24px); left: 12px !important; bottom: 12px !important; top: auto !important; position: fixed; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="hdr">
+    <div class="hdr-brand">
+        <div class="hdr-logo">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="3" height="8" rx="1" fill="white"/><rect x="6.5" y="5" width="3" height="6" rx="1" fill="rgba(255,255,255,0.7)"/><rect x="11" y="8" width="3" height="4" rx="1" fill="rgba(255,255,255,0.5)"/><rect x="15.5" y="10" width="3" height="7" rx="1" fill="rgba(255,255,255,0.35)"/><line x1="1" y1="10" x2="19" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/></svg>
+        </div>
+        <div>
+            <h1>THE EDGE SPECTRUM</h1>
+            <p>EXPECTED CUMULATIVE RETURNS &mdash; INVESTING VS. GAMBLING</p>
+        </div>
+    </div>
+    <div class="legend">
+        <span>PLAYER</span>
+        <div class="legend-grad"></div>
+        <span>HOUSE</span>
+    </div>
+</header>
+
+<div class="controls-bar">
+    <div class="ctrl-group">
+        <span class="ctrl-label">Category</span>
+        <div class="dd" id="catDD">
+            <button class="dd-btn" id="catBtn">
+                <span>11 Selected</span>
+                <span class="caret">&#9662;</span>
+            </button>
+            <div class="dd-menu" id="catMenu">
+                <div class="dd-item cat-all" data-f="all">Toggle All</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <div class="ctrl-group">
+        <span class="ctrl-label">Horizon</span>
+        <div class="pill-row" id="timeRow">
+            <button class="pbtn" data-t="1du">1 DU</button>
+            <button class="pbtn" data-t="1day">1 DAY</button>
+            <button class="pbtn" data-t="1wk">1 WK</button>
+            <button class="pbtn" data-t="1mo">1 MO</button>
+            <button class="pbtn active" data-t="1yr">1 YR</button>
+            <button class="pbtn" data-t="5yr">5 YR</button>
+            <button class="pbtn" data-t="10yr">10 YR</button>
+        </div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <div class="ctrl-group">
+        <span class="ctrl-label">Layer</span>
+        <div class="pill-row" id="layerRow">
+            <button class="pbtn active" data-l="raw">RAW</button>
+            <button class="pbtn" data-l="fees">FEES</button>
+            <button class="pbtn" data-l="tax">TAX</button>
+            <button class="pbtn" data-l="all">ALL</button>
+        </div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <div class="ctrl-group">
+        <span class="ctrl-label">Insights</span>
+        <div class="dd" id="insDD">
+            <button class="dd-btn" id="insBtn" style="min-width:140px">
+                <span>Configure</span>
+                <span class="caret">&#9662;</span>
+            </button>
+            <div class="dd-menu" id="insMenu">
+                <div class="dd-item toggle" data-ins="dca">Dollar Cost ($100/wk)</div>
+                <div class="dd-item toggle" data-ins="risk">Addiction Modeling</div>
+                <div class="dd-item toggle" data-ins="ruin">Ruin Probability</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-label">Total Assets</span>
+            <span class="stat-value" id="mC">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Peak Performer</span>
+            <span class="stat-value" id="mB" style="color: var(--success)">—</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Maximum Drain</span>
+            <span class="stat-value" id="mW" style="color: var(--danger)">—</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Variance Spread</span>
+            <span class="stat-value" id="mS" style="color: var(--warning)">—</span>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title" id="mTitle">Cumulative Expected Return (%)</div>
+            <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 700;">LIVE CALCULATION &bull; V21.0</div>
+        </div>
+        <div id="chart"></div>
+    </div>
+</div>
+
+<div class="tt" id="tt"></div>
+
+<footer class="footer">
+    <div>V21 &mdash; THE EDGE SPECTRUM &bull; APRIL 2026</div>
+    <div style="letter-spacing: 0.05em; opacity: 0.6;">GAMBLING: LINEAR DECAY &bull; INVESTING: COMPOUND APPRECIATION</div>
+</footer>
+
+<script>
+// ══════════════════════════
+// MATH & CONSTANTS
+// ══════════════════════════
+const gambRet = (edge, du, ced, days) => du * days * (ced / 100) * edge;
+const invRet = (ann, yr) => (Math.pow(1 + ann/100, yr) - 1) * 100;
+
+const HZ = ['1du','1day','1wk','1mo','1yr','5yr','10yr'];
+const HZ_LBL = {'1du':'1 DECISION','1day':'1 DAY','1wk':'1 WEEK','1mo':'1 MONTH','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
+const HZ_DAYS = {'1du':0,'1day':1,'1wk':7,'1mo':30,'1yr':365,'5yr':1825,'10yr':3650};
+const I_Y = {'1du':1/252,'1day':1/252,'1wk':1/52,'1mo':1/12,'1yr':1,'5yr':5,'10yr':10};
+const DCA_AMT = {'1du':100,'1day':100,'1wk':100,'1mo':430,'1yr':5200,'5yr':26000,'10yr':52000};
+
+const ALL_CATS = ["Cash & Savings","Stock Market","Bonds","Real Estate","Cryptocurrency","Collectibles","Precious Metals","Insurance & Annuities","Sports Betting","Casino Gambling","Poker & Skill-Based","Prediction Markets","Lottery"];
+const CC = {
+    "Cash & Savings":"#059669","Stock Market":"#2563eb","Bonds":"#0891b2","Real Estate":"#7c3aed",
+    "Cryptocurrency":"#d97706","Collectibles":"#b45309","Precious Metals":"#ca8a04",
+    "Insurance & Annuities":"#db2777",
+    "Sports Betting":"#16a34a","Casino Gambling":"#9333ea",
+    "Poker & Skill-Based":"#0d9488","Prediction Markets":"#4f46e5","Lottery":"#e11d48"
+};
+
+// ══════════════════════════
+// DATA
+// ══════════════════════════
+const RAW = [
+  // --- STOCK MARKET ---
+  {n:"NASDAQ 100 (QQQ)",cat:"Stock Market",g:"Stock Market",m:"i",a:12.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Growth (IVW)",cat:"Stock Market",g:"Stock Market",m:"i",a:12.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Small-Cap Value (VBR)",cat:"Stock Market",g:"Stock Market",m:"i",a:11.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P MidCap 400 (MDY)",cat:"Stock Market",g:"Stock Market",m:"i",a:11.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Dividend Aristocrats (NOBL)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Total US Stock Market (VTI)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Index (SPY/VOO)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Equal Weight (RSP)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Dow Jones Industrial (DIA)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Value (IVE)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Russell 2000 Small Cap (IWM)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"REIT Index ETF (VNQ)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 High Dividend (SPYD)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DAX Germany Index",cat:"Stock Market",g:"Stock Market",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Nikkei 225 Japan Index",cat:"Stock Market",g:"Stock Market",m:"i",a:7.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"MSCI EAFE Intl Developed (EFA)",cat:"Stock Market",g:"Stock Market",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"FTSE 100 UK Index",cat:"Stock Market",g:"Stock Market",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"MSCI Emerging Markets (EEM)",cat:"Stock Market",g:"Stock Market",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Commodity Index (DJP)",cat:"Stock Market",g:"Stock Market",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Individual Stock Picking (Retail)",cat:"Stock Market",g:"Stock Market",m:"i",a:-2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Penny Stocks (Retail Avg)",cat:"Stock Market",g:"Stock Market",m:"i",a:-30.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.03% Index Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.97,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.35% Robo-Advisor",cat:"Stock Market",g:"Stock Market",m:"i",a:9.65,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.60% Target-Date Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:9.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1% Advisory Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1.5% Active Mutual Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 2-and-20 Hedge Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:6.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 2-and-20 (Underperforming)",cat:"Stock Market",g:"Stock Market",m:"i",a:4.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After LTCG Tax (20%)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After STCG Tax (37%)",cat:"Stock Market",g:"Stock Market",m:"i",a:6.3,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1% Fee + LTCG Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:7.2,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Qualified Dividends (SPYD) After 15% Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:6.8,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- CASH & SAVINGS ---
+  {n:"Money Market Fund (SPAXX/VMFXX)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"High-Yield Savings Account (Online)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"1-Year CD (Top Rate)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"6-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"High-Yield Money Market Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Cash Management Account (SoFi/Wealthfront)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"No-Penalty CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"3-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"2-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"5-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bank Money Market (Traditional)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Credit Union Savings",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"National Average Savings Rate",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.45,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Big Bank Savings (Chase/BofA)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Regular Checking Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"HYSA After Income Tax (24%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.42,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"HYSA After Income Tax (37%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:2.84,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- BONDS ---
+  {n:"High-Yield Corporate (HYG/JNK)",cat:"Bonds",g:"Bonds",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Convertible Bond ETF (CWB)",cat:"Bonds",g:"Bonds",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Investment Grade Corporate (LQD)",cat:"Bonds",g:"Bonds",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"US Treasury Bills (BIL)",cat:"Bonds",g:"Bonds",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Long-Term Treasury 20+ Yr (TLT)",cat:"Bonds",g:"Bonds",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"US Treasury 10-Year",cat:"Bonds",g:"Bonds",m:"i",a:3.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Total US Bond Market (BND/AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Municipal Bond Index (MUB)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Aggregate Bond ETF (AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"International Bond (BNDX)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Short-Term Treasury (SHY)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"TIPS Inflation-Protected (TIP)",cat:"Bonds",g:"Bonds",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bond Fund After 1% Advisory Fee",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bond Interest After Income Tax (37%)",cat:"Bonds",g:"Bonds",m:"i",a:2.21,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Muni Bonds Tax-Exempt (Effective)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Treasury Interest After Federal Tax (24%)",cat:"Bonds",g:"Bonds",m:"i",a:2.89,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- REAL ESTATE ---
+  {n:"Multi-Unit Apartments (5+ Units)",cat:"Real Estate",g:"Real Estate",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Industrial / Warehouse",cat:"Real Estate",g:"Real Estate",m:"i",a:9.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Multi Single Family Portfolio",cat:"Real Estate",g:"Real Estate",m:"i",a:8.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Single Family Home (Buy & Hold)",cat:"Real Estate",g:"Real Estate",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Commercial Office Space",cat:"Real Estate",g:"Real Estate",m:"i",a:6.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Retail / Strip Mall",cat:"Real Estate",g:"Real Estate",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Vacation / Short-Term Rental",cat:"Real Estate",g:"Real Estate",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Raw Land (Speculative)",cat:"Real Estate",g:"Real Estate",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"House Flipping (Retail Avg)",cat:"Real Estate",g:"Real Estate",m:"i",a:-5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Timeshare",cat:"Real Estate",g:"Real Estate",m:"i",a:-12.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Rental Income After Ordinary Tax (37%)",cat:"Real Estate",g:"Real Estate",m:"i",a:4.73,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Home Sale After LTCG (w/ $250K Exclusion)",cat:"Real Estate",g:"Real Estate",m:"i",a:6.75,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- CRYPTOCURRENCY ---
+  {n:"Bitcoin Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:45.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Ethereum Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Stablecoin Yield Farming",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DeFi LP Major Pairs",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DeFi LP Volatile Pairs",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Altcoin Portfolio (Retail)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Meme Coins (Retail Avg)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-70.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bitcoin After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:36.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bitcoin After STCG Tax (37%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:28.35,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Ethereum After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- COLLECTIBLES ---
+  {n:"Vintage Sports Cards (PSA 10)",cat:"Collectibles",g:"Collectibles",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fine Art (Blue Chip / Old Masters)",cat:"Collectibles",g:"Collectibles",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fine Wine (Investment Grade)",cat:"Collectibles",g:"Collectibles",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Classic Cars (Pre-1970)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Luxury Watches (Rolex/Patek)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Sneaker Reselling (Retail Avg)",cat:"Collectibles",g:"Collectibles",m:"i",a:-5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Modern Art Speculation",cat:"Collectibles",g:"Collectibles",m:"i",a:-10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Non-Vintage Trading Cards",cat:"Collectibles",g:"Collectibles",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"NFT Art & Digital Collectibles",cat:"Collectibles",g:"Collectibles",m:"i",a:-50.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",g:"Collectibles",m:"i",a:4.32,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- PRECIOUS METALS ---
+  {n:"Gold Bullion (Physical / GLD)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Rhodium (Physical)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold Mining Stocks (GDX)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Silver Bullion (Physical / SLV)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Copper Futures (CPER)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Palladium Bullion (PALL)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Silver Mining Stocks (SIL)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Platinum Bullion (PPLT)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Precious Coins (Numismatic)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Junior Mining Stocks (GDXJ)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold After Collectibles Tax (28%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.4,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold Mining After LTCG Tax (20%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- INSURANCE & ANNUITIES ---
+  {n:"Variable Annuity (Equity Sub-Accounts)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Indexed Universal Life (IUL)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fixed Annuity (MYGA 5-Year)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Single Premium Immediate Annuity (SPIA)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life — Top Mutual Co. (NWM/MassMutual)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fixed Indexed Annuity (FIA)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Universal Life (Current Rate)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Variable Universal Life (VUL After Fees)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life — Average Company",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Annuity Gains After Ordinary Income Tax (37%)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:2.65,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life Cash Value (Tax-Free via Policy Loans)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- SPORTS BETTING ---
+  {n:"Single Game Spread (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Single Game O/U (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Moneyline (Standard Juice)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Teaser 2-Team 6pt",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-5.0,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Live / In-Game Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-6.5,du:5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Player Prop Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-7.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Season Win Total Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-8.0,du:0.05,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"2-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-10.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Championship Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-12.0,du:0.03,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"3-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-12.5,du:1,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"4-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-15.0,du:1,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Same-Game Parlay (SGP)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-15.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"First Touchdown Scorer",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-18.0,du:1,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"5-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-20.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Correct Score (Soccer)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-20.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"6-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-25.0,du:0.3,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"8-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-30.0,du:0.2,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"10-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-35.0,du:0.1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- CASINO GAMBLING ---
+  {n:"Video Poker 9/6 JoB",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.46,du:80,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Blackjack 3:2 Basic Strategy",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.5,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Baccarat Banker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.06,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Baccarat Player",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.24,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Craps Don't Pass",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.36,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Craps Pass Line",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.41,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Blackjack 6:5",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.0,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Pai Gow Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Roulette Single Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.7,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Three Card Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.4,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Let It Ride",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"Market Rate",sk:"Varies"},
+  {n:"Slots Loose 95%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Caribbean Stud",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.2,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Roulette Double Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.26,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Slots Average 92%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-8.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Slots Tight 85%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-15.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Big Six Wheel",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-16.0,du:20,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno 4-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-28.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno 10-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-35.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- POKER & SKILL-BASED ---
+  {n:"DFS Top 5%",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:5.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:2.0,du:5,ced:10,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Mid-Stakes Reg",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:1.5,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Average Live Cash",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-5.0,du:25,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Average Online",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-8.0,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Recreational Live",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-10.0,du:25,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"DFS Average",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-12.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Sit & Go Average",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-15.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"DFS Casual",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-20.0,du:3,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- PREDICTION MARKETS ---
+  {n:"Polymarket Elections",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.0,du:1,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket SCOTUS",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.0,du:0.5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Metaculus Scientific",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.5,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Oscars",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Geopolitics",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Sports/Entertainment",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.5,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Crypto Prices",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.0,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Economic",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.5,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Fed Rate",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.5,du:0.2,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi GDP",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-6.0,du:0.2,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Weather",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-7.0,du:0.5,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"PredictIt US Politics",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-10.0,du:1,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- LOTTERY ---
+  {n:"$1 Scratch-Off Best Odds",cat:"Lottery",g:"Lottery",m:"g",e:-25.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Premium Scratch-Off $20+",cat:"Lottery",g:"Lottery",m:"g",e:-30.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Scratch-Off Tickets Avg",cat:"Lottery",g:"Lottery",m:"g",e:-35.0,du:0.5,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno State-Run",cat:"Lottery",g:"Lottery",m:"g",e:-40.0,du:2,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Daily Numbers Game",cat:"Lottery",g:"Lottery",m:"g",e:-42.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"State Pick 6 / Lotto",cat:"Lottery",g:"Lottery",m:"g",e:-45.0,du:0.15,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"State Lottery Pick 3/4",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,du:0.5,ced:0.3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Powerball / Mega Millions",cat:"Lottery",g:"Lottery",m:"g",e:-52.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Multi-State Cash4Life",cat:"Lottery",g:"Lottery",m:"g",e:-55.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+];
+
+const AR_DEFAULT = {"Cash & Savings":1,"Stock Market":1,"Bonds":1,"Real Estate":1,"Cryptocurrency":3,"Collectibles":1,"Precious Metals":1,"Insurance & Annuities":1,"Sports Betting":4,"Casino Gambling":3,"Poker & Skill-Based":3,"Prediction Markets":2,"Lottery":3};
+const AR_CLR = {1:'#16a34a',2:'#65a30d',3:'#ca8a04',4:'#ea580c',5:'#dc2626'};
+const AR_LBL = {1:'MINIMAL',2:'LOW',3:'MEDIUM',4:'HIGH',5:'EXTREME'};
+
+// ══════════════════════════
+// PRE-COMPUTE
+// ══════════════════════════
+const D = RAW.map(r => {
+    const v = {};
+    HZ.forEach(h => {
+        if (r.m === 'g') v[h] = h === '1du' ? (r.ced / 100) * r.e : gambRet(r.e, r.du, r.ced, HZ_DAYS[h]);
+        else v[h] = invRet(r.a, I_Y[h]);
+    });
+    return {...r, v, ar: AR_DEFAULT[r.cat] || 2};
+});
+
+// ══════════════════════════
+// STATE
+// ══════════════════════════
+let catSet = new Set(ALL_CATS.filter(c => c !== "Casino Gambling" && c !== "Poker & Skill-Based"));
+let timeF = '1yr', layerF = 'raw';
+let showDCA = false, showRisk = false, showRuin = false;
+
+function getFilteredData() {
+    let d = D.filter(x => catSet.has(x.cat));
+    if (layerF !== 'all') {
+        if (layerF === 'raw') d = d.filter(x => x.ly === 'raw');
+        else d = d.filter(x => x.ly === 'raw' || x.ly === layerF);
+    }
+    return d.sort((a,b) => b.v[timeF] - a.v[timeF]);
+}
+
+// ══════════════════════════
+// UI
+// ══════════════════════════
+function formatValue(v) {
+    const s = v >= 0 ? '+' : '';
+    if (Math.abs(v) >= 1000) return s + (v/1000).toFixed(1) + 'K%';
+    return s + v.toFixed(2) + '%';
+}
+
+function updateStats() {
+    const data = getFilteredData();
+    const best = data[0], worst = data[data.length-1];
+    document.getElementById('mC').textContent = data.length;
+    document.getElementById('mB').textContent = best ? formatValue(best.v[timeF]) : '—';
+    document.getElementById('mW').textContent = worst ? formatValue(worst.v[timeF]) : '—';
+    const spread = best && worst ? Math.abs(best.v[timeF] - worst.v[timeF]) : 0;
+    document.getElementById('mS').textContent = spread.toFixed(0) + ' pts';
+}
+
+function renderChart() {
+    const data = getFilteredData();
+    // Reverse so highest value is at top of horizontal bar chart
+    const reversed = [...data].reverse();
+    const vals = reversed.map(d => d.v[timeF]);
+
+    const colors = reversed.map(d => {
+        const v = d.v[timeF];
+        if (v >= 0) return 'rgba(22, 163, 74, 0.75)';
+        return 'rgba(220, 38, 38, 0.7)';
+    });
+
+    const lineColors = reversed.map(d => CC[d.cat]);
+
+    // Use numeric y-axis (no labels) — names shown on hover only
+    const yIndices = reversed.map((_, i) => i);
+
+    const trace = {
+        type: 'bar',
+        orientation: 'h',
+        y: yIndices,
+        x: vals,
+        customdata: reversed,
+        marker: {
+            color: colors,
+            line: { color: lineColors, width: 3 }
+        },
+        hoverinfo: 'none',
+        // Inline text on each bar: short name + value
+        text: reversed.map(d => {
+            const v = d.v[timeF];
+            const s = v >= 0 ? '+' : '';
+            const vStr = Math.abs(v) >= 1000 ? s+(v/1000).toFixed(1)+'K%' : s+v.toFixed(1)+'%';
+            // Truncate name to keep bars readable
+            const nm = d.n.length > 36 ? d.n.slice(0,34) + '…' : d.n;
+            return '  ' + nm + '  ' + vStr;
+        }),
+        textposition: reversed.map(d => d.v[timeF] >= 0 ? 'inside' : 'inside'),
+        textfont: { family: 'Inter', size: 10, color: '#fff' },
+        insidetextanchor: 'start',
+        cliponaxis: false
+    };
+
+    // Dynamic height: 22px per bar, minimum 500
+    const barH = 22;
+    const chartHeight = Math.max(500, data.length * barH + 60);
+
+    const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { l: 10, r: 30, t: 10, b: 30 },
+        height: chartHeight,
+        xaxis: {
+            gridcolor: 'rgba(0,0,0,0.05)',
+            zerolinecolor: 'rgba(217, 119, 6, 0.5)',
+            zerolinewidth: 2,
+            tickfont: { family: 'Geist Mono', size: 10, color: '#9ca3af' },
+            ticksuffix: '%',
+            side: 'bottom'
+        },
+        yaxis: {
+            showticklabels: false,
+            showgrid: false,
+            zeroline: false
+        },
+        showlegend: false,
+        bargap: 0.08
+    };
+
+    const chartDiv = document.getElementById('chart');
+    Plotly.newPlot(chartDiv, [trace], layout, { displayModeBar: false, responsive: true, scrollZoom: false });
+
+    chartDiv.style.height = chartHeight + 'px';
+    chartDiv.style.minHeight = chartHeight + 'px';
+
+    chartDiv.on('plotly_hover', ev => {
+        showTT(ev.points[0].customdata, ev.event);
+    });
+    chartDiv.on('plotly_unhover', hideTT);
+}
+
+// ══════════════════════════
+// TOOLTIP
+// ══════════════════════════
+const ttEl = document.getElementById('tt');
+function showTT(item, e) {
+    let hzHTML = '';
+    HZ.forEach(h => {
+        const active = h === timeF ? 'active' : '';
+        const val = item.v[h];
+        hzHTML += `
+            <div class="tt-hz-item ${active}">
+                <span class="tt-hz-lbl">${HZ_LBL[h]}</span>
+                <span class="tt-hz-val" style="color:${val>=0?'var(--success)':'var(--danger)'}">${formatValue(val)}</span>
+            </div>`;
+    });
+
+    let insightHTML = '';
+    if (showRisk) {
+        insightHTML += `
+            <div class="tt-section">
+                <div class="tt-sec-label">Risk Modeling</div>
+                <div class="tt-row">
+                    <span class="tt-row-label">Addiction Risk</span>
+                    <span class="tt-row-val" style="color:${AR_CLR[item.ar]}">${AR_LBL[item.ar]}</span>
+                </div>
+            </div>`;
+    }
+
+    ttEl.innerHTML = `
+        <div class="tt-hdr">
+            <div class="tt-title">${item.n}</div>
+            <div class="tt-meta">
+                <span style="color:${CC[item.cat]}; font-weight: 700;">${item.cat}</span>
+                <span>&bull;</span>
+                <span>${item.type}</span>
+            </div>
+        </div>
+        <div class="tt-body">
+            <div class="tt-section">
+                <div class="tt-sec-label">Performance Horizons</div>
+                <div class="tt-hz-grid">${hzHTML}</div>
+            </div>
+            ${insightHTML}
+            <div class="tt-section">
+                <div class="tt-sec-label">Contextual Data</div>
+                <div class="tt-row"><span class="tt-row-label">Volatility</span><span class="tt-row-val">${item.vol}</span></div>
+                <div class="tt-row"><span class="tt-row-label">Win Prob</span><span class="tt-row-val">${item.wp}</span></div>
+                <div class="tt-row"><span class="tt-row-label">Skill Factor</span><span class="tt-row-val">${item.sk}</span></div>
+            </div>
+        </div>`;
+
+    ttEl.style.display = 'block';
+    posTT(e);
+}
+
+function posTT(e) {
+    const padding = 20;
+    let x = e.clientX + padding;
+    let y = e.clientY + padding;
+    if (x + 400 > window.innerWidth) x = e.clientX - 400 - padding;
+    if (y + ttEl.offsetHeight > window.innerHeight) y = window.innerHeight - ttEl.offsetHeight - padding;
+    ttEl.style.left = x + 'px';
+    ttEl.style.top = y + 'px';
+}
+
+function hideTT() { ttEl.style.display = 'none'; }
+
+// ══════════════════════════
+// INIT
+// ══════════════════════════
+function init() {
+    const menu = document.getElementById('catMenu');
+    ALL_CATS.forEach(c => {
+        const item = document.createElement('div');
+        item.className = `dd-item toggle ${catSet.has(c) ? 'on' : ''}`;
+        item.dataset.f = c;
+        item.innerHTML = `<span class="dot" style="background:${CC[c]}"></span>${c}`;
+        item.onclick = (e) => {
+            e.stopPropagation();
+            if (catSet.has(c)) catSet.delete(c); else catSet.add(c);
+            item.classList.toggle('on');
+            document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
+            updateStats(); renderChart();
+        };
+        menu.appendChild(item);
+    });
+
+    document.querySelector('.cat-all').onclick = (e) => {
+        e.stopPropagation();
+        if (catSet.size === ALL_CATS.length) catSet.clear();
+        else catSet = new Set(ALL_CATS);
+        menu.querySelectorAll('.dd-item.toggle').forEach(el => {
+            el.classList.toggle('on', catSet.has(el.dataset.f));
+        });
+        document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
+        updateStats(); renderChart();
+    };
+
+    document.querySelectorAll('[data-t]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('[data-t]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            timeF = btn.dataset.t;
+            updateStats(); renderChart();
+        };
+    });
+
+    document.querySelectorAll('[data-l]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('[data-l]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            layerF = btn.dataset.l;
+            updateStats(); renderChart();
+        };
+    });
+
+    document.querySelectorAll('[data-ins]').forEach(item => {
+        item.onclick = (e) => {
+            e.stopPropagation();
+            item.classList.toggle('on');
+            const ins = item.dataset.ins;
+            if (ins === 'dca') showDCA = !showDCA;
+            if (ins === 'risk') showRisk = !showRisk;
+            if (ins === 'ruin') showRuin = !showRuin;
+            renderChart();
+        };
+    });
+
+    document.querySelectorAll('.dd-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const parent = btn.parentElement;
+            const wasOpen = parent.classList.contains('open');
+            document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+            if (!wasOpen) parent.classList.add('open');
+        };
+    });
+    window.onclick = () => document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+
+    updateStats();
+    renderChart();
+}
+
+window.onload = init;
+</script>
+</body>
+</html>

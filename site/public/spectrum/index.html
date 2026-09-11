@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Spectrum | V20</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --surface: #0a0a0a;
+            --surface-elevated: #111111;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text-main: #e4e4e7;
+            --text-muted: #71717a;
+            --text-dim: #3f3f46;
+            --accent: #6366f1;
+            --accent-glow: rgba(99,102,241,0.15);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #facc15;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+        }
+        .hdr-brand { display: flex; flex-direction: column; }
+        .hdr h1 { 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            letter-spacing: -0.04em; 
+            background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hdr p { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+        
+        .legend { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+        .legend-grad { 
+            width: 120px; height: 4px; border-radius: 2px; 
+            background: linear-gradient(90deg, var(--success), #a3e635, var(--warning), #fb923c, var(--danger));
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.1);
+        }
+
+        /* ── App Shell ── */
+        .main-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ── Sidebar / Controls ── */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        .section-label { 
+            font-size: 0.55rem; 
+            font-weight: 800; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── Custom Dropdown ── */
+        .dd { position: relative; width: 100%; }
+        .dd-btn {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dd-btn:hover { border-color: var(--border-hover); background: #161616; }
+        .dd.open .dd-btn { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .dd-btn .caret { font-size: 0.6rem; opacity: 0.5; transition: transform 0.3s; }
+        .dd.open .caret { transform: rotate(180deg); }
+
+        .dd-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 100%;
+            background: #0f0f0f;
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-lg);
+            z-index: 2000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            overflow: hidden;
+            animation: slideIn 0.2s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .dd.open .dd-menu { display: block; }
+
+        .dd-item {
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.1s;
+        }
+        .dd-item:hover { background: rgba(255,255,255,0.03); color: var(--text-main); }
+        .dd-item.active { color: var(--accent); font-weight: 600; background: var(--accent-glow); }
+        .dd-item .dot { width: 8px; height: 8px; border-radius: 50%; }
+        
+        .dd-item.toggle { position: relative; padding-left: 38px; }
+        .dd-item.toggle::before { 
+            content: ''; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); 
+            width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--border-hover); 
+            background: var(--surface); transition: all 0.2s; 
+        }
+        .dd-item.toggle.on::before { background: var(--accent); border-color: var(--accent); }
+        .dd-item.toggle.on::after { 
+            content: ''; position: absolute; left: 18px; top: 50%; transform: translateY(-50%) rotate(45deg); 
+            width: 3px; height: 7px; border: solid #fff; border-width: 0 1.5px 1.5px 0; margin-top: -1px; 
+        }
+
+        /* ── Grid Pill Selector ── */
+        .pill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .pbtn {
+            padding: 8px 4px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .pbtn:hover { border-color: var(--border-hover); color: var(--text-main); }
+        .pbtn.active { 
+            background: var(--accent); color: #fff; border-color: var(--accent); 
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* ── Content Area ── */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            padding: 24px;
+            gap: 24px;
+            min-width: 0;
+        }
+
+        /* ── Stat Cards ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .stat-label { font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-family: 'Geist Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ── Chart Container ── */
+        .chart-container {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .chart-title::before { content: ''; width: 4px; height: 12px; background: var(--accent); border-radius: 2px; }
+        .chart-sub { font-size: 0.6rem; font-weight: 500; color: var(--text-dim); margin-top: 4px; padding-left: 12px; }
+        .section-note { font-size: 0.55rem; line-height: 1.5; color: var(--text-dim); font-weight: 500; margin-top: 8px; }
+
+        #chart { flex: 1; min-height: 0; width: 100%; }
+
+        /* ── Tooltip ── */
+        .tt {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            width: 420px;
+            max-height: 85vh;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+            pointer-events: none;
+            overflow: hidden;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .tt-hdr { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+        .tt-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+        .tt-meta { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+        
+        .tt-body { overflow-y: auto; max-height: calc(85vh - 100px); }
+        .tt-section { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+        .tt-section:last-child { border-bottom: none; }
+        .tt-sec-label { font-size: 0.55rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+        .tt-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+        .tt-row-label { font-size: 0.75rem; color: var(--text-muted); }
+        .tt-row-val { font-family: 'Geist Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--text-main); }
+
+        .tt-hz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .tt-hz-item { 
+            padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .tt-hz-item.active { background: var(--accent-glow); border-color: var(--accent); }
+        .tt-hz-lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
+        .tt-hz-val { font-family: 'Geist Mono', monospace; font-size: 0.65rem; font-weight: 700; }
+
+        .tt-ruin-box { 
+            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); 
+            border-radius: var(--radius-lg); padding: 16px; margin-top: 8px;
+        }
+        .tt-ruin-val { font-size: 1.25rem; font-weight: 900; color: var(--danger); letter-spacing: -0.02em; margin-bottom: 8px; }
+        .tt-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin: 12px 0 8px; }
+        .tt-meter-fill { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* ── Footer ── */
+        .footer { 
+            padding: 10px 32px; font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+            background: var(--bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* ── Animations ── */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ── Mobile UI ── */
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; padding: 16px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; }
+            .main-container { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; height: auto; overflow: visible; border-right: none; border-bottom: 1px solid var(--border); }
+            .content { padding: 16px; height: auto; }
+            .stats-row { grid-template-columns: 1fr; }
+            .chart-container { height: 500px; }
+            .hdr { padding: 12px 16px; }
+            .tt { width: calc(100% - 32px); left: 16px !important; bottom: 16px !important; top: auto !important; position: fixed; }
+            .tt-hz-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="Edge Spectrum hub" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:12px 24px;border-bottom:1px solid #27272a;font:13px system-ui,sans-serif">
+    <a href="/" style="color:#94a3b8;text-decoration:none">← Edge Spectrum hub</a>
+    <a href="/setup" style="color:#38bdf8;text-decoration:none">Create your own site →</a>
+</nav>
+
+<header class="hdr">
+    <div class="hdr-brand">
+        <h1>THE EDGE SPECTRUM</h1>
+        <p>RE-DEFINING THE BOUNDARY OF EXPECTED RETURNS</p>
+    </div>
+    <div class="legend">
+        <span>PLAYER</span>
+        <div class="legend-grad"></div>
+        <span>HOUSE</span>
+    </div>
+</header>
+
+<div class="main-container">
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <h3 class="section-label">Category Filter</h3>
+            <div class="dd" id="catDD">
+                <button class="dd-btn" id="catBtn">
+                    <span>11 Selected</span>
+                    <span class="caret">&#9662;</span>
+                </button>
+                <div class="dd-menu" id="catMenu">
+                    <div class="dd-item cat-all" data-f="all">Toggle All</div>
+                    <!-- Categories will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="section-label">Measure</h3>
+            <div class="pill-grid" id="metricGrid">
+                <button class="pbtn active" data-m="roc">ON CAPITAL</button>
+                <button class="pbtn" data-m="turn">TURNOVER COST</button>
+            </div>
+            <p class="section-note" id="metricNote"></p>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="section-label">Time Horizon</h3>
+            <div class="pill-grid" id="timeGrid">
+                <button class="pbtn" data-t="1du">SINGLE EVENT</button>
+                <button class="pbtn" data-t="1day">1 DAY</button>
+                <button class="pbtn" data-t="1wk">1 WEEK</button>
+                <button class="pbtn" data-t="1mo">1 MONTH</button>
+                <button class="pbtn active" data-t="1yr">1 YEAR</button>
+                <button class="pbtn" data-t="5yr">5 YEARS</button>
+                <button class="pbtn" data-t="10yr">10 YEARS</button>
+            </div>
+            <p class="section-note">
+                A horizon is elapsed calendar time, not a count of decisions. Games accumulate
+                wagers at their own frequency; held assets simply stay held. &ldquo;Single event&rdquo;
+                means <strong>one wager</strong> for a game and <strong>one trading day</strong>
+                for a held asset &mdash; the two are not the same unit.
+            </p>
+        </div>
+
+        <div class="sidebar-section" id="layerSection">
+            <h3 class="section-label">Projection Layer</h3>
+            <div class="pill-grid" id="layerGrid">
+                <button class="pbtn active" data-l="raw">RAW</button>
+                <button class="pbtn" data-l="fees">FEES</button>
+                <button class="pbtn" data-l="tax">TAX</button>
+                <button class="pbtn" data-l="all">OVERLAY</button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="section-label">Insights & Overlays</h3>
+            <div class="dd" id="insDD">
+                <button class="dd-btn" id="insBtn">
+                    <span>Configuration</span>
+                    <span class="caret">&#9662;</span>
+                </button>
+                <div class="dd-menu" id="insMenu">
+                    <div class="dd-item toggle" data-ins="dca">Dollar Cost ($100/wk)</div>
+                    <div class="dd-item toggle" data-ins="risk">Addiction Modeling</div>
+                    <div class="dd-item toggle" data-ins="ruin">Ruin Point Overlay</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content">
+        <div class="stats-row">
+            <div class="stat-card">
+                <span class="stat-label" id="mCL">Total Assets</span>
+                <span class="stat-value" id="mC">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" id="mBL">Peak Performer</span>
+                <span class="stat-value" id="mB" style="color: var(--success)">—</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" id="mWL">Maximum Drain</span>
+                <span class="stat-value" id="mW" style="color: var(--danger)">—</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label" id="mSL">Ruined By Horizon</span>
+                <span class="stat-value" id="mS" style="color: var(--warning)">—</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title" id="mTitle">Return on Capital (%)</div>
+                    <div class="chart-sub" id="mSub"></div>
+                </div>
+                <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 700;">LIVE CALCULATION &bull; V20.0</div>
+            </div>
+            <div id="chart"></div>
+        </div>
+    </main>
+</div>
+
+<div class="tt" id="tt"></div>
+
+<footer class="footer">
+    <div>V20 &mdash; THE EDGE SPECTRUM &bull; AUGUST 2026</div>
+    <div style="letter-spacing: 0.05em; opacity: 0.5;">RETURN ON CAPITAL FLOORS AT &minus;100% &bull; TURNOVER COST DOES NOT</div>
+</footer>
+
+<script>
+// ══════════════════════════
+// MATH & CONSTANTS
+// ══════════════════════════
+// Three explicit measures replace the single "Expected Return" that used to mix them.
+//
+//   expectedTurnoverCost — cumulative expected P&L as a % of the STARTING bankroll,
+//     at constant turnover (flat stakes, never resized). Unbounded below: it is what
+//     you lose in total if you keep reloading, and it reached -136,875% on 10-year
+//     slots. A turnover cost only exists where there is turnover, so it is defined
+//     for games only.
+//   returnOnCapital — what happens to the one bankroll you actually brought. Held
+//     assets compound; games accrue the same flat-stake loss but STOP at -100%,
+//     because a bankroll cannot go below zero. This is the primary comparison and it
+//     is the only measure that is unit-compatible across the whole spectrum.
+//   ruinPoint — the decision count at which those two diverge, i.e. where cumulative
+//     expected loss equals the whole bankroll. For a held asset with a negative
+//     return, compounding never reaches zero, so the analogue is time to lose 90%.
+//
+// The pairing is exact by construction: returnOnCapital hits its -100% floor for a
+// game precisely when the horizon contains ruinPoint decisions. check-spectrum.ts
+// asserts that across every row and horizon.
+const RUIN_FLOOR = -100;
+
+const decisionCount = (du, h) => h === '1du' ? 1 : du * HZ_DAYS[h];
+const expectedTurnoverCost = (edge, du, ced, h) => decisionCount(du, h) * (ced / 100) * edge;
+const investRet = (ann, yr) => (Math.pow(1 + ann/100, yr) - 1) * 100;
+const returnOnCapital = (r, h) => Math.max(RUIN_FLOOR, r.m === 'i'
+    ? investRet(r.a, I_Y[h])
+    : expectedTurnoverCost(r.e, r.du, r.ced, h));
+
+// Decisions until the flat-stake bankroll is expected to be gone. Null when nothing
+// is being drained — a positive edge, or a held asset that is not losing value.
+const ruinDecisions = r => (r.m === 'g' && r.e < 0) ? 100 / ((r.ced / 100) * Math.abs(r.e)) : null;
+// Held assets erode geometrically and never literally reach zero; report the years
+// to lose 90% instead, which is the honest analogue.
+const decayYears90 = r => (r.m === 'i' && r.a < 0) ? Math.log(0.1) / Math.log(1 + r.a/100) : null;
+
+const HZ = ['1du','1day','1wk','1mo','1yr','5yr','10yr'];
+const HZ_LBL = {'1du':'SINGLE EVENT','1day':'1 DAY','1wk':'1 WEEK','1mo':'1 MONTH','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
+const HZ_DAYS = {'1du':0,'1day':1,'1wk':7,'1mo':30,'1yr':365,'5yr':1825,'10yr':3650};
+const I_Y = {'1du':1/252,'1day':1/252,'1wk':1/52,'1mo':1/12,'1yr':1,'5yr':5,'10yr':10};
+const DCA_AMT = {'1du':100,'1day':100,'1wk':100,'1mo':430,'1yr':5200,'5yr':26000,'10yr':52000};
+
+// The "single event" horizon means different things to a game and to a held asset, so
+// it is never labelled generically on a row that knows which it is.
+const rowHzLabel = (r, h) => h !== '1du' ? HZ_LBL[h] : (r.m === 'g' ? '1 WAGER' : '1 TRADING DAY');
+const horizonBasis = (r, h) => r.m === 'g'
+    ? fmtCount(decisionCount(r.du, h)) + (decisionCount(r.du, h) === 1 ? ' wager' : ' wagers')
+    : (h === '1du' || h === '1day') ? '1 trading day held' : fmtNum(I_Y[h]) + ' years held';
+
+const ALL_CATS = ["Cash & Savings","Stock Market","Bonds","Real Estate","Cryptocurrency","Collectibles","Precious Metals","Insurance & Annuities","Sports Betting","Casino Gambling","Poker & Skill-Based","Prediction Markets","Lottery"];
+const CC = {
+    "Cash & Savings":"#34d399","Stock Market":"#3b82f6","Bonds":"#06b6d4","Real Estate":"#8b5cf6",
+    "Cryptocurrency":"#f59e0b","Collectibles":"#d97706","Precious Metals":"#fbbf24",
+    "Insurance & Annuities":"#ec4899",
+    "Sports Betting":"#22c55e","Casino Gambling":"#a855f7",
+    "Poker & Skill-Based":"#14b8a6","Prediction Markets":"#6366f1","Lottery":"#f43f5e"
+};
+
+// ══════════════════════════
+// DATA INJECTION (From V18)
+// ══════════════════════════
+// Note: We'll use the same raw data but wrap it in our pre-computation layer
+const RAW = [
+  // --- STOCK MARKET (Compound) ---
+  {n:"NASDAQ 100 (QQQ)",cat:"Stock Market",g:"Stock Market",m:"i",a:12.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Growth (IVW)",cat:"Stock Market",g:"Stock Market",m:"i",a:12.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Small-Cap Value (VBR)",cat:"Stock Market",g:"Stock Market",m:"i",a:11.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P MidCap 400 (MDY)",cat:"Stock Market",g:"Stock Market",m:"i",a:11.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Dividend Aristocrats (NOBL)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Total US Stock Market (VTI)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Index (SPY/VOO)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Equal Weight (RSP)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Dow Jones Industrial (DIA)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Value (IVE)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Russell 2000 Small Cap (IWM)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"REIT Index ETF (VNQ)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 High Dividend (SPYD)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DAX Germany Index",cat:"Stock Market",g:"Stock Market",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Nikkei 225 Japan Index",cat:"Stock Market",g:"Stock Market",m:"i",a:7.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"MSCI EAFE Intl Developed (EFA)",cat:"Stock Market",g:"Stock Market",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"FTSE 100 UK Index",cat:"Stock Market",g:"Stock Market",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"MSCI Emerging Markets (EEM)",cat:"Stock Market",g:"Stock Market",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Commodity Index (DJP)",cat:"Stock Market",g:"Stock Market",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Individual Stock Picking (Retail)",cat:"Stock Market",g:"Stock Market",m:"i",a:-2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Penny Stocks (Retail Avg)",cat:"Stock Market",g:"Stock Market",m:"i",a:-30.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.03% Index Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.97,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.35% Robo-Advisor",cat:"Stock Market",g:"Stock Market",m:"i",a:9.65,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.60% Target-Date Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:9.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1% Advisory Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1.5% Active Mutual Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 2-and-20 Hedge Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:6.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 2-and-20 (Underperforming)",cat:"Stock Market",g:"Stock Market",m:"i",a:4.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After LTCG Tax (20%)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After STCG Tax (37%)",cat:"Stock Market",g:"Stock Market",m:"i",a:6.3,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 1% Fee + LTCG Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:7.2,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Qualified Dividends (SPYD) After 15% Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:6.8,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- CASH & SAVINGS (Compound) ---
+  {n:"Money Market Fund (SPAXX/VMFXX)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"High-Yield Savings Account (Online)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"1-Year CD (Top Rate)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"6-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"High-Yield Money Market Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Cash Management Account (SoFi/Wealthfront)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"No-Penalty CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"3-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"2-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"5-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bank Money Market (Traditional)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Credit Union Savings",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"National Average Savings Rate",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.45,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Big Bank Savings (Chase/BofA)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Regular Checking Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"HYSA After Income Tax (24%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.42,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"HYSA After Income Tax (37%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:2.84,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- BONDS (Compound) ---
+  {n:"High-Yield Corporate (HYG/JNK)",cat:"Bonds",g:"Bonds",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Convertible Bond ETF (CWB)",cat:"Bonds",g:"Bonds",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Investment Grade Corporate (LQD)",cat:"Bonds",g:"Bonds",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"US Treasury Bills (BIL)",cat:"Bonds",g:"Bonds",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Long-Term Treasury 20+ Yr (TLT)",cat:"Bonds",g:"Bonds",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"US Treasury 10-Year",cat:"Bonds",g:"Bonds",m:"i",a:3.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Total US Bond Market (BND/AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Municipal Bond Index (MUB)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Aggregate Bond ETF (AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"International Bond (BNDX)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Short-Term Treasury (SHY)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"TIPS Inflation-Protected (TIP)",cat:"Bonds",g:"Bonds",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bond Fund After 1% Advisory Fee",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bond Interest After Income Tax (37%)",cat:"Bonds",g:"Bonds",m:"i",a:2.21,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Muni Bonds Tax-Exempt (Effective)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Treasury Interest After Federal Tax (24%)",cat:"Bonds",g:"Bonds",m:"i",a:2.89,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- REAL ESTATE (Compound) ---
+  {n:"Multi-Unit Apartments (5+ Units)",cat:"Real Estate",g:"Real Estate",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Industrial / Warehouse",cat:"Real Estate",g:"Real Estate",m:"i",a:9.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Multi Single Family Portfolio",cat:"Real Estate",g:"Real Estate",m:"i",a:8.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Single Family Home (Buy & Hold)",cat:"Real Estate",g:"Real Estate",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Commercial Office Space",cat:"Real Estate",g:"Real Estate",m:"i",a:6.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Retail / Strip Mall",cat:"Real Estate",g:"Real Estate",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Vacation / Short-Term Rental",cat:"Real Estate",g:"Real Estate",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Raw Land (Speculative)",cat:"Real Estate",g:"Real Estate",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"House Flipping (Retail Avg)",cat:"Real Estate",g:"Real Estate",m:"i",a:-5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Timeshare",cat:"Real Estate",g:"Real Estate",m:"i",a:-12.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Rental Income After Ordinary Tax (37%)",cat:"Real Estate",g:"Real Estate",m:"i",a:4.73,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Home Sale After LTCG (w/ $250K Exclusion)",cat:"Real Estate",g:"Real Estate",m:"i",a:6.75,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- CRYPTOCURRENCY (Compound) ---
+  {n:"Bitcoin Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:45.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Ethereum Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Stablecoin Yield Farming",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DeFi LP Major Pairs",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"DeFi LP Volatile Pairs",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Altcoin Portfolio (Retail)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Meme Coins (Retail Avg)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-70.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bitcoin After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:36.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bitcoin After STCG Tax (37%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:28.35,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Ethereum After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- COLLECTIBLES (Compound) ---
+  {n:"Vintage Sports Cards (PSA 10)",cat:"Collectibles",g:"Collectibles",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fine Art (Blue Chip / Old Masters)",cat:"Collectibles",g:"Collectibles",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fine Wine (Investment Grade)",cat:"Collectibles",g:"Collectibles",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Classic Cars (Pre-1970)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Luxury Watches (Rolex/Patek)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Sneaker Reselling (Retail Avg)",cat:"Collectibles",g:"Collectibles",m:"i",a:-5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Modern Art Speculation",cat:"Collectibles",g:"Collectibles",m:"i",a:-10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Non-Vintage Trading Cards",cat:"Collectibles",g:"Collectibles",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"NFT Art & Digital Collectibles",cat:"Collectibles",g:"Collectibles",m:"i",a:-50.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",g:"Collectibles",m:"i",a:4.32,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- PRECIOUS METALS (Compound) ---
+  {n:"Gold Bullion (Physical / GLD)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Rhodium (Physical)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold Mining Stocks (GDX)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Silver Bullion (Physical / SLV)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Copper Futures (CPER)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Palladium Bullion (PALL)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Silver Mining Stocks (SIL)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Platinum Bullion (PPLT)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Precious Coins (Numismatic)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Junior Mining Stocks (GDXJ)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold After Collectibles Tax (28%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.4,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold Mining After LTCG Tax (20%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- INSURANCE & ANNUITIES (Compound) ---
+  {n:"Variable Annuity (Equity Sub-Accounts)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Indexed Universal Life (IUL)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fixed Annuity (MYGA 5-Year)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Single Premium Immediate Annuity (SPIA)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life — Top Mutual Co. (NWM/MassMutual)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Fixed Indexed Annuity (FIA)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Universal Life (Current Rate)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Variable Universal Life (VUL After Fees)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life — Average Company",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Annuity Gains After Ordinary Income Tax (37%)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:2.65,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Whole Life Cash Value (Tax-Free via Policy Loans)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+
+  // --- SPORTS BETTING (Linear) ---
+  {n:"Single Game Spread (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Single Game O/U (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Moneyline (Standard Juice)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Teaser 2-Team 6pt",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-5.0,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Live / In-Game Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-6.5,du:5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Player Prop Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-7.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Season Win Total Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-8.0,du:0.05,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"2-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-10.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Championship Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-12.0,du:0.03,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"3-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-12.5,du:1,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"4-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-15.0,du:1,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Same-Game Parlay (SGP)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-15.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"First Touchdown Scorer",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-18.0,du:1,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"5-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-20.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Correct Score (Soccer)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-20.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"6-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-25.0,du:0.3,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"8-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-30.0,du:0.2,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"10-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-35.0,du:0.1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- CASINO GAMBLING (Linear) ---
+  {n:"Video Poker 9/6 JoB",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.46,du:80,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Blackjack 3:2 Basic Strategy",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.5,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Baccarat Banker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.06,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Baccarat Player",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.24,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Craps Don't Pass",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.36,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Craps Pass Line",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.41,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Blackjack 6:5",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.0,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Pai Gow Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Roulette Single Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.7,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Three Card Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.4,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Let It Ride",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Slots Loose 95%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Caribbean Stud",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.2,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Roulette Double Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.26,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Slots Average 92%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-8.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Slots Tight 85%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-15.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Big Six Wheel",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-16.0,du:20,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno 4-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-28.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno 10-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-35.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- POKER & SKILL-BASED (Linear) ---
+  {n:"DFS Top 5%",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:5.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:2.0,du:5,ced:10,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Mid-Stakes Reg",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:1.5,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Average Live Cash",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-5.0,du:25,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Average Online",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-8.0,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Recreational Live",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-10.0,du:25,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"DFS Average",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-12.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Sit & Go Average",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-15.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"DFS Casual",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-20.0,du:3,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- PREDICTION MARKETS (Linear) ---
+  {n:"Polymarket Elections",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.0,du:1,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket SCOTUS",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.0,du:0.5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Metaculus Scientific",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-3.5,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Oscars",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Geopolitics",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Sports/Entertainment",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-4.5,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Polymarket Crypto Prices",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.0,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Economic",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.5,du:0.5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Fed Rate",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-5.5,du:0.2,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi GDP",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-6.0,du:0.2,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Kalshi Weather",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-7.0,du:0.5,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"PredictIt US Politics",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-10.0,du:1,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+
+  // --- LOTTERY (Linear) ---
+  {n:"$1 Scratch-Off Best Odds",cat:"Lottery",g:"Lottery",m:"g",e:-25.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Premium Scratch-Off $20+",cat:"Lottery",g:"Lottery",m:"g",e:-30.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Scratch-Off Tickets Avg",cat:"Lottery",g:"Lottery",m:"g",e:-35.0,du:0.5,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Keno State-Run",cat:"Lottery",g:"Lottery",m:"g",e:-40.0,du:2,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Daily Numbers Game",cat:"Lottery",g:"Lottery",m:"g",e:-42.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"State Pick 6 / Lotto",cat:"Lottery",g:"Lottery",m:"g",e:-45.0,du:0.15,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"State Lottery Pick 3/4",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,du:0.5,ced:0.3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Powerball / Mega Millions",cat:"Lottery",g:"Lottery",m:"g",e:-52.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Multi-State Cash4Life",cat:"Lottery",g:"Lottery",m:"g",e:-55.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+];
+
+const AR_DEFAULT = {"Cash & Savings":1,"Stock Market":1,"Bonds":1,"Real Estate":1,"Cryptocurrency":3,"Collectibles":1,"Precious Metals":1,"Insurance & Annuities":1,"Sports Betting":4,"Casino Gambling":3,"Poker & Skill-Based":3,"Prediction Markets":2,"Lottery":3};
+const AR_CLR = {1:'#22c55e',2:'#84cc16',3:'#eab308',4:'#f97316',5:'#ef4444'};
+const AR_LBL = {1:'MINIMAL',2:'LOW',3:'MEDIUM',4:'HIGH',5:'EXTREME'};
+
+// ══════════════════════════
+// PRE-COMPUTE
+// ══════════════════════════
+const D = RAW.map(r => {
+    const v = {};   // returnOnCapital — the primary, floored measure
+    const t = {};   // expectedTurnoverCost — games only, deliberately unfloored
+    HZ.forEach(h => {
+        v[h] = returnOnCapital(r, h);
+        t[h] = r.m === 'g' ? expectedTurnoverCost(r.e, r.du, r.ced, h) : null;
+    });
+    const rd = ruinDecisions(r);
+    return {...r, v, t, rd, ruinDays: rd === null ? null : rd / r.du, decay90: decayYears90(r), ar: AR_DEFAULT[r.cat] || 2};
+});
+
+// ══════════════════════════
+// STATE & CONTROLS
+// ══════════════════════════
+const METRICS = {
+    roc: {
+        title: 'Return on Capital (%)',
+        sub: 'What one bankroll does. Floored at &minus;100% &mdash; a bar on the floor is a bankroll that is gone.',
+        note: 'Return on the capital you actually staked, floored at &minus;100%. The only measure that compares a held asset to a wagering activity on one axis.',
+        get: (d, h) => d.v[h],
+        labels: ['Activities Shown','Peak Performer','Maximum Drain','Ruined By Horizon'],
+    },
+    turn: {
+        title: 'Expected Turnover Cost (% of starting bankroll)',
+        sub: 'Wagering activities only. Flat stakes, reloaded on ruin &mdash; deliberately unbounded, so it is never plotted beside a capital return.',
+        note: 'Cumulative expected loss at constant turnover, as a multiple of the starting bankroll. Passes &minus;100% because it assumes you keep reloading.',
+        get: (d, h) => d.t[h],
+        labels: ['Wagering Activities','Cheapest Turnover','Costliest Turnover','Median Cost'],
+    },
+};
+
+let catSet = new Set(ALL_CATS.filter(c => c !== "Casino Gambling" && c !== "Poker & Skill-Based"));
+let timeF = '1yr', layerF = 'raw', metricF = 'roc';
+let showDCA = false, showRisk = false, showRuin = true;
+
+const isAllCats = () => catSet.size === ALL_CATS.length;
+const val = d => METRICS[metricF].get(d, timeF);
+const isRuined = d => d.rd !== null && d.rd <= decisionCount(d.du, timeF);
+
+function getFilteredData() {
+    let d = D.filter(x => catSet.has(x.cat));
+    // Turnover cost is a property of turnover; held assets have none, so they are not
+    // shown on that axis rather than being given a fabricated value.
+    if (metricF === 'turn') d = d.filter(x => x.m === 'g');
+    if (layerF !== 'all') {
+        if (layerF === 'raw') d = d.filter(x => x.ly === 'raw');
+        else d = d.filter(x => x.ly === 'raw' || x.ly === layerF);
+    }
+    return d.sort((a,b) => val(b) - val(a));
+}
+
+// ══════════════════════════
+// UI UPDATES
+// ══════════════════════════
+function formatValue(v) {
+    if (v === null || !isFinite(v)) return '—';
+    const s = v >= 0 ? '+' : '';
+    if (Math.abs(v) >= 1000) return s + (v/1000).toFixed(1) + 'K%';
+    return s + v.toFixed(2) + '%';
+}
+function fmtNum(n) { return n >= 100 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2); }
+function fmtCount(n) {
+    if (n >= 1000) return Math.round(n).toLocaleString();
+    return Number.isInteger(n) ? String(n) : fmtNum(n);
+}
+
+// Decisions to ruin, rendered as a duration a human can picture.
+function fmtDuration(days) {
+    if (days < 1) return (days * 24).toFixed(1) + ' hours';
+    if (days < 60) return fmtNum(days) + ' days';
+    if (days < 730) return fmtNum(days / 30.44) + ' months';
+    return fmtNum(days / 365) + ' years';
+}
+
+function updateStats() {
+    const data = getFilteredData();
+    const m = METRICS[metricF];
+    const vals = data.map(val).filter(v => v !== null && isFinite(v));
+    ['mCL','mBL','mWL','mSL'].forEach((id, i) => document.getElementById(id).textContent = m.labels[i]);
+    document.getElementById('mC').textContent = data.length;
+    document.getElementById('mB').textContent = vals.length ? formatValue(Math.max(...vals)) : '—';
+    document.getElementById('mW').textContent = vals.length ? formatValue(Math.min(...vals)) : '—';
+
+    if (metricF === 'roc') {
+        const ruined = data.filter(isRuined).length;
+        document.getElementById('mS').textContent = ruined + ' of ' + data.length;
+    } else {
+        const sorted = [...vals].sort((a,b) => a-b);
+        document.getElementById('mS').textContent = sorted.length ? formatValue(sorted[Math.floor(sorted.length/2)]) : '—';
+    }
+    document.getElementById('mTitle').textContent = m.title;
+    document.getElementById('mSub').innerHTML = m.sub;
+    document.getElementById('metricNote').innerHTML = m.note;
+}
+
+function renderChart() {
+    const data = getFilteredData();
+    const names = data.map(d => d.n);
+    const vals = data.map(val);
+
+    const colors = data.map(d => val(d) >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)');
+
+    const traces = [{
+        type: 'bar', x: names, y: vals, customdata: data,
+        marker: {
+            color: colors,
+            line: { color: 'rgba(255,255,255,0.1)', width: 1 }
+        },
+        hoverinfo: 'none'
+    }];
+
+    // The ruin marker rides on the primary chart rather than hiding in a tooltip: every
+    // ✕ is an activity whose bankroll is expected to be gone before this horizon ends.
+    const ruined = metricF === 'roc' && showRuin ? data.filter(isRuined) : [];
+    if (ruined.length) {
+        traces.push({
+            type: 'scatter', mode: 'markers',
+            x: ruined.map(d => d.n), y: ruined.map(() => RUIN_FLOOR),
+            customdata: ruined,
+            marker: { symbol: 'x', size: 7, color: '#ef4444', line: { color: '#fca5a5', width: 1 } },
+            hoverinfo: 'none', cliponaxis: false
+        });
+    }
+
+    const finite = vals.filter(v => v !== null && isFinite(v));
+    const lo = finite.length ? Math.min(...finite) : 0;
+    const hi = finite.length ? Math.max(...finite) : 0;
+    const pad = (hi - lo) * 0.06 || 1;
+    // The floor is drawn only once something has actually reached it. Pinning the axis
+    // to -100% at every horizon would flatten the short-horizon views the same way the
+    // unbounded turnover numbers used to flatten the long ones.
+    const onFloor = metricF === 'roc' && lo <= RUIN_FLOOR + 1e-9;
+    const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { l: 60, r: 20, t: 30, b: 20 },
+        xaxis: { showticklabels: false, showgrid: false, zeroline: false },
+        yaxis: {
+            gridcolor: 'rgba(255,255,255,0.05)',
+            zerolinecolor: 'rgba(251, 191, 36, 0.4)',
+            tickfont: { family: 'Geist Mono', size: 10, color: '#71717a' },
+            ticksuffix: '%',
+            // Total capital loss is the bottom of the world on the primary measure, so
+            // once a bar is there the axis stops just below it rather than letting a
+            // +4,000% ten-year crypto bar dictate how much empty space sits underneath.
+            range: onFloor ? [RUIN_FLOOR - Math.min(pad, 8), hi + pad] : [lo - pad, hi + pad]
+        },
+        showlegend: false,
+        bargap: 0.15,
+        shapes: onFloor ? [{
+            type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: RUIN_FLOOR, y1: RUIN_FLOOR,
+            line: { color: 'rgba(239, 68, 68, 0.45)', width: 1, dash: 'dot' }
+        }] : [],
+        annotations: onFloor ? [{
+            xref: 'paper', x: 0, xanchor: 'left', yref: 'y', y: RUIN_FLOOR, yanchor: 'bottom',
+            text: 'RUIN — TOTAL CAPITAL LOSS', showarrow: false,
+            font: { family: 'Geist Mono', size: 8, color: 'rgba(239, 68, 68, 0.8)' }
+        }] : []
+    };
+
+    Plotly.newPlot('chart', traces, layout, { displayModeBar: false, responsive: true });
+
+    document.getElementById('chart').on('plotly_hover', ev => {
+        showTT(ev.points[0].customdata, ev.event);
+    });
+    document.getElementById('chart').on('plotly_unhover', hideTT);
+}
+
+// ══════════════════════════
+// TOOLTIP RENDER
+// ══════════════════════════
+const ttEl = document.getElementById('tt');
+function showTT(item, e) {
+    let hzHTML = '';
+    HZ.forEach(h => {
+        // A held asset's "single event" IS one trading day, so listing both would print
+        // the same number twice under two names — the conflation this fix exists to end.
+        if (h === '1du' && item.m === 'i') return;
+        const active = h === timeF ? 'active' : '';
+        const v = item.v[h];
+        hzHTML += `
+            <div class="tt-hz-item ${active}">
+                <span class="tt-hz-lbl">${rowHzLabel(item, h)}</span>
+                <span class="tt-hz-val" style="color:${v>=0?'var(--success)':'var(--danger)'}">${formatValue(v)}</span>
+            </div>`;
+    });
+
+    // The three measures, side by side and named, so the floored and unfloored numbers
+    // can never again be mistaken for the same quantity.
+    const roc = item.v[timeF];
+    const turnover = item.t[timeF];
+    let measuresHTML = `
+        <div class="tt-row">
+            <span class="tt-row-label">Return on capital${roc <= RUIN_FLOOR ? ' <span style="color:var(--danger)">(at floor)</span>' : ''}</span>
+            <span class="tt-row-val" style="color:${roc>=0?'var(--success)':'var(--danger)'}">${formatValue(roc)}</span>
+        </div>
+        <div class="tt-row">
+            <span class="tt-row-label">Expected turnover cost</span>
+            <span class="tt-row-val" style="color:${turnover===null?'var(--text-dim)':turnover>=0?'var(--success)':'var(--danger)'}">${turnover === null ? 'n/a — held, not wagered' : formatValue(turnover)}</span>
+        </div>
+        <div class="tt-row">
+            <span class="tt-row-label">Horizon basis</span>
+            <span class="tt-row-val">${horizonBasis(item, timeF)}</span>
+        </div>`;
+
+    let insightHTML = '';
+    if (showRuin) {
+        let ruinHTML;
+        if (item.rd !== null) {
+            const pct = Math.max(4, Math.min(100, (decisionCount(item.du, timeF) / item.rd) * 100));
+            ruinHTML = `
+                <div class="tt-ruin-val">${fmtCount(item.rd)} wagers &rarr; $0</div>
+                <div class="tt-row"><span class="tt-row-label">Time to ruin at ${fmtNum(item.du)}/day</span><span class="tt-row-val">${fmtDuration(item.ruinDays)}</span></div>
+                <div class="tt-row"><span class="tt-row-label">Staked per wager</span><span class="tt-row-val">${fmtNum(item.ced)}% of bankroll</span></div>
+                <div class="tt-row"><span class="tt-row-label">Expected loss per wager</span><span class="tt-row-val">${formatValue((item.ced/100) * item.e)}</span></div>
+                <div class="tt-meter"><div class="tt-meter-fill" style="width:${pct}%;background:${pct>=100?'var(--danger)':'var(--warning)'}"></div></div>
+                <div style="font-size:0.6rem;color:var(--text-muted)">${pct >= 100 ? 'Bankroll is expected to be gone before this horizon ends.' : fmtNum(pct) + '% of the way to ruin at this horizon.'}</div>`;
+        } else if (item.decay90 !== null) {
+            ruinHTML = `
+                <div class="tt-ruin-val">${fmtNum(item.decay90)} years &rarr; &minus;90%</div>
+                <div style="font-size:0.6rem;color:var(--text-muted)">A held position erodes geometrically and never literally reaches $0; this is the time to lose nine tenths of it.</div>`;
+        } else {
+            ruinHTML = `<div class="tt-ruin-val" style="color:var(--success)">No ruin point</div>
+                <div style="font-size:0.6rem;color:var(--text-muted)">Positive expectation &mdash; capital is not being drained.</div>`;
+        }
+        insightHTML += `
+            <div class="tt-section">
+                <div class="tt-sec-label">Ruin Point</div>
+                <div class="tt-ruin-box">${ruinHTML}</div>
+            </div>`;
+    }
+    if (showRisk) {
+        insightHTML += `
+            <div class="tt-section">
+                <div class="tt-sec-label">Risk Modeling</div>
+                <div class="tt-row">
+                    <span class="tt-row-label">Addiction Risk</span>
+                    <span class="tt-row-val" style="color:${AR_CLR[item.ar]}">${AR_LBL[item.ar]}</span>
+                </div>
+            </div>`;
+    }
+
+    ttEl.innerHTML = `
+        <div class="tt-hdr">
+            <div class="tt-title">${item.n}</div>
+            <div class="tt-meta">
+                <span style="color:${CC[item.cat]}">${item.cat}</span>
+                <span>&bull;</span>
+                <span>${item.type}</span>
+            </div>
+        </div>
+        <div class="tt-body">
+            <div class="tt-section">
+                <div class="tt-sec-label">At ${rowHzLabel(item, timeF)}</div>
+                ${measuresHTML}
+            </div>
+            <div class="tt-section">
+                <div class="tt-sec-label">Return on Capital by Horizon</div>
+                <div class="tt-hz-grid">${hzHTML}</div>
+            </div>
+            ${insightHTML}
+            <div class="tt-section">
+                <div class="tt-sec-label">Contextual Data</div>
+                <div class="tt-row"><span class="tt-row-label">Volatility</span><span class="tt-row-val">${item.vol}</span></div>
+                <div class="tt-row"><span class="tt-row-label">Win Prob</span><span class="tt-row-val">${item.wp}</span></div>
+                <div class="tt-row"><span class="tt-row-label">Skill Factor</span><span class="tt-row-val">${item.sk}</span></div>
+            </div>
+        </div>`;
+    
+    ttEl.style.display = 'block';
+    posTT(e);
+}
+
+function posTT(e) {
+    const padding = 20;
+    let x = e.clientX + padding;
+    let y = e.clientY + padding;
+    
+    if (x + 420 > window.innerWidth) x = e.clientX - 420 - padding;
+    if (y + ttEl.offsetHeight > window.innerHeight) y = window.innerHeight - ttEl.offsetHeight - padding;
+    
+    ttEl.style.left = x + 'px';
+    ttEl.style.top = y + 'px';
+}
+
+function hideTT() { ttEl.style.display = 'none'; }
+
+// ══════════════════════════
+// INITIALIZATION
+// ══════════════════════════
+function init() {
+    // Inject Categories
+    const menu = document.getElementById('catMenu');
+    ALL_CATS.forEach(c => {
+        const item = document.createElement('div');
+        item.className = `dd-item toggle ${catSet.has(c) ? 'on' : ''}`;
+        item.dataset.f = c;
+        item.innerHTML = `<span class="dot" style="background:${CC[c]}"></span>${c}`;
+        item.onclick = (e) => {
+            e.stopPropagation();
+            if (catSet.has(c)) catSet.delete(c); else catSet.add(c);
+            item.classList.toggle('on');
+            document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
+            updateStats();
+            renderChart();
+        };
+        menu.appendChild(item);
+    });
+
+    // Toggle All button
+    document.querySelector('.cat-all').onclick = (e) => {
+        e.stopPropagation();
+        if (catSet.size === ALL_CATS.length) {
+            catSet.clear();
+        } else {
+            catSet = new Set(ALL_CATS);
+        }
+        menu.querySelectorAll('.dd-item.toggle').forEach(el => {
+            el.classList.toggle('on', catSet.has(el.dataset.f));
+        });
+        document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
+        updateStats();
+        renderChart();
+    };
+
+    // Time Buttons
+    document.querySelectorAll('[data-t]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('[data-t]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            timeF = btn.dataset.t;
+            updateStats();
+            renderChart();
+        };
+    });
+
+    // Metric Buttons
+    document.querySelectorAll('[data-m]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('[data-m]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            metricF = btn.dataset.m;
+            updateStats();
+            renderChart();
+        };
+    });
+
+    // Layer Buttons
+    document.querySelectorAll('[data-l]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('[data-l]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            layerF = btn.dataset.l;
+            updateStats();
+            renderChart();
+        };
+    });
+
+    // Insights
+    document.querySelectorAll('[data-ins]').forEach(item => {
+        item.onclick = (e) => {
+            e.stopPropagation();
+            item.classList.toggle('on');
+            const ins = item.dataset.ins;
+            if (ins === 'dca') showDCA = !showDCA;
+            if (ins === 'risk') showRisk = !showRisk;
+            if (ins === 'ruin') showRuin = !showRuin;
+            updateStats();
+            renderChart();
+        };
+    });
+
+    // The ruin overlay is on by default — it is the point of the primary chart, not an extra.
+    document.querySelector('[data-ins="ruin"]').classList.toggle('on', showRuin);
+
+    // Dropdowns
+    document.querySelectorAll('.dd-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const parent = btn.parentElement;
+            const wasOpen = parent.classList.contains('open');
+            document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+            if (!wasOpen) parent.classList.add('open');
+        };
+    });
+    window.onclick = () => document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+
+    updateStats();
+    renderChart();
+}
+
+window.onload = init;
+</script>
+</body>
+</html>

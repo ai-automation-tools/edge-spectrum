@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">The Edge Spectrum Horizon Bars favicon concept</title>
+  <desc id="desc">Time-horizon return bars crossing a baseline Square favicon proposal for The Edge Spectrum.</desc>
+  <defs>
+    <linearGradient id="bg" x1="28" y1="24" x2="228" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#18181b"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="32" y1="30" x2="224" y2="226" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <filter id="glow" x="-28%" y="-28%" width="156%" height="156%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="54" fill="url(#bg)"/>
+  <rect x="20" y="20" width="216" height="216" rx="42" fill="none" stroke="url(#accent)" stroke-width="8"/>
+  <g filter="url(#glow)">
+  <rect x="62" y="91" width="31" height="74" rx="12" fill="#ef4444"/>
+  <rect x="106" y="69" width="31" height="118" rx="12" fill="#22c55e"/>
+  <rect x="150" y="105" width="31" height="55" rx="12" fill="#6366f1"/>
+  <path d="M54 128h149" stroke="#27272a" stroke-width="9" stroke-linecap="round"/>
+  <path d="M76 201h105" stroke="#f4f4f5" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="77" cy="201" r="9" fill="#ef4444"/>
+  <circle cx="128" cy="201" r="9" fill="#22c55e"/>
+  <circle cx="181" cy="201" r="9" fill="#6366f1"/>
+  </g>
+</svg>

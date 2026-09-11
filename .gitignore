@@ -1,0 +1,21 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+.vercel
+
+# Local agent tooling and third-party skill bundles are not published.
+.claude/
+
+.mcp.json
+
+# Playwright MCP scratch (page snapshots, console logs) from browser-verifying a change.
+.playwright-mcp/
+
+# Archived analysis & scratch (local only, not in remote repo)
+.archive/
+Docs/_archive/

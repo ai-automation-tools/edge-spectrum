@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">The Edge Spectrum Horizon Bars landscape logo concept light</title>
+  <desc id="desc">Time-horizon return bars crossing a baseline Landscape logo proposal for GitHub README art and website headers.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f4f4f5"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="78" y1="70" x2="286" y2="282" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="40" fill="url(#bg)"/>
+  <rect x="72" y="72" width="216" height="216" rx="46" fill="#fafafa" stroke="url(#accent)" stroke-width="8"/>
+  <g transform="translate(72 72) scale(0.84375)">
+  <rect x="62" y="91" width="31" height="74" rx="12" fill="#ef4444"/>
+  <rect x="106" y="69" width="31" height="118" rx="12" fill="#22c55e"/>
+  <rect x="150" y="105" width="31" height="55" rx="12" fill="#6366f1"/>
+  <path d="M54 128h149" stroke="#d4d4d8" stroke-width="9" stroke-linecap="round"/>
+  <path d="M76 201h105" stroke="#18181b" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="77" cy="201" r="9" fill="#ef4444"/>
+  <circle cx="128" cy="201" r="9" fill="#22c55e"/>
+  <circle cx="181" cy="201" r="9" fill="#6366f1"/>
+  </g>
+  <text x="344" y="176" fill="#18181b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="0">The Edge Spectrum</text>
+  <text x="350" y="232" fill="#52525b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="0">Expected returns across activities and time horizons</text>
+</svg>

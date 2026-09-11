@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Edge Spectrum V13</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='4' width='5' height='12' rx='1.5' fill='%2322c55e'/%3E%3Crect x='10' y='7' width='5' height='9' rx='1.5' fill='%2386efac'/%3E%3Crect x='17' y='12' width='5' height='6' rx='1.5' fill='%23facc15'/%3E%3Crect x='24' y='16' width='5' height='12' rx='1.5' fill='%23ef4444'/%3E%3Cline x1='1' y1='16' x2='31' y2='16' stroke='%2371717a' stroke-width='.75'/%3E%3C/svg%3E">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:#09090b;color:#e4e4e7;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+        /* ── Header ── */
+        .hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:#09090b;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+        .hdr h1{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;background:linear-gradient(90deg,#4ade80,#a3e635,#facc15,#fb923c,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hdr p{font-size:.65rem;color:#52525b;margin-top:2px;letter-spacing:.01em}
+        .legend{display:flex;align-items:center;gap:6px;font-size:.62rem;color:#52525b;letter-spacing:.02em;text-transform:uppercase}
+        .legend-grad{width:100px;height:6px;border-radius:3px;background:linear-gradient(90deg,#22c55e,#a3e635,#facc15,#fb923c,#ef4444)}
+
+        /* ── Controls Bar ── */
+        .controls{display:flex;align-items:center;gap:8px;padding:7px 28px;background:rgba(24,24,27,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;flex-wrap:wrap;position:relative;z-index:100}
+        .ctrl-group{display:flex;align-items:center;gap:5px}
+        .ctrl-label{font-size:.55rem;color:#52525b;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;user-select:none;font-weight:500}
+        .ctrl-sep{width:1px;height:20px;background:rgba(255,255,255,.07);margin:0 6px;flex-shrink:0}
+
+        /* ── Dropdown (shared) ── */
+        .dd{position:relative}
+        .dd-btn{padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#a1a1aa;font-size:.68rem;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
+        .dd-btn:hover{border-color:rgba(255,255,255,.15);color:#e4e4e7;background:rgba(255,255,255,.06)}
+        .dd-btn .caret{font-size:.5rem;opacity:.4;transition:transform .2s}
+        .dd.open .dd-btn .caret{transform:rotate(180deg)}
+        .dd.open .dd-btn{border-color:rgba(99,102,241,.5);color:#e4e4e7;background:rgba(99,102,241,.08)}
+        .dd-menu{display:none;position:absolute;top:calc(100% + 5px);left:0;background:rgba(24,24,27,.97);border:1px solid rgba(255,255,255,.08);border-radius:8px;min-width:190px;z-index:200;box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);overflow:hidden;backdrop-filter:blur(20px)}
+        .dd.open .dd-menu{display:block}
+        .dd-item{padding:7px 14px;cursor:pointer;font-size:.68rem;color:#a1a1aa;transition:all .1s;display:flex;align-items:center;gap:8px}
+        .dd-item:hover{background:rgba(255,255,255,.05);color:#e4e4e7}
+        .dd-item.active{color:#818cf8;font-weight:600}
+        .dd-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+        .cat-all{font-weight:600;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:8px;margin-bottom:2px}
+
+        /* ── Toggle checkboxes (insights + categories) ── */
+        .dd-item.toggle{position:relative;padding-left:32px}
+        .dd-item.toggle::before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);transition:all .15s}
+        .dd-item.toggle.on::before{background:#6366f1;border-color:#6366f1}
+        .dd-item.toggle.on::after{content:'';position:absolute;left:15px;top:50%;transform:translateY(-50%) rotate(45deg);width:4px;height:7px;border:solid #fff;border-width:0 1.5px 1.5px 0;margin-top:-1px}
+        .ins-badge{display:none;width:5px;height:5px;border-radius:50%;background:#818cf8}
+        .ins-badge.on{display:inline-block}
+
+        /* ── Time buttons ── */
+        .time-scroll{display:flex;gap:5px;align-items:center}
+        .tbtn{padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);color:#71717a;font-size:.63rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+        .tbtn:hover{border-color:rgba(168,85,247,.3);color:#c4b5fd;background:rgba(168,85,247,.06)}
+        .tbtn.active{background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.4);color:#c4b5fd;font-weight:600}
+
+        /* ── Layer buttons ── */
+        .lbtn{padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);color:#71717a;font-size:.63rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+        .lbtn:hover{border-color:rgba(34,197,94,.3);color:#86efac;background:rgba(34,197,94,.06)}
+        .lbtn.active{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.35);color:#86efac;font-weight:600}
+        .lbtn.hidden{display:none}
+
+        /* ── Metric bar ── */
+        .metric-bar{display:flex;align-items:center;gap:12px;padding:5px 28px;background:rgba(9,9,11,.8);border-bottom:1px solid rgba(255,255,255,.04);flex-shrink:0;font-size:.65rem;color:#52525b;flex-wrap:wrap}
+        .metric-bar .val{color:#a1a1aa;font-weight:500}
+        .metric-bar .hl{color:#fbbf24;font-weight:600}
+        .msep{width:1px;height:12px;background:rgba(255,255,255,.06);margin:0 2px}
+
+        /* ── Chart ── */
+        .chart-wrap{flex:1;min-height:0;padding:0 8px 4px;position:relative}
+        #chart{width:100%;height:100%}
+
+        /* ── Tooltip ── */
+        .tt{display:none;position:fixed;z-index:9999;background:rgba(20,20,23,.97);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:0;min-width:370px;max-width:470px;max-height:90vh;box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);pointer-events:none;overflow:hidden;backdrop-filter:blur(20px)}
+        .tt-top{padding:12px 18px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+        .tt-title{font-weight:700;font-size:.88rem;color:#fafafa;letter-spacing:-.01em}
+        .tt-sub{font-size:.65rem;color:#71717a;margin-top:3px}
+        .tt-focus{padding:8px 18px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05)}
+        .tt-fr{display:flex;justify-content:space-between;padding:2px 0;font-size:.74rem}
+        .tt-l{color:#71717a}.tt-v{color:#d4d4d8;font-weight:500;text-align:right;max-width:220px}
+        .tt-hz{padding:8px 18px;border-bottom:1px solid rgba(255,255,255,.05)}
+        .tt-hzt{font-size:.58rem;text-transform:uppercase;letter-spacing:.8px;color:#52525b;margin-bottom:4px;font-weight:500}
+        .tt-hr{display:flex;justify-content:space-between;padding:2px 0;font-size:.72rem}
+        .tt-hr.act{background:rgba(99,102,241,.08);margin:0 -18px;padding:2px 18px;border-radius:4px}
+        .tt-hl{color:#71717a}.tt-hv{font-weight:700;min-width:80px;text-align:right}
+        .tt-dca{padding:8px 18px;background:rgba(34,197,94,.03);border-bottom:1px solid rgba(255,255,255,.05)}
+        .tt-risk{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05)}
+        .tt-risk-bar{display:flex;gap:2px;margin-left:4px}
+        .tt-risk-blk{width:8px;height:10px;border-radius:1.5px}
+        .tt-grp{padding:8px 18px 10px}
+        .tt-gt{font-size:.58rem;text-transform:uppercase;letter-spacing:.8px;color:#52525b;margin-bottom:5px;font-weight:500}
+        .tt-gi{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.7rem}
+        .tt-gi:last-child{border-bottom:none}
+        .tt-gi.hi{background:rgba(99,102,241,.08);margin:0 -18px;padding:3px 18px;border-radius:4px}
+        .tt-gd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+        .tt-gn{flex:1;color:#a1a1aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .tt-gi.hi .tt-gn{color:#e4e4e7;font-weight:600}
+        .tt-gv{font-weight:700;min-width:70px;text-align:right}
+        .footer{text-align:center;padding:4px;font-size:.56rem;color:#3f3f46;flex-shrink:0;letter-spacing:.02em}
+
+        /* ══════════════════════════ */
+        /* MOBILE RESPONSIVE (<768px) */
+        /* ══════════════════════════ */
+        @media(max-width:768px){
+            body{overflow:auto;height:auto;min-height:100vh}
+
+            /* Header: stack vertically, hide subtitle */
+            .hdr{flex-direction:column;align-items:flex-start;gap:4px;padding:10px 16px}
+            .hdr p{display:none}
+            .legend{align-self:flex-end;margin-top:-18px}
+
+            /* Controls: multi-row with wrapping */
+            .controls{padding:8px 12px;gap:6px;row-gap:6px}
+            .ctrl-sep{display:none}
+            .ctrl-label{width:100%;margin-top:4px;font-size:.52rem}
+            .ctrl-label:first-child{margin-top:0}
+
+            /* Time buttons: horizontal scroll row */
+            .time-scroll{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;max-width:100%}
+            .time-scroll::-webkit-scrollbar{display:none}
+            .tbtn{padding:5px 8px;font-size:.6rem;flex-shrink:0}
+            .lbtn{padding:5px 8px;font-size:.6rem}
+
+            /* Dropdowns: full width */
+            .dd{width:auto}
+            .dd-btn{font-size:.65rem}
+            .dd-menu{min-width:170px}
+
+            /* Metric bar: compact, hide Best/Worst labels on very small screens */
+            .metric-bar{padding:4px 12px;gap:8px;font-size:.6rem}
+            .metric-bar .val{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+            .m-desktop{display:none}
+
+            /* Chart: give it a fixed height instead of flex */
+            .chart-wrap{flex:none;height:55vh;min-height:300px;padding:0 4px 4px}
+
+            /* Tooltip: bottom drawer on mobile */
+            .tt{position:fixed!important;bottom:0!important;left:0!important;top:auto!important;right:0!important;width:100%!important;min-width:0!important;max-width:100%!important;max-height:55vh;border-radius:16px 16px 0 0;border-bottom:none;overflow-y:auto;pointer-events:auto;-webkit-overflow-scrolling:touch}
+            .tt-top{padding:10px 16px 8px}
+            .tt-title{font-size:.82rem}
+            .tt-focus,.tt-hz,.tt-dca,.tt-risk,.tt-grp{padding-left:16px;padding-right:16px}
+            .tt-hr.act{margin:0 -16px;padding:2px 16px}
+            .tt-gi.hi{margin:0 -16px;padding:3px 16px}
+
+            /* Tooltip close handle for mobile */
+            .tt::before{content:'';display:block;width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:8px auto 4px}
+
+            /* Footer */
+            .footer{font-size:.5rem;padding:6px 12px;line-height:1.4}
+        }
+
+        @media(max-width:380px){
+            .hdr h1{font-size:.95rem}
+            .legend-grad{width:70px}
+            .tbtn{padding:4px 6px;font-size:.55rem}
+            .dd-btn{padding:4px 8px;font-size:.6rem}
+            .chart-wrap{height:50vh;min-height:260px}
+        }
+    </style>
+</head>
+<body>
+
+<div class="hdr">
+    <div>
+        <h1>The Edge Spectrum: Who Really Wins?</h1>
+        <p>Pure % returns — no caps, no floors &bull; Hover any bar for all time horizons</p>
+    </div>
+    <div class="legend"><span>+Player</span><div class="legend-grad"></div><span>+House</span></div>
+</div>
+
+<!-- Single unified control bar -->
+<div class="controls">
+    <span class="ctrl-label">Category</span>
+    <div class="dd" id="catDD">
+        <button class="dd-btn" id="catBtn">All Categories <span class="caret">&#9662;</span></button>
+        <div class="dd-menu" id="catMenu">
+            <div class="dd-item cat-all active" data-f="all">All Categories</div>
+            <div class="dd-item toggle on" data-f="Stock Market"><span class="dot" style="background:#3b82f6"></span>Stocks</div>
+            <div class="dd-item toggle on" data-f="Bonds"><span class="dot" style="background:#06b6d4"></span>Bonds</div>
+            <div class="dd-item toggle on" data-f="Real Estate"><span class="dot" style="background:#8b5cf6"></span>Real Estate</div>
+            <div class="dd-item toggle on" data-f="Cryptocurrency"><span class="dot" style="background:#f59e0b"></span>Crypto</div>
+            <div class="dd-item toggle on" data-f="Options"><span class="dot" style="background:#ec4899"></span>Options</div>
+            <div class="dd-item toggle on" data-f="Active Trading"><span class="dot" style="background:#ef4444"></span>Trading</div>
+            <div class="dd-item toggle on" data-f="Collectibles"><span class="dot" style="background:#d97706"></span>Collectibles</div>
+            <div class="dd-item toggle on" data-f="Sports Betting"><span class="dot" style="background:#22c55e"></span>Sports</div>
+            <div class="dd-item toggle on" data-f="Casino Gambling"><span class="dot" style="background:#a855f7"></span>Casino</div>
+            <div class="dd-item toggle on" data-f="Poker & Skill-Based"><span class="dot" style="background:#14b8a6"></span>Poker / DFS</div>
+            <div class="dd-item toggle on" data-f="Prediction Markets"><span class="dot" style="background:#6366f1"></span>Predictions</div>
+            <div class="dd-item toggle on" data-f="Lottery"><span class="dot" style="background:#f43f5e"></span>Lottery</div>
+        </div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+    <span class="ctrl-label">Time</span>
+    <div class="time-scroll">
+        <button class="tbtn" data-t="1ev">1 Bet / 1 Mo</button>
+        <button class="tbtn" data-t="25ev">25 Bets / 2 Yr</button>
+        <button class="tbtn active" data-t="1yr">1 Yr / 625 Bets</button>
+        <button class="tbtn" data-t="5yr">5 Yr / 3.1K Bets</button>
+        <button class="tbtn" data-t="10yr">10 Yr / 6.3K Bets</button>
+    </div>
+
+    <div class="ctrl-sep" id="layerSep"></div>
+    <span class="ctrl-label" id="layerLabel">Layer</span>
+    <div class="ctrl-group" id="layerGroup">
+        <button class="lbtn active" data-l="raw">Raw</button>
+        <button class="lbtn" data-l="fees">Fee-Adjusted</button>
+        <button class="lbtn" data-l="tax">After-Tax</button>
+        <button class="lbtn" data-l="all">Show All</button>
+    </div>
+
+    <div class="ctrl-sep"></div>
+    <div class="dd" id="insDD">
+        <button class="dd-btn" id="insBtn"><span class="ins-badge" id="insDot"></span>Insights <span class="caret">&#9662;</span></button>
+        <div class="dd-menu" id="insMenu" style="right:0;left:auto">
+            <div class="dd-item toggle" data-ins="dca">Dollar Cost ($100/wk)</div>
+            <div class="dd-item toggle" data-ins="risk">Addiction Risk</div>
+        </div>
+    </div>
+</div>
+
+<div class="metric-bar">
+    <span>Showing: <span class="val" id="mC">0</span></span>
+    <span class="msep"></span>
+    <span>Best: <span class="val" id="mB" style="color:#4ade80">—</span></span>
+    <span class="msep"></span>
+    <span>Worst: <span class="val" id="mW" style="color:#f87171">—</span></span>
+    <span class="msep"></span>
+    <span>Spread: <span class="hl" id="mS">—</span></span>
+    <span class="msep"></span>
+    <span class="m-desktop" id="mM" style="color:#facc15;font-weight:600">Cumulative Expected Return (%)</span>
+</div>
+
+<div class="chart-wrap"><div id="chart"></div></div>
+<div class="tt" id="tt"></div>
+<div class="footer">The Edge Spectrum V13 &mdash; March 2026 &mdash; For Educational Purposes Only &mdash; Gambling: Linear Model (10% bankroll/bet, no floor) &bull; Investing: Compound Returns</div>
+
+<script>
+// ══════════════════════════
+// MATH
+// ══════════════════════════
+function gambRet(edge, N) { return N * 0.10 * edge; }
+function invRet(ann, yr) { return (Math.pow(1 + ann/100, yr) - 1) * 100; }
+
+const HZ = ['1ev','25ev','1yr','5yr','10yr'];
+const HZ_LBL = {'1ev':'1 Bet / 1 Month','25ev':'25 Bets / 2 Years','1yr':'1 Year / 625 Bets','5yr':'5 Years / 3,125 Bets','10yr':'10 Years / 6,250 Bets'};
+const G_N = {'1ev':1,'25ev':25,'1yr':625,'5yr':3125,'10yr':6250};
+const I_Y = {'1ev':1/12,'25ev':2,'1yr':1,'5yr':5,'10yr':10};
+
+// Dollar Cost Comparison: $100/week invested per horizon
+const DCA_AMT = {'1ev':400,'25ev':10400,'1yr':5200,'5yr':26000,'10yr':52000};
+const DCA_LBL = {'1ev':'1 MONTH','25ev':'2 YEARS','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
+
+// ══════════════════════════
+// DATA — layer: "raw" | "fee" | "tax"
+// ══════════════════════════
+const RAW = [
+  // ─── STOCKS ───
+  {n:"NASDAQ 100 (QQQ)",cat:"Stock Market",g:"US Large Cap",m:"i",a:12.5,type:"Index Fund",vol:"High",wp:"~72% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P 500 Growth (IVW)",cat:"Stock Market",g:"US Large Cap",m:"i",a:12.0,type:"Index Fund",vol:"High",wp:"~70% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Small-Cap Value (VBR)",cat:"Stock Market",g:"US Small/Mid",m:"i",a:11.5,type:"Factor ETF",vol:"High",wp:"~68% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P MidCap 400 (MDY)",cat:"Stock Market",g:"US Small/Mid",m:"i",a:11.0,type:"Index Fund",vol:"High",wp:"~67% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Dividend Aristocrats (NOBL)",cat:"Stock Market",g:"US Large Cap",m:"i",a:10.5,type:"Index Fund",vol:"Med-High",wp:"~72% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Total US Stock Market (VTI)",cat:"Stock Market",g:"US Large Cap",m:"i",a:10.2,type:"Index Fund",vol:"Med-High",wp:"~73% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P 500 Index (SPY/VOO)",cat:"Stock Market",g:"S&P 500",m:"i",a:10.0,type:"Index Fund",vol:"Med-High",wp:"~73% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P 500 Equal Weight (RSP)",cat:"Stock Market",g:"S&P 500",m:"i",a:10.0,type:"Index Fund",vol:"Med-High",wp:"~72% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Dow Jones Industrial (DIA)",cat:"Stock Market",g:"Dow Jones",m:"i",a:9.5,type:"Index Fund",vol:"Med-High",wp:"~72% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P 500 Value (IVE)",cat:"Stock Market",g:"S&P 500",m:"i",a:9.5,type:"Index Fund",vol:"Med-High",wp:"~70% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Russell 2000 Small Cap (IWM)",cat:"Stock Market",g:"US Small/Mid",m:"i",a:8.5,type:"Index Fund",vol:"High",wp:"~65% of years",sk:"None (passive)",ly:"raw"},
+  {n:"REIT Index ETF (VNQ)",cat:"Stock Market",g:"US Large Cap",m:"i",a:8.0,type:"REIT ETF",vol:"Med-High",wp:"~70% of years",sk:"None (passive)",ly:"raw"},
+  {n:"S&P 500 High Dividend (SPYD)",cat:"Stock Market",g:"US Large Cap",m:"i",a:8.0,type:"Index Fund",vol:"Med-High",wp:"~68% of years",sk:"None (passive)",ly:"raw"},
+  {n:"DAX Germany Index",cat:"Stock Market",g:"International",m:"i",a:7.5,type:"Index Fund",vol:"High",wp:"~63% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Nikkei 225 Japan Index",cat:"Stock Market",g:"International",m:"i",a:7.0,type:"Index Fund",vol:"High",wp:"~60% of years",sk:"None (passive)",ly:"raw"},
+  {n:"MSCI EAFE Intl Developed (EFA)",cat:"Stock Market",g:"International",m:"i",a:5.5,type:"Index Fund",vol:"Med-High",wp:"~60% of years",sk:"None (passive)",ly:"raw"},
+  {n:"FTSE 100 UK Index",cat:"Stock Market",g:"International",m:"i",a:5.0,type:"Index Fund",vol:"Med-High",wp:"~58% of years",sk:"None (passive)",ly:"raw"},
+  {n:"MSCI Emerging Markets (EEM)",cat:"Stock Market",g:"International",m:"i",a:4.0,type:"Index Fund",vol:"High",wp:"~57% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Gold / Precious Metals (GLD)",cat:"Stock Market",g:"Commodities",m:"i",a:2.0,type:"Commodity",vol:"Medium",wp:"~58% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Commodity Index (DJP)",cat:"Stock Market",g:"Commodities",m:"i",a:1.0,type:"Commodity",vol:"High",wp:"~54% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Individual Stock Picking (Retail)",cat:"Stock Market",g:"Stock Picking",m:"i",a:-2.0,type:"Active Investing",vol:"Very High",wp:"~45% of traders",sk:"High — most underperform",ly:"raw"},
+  {n:"Penny Stocks (Retail Avg)",cat:"Stock Market",g:"Stock Picking",m:"i",a:-30.0,type:"Speculative",vol:"Extreme",wp:"~10-15%",sk:"Extreme",ly:"raw"},
+  // STOCKS — Fee-Adjusted
+  {n:"S&P 500 After 0.03% Index Fee",cat:"Stock Market",g:"Fee Impact",m:"i",a:9.97,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — 0.03% ER (VOO/IVV)",ly:"fee"},
+  {n:"S&P 500 After 0.35% Robo-Advisor",cat:"Stock Market",g:"Fee Impact",m:"i",a:9.65,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — 0.25% mgmt + fund fees",ly:"fee"},
+  {n:"S&P 500 After 0.60% Target-Date Fund",cat:"Stock Market",g:"Fee Impact",m:"i",a:9.40,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — avg target-date ER",ly:"fee"},
+  {n:"S&P 500 After 1% Advisory Fee",cat:"Stock Market",g:"Fee Impact",m:"i",a:9.0,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — typical advisor AUM fee",ly:"fee"},
+  {n:"S&P 500 After 1.5% Active Mutual Fund",cat:"Stock Market",g:"Fee Impact",m:"i",a:8.5,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — avg active fund ER",ly:"fee"},
+  {n:"S&P 500 After 2-and-20 Hedge Fund",cat:"Stock Market",g:"Fee Impact",m:"i",a:6.4,type:"Fee-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"None — 2% mgmt + 20% performance",ly:"fee"},
+  {n:"S&P 500 After 2-and-20 (Underperforming)",cat:"Stock Market",g:"Fee Impact",m:"i",a:4.0,type:"Fee-Adjusted",vol:"Med-High",wp:"~50% of years",sk:"None — fund returns 7% gross",ly:"fee"},
+  // STOCKS — Tax-Adjusted
+  {n:"S&P 500 After LTCG Tax (20%)",cat:"Stock Market",g:"Tax Impact",m:"i",a:8.0,type:"Tax-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"Held 1+ year — 20% federal LTCG",ly:"tax"},
+  {n:"S&P 500 After STCG Tax (37%)",cat:"Stock Market",g:"Tax Impact",m:"i",a:6.3,type:"Tax-Adjusted",vol:"Med-High",wp:"~73% of years",sk:"Held <1 year — taxed as ordinary income",ly:"tax"},
+  {n:"S&P 500 After 1% Fee + LTCG Tax",cat:"Stock Market",g:"Tax Impact",m:"i",a:7.2,type:"Tax + Fee Adjusted",vol:"Med-High",wp:"~73% of years",sk:"1% advisor fee then 20% LTCG on gains",ly:"tax"},
+  {n:"Qualified Dividends (SPYD) After 15% Tax",cat:"Stock Market",g:"Tax Impact",m:"i",a:6.8,type:"Tax-Adjusted",vol:"Med-High",wp:"~68% of years",sk:"Qualified dividends taxed at 15%",ly:"tax"},
+  // ─── BONDS ───
+  {n:"High-Yield Corporate (HYG/JNK)",cat:"Bonds",g:"Bonds",m:"i",a:5.5,type:"Bond Fund",vol:"Medium",wp:"~80% of years",sk:"Low",ly:"raw"},
+  {n:"Convertible Bond ETF (CWB)",cat:"Bonds",g:"Bonds",m:"i",a:5.0,type:"Bond Fund",vol:"Medium",wp:"~72% of years",sk:"Low",ly:"raw"},
+  {n:"Investment Grade Corporate (LQD)",cat:"Bonds",g:"Bonds",m:"i",a:4.5,type:"Bond Fund",vol:"Low-Med",wp:"~78% of years",sk:"None",ly:"raw"},
+  {n:"US Treasury Bills (BIL)",cat:"Bonds",g:"Bonds",m:"i",a:4.3,type:"Government",vol:"Very Low",wp:"~99%+",sk:"None",ly:"raw"},
+  {n:"Long-Term Treasury 20+ Yr (TLT)",cat:"Bonds",g:"Bonds",m:"i",a:4.0,type:"Government",vol:"High",wp:"~60% of years",sk:"None",ly:"raw"},
+  {n:"US Treasury 10-Year",cat:"Bonds",g:"Bonds",m:"i",a:3.8,type:"Government",vol:"Low-Med",wp:"~75% of years",sk:"None",ly:"raw"},
+  {n:"Total US Bond Market (BND/AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,type:"Bond Index",vol:"Low",wp:"~85% of years",sk:"None (passive)",ly:"raw"},
+  {n:"Municipal Bond Index (MUB)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,type:"Muni Bond",vol:"Low",wp:"~82% of years",sk:"None",ly:"raw"},
+  {n:"Aggregate Bond ETF (AGG)",cat:"Bonds",g:"Bonds",m:"i",a:3.0,type:"Bond ETF",vol:"Low",wp:"~82% of years",sk:"None (passive)",ly:"raw"},
+  {n:"International Bond (BNDX)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,type:"Bond ETF",vol:"Low",wp:"~75% of years",sk:"None",ly:"raw"},
+  {n:"Short-Term Treasury (SHY)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,type:"Government",vol:"Very Low",wp:"~95%+",sk:"None",ly:"raw"},
+  {n:"TIPS Inflation-Protected (TIP)",cat:"Bonds",g:"Bonds",m:"i",a:1.5,type:"Inflation-Protected",vol:"Low",wp:"~90%+",sk:"None",ly:"raw"},
+  // BONDS — Fee-Adjusted
+  {n:"Bond Fund After 1% Advisory Fee",cat:"Bonds",g:"Fee Impact",m:"i",a:2.5,type:"Fee-Adjusted",vol:"Low",wp:"~85% of years",sk:"1% AUM fee eats 29% of bond return",ly:"fee"},
+  // BONDS — Tax-Adjusted
+  {n:"Bond Interest After Income Tax (37%)",cat:"Bonds",g:"Tax Impact",m:"i",a:2.21,type:"Tax-Adjusted",vol:"Low",wp:"~85% of years",sk:"Bond income taxed as ordinary income",ly:"tax"},
+  {n:"Muni Bonds Tax-Exempt (Effective)",cat:"Bonds",g:"Tax Impact",m:"i",a:3.5,type:"Tax-Adjusted",vol:"Low",wp:"~82% of years",sk:"Federal tax-exempt — real yield unchanged",ly:"tax"},
+  {n:"Treasury Interest After Federal Tax (24%)",cat:"Bonds",g:"Tax Impact",m:"i",a:2.89,type:"Tax-Adjusted",vol:"Low-Med",wp:"~75% of years",sk:"State tax-exempt but 24% federal (avg bracket)",ly:"tax"},
+  // ─── REAL ESTATE ───
+  {n:"Multi-Unit Apartments (5+ Units)",cat:"Real Estate",g:"Residential RE",m:"i",a:10.0,type:"Multi-Family",vol:"Medium",wp:"~80% of years",sk:"Medium — management intensive",ly:"raw"},
+  {n:"Industrial / Warehouse",cat:"Real Estate",g:"Commercial RE",m:"i",a:9.0,type:"Commercial",vol:"Medium",wp:"~78% of years",sk:"Medium — tenant sourcing",ly:"raw"},
+  {n:"Multi Single Family Portfolio",cat:"Real Estate",g:"Residential RE",m:"i",a:8.5,type:"Residential Portfolio",vol:"Med-High",wp:"~75% of years",sk:"Medium — scale management",ly:"raw"},
+  {n:"Single Family Home (Buy & Hold)",cat:"Real Estate",g:"Residential RE",m:"i",a:7.5,type:"Single Family",vol:"Medium",wp:"~75% of years",sk:"Low-Med — basic landlording",ly:"raw"},
+  {n:"Commercial Office Space",cat:"Real Estate",g:"Commercial RE",m:"i",a:6.5,type:"Commercial",vol:"Med-High",wp:"~68% of years",sk:"Medium — vacancy risk",ly:"raw"},
+  {n:"Retail / Strip Mall",cat:"Real Estate",g:"Commercial RE",m:"i",a:5.5,type:"Retail",vol:"Med-High",wp:"~65% of years",sk:"Medium — tenant turnover",ly:"raw"},
+  {n:"Vacation / Short-Term Rental",cat:"Real Estate",g:"Residential RE",m:"i",a:4.0,type:"Short-Term Rental",vol:"High",wp:"~60% of years",sk:"High — seasonal, heavy mgmt",ly:"raw"},
+  {n:"Raw Land (Speculative)",cat:"Real Estate",g:"Land",m:"i",a:2.0,type:"Land",vol:"High",wp:"~55% of years",sk:"Med — zoning & timing",ly:"raw"},
+  {n:"House Flipping (Retail Avg)",cat:"Real Estate",g:"Residential RE",m:"i",a:-5.0,type:"Fix & Flip",vol:"Very High",wp:"~40% profit after costs",sk:"High — reno + market timing",ly:"raw"},
+  {n:"Timeshare",cat:"Real Estate",g:"Other RE",m:"i",a:-12.0,type:"Timeshare",vol:"Low (locked in)",wp:"~0% resale recovery",sk:"None — depreciating asset",ly:"raw"},
+  // REAL ESTATE — Tax-Adjusted
+  {n:"Rental Income After Ordinary Tax (37%)",cat:"Real Estate",g:"Tax Impact",m:"i",a:4.73,type:"Tax-Adjusted",vol:"Medium",wp:"~75% of years",sk:"Rental income taxed at 37% (before depreciation)",ly:"tax"},
+  {n:"Home Sale After LTCG (w/ $250K Exclusion)",cat:"Real Estate",g:"Tax Impact",m:"i",a:6.75,type:"Tax-Adjusted",vol:"Medium",wp:"~75% of years",sk:"$250K/$500K exclusion then 20% on excess",ly:"tax"},
+  // ─── CRYPTO ───
+  {n:"Bitcoin Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Bitcoin",m:"i",a:45.0,type:"Spot Holding",vol:"Extreme",wp:"~65-85%",sk:"Low — just hold",ly:"raw"},
+  {n:"Ethereum Spot (Buy & Hold)",cat:"Cryptocurrency",g:"Ethereum/Alts",m:"i",a:10.0,type:"Spot Holding",vol:"Extreme",wp:"~60% of years",sk:"Low — just hold",ly:"raw"},
+  {n:"Stablecoin Yield Farming",cat:"Cryptocurrency",g:"DeFi",m:"i",a:5.0,type:"DeFi",vol:"Low-Med",wp:"~80%",sk:"Medium",ly:"raw"},
+  {n:"DeFi LP Major Pairs",cat:"Cryptocurrency",g:"DeFi",m:"i",a:2.0,type:"DeFi",vol:"Medium",wp:"~65%",sk:"Med-High",ly:"raw"},
+  {n:"DeFi LP Volatile Pairs",cat:"Cryptocurrency",g:"DeFi",m:"i",a:-10.0,type:"DeFi",vol:"Extreme",wp:"~35%",sk:"High",ly:"raw"},
+  {n:"Altcoin Portfolio (Retail)",cat:"Cryptocurrency",g:"Ethereum/Alts",m:"i",a:-15.0,type:"Speculative",vol:"Extreme",wp:"~25-30%",sk:"Very High",ly:"raw"},
+  {n:"Meme Coins (Retail Avg)",cat:"Cryptocurrency",g:"Ethereum/Alts",m:"i",a:-70.0,type:"Speculative",vol:"Extreme",wp:"~5-10%",sk:"Extreme — lottery",ly:"raw"},
+  // CRYPTO — Tax-Adjusted
+  {n:"Bitcoin After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Tax Impact",m:"i",a:36.0,type:"Tax-Adjusted",vol:"Extreme",wp:"~65-85%",sk:"Held 1+ year — 20% federal LTCG",ly:"tax"},
+  {n:"Bitcoin After STCG Tax (37%)",cat:"Cryptocurrency",g:"Tax Impact",m:"i",a:28.35,type:"Tax-Adjusted",vol:"Extreme",wp:"~65-85%",sk:"Held <1 year — taxed as ordinary income",ly:"tax"},
+  {n:"Ethereum After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Tax Impact",m:"i",a:8.0,type:"Tax-Adjusted",vol:"Extreme",wp:"~60% of years",sk:"Held 1+ year — 20% federal LTCG",ly:"tax"},
+  // ─── OPTIONS ───
+  {n:"Iron Condor Selling",cat:"Options",g:"Options Selling",m:"i",a:10.0,type:"Options Selling",vol:"Low-Med",wp:"~70-80%",sk:"Med-High",ly:"raw"},
+  {n:"Cash-Secured Put Selling",cat:"Options",g:"Options Selling",m:"i",a:8.0,type:"Options Selling",vol:"Medium",wp:"~70-75%",sk:"Medium",ly:"raw"},
+  {n:"Covered Call Writing",cat:"Options",g:"Options Selling",m:"i",a:7.0,type:"Options Selling",vol:"Low-Med",wp:"~65-70%",sk:"Low-Med",ly:"raw"},
+  {n:"Managed Futures / CTA",cat:"Options",g:"Managed Futures",m:"i",a:3.0,type:"CTA Fund",vol:"Medium",wp:"~58%",sk:"Professional",ly:"raw"},
+  {n:"Commodity Futures (Retail)",cat:"Options",g:"Futures Trading",m:"g",e:-8.0,type:"Futures",vol:"Very High",wp:"~30%",sk:"Very High",ly:"raw"},
+  {n:"ATM Options Buying (30-Day)",cat:"Options",g:"Options Buying",m:"g",e:-15.0,type:"Options Buying",vol:"Very High",wp:"~35-40%",sk:"High",ly:"raw"},
+  {n:"Leveraged Futures Day Trading",cat:"Options",g:"Futures Trading",m:"g",e:-25.0,type:"Futures",vol:"Extreme",wp:"~15-20%",sk:"Extreme",ly:"raw"},
+  {n:"OTM Options Buying (30-Day)",cat:"Options",g:"Options Buying",m:"g",e:-35.0,type:"Options Buying",vol:"Extreme",wp:"~15-20%",sk:"Very High",ly:"raw"},
+  {n:"0DTE Options (Retail Avg)",cat:"Options",g:"Options Buying",m:"g",e:-50.0,type:"Options Buying",vol:"Extreme",wp:"~20-30%",sk:"Extreme — gamma gambling",ly:"raw"},
+  {n:"Deep OTM Weekly Options",cat:"Options",g:"Options Buying",m:"g",e:-60.0,type:"Options Buying",vol:"Extreme",wp:"~5-10%",sk:"Extreme — lottery ticket",ly:"raw"},
+  // OPTIONS — Tax-Adjusted
+  {n:"Iron Condor After STCG Tax (37%)",cat:"Options",g:"Tax Impact",m:"i",a:6.3,type:"Tax-Adjusted",vol:"Low-Med",wp:"~70-80%",sk:"Equity options — short-term, taxed as ordinary income",ly:"tax"},
+  {n:"Cash-Secured Put After STCG Tax (37%)",cat:"Options",g:"Tax Impact",m:"i",a:5.04,type:"Tax-Adjusted",vol:"Medium",wp:"~70-75%",sk:"Equity options — short-term, taxed as ordinary income",ly:"tax"},
+  {n:"Covered Call After STCG Tax (37%)",cat:"Options",g:"Tax Impact",m:"i",a:4.41,type:"Tax-Adjusted",vol:"Low-Med",wp:"~65-70%",sk:"Equity options — short-term, taxed as ordinary income",ly:"tax"},
+  {n:"Managed Futures After 60/40 Tax (26.8%)",cat:"Options",g:"Tax Impact",m:"i",a:2.20,type:"Tax-Adjusted",vol:"Medium",wp:"~58%",sk:"Section 1256: 60% LTCG (20%) + 40% STCG (37%) = 26.8% blended",ly:"tax"},
+  // ─── ACTIVE TRADING ───
+  {n:"Systematic Trend Following",cat:"Active Trading",g:"Active Trading",m:"i",a:5.0,type:"Managed Strategy",vol:"Medium",wp:"~55%",sk:"High — systematic rules",ly:"raw"},
+  {n:"Social/Copy Trading (Retail)",cat:"Active Trading",g:"Active Trading",m:"i",a:-12.0,type:"Copy Trading",vol:"High",wp:"~25-30%",sk:"Low — copying others",ly:"raw"},
+  {n:"Momentum Trading (Retail)",cat:"Active Trading",g:"Active Trading",m:"i",a:-18.0,type:"Active Trading",vol:"Very High",wp:"~20-25%",sk:"High — timing dependent",ly:"raw"},
+  {n:"Retail Forex Trading",cat:"Active Trading",g:"Active Trading",m:"i",a:-25.0,type:"Leveraged Trading",vol:"High",wp:"~15-20%",sk:"Extreme — 80%+ lose",ly:"raw"},
+  {n:"CFD Trading (Retail, Leveraged)",cat:"Active Trading",g:"Active Trading",m:"i",a:-28.0,type:"Leveraged Trading",vol:"Extreme",wp:"~15-20%",sk:"Extreme — 76%+ lose",ly:"raw"},
+  {n:"Retail Day Trading",cat:"Active Trading",g:"Active Trading",m:"i",a:-30.0,type:"Day Trading",vol:"Extreme",wp:"~5-10%",sk:"Extreme — <5% sustain",ly:"raw"},
+  {n:"Crypto Day Trading (Retail)",cat:"Active Trading",g:"Active Trading",m:"i",a:-35.0,type:"Day Trading",vol:"Extreme",wp:"~5-8%",sk:"Extreme — 24/7 market",ly:"raw"},
+  {n:"Binary Options (Retail)",cat:"Active Trading",g:"Active Trading",m:"i",a:-40.0,type:"Binary Speculation",vol:"Extreme",wp:"~10-15%",sk:"Extreme — largely scams",ly:"raw"},
+  // ACTIVE TRADING — Tax-Adjusted
+  {n:"Trend Following After STCG Tax (37%)",cat:"Active Trading",g:"Tax Impact",m:"i",a:3.15,type:"Tax-Adjusted",vol:"Medium",wp:"~55%",sk:"Short-term gains taxed as ordinary income",ly:"tax"},
+  {n:"Day Trading After Income Tax (37%)",cat:"Active Trading",g:"Tax Impact",m:"i",a:-30.0,type:"Tax-Adjusted",vol:"Extreme",wp:"~5-10%",sk:"Losses limited to $3K/yr deduction — tax barely helps",ly:"tax"},
+  // ─── COLLECTIBLES ───
+  {n:"Vintage Sports Cards (PSA 10)",cat:"Collectibles",g:"Collectibles",m:"i",a:6.0,type:"Graded Collectible",vol:"High",wp:"~65% of years",sk:"High — authentication & market knowledge",ly:"raw"},
+  {n:"Fine Art (Blue Chip / Old Masters)",cat:"Collectibles",g:"Collectibles",m:"i",a:5.0,type:"Fine Art",vol:"Low-Med",wp:"~70% (blue chip)",sk:"Very High — connoisseurship",ly:"raw"},
+  {n:"Fine Wine (Investment Grade)",cat:"Collectibles",g:"Collectibles",m:"i",a:4.0,type:"Wine Investment",vol:"Low-Med",wp:"~68% of vintages",sk:"High — storage & provenance",ly:"raw"},
+  {n:"Classic Cars (Pre-1970)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.5,type:"Classic Vehicle",vol:"Medium",wp:"~60% of years",sk:"Med — maintenance & market",ly:"raw"},
+  {n:"Luxury Watches (Rolex/Patek)",cat:"Collectibles",g:"Collectibles",m:"i",a:3.0,type:"Luxury Good",vol:"Medium",wp:"~60% of models",sk:"Med — model selection matters",ly:"raw"},
+  {n:"Precious Coins (Numismatic)",cat:"Collectibles",g:"Collectibles",m:"i",a:1.5,type:"Numismatic",vol:"Low-Med",wp:"~55% of years",sk:"High — grading expertise",ly:"raw"},
+  {n:"Sneaker Reselling (Retail Avg)",cat:"Collectibles",g:"Collectibles",m:"i",a:-5.0,type:"Retail Arbitrage",vol:"High",wp:"~35% profit after fees",sk:"Med — hype cycle timing",ly:"raw"},
+  {n:"Modern Art Speculation",cat:"Collectibles",g:"Collectibles",m:"i",a:-10.0,type:"Speculative Art",vol:"Very High",wp:"~25% appreciate",sk:"Very High — trend dependent",ly:"raw"},
+  {n:"Non-Vintage Trading Cards",cat:"Collectibles",g:"Collectibles",m:"i",a:-15.0,type:"Mass-Produced",vol:"Very High",wp:"~20% hold value",sk:"Med — oversupply risk",ly:"raw"},
+  {n:"NFT Art & Digital Collectibles",cat:"Collectibles",g:"Collectibles",m:"i",a:-50.0,type:"Digital Asset",vol:"Extreme",wp:"~5-10%",sk:"Extreme — speculative mania",ly:"raw"},
+  // COLLECTIBLES — Tax-Adjusted
+  {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",g:"Tax Impact",m:"i",a:4.32,type:"Tax-Adjusted",vol:"High",wp:"~65% of years",sk:"IRS taxes collectible gains at 28% (not 20% LTCG)",ly:"tax"},
+  // ─── SPORTS ───
+  {n:"Single Game Spread (-110)",cat:"Sports Betting",g:"Straight Bets",m:"g",e:-4.55,type:"Straight Bet",vol:"Binary",wp:"47.6% to break even",sk:"Medium",ly:"raw"},
+  {n:"Single Game O/U (-110)",cat:"Sports Betting",g:"Straight Bets",m:"g",e:-4.55,type:"Straight Bet",vol:"Binary",wp:"47.6% to break even",sk:"Medium",ly:"raw"},
+  {n:"Moneyline (Standard Juice)",cat:"Sports Betting",g:"Straight Bets",m:"g",e:-4.55,type:"Straight Bet",vol:"Binary",wp:"Varies by price",sk:"Medium",ly:"raw"},
+  {n:"Teaser 2-Team 6pt",cat:"Sports Betting",g:"Straight Bets",m:"g",e:-5.0,type:"Exotic",vol:"Binary",wp:"~73% needed",sk:"Low-Med",ly:"raw"},
+  {n:"Live / In-Game Bet",cat:"Sports Betting",g:"Props & Exotics",m:"g",e:-6.5,type:"Live Bet",vol:"Binary",wp:"~45%",sk:"Med — rushed decisions",ly:"raw"},
+  {n:"Player Prop Bet",cat:"Sports Betting",g:"Props & Exotics",m:"g",e:-7.0,type:"Prop",vol:"Binary",wp:"~44%",sk:"Medium",ly:"raw"},
+  {n:"Season Win Total Future",cat:"Sports Betting",g:"Sports Futures",m:"g",e:-8.0,type:"Futures",vol:"Locked Capital",wp:"~42%",sk:"Medium",ly:"raw"},
+  {n:"2-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-10.0,type:"Parlay",vol:"High",wp:"~25%",sk:"Low — vig compounds",ly:"raw"},
+  {n:"Championship Future",cat:"Sports Betting",g:"Sports Futures",m:"g",e:-12.0,type:"Futures",vol:"Locked Capital",wp:"Varies by team",sk:"Medium",ly:"raw"},
+  {n:"3-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-12.5,type:"Parlay",vol:"Very High",wp:"~12.5%",sk:"Low",ly:"raw"},
+  {n:"4-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-15.0,type:"Parlay",vol:"Very High",wp:"~6.25%",sk:"Very Low",ly:"raw"},
+  {n:"Same-Game Parlay (SGP)",cat:"Sports Betting",g:"Parlays",m:"g",e:-15.0,type:"SGP",vol:"Very High",wp:"~5-10%",sk:"Very Low — hidden vig",ly:"raw"},
+  {n:"First Touchdown Scorer",cat:"Sports Betting",g:"Props & Exotics",m:"g",e:-18.0,type:"Prop",vol:"Very High",wp:"~8-12%",sk:"Very Low",ly:"raw"},
+  {n:"5-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-20.0,type:"Parlay",vol:"Extreme",wp:"~3.1%",sk:"None",ly:"raw"},
+  {n:"Correct Score (Soccer)",cat:"Sports Betting",g:"Props & Exotics",m:"g",e:-20.0,type:"Exotic",vol:"Extreme",wp:"~5-8%",sk:"Very Low",ly:"raw"},
+  {n:"6-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-25.0,type:"Parlay",vol:"Extreme",wp:"~1.6%",sk:"None",ly:"raw"},
+  {n:"8-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-30.0,type:"Parlay",vol:"Extreme",wp:"~0.4%",sk:"None",ly:"raw"},
+  {n:"10-Team Parlay",cat:"Sports Betting",g:"Parlays",m:"g",e:-35.0,type:"Parlay",vol:"Extreme",wp:"~0.1%",sk:"None — pure lottery",ly:"raw"},
+  // ─── CASINO ───
+  {n:"Blackjack (Card Counting Hi-Lo)",cat:"Casino Gambling",g:"Blackjack",m:"g",e:1.0,type:"Table (Skilled)",vol:"Medium",wp:"~51%",sk:"Very High — years to master",ly:"raw"},
+  {n:"Video Poker 9/6 JoB (Perfect Play)",cat:"Casino Gambling",g:"Video Poker",m:"g",e:-0.46,type:"Machine (Skilled)",vol:"Medium",wp:"~49.5%",sk:"High — perfect strategy",ly:"raw"},
+  {n:"Blackjack 3:2 (Basic Strategy)",cat:"Casino Gambling",g:"Blackjack",m:"g",e:-0.5,type:"Table Game",vol:"Medium",wp:"~49.5%",sk:"Medium",ly:"raw"},
+  {n:"Baccarat Banker (5% Commission)",cat:"Casino Gambling",g:"Baccarat",m:"g",e:-1.06,type:"Table Game",vol:"Medium",wp:"~50.7%",sk:"None",ly:"raw"},
+  {n:"Baccarat Player",cat:"Casino Gambling",g:"Baccarat",m:"g",e:-1.24,type:"Table Game",vol:"Medium",wp:"~49.3%",sk:"None",ly:"raw"},
+  {n:"Craps Don't Pass",cat:"Casino Gambling",g:"Craps",m:"g",e:-1.36,type:"Table Game",vol:"Medium",wp:"~49.3%",sk:"None",ly:"raw"},
+  {n:"Craps Pass Line",cat:"Casino Gambling",g:"Craps",m:"g",e:-1.41,type:"Table Game",vol:"Medium",wp:"~49.3%",sk:"None",ly:"raw"},
+  {n:"Blackjack 6:5 (Basic Strategy)",cat:"Casino Gambling",g:"Blackjack",m:"g",e:-2.0,type:"Table Game",vol:"Medium",wp:"~48%",sk:"Medium — bad rules",ly:"raw"},
+  {n:"Pai Gow Poker",cat:"Casino Gambling",g:"Other Table",m:"g",e:-2.5,type:"Table Game",vol:"Low (pushes)",wp:"~30% W / ~40% push",sk:"Low-Med",ly:"raw"},
+  {n:"Roulette Single Zero",cat:"Casino Gambling",g:"Roulette",m:"g",e:-2.7,type:"Table Game",vol:"Medium",wp:"48.6%",sk:"None",ly:"raw"},
+  {n:"Three Card Poker",cat:"Casino Gambling",g:"Other Table",m:"g",e:-3.4,type:"Table Game",vol:"Med-High",wp:"~44%",sk:"Low",ly:"raw"},
+  {n:"Let It Ride",cat:"Casino Gambling",g:"Other Table",m:"g",e:-3.5,type:"Table Game",vol:"High",wp:"~24% win anything",sk:"Low",ly:"raw"},
+  {n:"Slots Loose (95% RTP)",cat:"Casino Gambling",g:"Slots",m:"g",e:-5.0,type:"Machine",vol:"High",wp:"~30-35% pay",sk:"None",ly:"raw"},
+  {n:"Caribbean Stud Poker",cat:"Casino Gambling",g:"Other Table",m:"g",e:-5.2,type:"Table Game",vol:"High",wp:"~45%",sk:"Low",ly:"raw"},
+  {n:"Roulette Double Zero",cat:"Casino Gambling",g:"Roulette",m:"g",e:-5.26,type:"Table Game",vol:"Medium",wp:"47.4%",sk:"None",ly:"raw"},
+  {n:"Slots Average (92% RTP)",cat:"Casino Gambling",g:"Slots",m:"g",e:-8.0,type:"Machine",vol:"High",wp:"~25-30%",sk:"None",ly:"raw"},
+  {n:"Slots Tight (85% RTP)",cat:"Casino Gambling",g:"Slots",m:"g",e:-15.0,type:"Machine",vol:"Very High",wp:"~20%",sk:"None",ly:"raw"},
+  {n:"Big Six Wheel",cat:"Casino Gambling",g:"Other Table",m:"g",e:-16.0,type:"Table Game",vol:"High",wp:"~44% ($1 bet)",sk:"None",ly:"raw"},
+  {n:"Keno 4-Spot",cat:"Casino Gambling",g:"Keno",m:"g",e:-28.0,type:"Keno",vol:"Extreme",wp:"~26% any match",sk:"None",ly:"raw"},
+  {n:"Keno 10-Spot",cat:"Casino Gambling",g:"Keno",m:"g",e:-35.0,type:"Keno",vol:"Extreme",wp:"~5% meaningful win",sk:"None",ly:"raw"},
+  // CASINO — Tax-Adjusted
+  {n:"Card Counting After Income Tax (37%)",cat:"Casino Gambling",g:"Tax Impact",m:"g",e:0.63,type:"Tax-Adjusted",vol:"Medium",wp:"~51%",sk:"Gambling winnings taxed at ordinary income rate",ly:"tax"},
+  // ─── POKER/DFS ───
+  {n:"Poker Elite Pro (High Stakes)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:8.0,type:"Skill Game",vol:"Very High",wp:"~65% of sessions",sk:"Elite — top 1%",ly:"raw"},
+  {n:"Poker Skilled (Live Cash)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:5.0,type:"Skill Game",vol:"High",wp:"~60% of sessions",sk:"Very High — top 30%",ly:"raw"},
+  {n:"DFS Top 5% Player",cat:"Poker & Skill-Based",g:"DFS",m:"g",e:5.0,type:"Skill Game",vol:"Very High",wp:"~55% ROI+ weeks",sk:"Very High — top 5% only",ly:"raw"},
+  {n:"Poker Skilled (Online)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:3.0,type:"Skill Game",vol:"High",wp:"~55% of sessions",sk:"Very High",ly:"raw"},
+  {n:"Backgammon Tournament (Skilled)",cat:"Poker & Skill-Based",g:"Other Skill",m:"g",e:3.0,type:"Skill Game",vol:"High",wp:"~55%",sk:"High — positional mastery",ly:"raw"},
+  {n:"Poker Skilled (Tournaments)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:2.0,type:"Skill Game",vol:"Extreme",wp:"~15-20% cash",sk:"Very High",ly:"raw"},
+  {n:"Poker Mid-Stakes Reg (6-max)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:1.5,type:"Skill Game",vol:"High",wp:"~52% of sessions",sk:"High — grinding edge",ly:"raw"},
+  {n:"Poker Average (Live Cash)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:-5.0,type:"Skill Game",vol:"High",wp:"~40%",sk:"High — rake kills avg",ly:"raw"},
+  {n:"Poker Average (Online)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:-8.0,type:"Skill Game",vol:"High",wp:"~35%",sk:"Higher rake",ly:"raw"},
+  {n:"Poker Recreational (Live Cash)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:-10.0,type:"Skill Game",vol:"High",wp:"~30%",sk:"High — plays for fun",ly:"raw"},
+  {n:"DFS Average Player",cat:"Poker & Skill-Based",g:"DFS",m:"g",e:-12.0,type:"Skill Game",vol:"Very High",wp:"~30%",sk:"High — sharks dominate",ly:"raw"},
+  {n:"Poker Sit & Go (Average)",cat:"Poker & Skill-Based",g:"Poker",m:"g",e:-15.0,type:"Skill Game",vol:"Very High",wp:"~25%",sk:"Med — ICM knowledge needed",ly:"raw"},
+  {n:"DFS Casual Player",cat:"Poker & Skill-Based",g:"DFS",m:"g",e:-20.0,type:"Skill Game",vol:"Very High",wp:"~15-20%",sk:"Casual = fodder",ly:"raw"},
+  // POKER — Tax-Adjusted
+  {n:"Poker Pro After Income Tax (37%)",cat:"Poker & Skill-Based",g:"Tax Impact",m:"g",e:5.04,type:"Tax-Adjusted",vol:"Very High",wp:"~65% of sessions",sk:"Net winnings taxed as ordinary income",ly:"tax"},
+  // ─── PREDICTION MARKETS ───
+  {n:"Polymarket Elections",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-3.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Medium — info edge",ly:"raw"},
+  {n:"Polymarket SCOTUS / Events",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-3.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Medium",ly:"raw"},
+  {n:"Metaculus Scientific Questions",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-3.5,type:"Forecasting",vol:"Binary",wp:"Calibration-based",sk:"High — domain expertise",ly:"raw"},
+  {n:"Polymarket Oscars / Culture",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-4.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Low-Med",ly:"raw"},
+  {n:"Polymarket Geopolitics / World",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-4.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Med — geopolitical knowledge",ly:"raw"},
+  {n:"Polymarket Sports / Entertainment",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-4.5,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Low-Med — overlaps sports betting",ly:"raw"},
+  {n:"Polymarket Crypto Prices",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-5.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Med — crypto knowledge",ly:"raw"},
+  {n:"Kalshi Economic Events",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-5.5,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Med — econ helps",ly:"raw"},
+  {n:"Kalshi Fed Rate Decision",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-5.5,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Medium",ly:"raw"},
+  {n:"Kalshi GDP Forecast",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-6.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Medium",ly:"raw"},
+  {n:"Kalshi Weather Events",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-7.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Low — hard to predict",ly:"raw"},
+  {n:"PredictIt US Politics (5%+5%)",cat:"Prediction Markets",g:"Prediction Mkts",m:"g",e:-10.0,type:"Binary Contract",vol:"Binary",wp:"Priced by market",sk:"Med — high fees",ly:"raw"},
+  // ─── LOTTERY ───
+  {n:"$1 Scratch-Off (Best Odds)",cat:"Lottery",g:"Lottery",m:"g",e:-25.0,type:"Instant",vol:"High",wp:"~40% win < cost",sk:"None",ly:"raw"},
+  {n:"Premium Scratch-Off ($20+)",cat:"Lottery",g:"Lottery",m:"g",e:-30.0,type:"Instant",vol:"High",wp:"~35% win < cost",sk:"None",ly:"raw"},
+  {n:"Scratch-Off Tickets (Avg)",cat:"Lottery",g:"Lottery",m:"g",e:-35.0,type:"Instant",vol:"Extreme",wp:"~30% win < cost",sk:"None",ly:"raw"},
+  {n:"Keno State-Run",cat:"Lottery",g:"Lottery",m:"g",e:-40.0,type:"Draw Game",vol:"Extreme",wp:"~25% any match",sk:"None",ly:"raw"},
+  {n:"Daily Numbers Game",cat:"Lottery",g:"Lottery",m:"g",e:-42.0,type:"Draw Game",vol:"Extreme",wp:"~1% meaningful win",sk:"None",ly:"raw"},
+  {n:"State Pick 6 / Lotto",cat:"Lottery",g:"Lottery",m:"g",e:-45.0,type:"Draw Game",vol:"Extreme",wp:"1 in 13M+",sk:"None",ly:"raw"},
+  {n:"State Lottery Pick 3/4",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,type:"Draw Game",vol:"Extreme",wp:"~0.1% exact",sk:"None",ly:"raw"},
+  {n:"Powerball / Mega Millions",cat:"Lottery",g:"Lottery",m:"g",e:-52.0,type:"Draw Game",vol:"Extreme",wp:"1 in 292M",sk:"None — pure luck",ly:"raw"},
+  {n:"Multi-State Cash4Life",cat:"Lottery",g:"Lottery",m:"g",e:-55.0,type:"Draw Game",vol:"Extreme",wp:"1 in 21M+",sk:"None — pure luck",ly:"raw"},
+];
+
+// ══════════════════════════
+// CATEGORY COLORS
+// ══════════════════════════
+const CC = {
+    "Stock Market":"#3b82f6","Bonds":"#06b6d4","Real Estate":"#8b5cf6",
+    "Cryptocurrency":"#f59e0b","Options":"#ec4899",
+    "Active Trading":"#ef4444","Collectibles":"#d97706",
+    "Sports Betting":"#22c55e","Casino Gambling":"#a855f7",
+    "Poker & Skill-Based":"#14b8a6","Prediction Markets":"#6366f1",
+    "Lottery":"#f43f5e"
+};
+
+// ══════════════════════════
+// ADDICTION RISK (1-5)
+// 1=Minimal, 2=Low, 3=Medium, 4=High, 5=Extreme
+// Based on feedback loop speed, variable reward patterns, and documented problem-behavior association
+// ══════════════════════════
+const AR_DEFAULT = {
+    "Stock Market":1,"Bonds":1,"Real Estate":1,"Cryptocurrency":3,
+    "Options":3,"Active Trading":4,"Collectibles":1,
+    "Sports Betting":4,"Casino Gambling":3,"Poker & Skill-Based":3,
+    "Prediction Markets":2,"Lottery":3
+};
+const AR_OVER = {
+    // Stocks
+    "Individual Stock Picking (Retail)":3,"Penny Stocks (Retail Avg)":4,
+    // Crypto
+    "Bitcoin Spot (Buy & Hold)":2,"Ethereum Spot (Buy & Hold)":2,
+    "Stablecoin Yield Farming":1,"DeFi LP Major Pairs":2,"DeFi LP Volatile Pairs":3,
+    "Altcoin Portfolio (Retail)":4,"Meme Coins (Retail Avg)":5,
+    // Options
+    "Iron Condor Selling":2,"Cash-Secured Put Selling":2,"Covered Call Writing":2,
+    "Managed Futures / CTA":1,"Commodity Futures (Retail)":3,
+    "ATM Options Buying (30-Day)":4,"Leveraged Futures Day Trading":5,
+    "OTM Options Buying (30-Day)":4,"0DTE Options (Retail Avg)":5,"Deep OTM Weekly Options":5,
+    // Trading
+    "Systematic Trend Following":2,"Social/Copy Trading (Retail)":3,
+    "Retail Day Trading":5,"Crypto Day Trading (Retail)":5,"Binary Options (Retail)":5,
+    // Real Estate
+    "House Flipping (Retail Avg)":2,
+    // Collectibles
+    "NFT Art & Digital Collectibles":3,"Sneaker Reselling (Retail Avg)":2,
+    // Sports
+    "Single Game Spread (-110)":3,"Single Game O/U (-110)":3,"Moneyline (Standard Juice)":3,
+    "Teaser 2-Team 6pt":3,"Live / In-Game Bet":5,"Player Prop Bet":4,
+    "Same-Game Parlay (SGP)":5,"First Touchdown Scorer":4,
+    "5-Team Parlay":4,"6-Team Parlay":4,"8-Team Parlay":4,"10-Team Parlay":4,
+    // Casino
+    "Blackjack (Card Counting Hi-Lo)":2,"Video Poker 9/6 JoB (Perfect Play)":3,
+    "Slots Loose (95% RTP)":5,"Slots Average (92% RTP)":5,"Slots Tight (85% RTP)":5,
+    "Big Six Wheel":4,"Keno 4-Spot":4,"Keno 10-Spot":4,
+    // Poker
+    "Poker Elite Pro (High Stakes)":2,"Poker Skilled (Live Cash)":2,
+    "Poker Average (Online)":4,"DFS Casual Player":4,
+    // Lottery
+    "$1 Scratch-Off (Best Odds)":4,"Premium Scratch-Off ($20+)":4,"Scratch-Off Tickets (Avg)":4,
+    "Powerball / Mega Millions":2,"State Pick 6 / Lotto":2,"Multi-State Cash4Life":2,
+};
+const AR_CLR = {1:'#22c55e',2:'#4ade80',3:'#facc15',4:'#f97316',5:'#ef4444'};
+const AR_LBL = {1:'MINIMAL',2:'LOW',3:'MEDIUM',4:'HIGH',5:'EXTREME'};
+const AR_DESC = {
+    1:'Long feedback cycles, stable returns',
+    2:'Moderate feedback, skill-based engagement',
+    3:'Regular feedback loops, some variable rewards',
+    4:'Frequent feedback, variable rewards, dopamine-driven',
+    5:'Instant feedback, maximum variable reward — highest addiction potential'
+};
+
+// ══════════════════════════
+// PRECOMPUTE
+// ══════════════════════════
+const D = RAW.map(r => {
+    const v = {};
+    HZ.forEach(h => { v[h] = r.m === 'g' ? gambRet(r.e, G_N[h]) : invRet(r.a, I_Y[h]); });
+    const ar = AR_OVER[r.n] ?? AR_DEFAULT[r.cat] ?? 2;
+    return {...r, v, ar};
+});
+
+// Color from return %
+function rc(pct) {
+    if (pct >= 0) {
+        const t = Math.min(pct / 200, 1);
+        return `rgb(${Math.round(134-t*120)},${Math.round(239-t*50)},${Math.round(172-t*140)})`;
+    } else {
+        const t = Math.min(Math.abs(pct) / 1500, 1);
+        return `rgb(${Math.round(248-t*118)},${Math.round(113-t*93)},${Math.round(113-t*93)})`;
+    }
+}
+
+// ══════════════════════════
+// STATE
+// ══════════════════════════
+const ALL_CATS = ["Stock Market","Bonds","Real Estate","Cryptocurrency","Options","Active Trading","Collectibles","Sports Betting","Casino Gambling","Poker & Skill-Based","Prediction Markets","Lottery"];
+let catSet = new Set(ALL_CATS);
+let timeF = '1yr', layerF = 'raw';
+let showDCA = false, showRisk = false;
+
+// ══════════════════════════
+// FILTER + LAYER VISIBILITY
+// ══════════════════════════
+function isAllCats() { return catSet.size === ALL_CATS.length; }
+function fd() {
+    let d = isAllCats() ? [...D] : D.filter(x => catSet.has(x.cat));
+    if (layerF === 'raw') d = d.filter(x => x.ly === 'raw');
+    else if (layerF === 'fees') d = d.filter(x => x.ly === 'raw' || x.ly === 'fee');
+    else if (layerF === 'tax') d = d.filter(x => x.ly === 'raw' || x.ly === 'tax');
+    d.sort((a,b) => b.v[timeF] - a.v[timeF]);
+    return d;
+}
+
+function updateLayerBtns() {
+    const pool = isAllCats() ? D : D.filter(x => catSet.has(x.cat));
+    const hasFee = pool.some(x => x.ly === 'fee');
+    const hasTax = pool.some(x => x.ly === 'tax');
+    const anyOverlay = hasFee || hasTax;
+    document.querySelectorAll('#layerGroup .lbtn').forEach(btn => {
+        const l = btn.dataset.l;
+        if (l === 'fees') btn.classList.toggle('hidden', !hasFee);
+        else if (l === 'tax') btn.classList.toggle('hidden', !hasTax);
+        else if (l === 'all') btn.classList.toggle('hidden', !hasFee && !hasTax);
+    });
+    // Hide entire layer section if no overlays exist
+    document.getElementById('layerSep').style.display = anyOverlay ? '' : 'none';
+    document.getElementById('layerLabel').style.display = anyOverlay ? '' : 'none';
+    document.getElementById('layerGroup').style.display = anyOverlay ? '' : 'none';
+    // Reset to raw if active layer is now hidden
+    if ((layerF === 'fees' && !hasFee) || (layerF === 'tax' && !hasTax) || (layerF === 'all' && !anyOverlay)) {
+        layerF = 'raw';
+        document.querySelectorAll('#layerGroup .lbtn').forEach(x => x.classList.remove('active'));
+        document.querySelector('.lbtn[data-l="raw"]').classList.add('active');
+    }
+}
+
+// ══════════════════════════
+// FORMAT HELPERS
+// ══════════════════════════
+function fp(v) {
+    const s = v >= 0 ? '+' : '';
+    if (Math.abs(v) >= 10000) return s + (v/1000).toFixed(0) + 'K%';
+    if (Math.abs(v) >= 1000) return s + v.toFixed(0) + '%';
+    if (Math.abs(v) >= 100) return s + v.toFixed(0) + '%';
+    return s + v.toFixed(2) + '%';
+}
+function fd$(v) {
+    const abs = Math.abs(v);
+    if (abs >= 1e6) return (v < 0 ? '-' : '') + '$' + (abs/1e6).toFixed(1) + 'M';
+    if (abs >= 1e3) return (v < 0 ? '-' : '') + '$' + (abs/1e3).toFixed(abs >= 1e4 ? 0 : 1) + 'K';
+    return (v < 0 ? '-' : '') + '$' + abs.toFixed(0);
+}
+function riskBlocks(level) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) {
+        const on = i <= level;
+        h += `<span class="tt-risk-blk" style="background:${on ? AR_CLR[level] : '#1a2540'}"></span>`;
+    }
+    return h;
+}
+
+// ══════════════════════════
+// TOOLTIP
+// ══════════════════════════
+const ttEl = document.getElementById('tt');
+function showTT(item, data, evt) {
+    const val = item.v[timeF];
+    const badgeBg = val >= 0 ? '#14532d' : '#7f1d1d';
+    const badgeBdr = val >= 0 ? '#22c55e' : '#ef4444';
+    const who = val > 0 ? 'Player / Investor' : val < 0 ? 'House / Market' : 'Break Even';
+    const catC = CC[item.cat] || '#667';
+    const edgeLbl = item.m === 'g' ? `${item.e > 0?'+':''}${item.e}% per bet` : `${item.a > 0?'+':''}${item.a}% annual`;
+    const layerTag = item.ly === 'fee' ? ' <span style="color:#22c55e;font-size:.6rem;border:1px solid #22c55e44;padding:0 4px;border-radius:3px">FEE-ADJ</span>' : item.ly === 'tax' ? ' <span style="color:#f59e0b;font-size:.6rem;border:1px solid #f59e0b44;padding:0 4px;border-radius:3px">AFTER-TAX</span>' : '';
+
+    // Focus metrics
+    let focus = `
+        <div class="tt-focus">
+            <div class="tt-fr"><span class="tt-l">Type</span><span class="tt-v">${item.type}</span></div>
+            <div class="tt-fr"><span class="tt-l">Volatility</span><span class="tt-v">${item.vol}</span></div>
+            <div class="tt-fr"><span class="tt-l">Win Probability</span><span class="tt-v">${item.wp}</span></div>
+            <div class="tt-fr"><span class="tt-l">Skill Factor</span><span class="tt-v">${item.sk}</span></div>
+        </div>`;
+
+    // Addiction risk section
+    let riskHTML = '';
+    if (showRisk) {
+        riskHTML = `<div class="tt-risk">
+            <div class="tt-fr">
+                <span class="tt-l">Addiction Risk</span>
+                <span class="tt-v" style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+                    <span class="tt-risk-bar">${riskBlocks(item.ar)}</span>
+                    <span style="color:${AR_CLR[item.ar]};font-weight:700;font-size:.7rem">${AR_LBL[item.ar]}</span>
+                </span>
+            </div>
+            <div style="font-size:.62rem;color:#556677;padding:2px 0 0">${AR_DESC[item.ar]}</div>
+        </div>`;
+    }
+
+    // All horizons
+    let hz = '<div class="tt-hz"><div class="tt-hzt">All Time Horizons — Cumulative Return</div>';
+    HZ.forEach(h => {
+        const hv = item.v[h];
+        const hc = hv >= 0 ? '#4ade80' : '#f87171';
+        hz += `<div class="tt-hr${h===timeF?' act':''}"><span class="tt-hl">${HZ_LBL[h]}</span><span class="tt-hv" style="color:${hc}">${fp(hv)}</span></div>`;
+    });
+    hz += '</div>';
+
+    // Dollar cost section
+    let dcaHTML = '';
+    if (showDCA) {
+        const inv = DCA_AMT[timeF];
+        const endVal = inv * (1 + val / 100);
+        const gain = endVal - inv;
+        const gc = gain >= 0 ? '#4ade80' : '#f87171';
+        dcaHTML = `<div class="tt-dca">
+            <div class="tt-hzt">Dollar Cost — $100/week for ${DCA_LBL[timeF]}</div>
+            <div class="tt-fr"><span class="tt-l">Total Invested</span><span class="tt-v">${fd$(inv)}</span></div>
+            <div class="tt-fr"><span class="tt-l">Portfolio Value</span><span class="tt-v" style="color:${gc}">${fd$(endVal)}</span></div>
+            <div class="tt-fr"><span class="tt-l">Gain / Loss</span><span class="tt-v" style="color:${gc}">${gain >= 0 ? '+' : ''}${fd$(gain)}</span></div>
+        </div>`;
+    }
+
+    // Group comparison
+    const sibs = data.filter(x => x.g === item.g);
+    let grp = '';
+    if (sibs.length > 1) {
+        grp = `<div class="tt-grp"><div class="tt-gt">${item.g} — ${sibs.length} items</div>`;
+        sibs.sort((a,b) => b.v[timeF] - a.v[timeF]);
+        for (const s of sibs) {
+            const sv = s.v[timeF];
+            const hi = s.n === item.n ? ' hi' : '';
+            grp += `<div class="tt-gi${hi}"><div class="tt-gd" style="background:${rc(sv)}"></div><div class="tt-gn">${s.n}</div><div class="tt-gv" style="color:${sv>=0?'#4ade80':'#f87171'}">${fp(sv)}</div></div>`;
+        }
+        grp += '</div>';
+    }
+
+    ttEl.innerHTML = `
+        <div class="tt-top">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div class="tt-title">${item.n}${layerTag}</div>
+                <div style="font-size:1rem;font-weight:800;padding:2px 10px;border-radius:6px;background:${badgeBg};border:1px solid ${badgeBdr};color:${badgeBdr};white-space:nowrap">${fp(val)}</div>
+            </div>
+            <div class="tt-sub">${who} &bull; <span style="color:${catC}">${item.cat}</span> &bull; ${edgeLbl}</div>
+        </div>
+        ${focus}${riskHTML}${hz}${dcaHTML}${grp}`;
+    ttEl.style.display = 'block';
+    posTT(evt);
+}
+const isMobile = () => window.innerWidth <= 768;
+function posTT(e) {
+    if (isMobile()) return; // CSS handles bottom-drawer positioning
+    const r = ttEl.getBoundingClientRect(), p = 14;
+    let x = e.clientX + p, y = e.clientY - r.height/2;
+    if (x + r.width > innerWidth - p) x = e.clientX - r.width - p;
+    if (y < p) y = p;
+    if (y + r.height > innerHeight - p) y = innerHeight - r.height - p;
+    ttEl.style.left = x+'px'; ttEl.style.top = y+'px';
+}
+function hideTT() { ttEl.style.display = 'none'; }
+// Dismiss tooltip on tap outside (mobile)
+document.addEventListener('click', e => {
+    if (isMobile() && ttEl.style.display === 'block' && !ttEl.contains(e.target)) hideTT();
+});
+
+// ══════════════════════════
+// RENDER
+// ══════════════════════════
+function render() {
+    const data = fd();
+    const names = data.map(d => d.n);
+    const vals = data.map(d => d.v[timeF]);
+    const colors = data.map(d => {
+        if (d.ly === 'fee') return '#22c55e88';
+        if (d.ly === 'tax') return '#f59e0b88';
+        return rc(d.v[timeF]);
+    });
+    const outlines = data.map(d => {
+        if (showRisk) return AR_CLR[d.ar] + 'cc';
+        if (d.ly === 'fee') return '#22c55ecc';
+        if (d.ly === 'tax') return '#f59e0bcc';
+        return (CC[d.cat]||'#556') + '88';
+    });
+    const widths = data.map(d => {
+        if (showRisk) return 2;
+        return d.ly === 'raw' ? 0.8 : 1.8;
+    });
+
+    // Stats
+    const best = data[0], worst = data[data.length-1];
+    document.getElementById('mC').textContent = data.length;
+    document.getElementById('mB').textContent = best ? `${best.n}: ${fp(best.v[timeF])}` : '—';
+    document.getElementById('mW').textContent = worst ? `${worst.n}: ${fp(worst.v[timeF])}` : '—';
+    const spread = best && worst ? Math.abs(best.v[timeF] - worst.v[timeF]) : 0;
+    document.getElementById('mS').textContent = spread > 1000 ? (spread/1000).toFixed(1)+'K pts' : spread.toFixed(0)+' pts';
+
+    const trace = {
+        type:'bar', x:names, y:vals, customdata:data,
+        marker:{ color:colors, line:{color:outlines,width:widths} },
+        hoverinfo:'none', hovertemplate:' <extra></extra>'
+    };
+
+    const minV = Math.min(...vals, -10), maxV = Math.max(...vals, 10);
+    const pad = Math.max(Math.abs(maxV), Math.abs(minV)) * 0.1;
+
+    const mob = isMobile();
+    Plotly.newPlot('chart', [trace], {
+        paper_bgcolor:'#09090b', plot_bgcolor:'#09090b',
+        font:{family:'Inter,Segoe UI,system-ui,sans-serif',color:'#52525b',size: mob ? 8 : 9},
+        margin: mob ? {l:40,r:8,t:12,b:6} : {l:60,r:20,t:16,b:8},
+        hovermode:'closest', hoverdistance: mob ? 30 : 40, dragmode: mob ? false : 'zoom',
+        xaxis:{showticklabels:false,showgrid:false,zeroline:false},
+        yaxis:{
+            title: mob ? '' : {text:'Cumulative Return (%)',font:{size:9,color:'#3f3f46'}},
+            gridcolor:'rgba(255,255,255,.04)', zerolinecolor:'#fbbf24', zerolinewidth:2,
+            ticksuffix:'%', tickformat:'+,.0f', tickfont:{size:9,color:'#52525b'},
+            range:[minV-pad, maxV+pad]
+        },
+        shapes:[{type:'line',x0:-0.5,x1:data.length-0.5,y0:0,y1:0,line:{color:'rgba(251,191,36,.35)',width:1.5,dash:'dot'}}],
+        annotations: mob ? [] : [
+            {x:0.02,y:1,xref:'paper',yref:'paper',xanchor:'left',yanchor:'top',text:'<b>\u2190 BEST</b>',showarrow:false,font:{color:'rgba(74,222,128,.45)',size:10}},
+            {x:0.98,y:1,xref:'paper',yref:'paper',xanchor:'right',yanchor:'top',text:'<b>WORST \u2192</b>',showarrow:false,font:{color:'rgba(248,113,113,.45)',size:10}},
+            {x:0.5,y:1,xref:'paper',yref:'paper',xanchor:'center',yanchor:'top',text:'BREAK EVEN (0%)',showarrow:false,font:{color:'rgba(251,191,36,.25)',size:8}}
+        ],
+        showlegend:false, bargap:0.08
+    }, {displayModeBar:false,responsive:true,scrollZoom:false});
+
+    const ch = document.getElementById('chart');
+    const ttHandler = ev => {
+        if (ev.points && ev.points[0]) showTT(ev.points[0].customdata, data, ev.event || {});
+    };
+    if (isMobile()) {
+        // Bind both — Plotly fires hover-on-tap in some mobile browsers, click in others
+        ch.on('plotly_click', ttHandler);
+        ch.on('plotly_hover', ttHandler);
+    } else {
+        ch.on('plotly_hover', ev => showTT(ev.points[0].customdata, data, ev.event));
+        ch.on('plotly_unhover', hideTT);
+        ch.addEventListener('mousemove', e => { if(ttEl.style.display==='block') posTT(e); });
+    }
+}
+
+// ══════════════════════════
+// DROPDOWN LOGIC
+// ══════════════════════════
+function setupDD(ddEl, onSelect) {
+    const btn = ddEl.querySelector('.dd-btn');
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        // Close other dropdowns first
+        document.querySelectorAll('.dd.open').forEach(d => { if (d !== ddEl) d.classList.remove('open'); });
+        ddEl.classList.toggle('open');
+    });
+    if (onSelect) {
+        ddEl.querySelectorAll('.dd-item').forEach(item => {
+            item.addEventListener('click', e => {
+                e.stopPropagation();
+                onSelect(item, ddEl);
+            });
+        });
+    }
+}
+
+// Close all dropdowns on outside click
+document.addEventListener('click', () => document.querySelectorAll('.dd.open').forEach(d => d.classList.remove('open')));
+
+// Category dropdown (multi-select)
+const catDD = document.getElementById('catDD');
+const catBtn = document.getElementById('catBtn');
+const CAT_LABELS = {"Stock Market":"Stocks","Bonds":"Bonds","Real Estate":"Real Estate","Cryptocurrency":"Crypto","Options":"Options","Active Trading":"Trading","Collectibles":"Collectibles","Sports Betting":"Sports","Casino Gambling":"Casino","Poker & Skill-Based":"Poker / DFS","Prediction Markets":"Predictions","Lottery":"Lottery"};
+const catItems = catDD.querySelectorAll('.dd-item.toggle[data-f]');
+const catAllItem = catDD.querySelector('.cat-all');
+
+function syncCatUI() {
+    const all = isAllCats();
+    catAllItem.classList.toggle('active', all);
+    catItems.forEach(it => it.classList.toggle('on', catSet.has(it.dataset.f)));
+    if (all) {
+        catBtn.innerHTML = 'All Categories <span class="caret">&#9662;</span>';
+    } else if (catSet.size === 0) {
+        catBtn.innerHTML = 'None <span class="caret">&#9662;</span>';
+    } else if (catSet.size <= 2) {
+        catBtn.innerHTML = [...catSet].map(c => CAT_LABELS[c] || c).join(', ') + ' <span class="caret">&#9662;</span>';
+    } else {
+        catBtn.innerHTML = catSet.size + ' Categories <span class="caret">&#9662;</span>';
+    }
+    updateLayerBtns();
+    render();
+}
+
+setupDD(catDD, (item) => {
+    if (item.dataset.f === 'all') {
+        // Toggle all: if all selected → deselect all, otherwise select all
+        if (isAllCats()) {
+            catSet.clear();
+        } else {
+            catSet = new Set(ALL_CATS);
+        }
+    } else {
+        const cat = item.dataset.f;
+        if (catSet.has(cat)) catSet.delete(cat);
+        else catSet.add(cat);
+    }
+    syncCatUI();
+});
+
+// Insights dropdown
+const insDD = document.getElementById('insDD');
+const insDot = document.getElementById('insDot');
+setupDD(insDD, (item) => {
+    item.classList.toggle('on');
+    const ins = item.dataset.ins;
+    if (ins === 'dca') showDCA = item.classList.contains('on');
+    if (ins === 'risk') showRisk = item.classList.contains('on');
+    insDot.classList.toggle('on', showDCA || showRisk);
+    render();
+});
+
+// ══════════════════════════
+// BUTTON LISTENERS
+// ══════════════════════════
+document.querySelectorAll('.tbtn[data-t]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tbtn[data-t]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); timeF = b.dataset.t; render();
+}));
+document.querySelectorAll('.lbtn[data-l]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.lbtn[data-l]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); layerF = b.dataset.l; render();
+}));
+
+addEventListener('resize', render);
+updateLayerBtns();
+render();
+</script>
+</body>
+</html>
