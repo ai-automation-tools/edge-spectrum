@@ -105,6 +105,26 @@ Images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
   CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:deployment` → `build` on every PR.
 
+## Project skills
+
+Three repo-specific skills live in the org's skills repo, not here — `agent-skills` under
+[`Skills/Projects/edge-spectrum/`](../../Tools/agent-skills/Skills/Projects/edge-spectrum/README.md)
+([GitHub](https://github.com/ai-automation-tools/agent-skills/tree/main/Skills/Projects/edge-spectrum)).
+That repo is canonical: **edit them there, never in `.claude/skills/`.**
+
+| Skill | Reach for it when |
+|:---|:---|
+| `edge-spectrum-hub-tool` | Adding/changing a tool tile or page — `tools.ts`, `App.tsx`, `Home.tsx`, `pages/` |
+| `edge-spectrum-dataset` | Touching the 187 records, `gen:edges`, or the Spectrum page's measures |
+| `edge-spectrum-endpoint` | Anything under `site/api/`, `site/server.ts`, `site/src/server/` |
+
+`.claude/` is **gitignored here**, so the installed copies are local to your clone and a fresh
+clone starts without them. Re-install after cloning, and after editing them upstream:
+
+```powershell
+pwsh <agent-skills>/scripts/install-skills.ps1 -Project edge-spectrum -Destination <clone>/.claude/skills
+```
+
 ## Branch workflow (PR flow)
 
 Do **not** push directly to `main`. Work on `mike_desktop`, then open a **PR → `main`** (`gh pr create --base main --head mike_desktop`). Vercel builds a **preview deployment** for each PR — check that URL before merging. Merging to `main` deploys to production (`edge-spectrum.ai-automation-tools.dev`). Keep `mike_desktop` and `main` in sync after each merge (`git checkout mike_desktop && git merge main`).
