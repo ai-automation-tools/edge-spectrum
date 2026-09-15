@@ -21,8 +21,6 @@ export default function App() {
     betType: 'moneyline',
     sideSelection: 'favorites',
     streakFilter: 'any',
-    streakTarget: 'bet_team',
-    starPlayerFilter: 'any',
     unitSize: 100,
     startingBankroll: 10000
   });
@@ -95,8 +93,6 @@ export default function App() {
     strategy.betType,
     strategy.sideSelection,
     strategy.streakFilter,
-    strategy.streakTarget,
-    strategy.starPlayerFilter,
     strategy.unitSize,
     strategy.startingBankroll,
     strategy.oddsMin,
@@ -115,8 +111,6 @@ export default function App() {
       betType: tmpl.betType,
       sideSelection: tmpl.sideSelection,
       streakFilter: tmpl.streakFilter,
-      streakTarget: tmpl.streakTarget,
-      starPlayerFilter: tmpl.starPlayerFilter,
       oddsMin: tmpl.oddsMin,
       oddsMax: tmpl.oddsMax,
       spreadMin: tmpl.spreadMin,

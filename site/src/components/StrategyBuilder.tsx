@@ -93,8 +93,6 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
       betType: 'moneyline',
       sideSelection: 'underdogs',
       streakFilter: 'any',
-      streakTarget: 'bet_team',
-      starPlayerFilter: 'any',
       oddsMin: 120,
       oddsMax: 350,
       unitSize: 100,
@@ -110,8 +108,6 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
       betType: 'spread',
       sideSelection: 'favorites',
       streakFilter: 'after_win',
-      streakTarget: 'bet_team',
-      starPlayerFilter: 'healthy_only',
       spreadMin: 3,
       spreadMax: 10,
       unitSize: 150,
@@ -127,8 +123,6 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
       betType: 'moneyline',
       sideSelection: 'away_underdogs',
       streakFilter: 'any',
-      streakTarget: 'bet_team',
-      starPlayerFilter: 'any',
       oddsMin: 100,
       oddsMax: 220,
       unitSize: 100,
@@ -144,8 +138,6 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
       betType: 'totals',
       sideSelection: 'over',
       streakFilter: 'any',
-      streakTarget: 'bet_team',
-      starPlayerFilter: 'any',
       totalMin: 5,
       totalMax: 6.5,
       unitSize: 100,
@@ -409,7 +401,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           className="group flex items-center gap-1.5 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-sky-400 hover:text-sky-300 transition-colors duration-150"
         >
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
-          Advanced Screening — Odds · Streaks · Injuries
+          Advanced Screening — Odds · Streaks
         </button>
 
         {showAdvanced && (
@@ -426,32 +418,6 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                 <option value="after_loss">Bet Only After Prior Game Loss</option>
                 <option value="hot_streak_3plus">Hot Streak (3+ Consecutive Wins)</option>
                 <option value="cold_streak_3plus">Cold Streak (3+ Consecutive Losses)</option>
-              </Select>
-            </div>
-
-            {/* Streak Target */}
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel>Streak Target Team</FieldLabel>
-              <Select
-                value={currentStrategy.streakTarget}
-                onChange={(e) => updateField('streakTarget', e.target.value)}
-                disabled={currentStrategy.streakFilter === 'any'}
-              >
-                <option value="bet_team">Evaluate Wager Target Team</option>
-                <option value="opponent">Evaluate Opponent Team</option>
-              </Select>
-            </div>
-
-            {/* Star Player Injury Impact Filter */}
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel>Key Roster Status Filter</FieldLabel>
-              <Select
-                value={currentStrategy.starPlayerFilter}
-                onChange={(e) => updateField('starPlayerFilter', e.target.value)}
-              >
-                <option value="any">Any - Disregard Injuries</option>
-                <option value="healthy_only">Target Team Marquee Player Healthy</option>
-                <option value="star_injured">Target Team Marquee Player Injured (Fade Model)</option>
               </Select>
             </div>
 
