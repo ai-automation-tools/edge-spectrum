@@ -958,8 +958,6 @@ export function marketDiagnostics(startYear = 2000, endYear = 2025): MarketDiagn
         betType: testCase.betType,
         sideSelection: testCase.sideSelection,
         streakFilter: 'any',
-        streakTarget: 'bet_team',
-        starPlayerFilter: 'any',
         unitSize: 100,
         startingBankroll: 10000,
       });

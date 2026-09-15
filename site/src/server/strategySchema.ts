@@ -43,17 +43,12 @@ const SIDE_SELECTIONS = [
   ...TOTALS_SIDES,
 ] as const;
 const STREAK_FILTERS = ['any', 'after_win', 'after_loss', 'hot_streak_3plus', 'cold_streak_3plus'] as const;
-const STREAK_TARGETS = ['bet_team', 'opponent'] as const;
-const STAR_PLAYER_FILTERS = ['any', 'healthy_only', 'star_injured'] as const;
 
 const _sportsCovered: SameMembers<SportType, typeof SPORTS[number]> = true;
 const _betTypesCovered: SameMembers<BetType, typeof BET_TYPES[number]> = true;
 const _sidesCovered: SameMembers<SideSelectionType, typeof SIDE_SELECTIONS[number]> = true;
 const _streakFiltersCovered: SameMembers<Strategy['streakFilter'], typeof STREAK_FILTERS[number]> = true;
-const _streakTargetsCovered: SameMembers<Strategy['streakTarget'], typeof STREAK_TARGETS[number]> = true;
-const _starFiltersCovered: SameMembers<Strategy['starPlayerFilter'], typeof STAR_PLAYER_FILTERS[number]> = true;
-void [_sportsCovered, _betTypesCovered, _sidesCovered,
-      _streakFiltersCovered, _streakTargetsCovered, _starFiltersCovered];
+void [_sportsCovered, _betTypesCovered, _sidesCovered, _streakFiltersCovered];
 
 const season = z.number().int().min(MIN_SEASON).max(MAX_SEASON);
 const americanOdds = z.number().finite().min(-MAX_AMERICAN_ODDS).max(MAX_AMERICAN_ODDS);
@@ -93,11 +88,9 @@ export const strategySchema = z
     spreadMax: points(MAX_SPREAD_POINTS).optional(),
     totalMin: points(MAX_TOTAL_POINTS).optional(),
     totalMax: points(MAX_TOTAL_POINTS).optional(),
-    // The engine only reads these when they are set; defaulting keeps a
+    // The engine only reads this when it is set; defaulting keeps a
     // hand-written API call from landing in the "not 'any'" branch as undefined.
     streakFilter: z.enum(STREAK_FILTERS).default('any'),
-    streakTarget: z.enum(STREAK_TARGETS).default('bet_team'),
-    starPlayerFilter: z.enum(STAR_PLAYER_FILTERS).default('any'),
     unitSize: money(MAX_UNIT_SIZE),
     startingBankroll: money(MAX_STARTING_BANKROLL),
   })
