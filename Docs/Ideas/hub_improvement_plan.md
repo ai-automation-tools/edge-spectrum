@@ -140,9 +140,10 @@ nothing — a denial-of-wallet with a two-field body.
 
 - Seasons bounded to 2000–2025 (the only years `getTeamHistoricalRating` has era ratings for),
   integers, and `endYear >= startYear`.
-- All six enums — sport, bet type, side selection, streak filter, streak target, star-player
-  filter — checked against the unions in `types.ts`. A `SameMembers` type assertion fails
-  `tsc --noEmit` if a union gains a member and the schema does not, so the two cannot drift.
+- All four enums — sport, bet type, side selection, streak filter — checked against the unions
+  in `types.ts`. A `SameMembers` type assertion fails `tsc --noEmit` if a union gains a member and
+  the schema does not, so the two cannot drift. (Shipped as six; `streakTarget` and
+  `starPlayerFilter` were removed outright in 2f, since the engine never read either.)
 - `unitSize` and `startingBankroll` required, finite, positive, capped at $1M / $1B.
 - Odds, spread and total filters bounded, and each min/max pair required to be ordered.
 - `betType: 'totals'` must pair with `over`/`under` and nothing else may — that mismatch used to
@@ -198,6 +199,38 @@ Backtest** button calls `runBacktest` directly and is deliberately not debounced
 last 250, with no indication in the UI.
 
 **Fix:** label it ("showing last 250 of 7,072 bets") and add CSV export of the full ledger.
+
+### 2f. Two strategy controls the engine never read ✅ — fixed 2026-09-14
+
+`streakTarget` ("Streak Target Team") and `starPlayerFilter` ("Key Roster Status Filter") were
+rendered as dropdowns in `StrategyBuilder`'s **Advanced Screening** panel, carried on `Strategy`
+and `StrategyTemplate` in `types.ts`, bounded by `strategySchema.ts`, set by all four presets, and
+listed in the Gemini advisor's `responseSchema` — where `starPlayerFilter` was in `required`, so
+the model had to emit a value and then justify it in prose. `runBacktest()` reads `streakFilter`
+and nothing else: there is no per-team streak side in the wager loop and the generator has no
+injury data at all, because the seasons are synthetic.
+
+**Measured, against the dev server** (`/api/backtest`, NFL spread/home 2020–2024,
+`streakFilter: 'hot_streak_3plus'`):
+
+| Request body | Bets | ROI |
+|---|---|---|
+| Baseline | 85 | +5.52% |
+| `streakTarget: 'opponent'`, `starPlayerFilter: 'star_injured'` added | **85** | **+5.52%** |
+
+Bit-identical — the two controls moved nothing. For contrast, the one live filter does:
+`streakFilter: 'any'` on the same strategy returns **1,360** bets. So the panel offered three
+screens of which two were decoration, and the advisor was obliged to explain one of them.
+
+**Fix (shipped):** both fields deleted from `types.ts` (`Strategy` and `StrategyTemplate`),
+`server/strategySchema.ts` (enums, `SameMembers` assertions and defaults), `StrategyBuilder.tsx`
+(two `<Select>` blocks, all four presets, and the panel label, now "Advanced Screening — Odds ·
+Streaks"), `BacktesterApp.tsx` (initial state, rerun deps, template apply), `DemoAdvisor.tsx`, the
+`marketDiagnostics()` fixture in `dataGenerator.ts`, and `server/advisor.ts` (schema properties and
+`required`). No compatibility shim is needed: the schema strips unknown keys, so a client or
+bookmark still posting the old field names is accepted and the values are dropped — verified above.
+`_schemaFieldsMatch` in `strategySchema.ts` makes the reverse mistake, re-adding a field to one
+side only, a `tsc --noEmit` failure.
 
 ---
 
@@ -500,7 +533,7 @@ variables for production. Optionally set `ADVISOR_SECRET` to a long random strin
 
 | Phase | Work |
 |---|---|
-| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · purge the dead strategy controls (Action 2.4) · label the truncated ledger (2e) · rate-limit the advisor (2a) |
+| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · label the truncated ledger (2e) · rate-limit the advisor (2a) |
 | **Next** | Client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · URL-serialised strategy + share cards · Vitest |
 | **Then** | Significance panel + Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
 | **After** | CLV tracker (needs a DB) · real historical odds for one sport · Edge Audit · quiz |
