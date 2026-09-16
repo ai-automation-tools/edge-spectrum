@@ -45,7 +45,6 @@ export default function DemoAdvisor({ sport, onApplyTemplate }: {
               onClick={() => onApplyTemplate({
                 name: 'Home-team baseline', description: 'A simple control strategy for the synthetic simulator.',
                 sport, betType: 'moneyline', sideSelection: 'home', streakFilter: 'any',
-                streakTarget: 'bet_team', starPlayerFilter: 'any',
               })}>
               <Play className="h-3 w-3" /> Try this baseline
             </button>

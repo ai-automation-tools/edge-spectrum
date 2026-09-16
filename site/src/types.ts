@@ -60,8 +60,6 @@ export interface Strategy {
   totalMin?: number;
   totalMax?: number;
   streakFilter: 'any' | 'after_win' | 'after_loss' | 'hot_streak_3plus' | 'cold_streak_3plus';
-  streakTarget: 'bet_team' | 'opponent';
-  starPlayerFilter: 'any' | 'healthy_only' | 'star_injured';
   unitSize: number;       // Amount per bet, in $
   startingBankroll: number; // Starting balance, in $
 }
@@ -130,8 +128,6 @@ export interface StrategyTemplate {
   betType: BetType;
   sideSelection: SideSelectionType;
   streakFilter: Strategy['streakFilter'];
-  streakTarget: Strategy['streakTarget'];
-  starPlayerFilter: Strategy['starPlayerFilter'];
   oddsMin?: number;
   oddsMax?: number;
   spreadMin?: number;
