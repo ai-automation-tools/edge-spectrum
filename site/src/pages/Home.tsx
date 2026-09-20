@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Github, Sparkles } from 'lucide-react';
 import { TOOLS, type Tool, type Accent, type ToolStatus } from '../tools';
+import { REPOSITORY_URL } from '../projectLinks';
 
 /** Concrete Tailwind classes per accent (kept literal so the JIT compiler emits them). */
 const ACCENT: Record<Accent, { icon: string; corner: string; hoverBorder: string }> = {
@@ -95,6 +96,15 @@ export default function Home() {
         <div className="mt-6 flex flex-wrap items-center gap-4">
           <Link to="/backtester" className="rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-sky-400">Try the simulator</Link>
           <Link to="/setup" className="text-sm font-semibold text-zinc-300 hover:text-white">Create your own site →</Link>
+          <a
+            href={REPOSITORY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-400 hover:text-white"
+          >
+            <Github className="h-4 w-4" />
+            View source
+          </a>
         </div>
       </header>
 
