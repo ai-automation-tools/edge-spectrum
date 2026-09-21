@@ -100,3 +100,4 @@ The project is educational software; simulated profits do not establish a real b
 The project is available under [Apache-2.0](../LICENSE). You can run and customize your
 own site under those terms. Dependencies retain their respective licenses. Dataset
 citations identify sources; they do not transfer ownership of those sources.
+
