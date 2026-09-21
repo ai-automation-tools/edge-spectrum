@@ -14,8 +14,8 @@ Hosting and AI usage are billed by your chosen providers.
 
 1. Open **Create your own site** on the demo and choose **Deploy your own**. The deploy
    button copies the repository, selects `site` as the Root Directory, and requests the
-   environment variables below. Alternatively, use **Use this template** on GitHub,
-   import that repository into Vercel, select the Vite preset, and set Root Directory to `site`.
+   environment variables below. Alternatively, fork the repository on GitHub,
+   import your fork into Vercel, select the Vite preset, and set Root Directory to `site`.
 2. Set the four full-mode variables in your Vercel project. Enter secrets only in your
    own hosting account, never in the demo, source files, or a deploy URL.
 3. Deploy. Open `/backtester` on your new domain and enter your advisor passcode.

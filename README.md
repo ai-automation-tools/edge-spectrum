@@ -123,7 +123,7 @@ shows **clearly labeled sample responses**, with no Gemini calls and no visitor 
 The full application is included in this repository under [Apache-2.0](LICENSE).
 [Create your own site](https://edge-spectrum.ai-automation-tools.dev/setup) to deploy a copy to
 Vercel with your own Gemini key, private advisor passcode, and live AI responses.
-Use **Use this template** on GitHub to create a complete copy you can customize.
+Or fork the repository on GitHub to create a complete copy you can customize.
 
 | Capability | Public demo | Your full instance |
 | --- | --- | --- |
