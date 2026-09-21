@@ -104,6 +104,11 @@ Images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
   CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:deployment` → `build` on every PR.
+  If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level
+  Actions master switch rather than the workflow file: `gh api repos/.../actions/permissions` reports
+  `enabled: true` and Settings → Actions shows "Allow all actions" selected even when it is off, and
+  `workflow_dispatch` keeps working. The only honest signal is the banner on the repo's **Actions tab**
+  while logged in — "Workflows aren't being run on this repository", with an **Enable Actions** button.
 
 ## Project skills
 
