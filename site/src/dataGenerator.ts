@@ -663,6 +663,13 @@ export function americanToDecimalOdds(odds: number): number {
 }
 
 // Main backtester processor
+/**
+ * How many wagers the API ships back for the on-screen ledger. The summary and
+ * the equity curve always cover the whole run; only this table is truncated,
+ * and the response says so explicitly via `previewLimit` / `totalGames`.
+ */
+export const LEDGER_PREVIEW_LIMIT = 250;
+
 export function runBacktest(strategy: Strategy): BacktestResponse {
   const allGames: Game[] = [];
   for (let yr = strategy.startYear; yr <= strategy.endYear; yr++) {
@@ -913,7 +920,13 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
     sport: strategy.sport, startYear: strategy.startYear, endYear: strategy.endYear, totalBets, wonBets, lostBets, pushedBets, winRate: parseFloat(winRate.toFixed(2)), totalWagered: parseFloat(totalWagered.toFixed(2)), totalReturn: parseFloat(totalReturn.toFixed(2)), netProfit: parseFloat(netProfit.toFixed(2)), roi: parseFloat(roi.toFixed(2)), avgOdds: parseFloat(avgOdds.toFixed(3)), maxDrawdown: parseFloat(maxDrawdown.toFixed(2)), maxDrawdownPercent: parseFloat((peakBankroll > 0 ? (maxDrawdown / peakBankroll) * 100 : 0).toFixed(2)), kellyPercentage, finalBankroll: parseFloat(currentBankroll.toFixed(2))
   };
 
-  return { summary, profitHistory, games: simulatedGames.slice(-250) };
+  return {
+    summary,
+    profitHistory,
+    gamesPreview: simulatedGames.slice(-LEDGER_PREVIEW_LIMIT),
+    previewLimit: LEDGER_PREVIEW_LIMIT,
+    totalGames: simulatedGames.length,
+  };
 }
 /* ------------------------------------------------------------------ *
  * Market regression

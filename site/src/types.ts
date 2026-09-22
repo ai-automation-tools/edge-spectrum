@@ -118,7 +118,17 @@ export interface ProfitHistoryPoint {
 export interface BacktestResponse {
   summary: BacktestSummary;
   profitHistory: ProfitHistoryPoint[];
-  games: SimulatedBetGame[];
+  /**
+   * The tail of the wager ledger, at most `previewLimit` entries. Named for
+   * what it is: the engine truncates this for payload size while `summary` and
+   * `profitHistory` are computed over all `totalGames` wagers. The full,
+   * unsliced ledger is the export bundle's job (roadmap Action 3.2).
+   */
+  gamesPreview: SimulatedBetGame[];
+  /** Cap applied to `gamesPreview` — `LEDGER_PREVIEW_LIMIT` in `dataGenerator.ts`. */
+  previewLimit: number;
+  /** Every wager the strategy placed, before truncation. */
+  totalGames: number;
 }
 
 export interface StrategyTemplate {

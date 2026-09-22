@@ -3,10 +3,15 @@ import { SimulatedBetGame } from '../types';
 import { CheckCircle2, XCircle, Slash, Calendar, Info } from 'lucide-react';
 
 interface GamesTableProps {
+  /** The truncated tail of the ledger — `gamesPreview` from the API. */
   games: SimulatedBetGame[];
+  /** Every wager the run placed, so the table can say what it is not showing. */
+  totalGames: number;
+  /** The cap the engine applied to `games`. */
+  previewLimit: number;
 }
 
-export default function GamesTable({ games }: GamesTableProps) {
+export default function GamesTable({ games, totalGames, previewLimit }: GamesTableProps) {
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'push'>('all');
 
   const filteredGames = games.filter((g) => {
@@ -14,11 +19,19 @@ export default function GamesTable({ games }: GamesTableProps) {
     return g.status === filter;
   });
 
+  const truncated = totalGames > games.length;
+
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-3">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-200">Historical Game Logs ({games.length} Matches Analyzed)</h3>
+          <h3 className="text-sm font-semibold text-zinc-200">
+            Historical Game Logs (
+            {truncated
+              ? `Last ${games.length.toLocaleString()} of ${totalGames.toLocaleString()} Wagers`
+              : `${totalGames.toLocaleString()} Wagers Analyzed`}
+            )
+          </h3>
           <p className="text-[10px] text-zinc-400 mt-0.5">Deep-dive review of individual simulated wagers and scoring lines</p>
         </div>
 
@@ -138,7 +151,20 @@ export default function GamesTable({ games }: GamesTableProps) {
       )}
       <div className="flex items-center gap-1.5 p-3.5 bg-zinc-950 border border-zinc-850 rounded-xl mt-1 text-[11px] text-zinc-400 leading-normal">
         <Info className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-        <span>For memory and DOM efficiency, only the final 250 matched bets of the strategy run are rendered above. Full statistics are fully factored in the equity curve.</span>
+        <span>
+          {truncated ? (
+            <>
+              For payload and DOM efficiency the engine returns only the final{' '}
+              {previewLimit.toLocaleString()} of this run&rsquo;s {totalGames.toLocaleString()} matched bets.
+              The summary metrics and the equity curve are computed over all {totalGames.toLocaleString()}.
+            </>
+          ) : (
+            <>
+              All {totalGames.toLocaleString()} matched bets from this run are shown above &mdash; the run came in
+              under the {previewLimit.toLocaleString()}-wager preview cap.
+            </>
+          )}
+        </span>
       </div>
     </div>
   );
