@@ -192,8 +192,12 @@ export default function App() {
                 <ProfitChart data={result?.profitHistory || []} />
                 
                 {/* Detailed Table */}
-                {result?.games && (
-                  <GamesTable games={result.games} />
+                {result?.gamesPreview && (
+                  <GamesTable
+                    games={result.gamesPreview}
+                    totalGames={result.totalGames}
+                    previewLimit={result.previewLimit}
+                  />
                 )}
               </div>
             ) : (
