@@ -23,7 +23,7 @@ This document tracks the milestones, architectural upgrades, and feature additio
 ## 🚦 Release Gate & Execution Order
 
 ```
-Phase 1: Consolidation 🟢 ──► Phase 2: Truth & Safety 🟡 ──► Phase 3: Reporting & Inference ⚪
+Phase 1: Consolidation 🟢 ──► Phase 2: Truth & Safety 🟡 ──► Phase 3: Reporting & Inference 🟡
                                        │ (Release Gate)
                                        ▼
 Phase 6: Calculators 🟡 ◄── Phase 5: Collection ⚪ ◄── Phase 4: Client Engine ⚪
@@ -36,6 +36,8 @@ Phase 7: Public Launch ⚪
 > **Track A / Phase 2 Release Gate:** No features in Phases 3 through 7 ship to users until all Phase 2 integrity items (metric semantics, canonical dataset, false controls cleanup, and automated checks) have landed. Generating export bundles or training models on distorted metrics bakes invalid math into portable files.
 >
 > **Gate scope (clarified 2026-09-03):** the gate protects anything that *consumes* the edge dataset or the simulator's output. Phase 6 calculators that are pure client-side math with no dependency on either — 6.1 and 6.2, both held by `npm run check:odds` — are outside it and shipped ahead of Phase 2 closing. 6.3 (Kelly) qualifies the same way; 6.4 and 6.5 read `edges.ts` and stay behind the gate.
+>
+> **Gate status (clarified 2026-09-21):** all four enumerated integrity items — metric semantics (2026-08-31), canonical dataset (2026-08-31), false-controls cleanup (2026-09-14) and the automated checks now in CI — have landed. The one Phase 2 item still open, **Action 2.7 (advisor rate limiting)**, is a spend control on a metered endpoint, not a truth control on the numbers, so it does not hold the gate shut for work that reports the simulator's output honestly. Action 3.1 was taken under that reading: it *removes* a distortion (a truncated array presented as the whole ledger) rather than building on one. Anything that packages or publishes those numbers — 3.2's export bundle, 7.x — should still wait on 2.7 landing.
 
 ---
 
@@ -90,19 +92,16 @@ Phase 7: Public Launch ⚪
 
 ---
 
-### Phase 3: Reproducible Reporting & Statistical Diagnostics ⚪
+### Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*
 
-1. [ ] 🟠 **Action 3.1 — Explicit Ledger Response Contract (Audit E3)**
-   - **Problem:** `runBacktest()` silently truncates `games: simulatedGames.slice(-250)` while returning full `profitHistory`.
-   - **Implementation:**
-     - Update the API contract to return explicit fields: `gamesPreview`, `previewLimit: 250`, and `totalGames`.
-     - Provide full unsliced game data via the export pipeline.
+1. [x] 🟠 **Action 3.1 — Explicit Ledger Response Contract (Audit E3)** 🟢 (2026-09-21)
+   - **Implementation:** `/api/backtest` returned a field called `games` that was in fact `simulatedGames.slice(-250)`, alongside a complete `profitHistory` — so the response gave a caller no way to tell a 250-bet run from a 7,072-bet one, and `GamesTable`'s own heading read "250 Matches Analyzed" for both. Measured against the dev server: NFL moneyline/favorites 2000–2025 places **7,072** wagers and returned exactly 250 of them under the name `games`. `BacktestResponse` now carries `gamesPreview`, `previewLimit` (the exported `LEDGER_PREVIEW_LIMIT = 250` in `dataGenerator.ts`) and `totalGames`; the same run now reports `totalGames: 7072`, `previewLimit: 250`, `gamesPreview.length: 250`, with `profitHistory.length` and `summary.totalBets` both 7,072, and the preview verified to be the ledger's tail. The heading reads "Last 250 of 1,360 Wagers" and the footnote names both figures; a run under the cap (NFL spread/home 2020–2024 hot-streak, **85** bets / +5.52% ROI — the same fixture Action 2.4 measured) takes the untruncated branch and says so. No compatibility shim: `result.games` was read in exactly one place, and `tsc --noEmit` catches any other reader. The full unsliced ledger is **not** part of this item — it is Action 3.2's `ledger.csv`, which is where that bullet now lives.
 
 2. [ ] 🟠 **Action 3.2 — Reproducible Export Bundle Architecture (Audit Track B)**
    - **Feature:** A complete, downloadable research archive (`site/src/server/report.ts`):
      - `report.md` — Parameters, summary metrics, statistical confidence intervals, methodology notes, and disclaimer headers.
-     - `ledger.csv` — Full, unsliced history of every wager placed.
+     - `ledger.csv` — Full, unsliced history of every wager placed. *(This is the export path Action 3.1's contract points at: the API deliberately ships only `gamesPreview`, so the bundle is the only place the complete ledger is available.)*
      - `strategy.json` — Exact configuration payload for deterministic reproduction.
      - `manifest.json` — Execution metadata (`generatedAt`, engine version, git commit, and SHA-256 hashes of all bundle files).
 
@@ -206,7 +205,7 @@ Phase 7: Public Launch ⚪
 ## 🔗 Sequencing Rationale
 
 1. **Truth before expansion:** Mathematical errors distort the core thesis of the platform. The headline example — comparing unbounded turnover cost against bounded capital returns on one axis — was fixed on 2026-08-31 and is held by `npm run check:spectrum`; the dataset now has one source of truth held by `npm run gen:edges -- --check`. The dead strategy controls were purged on 2026-09-14; what remains unheld is provenance (no record cites a source). Phase 2 must complete before building report exports or public features. Self-contained calculators are the one exception (see the gate scope note above): 6.1 and 6.2 shipped 2026-09-03 with their own regression check and touch neither the dataset nor the simulator.
-2. **Deterministic reporting before heavy client compute:** Establishing the export contract and statistical inference (Phase 3) provides the validation fixtures needed when porting the simulation engine to Web Workers (Phase 4).
+2. **Deterministic reporting before heavy client compute:** Establishing the export contract and statistical inference (Phase 3) provides the validation fixtures needed when porting the simulation engine to Web Workers (Phase 4). The first piece landed 2026-09-21: Action 3.1 made the backtest response say out loud which part of the ledger it is sending (`gamesPreview` / `previewLimit` / `totalGames`), which is the precondition for 3.2's bundle — an export cannot claim to be reproducible while the API it reads from is quietly truncating.
 3. **Forward line capture begins early:** Forward collection of closing lines (Phase 5) takes time to build longitudinal history; launching the snapshot cron as early as possible maximizes available data for the CLV engine.
 4. **Calculators as organic acquisition:** Standalone calculators (Phase 6) are low-maintenance, high-utility entry points that introduce new users to the broader Edge Spectrum analysis framework. Because they do not depend on the gated work, they can be built in parallel with Phase 2 — which is why 6.1 and 6.2 are already live. Their math lives in `site/src/odds.ts` (pure, no imports) so Phases 3 and 4 reuse it instead of re-implementing odds conversion, de-vigging, or Kelly.
 

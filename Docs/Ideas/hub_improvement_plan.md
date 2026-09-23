@@ -193,12 +193,35 @@ mismatch, and an abort on the socket alone does not close it. A superseded run a
 and an abort never surfaces to the user as "Error executing backtest". The manual **Execute
 Backtest** button calls `runBacktest` directly and is deliberately not debounced.
 
-### 2e. Silent truncation of the bet ledger 🟡
+### 2e. Silent truncation of the bet ledger ✅ — fixed 2026-09-21 (label half; CSV is Action 3.2)
 
-`dataGenerator.ts` returns `simulatedGames.slice(-250)`. A 7,000-bet run silently shows only the
-last 250, with no indication in the UI.
+`dataGenerator.ts` returned `simulatedGames.slice(-250)` under the field name `games`, so nothing
+in the response distinguished a run that placed 250 wagers from one that placed 7,072. The table's
+own heading then repeated the lie — "Historical Game Logs (250 Matches Analyzed)" — for both. The
+one honest signal was a footnote reading "only the final 250 matched bets … are rendered", which
+named the cap but never the total, and described it as a *rendering* limit when the truncation had
+already happened server-side.
 
-**Fix:** label it ("showing last 250 of 7,072 bets") and add CSV export of the full ledger.
+**Measured, against the dev server** (`/api/backtest`):
+
+| Request | `totalGames` | `gamesPreview.length` | What the heading said before → after |
+|---|---|---|---|
+| NFL moneyline/favorites 2000–2025 | **7,072** | 250 | "250 Matches Analyzed" → "Last 250 of 7,072 Wagers" |
+| NFL spread/home 2020–2024, hot streak | **85** | 85 | "85 Matches Analyzed" → "85 Wagers Analyzed" |
+
+The 7,072 figure is the one this section guessed at; it is now the number the response carries.
+`profitHistory.length` and `summary.totalBets` are both 7,072 on that run, confirming the footnote's
+other claim — that the equity curve and the summary were never truncated — was true all along.
+
+**Fix (shipped, roadmap Action 3.1):** `BacktestResponse` replaces `games` with `gamesPreview`, plus
+`previewLimit` (the exported `LEDGER_PREVIEW_LIMIT = 250`) and `totalGames`. `GamesTable` takes all
+three and branches: over the cap it names both numbers and says the summary and equity curve cover
+the whole run; under it, it states plainly that nothing was held back. No compatibility shim was
+needed — `result.games` had exactly one reader, and `tsc --noEmit` finds any other.
+
+**Still open:** the *full unsliced* ledger. That is deliberately not an API field — a 7,072-wager
+payload is ~1.0 MB of JSON per keystroke-debounced rerun — it is Action 3.2's `ledger.csv`, reached
+through the export bundle.
 
 ### 2f. Two strategy controls the engine never read ✅ — fixed 2026-09-14
 
@@ -533,8 +556,8 @@ variables for production. Optionally set `ADVISOR_SECRET` to a long random strin
 
 | Phase | Work |
 |---|---|
-| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · label the truncated ledger (2e) · rate-limit the advisor (2a) |
-| **Next** | Client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · URL-serialised strategy + share cards · Vitest |
+| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · rate-limit the advisor (2a) |
+| **Next** | Export bundle + full `ledger.csv` (Action 3.2 — now the only home for the unsliced ledger) · client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · URL-serialised strategy + share cards · Vitest |
 | **Then** | Significance panel + Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
 | **After** | CLV tracker (needs a DB) · real historical odds for one sport · Edge Audit · quiz |
 
