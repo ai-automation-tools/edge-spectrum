@@ -1,5 +1,7 @@
 # Dependency updates. Minor/patch bumps arrive as one grouped PR per ecosystem per week;
-# majors get their own PR. Semantic upstream drift (ESPN, Gemini model ids) is the
+# major versions are ignored (2026-09-29): the biweekly upstream check flags a major that
+# breaks something, and Dependabot security alerts still fire for any version.
+# Semantic upstream drift (ESPN, Gemini model ids) is the
 # Edge-Spectrum Upstream Check routine's job -- see Docs/UPSTREAMS.md.
 # Merging main deploys to Vercel; CI (lint + check:* + build) gates every PR.
 version: 2
@@ -7,6 +9,9 @@ updates:
   - package-ecosystem: npm
     directory: "/site"
     schedule: { interval: weekly, day: monday }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
     groups:
       minor-and-patch:
@@ -14,6 +19,9 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule: { interval: weekly, day: monday }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       actions:
         patterns: ["*"]
