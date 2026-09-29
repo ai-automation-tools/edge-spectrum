@@ -77,6 +77,7 @@ Served inside the SPA React shell at `/backtester`.
 - **Position Sizing Models:** Standard flat betting vs. Kelly Criterion sizing (Full/Fractional).
 - **Interactive Reports:** Analyze cumulative profit curves, win rates, ROI, Kelly diagnostics, and drawdowns.
 - **Statistical Significance:** Every run reports the breakeven win rate its own prices demand, a 95% Wilson interval on the hit rate, and an exact one-tailed binomial p-value — with a small-sample warning under 250 wagers — so a lucky streak is labelled as noise rather than an edge.
+- **Shareable Links:** The active strategy lives in the URL (`/backtester?sport=NBA&betType=spread&side=home&…`), so any run can be bookmarked or sent with **Copy link**; a stale or hand-edited link falls back to defaults field by field instead of erroring.
 - **Live Scoreboard integration:** Pulls real-time ESPN scoreboard updates.
 - **Gemini AI Strategy Advisor (your full instance):** Iterates on backtest results to suggest portfolio optimizations, staking alterations, or parameter tuning.
 
@@ -100,7 +101,7 @@ edge-spectrum/
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
-│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, gen:edges)
+│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)

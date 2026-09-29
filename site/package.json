@@ -14,6 +14,7 @@
     "check:spectrum": "tsx scripts/check-spectrum.ts",
     "check:odds": "tsx scripts/check-odds.ts",
     "check:stats": "tsx scripts/check-stats.ts",
+    "check:strategy-url": "tsx scripts/check-strategy-url.ts",
     "check:edges": "tsx scripts/check-edges.ts",
     "check:deployment": "tsx scripts/check-deployment.ts"
   },

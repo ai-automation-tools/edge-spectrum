@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from './components/Header';
 import StrategyBuilder from './components/StrategyBuilder';
 import ResultsDashboard from './components/ResultsDashboard';
@@ -7,23 +8,17 @@ import GamesTable from './components/GamesTable';
 import AiAdvisor from './components/AiAdvisor';
 import EspnFeed from './components/EspnFeed';
 import { Strategy, BacktestResponse, StrategyTemplate } from './types';
+import { strategyFromQuery, strategyToQuery } from './strategyUrl';
 import { AlertCircle, RotateCcw, LineChart, Table, Info, BookOpen } from 'lucide-react';
 
 // Keystroke-to-request grace period for the auto-rerun effect.
 const RERUN_DEBOUNCE_MS = 300;
 
 export default function App() {
-  // Initial starting strategy parameters
-  const [strategy, setStrategy] = useState<Strategy>({
-    sport: 'NFL',
-    startYear: 2020,
-    endYear: 2024,
-    betType: 'moneyline',
-    sideSelection: 'favorites',
-    streakFilter: 'any',
-    unitSize: 100,
-    startingBankroll: 10000
-  });
+  // The strategy is mirrored into the query string so a run can be
+  // bookmarked or shared; a bare /backtester opens on the defaults.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [strategy, setStrategy] = useState<Strategy>(() => strategyFromQuery(searchParams));
 
   const [result, setResult] = useState<BacktestResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +79,11 @@ export default function App() {
   // Debounced, because `unitSize` / `startingBankroll` are free-text number
   // inputs that fire this on every keystroke.
   useEffect(() => {
-    const timer = setTimeout(() => runBacktest(strategy), RERUN_DEBOUNCE_MS);
+    const timer = setTimeout(() => {
+      // Replace, not push: every keystroke is not a history entry.
+      setSearchParams(strategyToQuery(strategy), { replace: true });
+      runBacktest(strategy);
+    }, RERUN_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [
     strategy.sport,
