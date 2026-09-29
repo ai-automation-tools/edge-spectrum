@@ -24,3 +24,18 @@ export const MAX_STARTING_BANKROLL = 1_000_000_000;
 export const MAX_AMERICAN_ODDS = 100_000;
 export const MAX_SPREAD_POINTS = 100;
 export const MAX_TOTAL_POINTS = 500;
+
+/** The enum values the schema accepts. Here rather than in the schema so the
+ *  share-link parser (`strategyUrl.ts`) can check a query string against the
+ *  same lists without Zod; the schema asserts they still match `types.ts`. */
+export const SPORTS = ['NFL', 'NBA', 'MLB', 'NHL'] as const;
+export const BET_TYPES = ['moneyline', 'spread', 'totals'] as const;
+export const TOTALS_SIDES = ['over', 'under'] as const;
+export const SIDE_SELECTIONS = [
+  'favorites', 'underdogs', 'home', 'away',
+  'home_favorites', 'away_favorites', 'home_underdogs', 'away_underdogs',
+  'after_win', 'after_loss', 'hot_streak', 'cold_streak',
+  'rest_advantage', 'rest_disadvantage',
+  ...TOTALS_SIDES,
+] as const;
+export const STREAK_FILTERS = ['any', 'after_win', 'after_loss', 'hot_streak_3plus', 'cold_streak_3plus'] as const;

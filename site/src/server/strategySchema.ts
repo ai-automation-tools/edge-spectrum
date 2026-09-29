@@ -15,8 +15,9 @@
 import { z } from 'zod';
 import type { BetType, SideSelectionType, SportType, Strategy } from '../types.js';
 import {
-  MAX_AMERICAN_ODDS, MAX_SEASON, MAX_SPREAD_POINTS, MAX_STARTING_BANKROLL,
-  MAX_TOTAL_POINTS, MAX_UNIT_SIZE, MIN_SEASON,
+  BET_TYPES, MAX_AMERICAN_ODDS, MAX_SEASON, MAX_SPREAD_POINTS, MAX_STARTING_BANKROLL,
+  MAX_TOTAL_POINTS, MAX_UNIT_SIZE, MIN_SEASON, SIDE_SELECTIONS, SPORTS, STREAK_FILTERS,
+  TOTALS_SIDES,
 } from '../strategyBounds.js';
 
 // Re-exported so server-side callers have a single import for the schema and
@@ -31,18 +32,6 @@ export * from '../strategyBounds.js';
  */
 type SameMembers<Union extends string, Listed extends string> =
   [Union] extends [Listed] ? ([Listed] extends [Union] ? true : never) : never;
-
-const SPORTS = ['NFL', 'NBA', 'MLB', 'NHL'] as const;
-const BET_TYPES = ['moneyline', 'spread', 'totals'] as const;
-const TOTALS_SIDES = ['over', 'under'] as const;
-const SIDE_SELECTIONS = [
-  'favorites', 'underdogs', 'home', 'away',
-  'home_favorites', 'away_favorites', 'home_underdogs', 'away_underdogs',
-  'after_win', 'after_loss', 'hot_streak', 'cold_streak',
-  'rest_advantage', 'rest_disadvantage',
-  ...TOTALS_SIDES,
-] as const;
-const STREAK_FILTERS = ['any', 'after_win', 'after_loss', 'hot_streak_3plus', 'cold_streak_3plus'] as const;
 
 const _sportsCovered: SameMembers<SportType, typeof SPORTS[number]> = true;
 const _betTypesCovered: SameMembers<BetType, typeof BET_TYPES[number]> = true;
