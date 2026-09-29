@@ -4,9 +4,10 @@ import {
   MIN_SEASON, MAX_SEASON, MAX_UNIT_SIZE, MAX_STARTING_BANKROLL,
   MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS,
 } from '../strategyBounds';
+import { strategyToQuery } from '../strategyUrl';
 import {
   Play, AlertTriangle, Lightbulb, Sliders, DollarSign,
-  ChevronDown, Globe, Target, Wallet, ArrowRight, Activity,
+  ChevronDown, Globe, Target, Wallet, ArrowRight, Activity, Link2, Check,
 } from 'lucide-react';
 
 interface StrategyBuilderProps {
@@ -148,6 +149,20 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
 
 export default function StrategyBuilder({ currentStrategy, onChange, onRunBacktest, isLoading, }: StrategyBuilderProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Built from the strategy itself rather than read off the address bar, which
+  // only catches up once the debounced rerun fires.
+  const copyShareLink = async () => {
+    const url = `${window.location.origin}${window.location.pathname}?${strategyToQuery(currentStrategy)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      window.prompt('Copy this link:', url);
+    }
+  };
 
   // Helper trigger
   const updateField = (field: keyof Strategy, value: any) => {
@@ -522,6 +537,16 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           <span className="text-[11px] font-mono text-zinc-300 truncate">{recipe}</span>
         </div>
 
+        <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={copyShareLink}
+          title="Copy a link that reopens this exact strategy"
+          className="px-3 py-2.5 bg-zinc-950/60 border border-zinc-800 hover:border-sky-500/40 text-zinc-300 hover:text-sky-200 rounded-xl text-xs flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Link2 className="w-3.5 h-3.5" />}
+          <span>{copied ? 'Copied' : 'Copy link'}</span>
+        </button>
         <button
           type="button"
           disabled={isLoading}
@@ -535,6 +560,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           )}
           <span>{isLoading ? 'Simulating Era…' : 'Execute Backtest'}</span>
         </button>
+        </div>
       </div>
     </div>
   );
