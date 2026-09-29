@@ -1,4 +1,5 @@
 import { Game, SportType, Strategy, BacktestResponse, SimulatedBetGame, ProfitHistoryPoint, BacktestSummary, BetType, SideSelectionType } from './types';
+import { breakevenRate, wilsonInterval, binomialUpperTail } from './stats';
 
 // Deterministic seedable random number generator (LCG or Jenkins-style)
 // This guarantees that backtests are identical and stable across runs
@@ -689,6 +690,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
 
   const simulatedGames: SimulatedBetGame[] = [];
   const profitHistory: ProfitHistoryPoint[] = [];
+  const decidedOdds: number[] = []; // unrounded decimal price of every win or loss — pushes carry no hit-rate information
 
   allGames.forEach((game) => {
     let shouldBet = false;
@@ -892,6 +894,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
       } else {
         pushedBets++; returnVal = stake; netResult = 0;
       }
+      if (isWinOutcome !== 'push') decidedOdds.push(decimalOdds);
       totalWagered += stake; totalReturn += returnVal; currentBankroll += netResult;
       if (currentBankroll > peakBankroll) peakBankroll = currentBankroll;
       const dd = peakBankroll - currentBankroll;
@@ -916,8 +919,15 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
     kellyPercentage = Math.max(0, parseFloat((kellyPercentage * 0.25).toFixed(2)));
   }
 
+  const decided = wonBets + lostBets;
+  const breakeven = breakevenRate(decidedOdds);
+  const [ciLow, ciHigh] = decided > 0 ? wilsonInterval(wonBets, decided) : [0, 0];
+  const pct = (x: number) => parseFloat((x * 100).toFixed(2));
+
   const summary: BacktestSummary = {
-    sport: strategy.sport, startYear: strategy.startYear, endYear: strategy.endYear, totalBets, wonBets, lostBets, pushedBets, winRate: parseFloat(winRate.toFixed(2)), totalWagered: parseFloat(totalWagered.toFixed(2)), totalReturn: parseFloat(totalReturn.toFixed(2)), netProfit: parseFloat(netProfit.toFixed(2)), roi: parseFloat(roi.toFixed(2)), avgOdds: parseFloat(avgOdds.toFixed(3)), maxDrawdown: parseFloat(maxDrawdown.toFixed(2)), maxDrawdownPercent: parseFloat((peakBankroll > 0 ? (maxDrawdown / peakBankroll) * 100 : 0).toFixed(2)), kellyPercentage, finalBankroll: parseFloat(currentBankroll.toFixed(2))
+    sport: strategy.sport, startYear: strategy.startYear, endYear: strategy.endYear, totalBets, wonBets, lostBets, pushedBets, winRate: parseFloat(winRate.toFixed(2)), totalWagered: parseFloat(totalWagered.toFixed(2)), totalReturn: parseFloat(totalReturn.toFixed(2)), netProfit: parseFloat(netProfit.toFixed(2)), roi: parseFloat(roi.toFixed(2)), avgOdds: parseFloat(avgOdds.toFixed(3)), maxDrawdown: parseFloat(maxDrawdown.toFixed(2)), maxDrawdownPercent: parseFloat((peakBankroll > 0 ? (maxDrawdown / peakBankroll) * 100 : 0).toFixed(2)), kellyPercentage, finalBankroll: parseFloat(currentBankroll.toFixed(2)),
+    breakevenWinRate: pct(breakeven), winRateLow: pct(ciLow), winRateHigh: pct(ciHigh),
+    pValue: decided > 0 ? binomialUpperTail(wonBets, decided, breakeven) : 1,
   };
 
   return {

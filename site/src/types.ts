@@ -104,6 +104,11 @@ export interface BacktestSummary {
   maxDrawdownPercent: number;
   kellyPercentage: number; // Kelly criterion suggestion
   finalBankroll: number;
+  // Hit-rate inference over decided (non-push) wagers — see src/stats.ts.
+  breakevenWinRate: number; // %, the win rate these realised prices need to break even
+  winRateLow: number;       // %, 95% Wilson interval on winRate
+  winRateHigh: number;
+  pValue: number;           // one-tailed, H0: true win rate ≤ breakeven
 }
 
 export interface ProfitHistoryPoint {

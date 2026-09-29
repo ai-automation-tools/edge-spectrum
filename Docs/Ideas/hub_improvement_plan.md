@@ -276,14 +276,31 @@ side only, a `tsc --noEmit` failure.
 Today it answers *"did this win?"* It should answer **"is this real?"** — nobody in the hobby
 space does this well, and it is the strongest available differentiator.
 
-1. **Significance panel** — 95% CI on win rate, t-stat and p-value vs. the breakeven rate, and
+1. ✅ **Significance panel** — *shipped 2026-09-28 (roadmap Action 3.3).* 95% CI on win rate, t-stat and p-value vs. the breakeven rate, and
    required sample size. A 54% hit rate over 300 bets should be labelled *statistically
    indistinguishable from noise*.
+   **What shipped:** `site/src/stats.ts` — breakeven as n / Σ decimal over decided wagers, a Wilson
+   95% interval, and an *exact* one-tailed binomial p-value (log-space, so no t-stat or normal
+   approximation is needed), all carried on `BacktestSummary` and rendered as a panel with a verdict.
+   The 54%-over-300-at-−110 case is asserted non-significant by `npm run check:stats`.
+   **Measured** (dev server, `/api/backtest`):
+
+   | Run | Wagers | Win rate | Breakeven | 95% CI | p | Verdict |
+   |---|---|---|---|---|---|---|
+   | NFL spread/home 2020–2024, hot streak | 85 | 55.42% | 52.45% | 44.73–65.64% | 0.333 | Noise (+ small-sample badge) |
+   | NFL spread/home 2020–2024 | 1,360 | 51.49% | 52.52% | 48.82–54.16% | 0.781 | Below breakeven |
+   | NFL moneyline/favorites 2000–2025 | 7,072 | 56.21% | 58.05% | 55.05–57.36% | 0.999 | Below breakeven |
+
+   The first row is the fixture Actions 2.4 and 3.1 quoted as "+5.52% ROI" — it was never evidence
+   of anything. **Not done:** *required sample size* (the n at which the observed gap would reach
+   significance) — left for a follow-up; the small-sample badge covers the common case.
 2. **Monte Carlo fan chart** — resample the bet stream 1,000× and plot the distribution of equity
    paths. The single equity curve is the most misleading object in the app; the fan chart is the
    antidote. (This is idea #24 in `improvement_ideas.md` — it belongs here, not only in the viz.)
 3. **Walk-forward split** — fit on 2000–2015, verify on 2016–2025. The anti-overfitting guard.
-4. **Overfitting warning** — when filters cut the sample below ~200 bets, say so loudly.
+4. 🔶 **Overfitting warning** — when filters cut the sample below ~200 bets, say so loudly.
+   *Partly shipped 2026-09-28:* the significance panel badges any run under 250 wagers and carries
+   a standing multiple-testing caveat; there is no per-filter "you have tried N variants" tracking.
 5. **Vig sensitivity slider** — watch a "profitable" strategy die when −110 becomes −115.
 6. **Staking method grid** — flat / %-bankroll / Kelly / Martingale over the *same* bet stream,
    with risk-of-ruin per method. (Already roadmap Phase 3.)
@@ -556,9 +573,9 @@ variables for production. Optionally set `ADVISOR_SECRET` to a long random strin
 
 | Phase | Work |
 |---|---|
-| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · rate-limit the advisor (2a) |
+| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · ✅ significance panel + `check:stats` in CI (section 4.1, Action 3.3) · rate-limit the advisor (2a) |
 | **Next** | Export bundle + full `ledger.csv` (Action 3.2 — now the only home for the unsliced ledger) · client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · URL-serialised strategy + share cards · Vitest |
-| **Then** | Significance panel + Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
+| **Then** | Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
 | **After** | CLV tracker (needs a DB) · real historical odds for one sport · Edge Audit · quiz |
 
 ---

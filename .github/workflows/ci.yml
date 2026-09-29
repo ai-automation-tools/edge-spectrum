@@ -29,5 +29,6 @@ jobs:
       - run: npm run check:edges
       - run: npm run check:spectrum
       - run: npm run check:odds
+      - run: npm run check:stats
       - run: npm run check:deployment
       - run: npm run build
