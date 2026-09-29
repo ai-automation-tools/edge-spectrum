@@ -2,6 +2,13 @@
 
 ---
 
+## September 29, 2026 — Upstreams worklist
+
+- **`Docs/UPSTREAMS.md`**: every external service Edge Spectrum depends on (ESPN scoreboard API,
+  Gemini via `@google/genai`, the Plotly and Google Fonts CDNs, Vercel, Node, the framework
+  majors), what the code assumes about each, and where to check it. It is the worklist for the
+  biweekly **Edge-Spectrum Upstream Check** routine (`upstream/auto-*` PRs).
+
 ## September 3, 2026 — Phase 6 Calculators (Roadmap Actions 6.1 & 6.2)
 
 Two standalone, client-side calculators added to the hub. Neither touches the edge dataset or the
