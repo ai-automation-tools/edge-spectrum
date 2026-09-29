@@ -1,0 +1,19 @@
+# Dependency updates. Minor/patch bumps arrive as one grouped PR per ecosystem per week;
+# majors get their own PR. Semantic upstream drift (ESPN, Gemini model ids) is the
+# Edge-Spectrum Upstream Check routine's job -- see Docs/UPSTREAMS.md.
+# Merging main deploys to Vercel; CI (lint + check:* + build) gates every PR.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/site"
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly, day: monday }
+    groups:
+      actions:
+        patterns: ["*"]
