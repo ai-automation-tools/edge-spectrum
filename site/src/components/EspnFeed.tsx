@@ -285,7 +285,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+    <div className="panel p-5 flex flex-col gap-4">
       {/* Block Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-zinc-800 gap-3">
         <div>

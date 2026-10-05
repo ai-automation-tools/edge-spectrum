@@ -1,42 +1,39 @@
 import React from 'react';
-import { Shield, TrendingUp, Trophy } from 'lucide-react';
+import { Shield, TrendingUp, FlaskConical } from 'lucide-react';
 import { MARKET_OVERROUND } from '../dataGenerator';
+import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
+import { Eyebrow, Reveal } from './ui';
 
 /** The book's hold, read straight off the model rather than asserted. */
 const HOLD_PERCENT = ((MARKET_OVERROUND - 1) / MARKET_OVERROUND) * 100;
 
+/** The simulator's page head. The hub topbar is the sticky chrome now, so this sits in flow. */
 export default function Header() {
   return (
-    <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md px-6 py-4 sticky top-0 z-40 transition-all duration-200">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-sky-500/10 rounded-xl border border-sky-500/20 text-sky-400">
-            <Trophy className="w-6 h-6 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-zinc-100 tracking-tight flex items-center gap-2">
-              Sports Betting Backtest Simulator
-              <span className="px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full">
-                Simulated Data
-              </span>
-            </h1>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Strategy emulator over 26 simulated seasons of MLB, NFL, NHL & NBA (2000-2025)
-            </p>
-          </div>
+    <Reveal>
+      <header className="mx-auto flex max-w-7xl flex-col gap-4 px-6 pb-2 pt-10 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0">
+          <Eyebrow accent="emerald"><b>Simulator</b> · simulated data · {MIN_SEASON}–{MAX_SEASON}</Eyebrow>
+          <h1 className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-zinc-100 md:text-[36px]">
+            Sports Betting <span style={{ color: '#34d399' }}>Backtest</span> Simulator
+          </h1>
+          <p className="mt-2 max-w-[62ch] text-[15px] leading-relaxed text-zinc-400">
+            Strategy emulator over {MAX_SEASON - MIN_SEASON + 1} simulated seasons of MLB, NFL, NHL &amp; NBA. Every line is priced
+            from the distribution the scores are drawn from, so the hold is the only edge in the data.
+          </p>
         </div>
-
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-800/40 border border-zinc-700/50 rounded-lg text-xs font-mono text-zinc-300">
-            <Shield className="w-3.5 h-3.5 text-sky-400" />
-            <span>Book Hold: {HOLD_PERCENT.toFixed(2)}%</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-500/15 border border-sky-400/20 rounded-lg text-xs font-medium text-sky-300">
-            <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
-            <span>Quarter-Kelly Sizing</span>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="pill border-zinc-800/80 bg-zinc-900/40" title="Read from MARKET_OVERROUND in the generator">
+            <Shield className="h-3.5 w-3.5 text-sky-400" /> Book hold {HOLD_PERCENT.toFixed(2)}%
+          </span>
+          <span className="pill border-sky-500/20 bg-sky-500/10 text-sky-300">
+            <TrendingUp className="h-3.5 w-3.5 text-sky-400" /> Quarter-Kelly sizing
+          </span>
+          <span className="pill border-amber-500/25 bg-amber-500/10 text-amber-300">
+            <FlaskConical className="h-3.5 w-3.5" /> Synthetic games
+          </span>
         </div>
-      </div>
-    </header>
+      </header>
+    </Reveal>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Calculator, Scale, Plus, X, Info } from 'lucide-react';
 import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
+import { PageHead, Accented } from '../components/ui';
+import SiteFooter from '../components/SiteFooter';
 import {
   type OddsFormat, type DevigMethod, FORMAT_LABEL, METHOD_LABEL, METHOD_BLURB,
   parseOdds, formatOdds, devig,
@@ -172,21 +174,20 @@ function NoVig() {
 
 export default function OddsConverter() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-      <header className="mb-10 max-w-3xl">
-        <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">Calculator</span>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
-          Odds Converter &amp; <span className="text-violet-400">No-Vig</span> Fair Price
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-zinc-400">
-          Convert between American, decimal, fractional and implied-probability odds, then remove the
-          bookmaker's margin from any two-way or multi-way market using the multiplicative, power, or Shin method.
-        </p>
-      </header>
+    <>
+    <main className="mx-auto max-w-5xl px-5 py-12 md:py-16">
+      <PageHead
+        eyebrow="Calculator · client-side"
+        accent="violet"
+        title={<>Odds Converter &amp; <Accented accent="violet">No-Vig</Accented> Fair Price</>}
+        lede="Convert between American, decimal, fractional and implied-probability odds, then remove the bookmaker's margin from any two-way or multi-way market using the multiplicative, power, or Shin method."
+      />
       <div className="flex flex-col gap-6">
         <Converter />
         <NoVig />
       </div>
     </main>
+    <SiteFooter />
+    </>
   );
 }

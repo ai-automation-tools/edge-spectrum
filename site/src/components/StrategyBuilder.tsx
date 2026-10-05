@@ -194,12 +194,10 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
   ].join('  ·  ');
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col gap-6">
+    <div className="panel p-5 flex flex-col gap-6">
       <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-sky-500/10 rounded-xl border border-sky-500/20 text-sky-400">
-            <Sliders className="w-5 h-5" />
-          </div>
+          <span className="glyph"><Sliders className="w-5 h-5" strokeWidth={1.6} /></span>
           <div>
             <h2 className="font-display font-semibold text-zinc-100 tracking-tight text-[15px] leading-none">
               Strategy Portfolio Designer
@@ -220,7 +218,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
             <button
               key={idx}
               onClick={() => handlePresetSelect(p)}
-              className="group flex items-center gap-2.5 px-3 py-2.5 bg-zinc-950/60 border border-zinc-800 hover:border-sky-500/40 hover:bg-sky-500/[0.04] text-left rounded-xl transition-all duration-200"
+              className="group flex items-center gap-2.5 px-3 py-2.5 bg-[#0a0a0c]/60 border border-zinc-800 hover:border-sky-500/40 hover:bg-sky-500/[0.04] text-left rounded-xl transition-all duration-200"
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${SPORT_DOT[p.strategy.sport]} shadow-[0_0_8px] shadow-current opacity-80 group-hover:opacity-100 transition-opacity`} />
               <div className="min-w-0">
@@ -233,14 +231,14 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
       </div>
 
       {/* ── Control deck: three labeled clusters split by hairline dividers ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-px rounded-xl overflow-hidden border border-zinc-800 bg-zinc-800/50">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-px rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-800/40">
         {/* MARKET */}
-        <section className="lg:col-span-5 bg-zinc-900/80 p-4 flex flex-col gap-4">
+        <section className="lg:col-span-5 bg-[#0b0b0e]/90 p-4 flex flex-col gap-4">
           <Eyebrow icon={Globe} text="Market" />
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Target Sport</FieldLabel>
-            <div className="grid grid-cols-4 gap-1 p-1 bg-zinc-950 rounded-lg border border-zinc-800">
+            <div className="grid grid-cols-4 gap-1 p-1 bg-[#0a0a0c] rounded-lg border border-zinc-800">
               {(['NFL', 'NBA', 'MLB', 'NHL'] as SportType[]).map((sport) => {
                 const active = currentStrategy.sport === sport;
                 return (
@@ -293,12 +291,12 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
         </section>
 
         {/* WAGER */}
-        <section className="lg:col-span-4 bg-zinc-900/80 p-4 flex flex-col gap-4">
+        <section className="lg:col-span-4 bg-[#0b0b0e]/90 p-4 flex flex-col gap-4">
           <Eyebrow icon={Target} text="Wager" />
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Wager Target</FieldLabel>
-            <div className="grid grid-cols-3 gap-1 p-1 bg-zinc-950 rounded-lg border border-zinc-800">
+            <div className="grid grid-cols-3 gap-1 p-1 bg-[#0a0a0c] rounded-lg border border-zinc-800">
               {(['moneyline', 'spread', 'totals'] as BetType[]).map((type) => {
                 const active = currentStrategy.betType === type;
                 return (
@@ -373,7 +371,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
         </section>
 
         {/* CAPITAL */}
-        <section className="lg:col-span-3 bg-zinc-900/80 p-4 flex flex-col gap-4">
+        <section className="lg:col-span-3 bg-[#0b0b0e]/90 p-4 flex flex-col gap-4">
           <Eyebrow icon={Wallet} text="Capital" />
 
           <div className="flex flex-col gap-1.5">
@@ -386,7 +384,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                 max={MAX_STARTING_BANKROLL}
                 value={currentStrategy.startingBankroll}
                 onChange={(e) => updateField('startingBankroll', clamp(parseInt(e.target.value) || 0, 1, MAX_STARTING_BANKROLL))}
-                className="h-9 w-full pl-8 pr-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-zinc-200 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                className="h-9 w-full pl-8 pr-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-zinc-200 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
               />
             </div>
           </div>
@@ -401,7 +399,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                 max={MAX_UNIT_SIZE}
                 value={currentStrategy.unitSize}
                 onChange={(e) => updateField('unitSize', clamp(parseInt(e.target.value) || 0, 1, MAX_UNIT_SIZE))}
-                className="h-9 w-full pl-8 pr-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-sky-300 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                className="h-9 w-full pl-8 pr-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-sky-300 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
               />
             </div>
           </div>
@@ -420,7 +418,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
         </button>
 
         {showAdvanced && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-zinc-950/40 rounded-xl border border-zinc-800 transition-all duration-300 animate-fadeIn">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-[#0a0a0c]/50 rounded-xl border border-zinc-800 transition-all duration-300 animate-fadeIn">
             {/* Streak Filtering */}
             <div className="flex flex-col gap-1.5">
               <FieldLabel>Streak Preconditions</FieldLabel>
@@ -447,7 +445,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                   max={MAX_AMERICAN_ODDS}
                   value={currentStrategy.oddsMin ?? ''}
                   onChange={(e) => updateField('oddsMin', boundedOptional(e.target.value, -MAX_AMERICAN_ODDS, MAX_AMERICAN_ODDS, parseInt))}
-                  className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                  className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -459,7 +457,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                   max={MAX_AMERICAN_ODDS}
                   value={currentStrategy.oddsMax ?? ''}
                   onChange={(e) => updateField('oddsMax', boundedOptional(e.target.value, -MAX_AMERICAN_ODDS, MAX_AMERICAN_ODDS, parseInt))}
-                  className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                  className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                 />
               </div>
 
@@ -475,7 +473,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       max={MAX_SPREAD_POINTS}
                       value={currentStrategy.spreadMin ?? ''}
                       onChange={(e) => updateField('spreadMin', boundedOptional(e.target.value, 0, MAX_SPREAD_POINTS, parseFloat))}
-                      className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                      className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -488,7 +486,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       max={MAX_SPREAD_POINTS}
                       value={currentStrategy.spreadMax ?? ''}
                       onChange={(e) => updateField('spreadMax', boundedOptional(e.target.value, 0, MAX_SPREAD_POINTS, parseFloat))}
-                      className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                      className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
                   </div>
                 </>
@@ -506,7 +504,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       max={MAX_TOTAL_POINTS}
                       value={currentStrategy.totalMin ?? ''}
                       onChange={(e) => updateField('totalMin', boundedOptional(e.target.value, 0, MAX_TOTAL_POINTS, parseFloat))}
-                      className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                      className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -519,7 +517,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       max={MAX_TOTAL_POINTS}
                       value={currentStrategy.totalMax ?? ''}
                       onChange={(e) => updateField('totalMax', boundedOptional(e.target.value, 0, MAX_TOTAL_POINTS, parseFloat))}
-                      className="h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
+                      className="h-9 px-3 bg-[#0a0a0c] border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
                   </div>
                 </>
@@ -542,7 +540,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           type="button"
           onClick={copyShareLink}
           title="Copy a link that reopens this exact strategy"
-          className="px-3 py-2.5 bg-zinc-950/60 border border-zinc-800 hover:border-sky-500/40 text-zinc-300 hover:text-sky-200 rounded-xl text-xs flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
+          className="px-3 py-2.5 bg-[#0a0a0c]/60 border border-zinc-800 hover:border-sky-500/40 text-zinc-300 hover:text-sky-200 rounded-xl text-xs flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Link2 className="w-3.5 h-3.5" />}
           <span>{copied ? 'Copied' : 'Copy link'}</span>
