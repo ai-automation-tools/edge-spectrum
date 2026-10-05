@@ -1,126 +1,78 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { animate, useReducedMotion } from 'motion/react';
 import { BacktestSummary } from '../types';
-import { TrendingUp, Award, HelpCircle, Activity, ShieldAlert, Sparkles, AlertCircle, Sigma } from 'lucide-react';
+import { TrendingUp, Award, HelpCircle, Activity, ShieldAlert, Sparkles, AlertCircle, Sigma, Wallet } from 'lucide-react';
 import { MIN_RELIABLE_SAMPLE } from '../stats';
+import { Card } from './ui';
 
 interface ResultsDashboardProps {
   summary: BacktestSummary;
 }
 
+/** Tweens a number to its new value; renders the exact value immediately under reduced motion. */
+function useCountUp(value: number, duration = 0.7) {
+  const reduced = useReducedMotion();
+  const [shown, setShown] = useState(value);
+  const prev = useRef(value);
+  useEffect(() => {
+    if (reduced) { setShown(value); prev.current = value; return; }
+    const controls = animate(prev.current, value, { duration, ease: [0.2, 0.7, 0.2, 1], onUpdate: (v) => setShown(v) });
+    prev.current = value;
+    return () => controls.stop();
+  }, [value, duration, reduced]);
+  return shown;
+}
+
+const money = (v: number) => `${v < 0 ? '-' : ''}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+function Metric({ label, accent, icon, value, sub, badge, title }: {
+  label: string; accent: string; icon?: React.ReactNode; value: React.ReactNode; sub: React.ReactNode; badge?: React.ReactNode; title?: string;
+}) {
+  return (
+    <Card accent={accent} className="flex flex-col justify-between p-4" title={title}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[10.5px] font-medium uppercase tracking-[.1em] text-zinc-500">{label}</span>
+        {badge ?? icon}
+      </div>
+      <div className="mt-3.5">
+        <div className="font-mono text-xl font-medium tracking-[-0.01em] lg:text-2xl" style={{ color: accent }}>{value}</div>
+        <span className="mt-1 block font-mono text-[10.5px] text-zinc-500">{sub}</span>
+      </div>
+    </Card>
+  );
+}
+
 export default function ResultsDashboard({ summary }: ResultsDashboardProps) {
   const isProfit = summary.netProfit >= 0;
+  const pnlColor = isProfit ? '#34d399' : '#fb7185';
+  const net = useCountUp(summary.netProfit);
+  const roi = useCountUp(summary.roi);
+  const win = useCountUp(summary.winRate);
+  const bets = useCountUp(summary.totalBets, 0.5);
+  const dd = useCountUp(summary.maxDrawdownPercent);
+  const kelly = useCountUp(summary.kellyPercentage);
 
-  // Nice metrics card formatter
   return (
     <div className="flex flex-col gap-4">
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      {/* 1. Net Profit Card */}
-      <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Net Profit (P/L)</span>
-          <div className={`p-1 rounded-md text-xs font-bold ${
-            isProfit ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-          }`}>
-            {isProfit ? '+' : ''}{summary.roi.toFixed(1)}%
-          </div>
-        </div>
-        <div className="mt-3.5">
-          <div className={`text-xl lg:text-2xl font-bold font-mono tracking-tight ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {isProfit ? '$' : '-$'}{Math.abs(summary.netProfit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <span className="text-[10px] text-zinc-400 font-mono mt-1 block">
-            End Bankroll: ${summary.finalBankroll.toLocaleString()}
-          </span>
-        </div>
+      <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 lg:grid-cols-6">
+        <Metric
+          label="Net profit (P/L)" accent={pnlColor}
+          badge={<span className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium" style={{ color: pnlColor, borderColor: `${pnlColor}40`, background: `${pnlColor}14` }}>{isProfit ? '+' : ''}{roi.toFixed(1)}%</span>}
+          value={money(net)}
+          sub={<>End bankroll ${summary.finalBankroll.toLocaleString()}</>}
+        />
+        <Metric label="Return on risk" accent={pnlColor} icon={<TrendingUp className="h-4 w-4 text-zinc-500" />} value={`${roi.toFixed(2)}%`} sub={<>ROI over {summary.totalBets} matches</>} />
+        <Metric label="Win percentage" accent="#f4f4f5" icon={<Award className="h-4 w-4 text-sky-400" />} value={`${win.toFixed(1)}%`} sub={<>W/L/P {summary.wonBets} - {summary.lostBets} - {summary.pushedBets}</>} />
+        <Metric label="Matches bet" accent="#f4f4f5" icon={<Activity className="h-4 w-4 text-sky-400" />} value={Math.round(bets).toLocaleString()} sub={<>Staked ${summary.totalWagered.toLocaleString()}</>} />
+        <Metric label="Max drawdown" accent="#fbbf24" icon={<ShieldAlert className="h-4 w-4 text-amber-400" />} value={`-${dd.toFixed(1)}%`} sub={<>Max drop ${summary.maxDrawdown.toLocaleString()}</>} />
+        <Metric
+          label="Kelly sizing" accent={summary.kellyPercentage > 0 ? '#38bdf8' : '#71717a'}
+          icon={<span className="cursor-help" title="Kelly Criterion calculates the optimal percentage of bankroll to wager on similar parameters based on the historic advantage."><HelpCircle className="h-3.5 w-3.5 text-zinc-500" /></span>}
+          value={summary.kellyPercentage > 0 ? `${kelly.toFixed(2)}%` : '0.00%'}
+          sub={<span className="inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-sky-400" />{summary.kellyPercentage > 0 ? 'Wager size suggestion' : 'No positive edge found'}</span>}
+        />
       </div>
-
-      {/* 2. ROI Card */}
-      <div className="bg-zinc-900 border border-zinc-800/85 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Return on Risk</span>
-          <TrendingUp className="w-4 h-4 text-zinc-400" />
-        </div>
-        <div className="mt-3.5">
-          <div className={`text-xl lg:text-2xl font-bold font-mono tracking-tight ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {summary.roi.toFixed(2)}%
-          </div>
-          <span className="text-[10px] text-zinc-400 font-mono mt-1 block">
-            ROI over {summary.totalBets} matches
-          </span>
-        </div>
-      </div>
-
-      {/* 3. Win Rate Card */}
-      <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Win Percentage</span>
-          <Award className="w-4 h-4 text-sky-400" />
-        </div>
-        <div className="mt-3.5">
-          <div className="text-xl lg:text-2xl font-bold text-zinc-100 font-mono tracking-tight">
-            {summary.winRate}%
-          </div>
-          <span className="text-[10px] text-zinc-400 font-mono mt-1 block">
-            W/L/P: {summary.wonBets} - {summary.lostBets} - {summary.pushedBets}
-          </span>
-        </div>
-      </div>
-
-      {/* 4. Total Volume */}
-      <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Total Matches Bet</span>
-          <Activity className="w-4 h-4 text-sky-400" />
-        </div>
-        <div className="mt-3.5">
-          <div className="text-xl lg:text-2xl font-bold text-zinc-100 font-mono tracking-tight">
-            {summary.totalBets}
-          </div>
-          <span className="text-[10px] text-zinc-400 font-mono mt-1 block">
-            Staked: ${summary.totalWagered.toLocaleString()}
-          </span>
-        </div>
-      </div>
-
-      {/* 5. Max Drawdown */}
-      <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Max Drawdown</span>
-          <ShieldAlert className="w-4 h-4 text-amber-500" />
-        </div>
-        <div className="mt-3.5">
-          <div className="text-xl lg:text-2xl font-bold text-amber-500 font-mono tracking-tight">
-            -{summary.maxDrawdownPercent}%
-          </div>
-          <span className="text-[10px] text-zinc-400 font-mono mt-1 block">
-            Max Drop: ${summary.maxDrawdown.toLocaleString()}
-          </span>
-        </div>
-      </div>
-
-      {/* 6. Intelligent Sizing Kelly Recommendation */}
-      <div className="bg-zinc-900 border border-sky-950/40 rounded-2xl p-4 flex flex-col justify-between shadow-md hover:border-sky-950/60 transition-all duration-200 relative overflow-hidden group">
-        <div className="absolute right-0 top-0 bg-sky-500/5 w-16 h-16 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-300"></div>
-        <div className="flex items-center justify-between z-10">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-300 font-semibold flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-            Kelly Sizing
-          </span>
-          <span className="cursor-help" title="Kelly Criterion calculates optimal percentage of bankroll to wager on similar parameters based on historic advantage.">
-            <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
-          </span>
-        </div>
-        <div className="mt-3.5 z-10 flex flex-col gap-0.5">
-          <div className={`text-xl lg:text-2xl font-bold font-mono tracking-tight ${summary.kellyPercentage > 0 ? 'text-sky-400' : 'text-zinc-400'}`}>
-            {summary.kellyPercentage > 0 ? `${summary.kellyPercentage}%` : '0.00%'}
-          </div>
-          <span className="text-[10px] text-zinc-300 font-mono block leading-relaxed font-sans">
-            {summary.kellyPercentage > 0 ? `Wager size suggestion` : 'No positive edge found'}
-          </span>
-        </div>
-      </div>
-    </div>
-    <SignificancePanel summary={summary} />
+      <SignificancePanel summary={summary} />
     </div>
   );
 }
@@ -135,44 +87,41 @@ function SignificancePanel({ summary }: ResultsDashboardProps) {
   const pText = summary.pValue < 0.0001 ? '< 0.0001' : summary.pValue.toFixed(4);
 
   const verdict = !beatsBreakeven
-    ? { text: 'Below breakeven — no edge over the vig', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20' }
+    ? { text: 'Below breakeven — no edge over the vig', c: '#fb7185' }
     : significant
-      ? { text: 'Significant at the 5% level', cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' }
-      : { text: 'Indistinguishable from noise', cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+      ? { text: 'Significant at the 5% level', c: '#34d399' }
+      : { text: 'Indistinguishable from noise', c: '#fbbf24' };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 shadow-md">
+    <Card accent={verdict.c} still className="p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Sigma className="w-4 h-4 text-sky-400" />
-        <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Statistical Significance</span>
-        <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md border ${verdict.cls}`}>{verdict.text}</span>
+        <Sigma className="h-4 w-4 text-sky-400" />
+        <span className="font-mono text-[10.5px] font-medium uppercase tracking-[.1em] text-zinc-500">Statistical significance</span>
+        <span className="ml-auto rounded-md border px-2 py-0.5 text-[11px] font-medium" style={{ color: verdict.c, borderColor: `${verdict.c}40`, background: `${verdict.c}14` }}>{verdict.text}</span>
         {small && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-amber-500/10 text-amber-400 border-amber-500/20 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" /> Small sample: {summary.totalBets} &lt; {MIN_RELIABLE_SAMPLE} wagers
+          <span className="flex items-center gap-1 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+            <AlertCircle className="h-3 w-3" /> Small sample: {summary.totalBets} &lt; {MIN_RELIABLE_SAMPLE} wagers
           </span>
         )}
       </div>
-      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono">
-        <div>
-          <div className="text-[10px] text-zinc-400 font-sans">Breakeven win rate</div>
-          <div className="text-lg font-bold text-zinc-100">{summary.breakevenWinRate.toFixed(2)}%</div>
-          <div className="text-[10px] text-zinc-500">needed at these prices · actual {summary.winRate.toFixed(2)}%</div>
-        </div>
-        <div>
-          <div className="text-[10px] text-zinc-400 font-sans">95% confidence interval</div>
-          <div className="text-lg font-bold text-zinc-100">{summary.winRateLow.toFixed(2)}% – {summary.winRateHigh.toFixed(2)}%</div>
-          <div className="text-[10px] text-zinc-500">Wilson, over {decided.toLocaleString()} decided wagers</div>
-        </div>
-        <div>
-          <div className="text-[10px] text-zinc-400 font-sans">p-value (one-tailed)</div>
-          <div className={`text-lg font-bold ${significant ? 'text-emerald-400' : 'text-zinc-100'}`}>{pText}</div>
-          <div className="text-[10px] text-zinc-500">H₀: true win rate ≤ breakeven</div>
-        </div>
+      <div className="mt-3 grid grid-cols-1 gap-3 font-mono sm:grid-cols-3">
+        {[
+          { l: 'Breakeven win rate', v: `${summary.breakevenWinRate.toFixed(2)}%`, s: `needed at these prices · actual ${summary.winRate.toFixed(2)}%`, c: '#f4f4f5' },
+          { l: '95% confidence interval', v: `${summary.winRateLow.toFixed(2)}% – ${summary.winRateHigh.toFixed(2)}%`, s: `Wilson, over ${decided.toLocaleString()} decided wagers`, c: '#f4f4f5' },
+          { l: 'p-value (one-tailed)', v: pText, s: 'H₀: true win rate ≤ breakeven', c: significant ? '#34d399' : '#f4f4f5' },
+        ].map((m) => (
+          <div key={m.l} className="rounded-lg border border-zinc-800/60 bg-[#060606]/50 px-3 py-2.5">
+            <div className="font-sans text-[10.5px] text-zinc-500">{m.l}</div>
+            <div className="text-lg font-medium" style={{ color: m.c }}>{m.v}</div>
+            <div className="text-[10.5px] text-zinc-600">{m.s}</div>
+          </div>
+        ))}
       </div>
-      <p className="mt-3 text-[10px] text-zinc-500 leading-relaxed">
+      <p className="mt-3 flex items-start gap-2 text-[11px] leading-relaxed text-zinc-500">
+        <Wallet className="mt-0.5 h-3 w-3 flex-none text-zinc-600" />
         Exact binomial test; pushes excluded. Each filter you try is another test — tune enough of them and
         one will clear 5% by chance, so treat a significant result found by searching as a hypothesis, not a finding.
       </p>
-    </div>
+    </Card>
   );
 }

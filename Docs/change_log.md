@@ -2,6 +2,36 @@
 
 ---
 
+## October 5, 2026 — Hub redesign in the org design vocabulary
+
+The hub was rebuilt to match the 2026-10-05 redesign of `ai-automation-tools.dev` and the Edge-Radar
+pages that followed it: `#060606` ground with a dot grid, one hero glow, zinc surfaces, Inter +
+JetBrains Mono, spotlight cards with a cursor-tracked ring in each tool's accent, a sticky topbar with a
+sliding route indicator, a `⌘K` jump palette, and `prefers-reduced-motion` fallbacks for every
+animation (`motion` was already a dependency; it now does the reveals and the metric count-ups).
+
+- **Tokens** live in `site/src/index.css` (`:root` custom properties plus the Tailwind `@theme` fonts).
+  Space Grotesk and Geist Mono are gone; the only fonts are Inter and JetBrains Mono.
+- **Shared primitives** in `site/src/components/ui.tsx`: `Card` (spotlight surface), `Reveal`,
+  `Eyebrow`, `SectionHead`, `PageHead`, `ACCENT_HEX` (the hex behind each registry accent — the literal
+  `ACCENT` class map in `Home.tsx` is no longer needed, cards receive the colour as `--c`).
+- **Shell**: `Topbar.tsx` (one link per registry tool plus Setup, GitHub, mobile sheet),
+  `CommandPalette.tsx`, `SiteFooter.tsx` (with the shared consent hooks). The source bar in
+  `deployment.tsx` now matches the org spec exactly (34px, full-bleed, in flow above the topbar).
+- **Home**: a data-driven hero, `SpectrumStrip.tsx`, draws all 187 `EDGES` records on two separate
+  lanes — held assets by annual return, repeated wagers by edge per decision — because the two are
+  different quantities and never share an axis (the Action 2.1 rule). Hover reads a record; click opens
+  the visualizer. Counts on the page (records, seasons, de-vig methods) are read from `edges.ts`,
+  `strategyBounds.ts` and `odds.ts`, not typed.
+- **Tool pages**: calculators and Setup use `PageHead` and `Card`; the backtester's `Header` is a page
+  head in flow (the hub topbar is the sticky chrome now), `ResultsDashboard` metrics count up and carry
+  the spotlight, the workspace tabs use the shared tab style, and the remaining panels share `.panel`.
+  No calculation, schema or endpoint changed.
+- **Spectrum page** (`public/spectrum/index.html`): tokens, fonts and the hub nav only. The `MATH &
+  CONSTANTS`, `RAW` and `DATA INJECTION` blocks are byte-for-byte unchanged, so `check:spectrum` and
+  `gen:edges --check` still test the same page.
+
+
 ## September 29, 2026 — Upstreams worklist
 
 - **`Docs/UPSTREAMS.md`**: every external service Edge Spectrum depends on (ESPN scoreboard API,
