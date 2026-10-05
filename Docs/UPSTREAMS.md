@@ -23,7 +23,7 @@ source. `—` means never checked.
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
 | **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases | — |
-| **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Geist on the Spectrum page, Space in `index.css`) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | — |
+| **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | — |
 
 ## Hosting and runtime
 

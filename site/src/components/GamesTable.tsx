@@ -22,7 +22,7 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
   const truncated = totalGames > games.length;
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+    <div className="panel p-5 flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-3">
         <div>
           <h3 className="text-sm font-semibold text-zinc-200">
@@ -36,7 +36,7 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
         </div>
 
         {/* Filters */}
-        <div className="flex p-0.5 bg-zinc-950 rounded-lg border border-zinc-850 self-start sm:self-center">
+        <div className="flex p-0.5 bg-[#0a0a0c] rounded-lg border border-zinc-800/70 self-start sm:self-center">
           {(['all', 'win', 'loss'] as const).map((type) => (
             <button
               key={type}

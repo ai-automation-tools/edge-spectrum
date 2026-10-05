@@ -5,6 +5,8 @@ import {
   parseOdds, formatOdds, devig, parlay,
 } from '../odds';
 import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
+import { PageHead, Accented } from '../components/ui';
+import SiteFooter from '../components/SiteFooter';
 
 const FORMATS = Object.keys(FORMAT_LABEL) as OddsFormat[];
 const METHODS = Object.keys(METHOD_LABEL) as DevigMethod[];
@@ -46,18 +48,14 @@ export default function ParlayCalculator() {
     setLegs((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-      <header className="mb-10 max-w-3xl">
-        <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">Calculator</span>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
-          Parlay &amp; <span className="text-amber-400">SGP</span> Hold Calculator
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-zinc-400">
-          Enter both sides of each leg. Each leg is de-vigged to its fair probability, the legs are
-          multiplied into a true joint probability, and that is compared with what the book pays. The gap
-          is the parlay's hold, and it grows with every leg.
-        </p>
-      </header>
+    <>
+    <main className="mx-auto max-w-5xl px-5 py-12 md:py-16">
+      <PageHead
+        eyebrow="Calculator · client-side"
+        accent="amber"
+        title={<>Parlay &amp; <Accented accent="amber">SGP</Accented> Hold Calculator</>}
+        lede="Enter both sides of each leg. Each leg is de-vigged to its fair probability, the legs are multiplied into a true joint probability, and that is compared with what the book pays. The gap is the parlay's hold, and it grows with every leg."
+      />
 
       <div className="flex flex-col gap-6">
         <Panel
@@ -201,5 +199,7 @@ export default function ParlayCalculator() {
         )}
       </div>
     </main>
+    <SiteFooter />
+    </>
   );
 }

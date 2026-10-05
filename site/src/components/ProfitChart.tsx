@@ -11,7 +11,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 h-[350px] flex items-center justify-center">
+      <div className="panel p-6 h-[350px] flex items-center justify-center">
         <div className="text-center">
           <p className="text-zinc-400 text-xs">Execute a backtest to populate the cumulative profit curve map</p>
         </div>
@@ -23,7 +23,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
   const isHealthy = data[data.length - 1]?.cumulativeProfit >= 0;
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl">
+    <div className="panel p-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-3 mb-4 gap-2">
         <div>
           <h3 className="text-sm font-semibold text-zinc-200">Portfolio Equity Curve</h3>
@@ -31,8 +31,8 @@ export default function ProfitChart({ data }: ProfitChartProps) {
         </div>
         <div className="flex items-center gap-4 text-xs font-mono">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-sky-500 rounded-sm"></span>
-            <span className="text-zinc-300">Net Profit Line</span>
+            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: isHealthy ? '#10b981' : '#f43f5e' }}></span>
+            <span className="text-zinc-300">Cumulative net profit</span>
           </div>
         </div>
       </div>
