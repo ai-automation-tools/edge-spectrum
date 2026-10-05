@@ -10,6 +10,7 @@ import EspnFeed from './components/EspnFeed';
 import { Strategy, BacktestResponse, StrategyTemplate } from './types';
 import { strategyFromQuery, strategyToQuery } from './strategyUrl';
 import { AlertCircle, RotateCcw, LineChart, Table, Info, BookOpen } from 'lucide-react';
+import SiteFooter from './components/SiteFooter';
 
 // Keystroke-to-request grace period for the auto-rerun effect.
 const RERUN_DEBOUNCE_MS = 300;
@@ -122,7 +123,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060606] text-zinc-100 font-sans flex flex-col">
+    <div className="min-h-screen text-zinc-100 font-sans flex flex-col">
       {/* Navbar Console */}
       <Header />
 
@@ -131,7 +132,7 @@ export default function App() {
         
         {/* Error notification bar if API is down */}
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/25 p-4 rounded-xl text-xs text-rose-400 font-medium flex items-center gap-2.5">
+          <div className="bg-rose-500/10 border border-rose-500/25 p-4 rounded-xl text-xs text-rose-300 font-medium flex items-center gap-2.5" role="alert">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -160,29 +161,13 @@ export default function App() {
           {/* Main Visual Workspace Area (Spans 3 Columns on desktop) */}
           <div className="lg:col-span-3 flex flex-col gap-4">
             {/* Workspace tabs navigator */}
-            <div className="flex border-b border-zinc-900 pb-px">
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`py-2 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'analytics'
-                    ? 'border-sky-500 text-sky-400 font-bold'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                📊 Backtest Analytics
+            <div className="flex border-b border-zinc-800/70" role="tablist" aria-label="Workspace">
+              <button role="tab" aria-selected={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} className="ttab">
+                <LineChart className="h-3.5 w-3.5" /> Backtest analytics
               </button>
-              <button
-                onClick={() => setActiveTab('espn')}
-                className={`py-2 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === 'espn'
-                    ? 'border-sky-500 text-sky-400 font-bold'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                📡 Live ESPN Scoreboard
-                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 text-[9px] uppercase tracking-wider font-mono rounded-full font-bold">
-                  Live
-                </span>
+              <button role="tab" aria-selected={activeTab === 'espn'} onClick={() => setActiveTab('espn')} className="ttab">
+                <Table className="h-3.5 w-3.5" /> Live ESPN scoreboard
+                <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-px font-mono text-[9px] font-medium uppercase tracking-wider text-emerald-400">Live</span>
               </button>
             </div>
 
@@ -215,7 +200,7 @@ export default function App() {
         </div>
 
         {/* Knowledge documentation footnotes */}
-        <footer className="border-t border-zinc-900 mt-12 pt-6 pb-6 text-center text-zinc-500 text-[11px] leading-relaxed">
+        <footer className="border-t border-zinc-800/60 mt-12 pt-6 pb-2 text-center text-zinc-500 text-[11px] leading-relaxed">
           <div className="flex justify-center items-center gap-1.5 text-sky-400 hover:text-sky-300 mb-1">
             <BookOpen className="w-3.5 h-3.5" />
             <span className="font-semibold">About this simulation</span>
@@ -231,6 +216,7 @@ export default function App() {
           </p>
         </footer>
       </main>
+      <SiteFooter />
     </div>
   );
 }

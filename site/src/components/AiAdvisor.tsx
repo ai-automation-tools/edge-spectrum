@@ -38,9 +38,9 @@ function Shell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl flex flex-col h-[520px] overflow-hidden lg:col-span-2">
+    <div className="panel-2 flex flex-col h-[520px] overflow-hidden lg:col-span-2">
       {/* Advisor Header */}
-      <div className="bg-zinc-950 border-b border-zinc-850 px-4 py-3 flex items-center justify-between">
+      <div className="bg-[#0c0c0f] border-b border-zinc-800/60 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-1.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-lg">
             <BrainCircuit className="w-4 h-4 animate-glow" />
