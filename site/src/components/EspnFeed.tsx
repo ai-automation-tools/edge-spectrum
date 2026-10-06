@@ -302,7 +302,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => stepDate(-1)}
-            className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white rounded-lg text-zinc-400 transition-all cursor-pointer"
+            className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white light:hover:text-zinc-50 rounded-lg text-zinc-400 transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -313,7 +313,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
 
           <button
             onClick={() => stepDate(1)}
-            className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white rounded-lg text-zinc-400 transition-all cursor-pointer"
+            className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white light:hover:text-zinc-50 rounded-lg text-zinc-400 transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

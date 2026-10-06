@@ -7,16 +7,22 @@ import type { Accent } from '../tools';
  * surfaces, headings and motion read as one system; the tokens themselves live in index.css.
  */
 
-/** The hex behind each registry accent. Cards receive it as `--c` and derive every tint from it. */
-export const ACCENT_HEX: Record<Accent, string> = {
-  sky: '#38bdf8',
-  emerald: '#34d399',
-  violet: '#a78bfa',
-  amber: '#fbbf24',
-  rose: '#fb7185',
-  teal: '#2dd4bf',
-  cyan: '#22d3ee',
+/**
+ * The colour behind each registry accent. Cards receive it as `--c` and derive every tint from it.
+ * These are theme tokens (index.css), not hexes, so the light theme can darken them.
+ */
+export const ACCENT_COLOR: Record<Accent, string> = {
+  sky: 'var(--a-sky)',
+  emerald: 'var(--a-emerald)',
+  violet: 'var(--a-violet)',
+  amber: 'var(--a-amber)',
+  rose: 'var(--a-rose)',
+  teal: 'var(--a-teal)',
+  cyan: 'var(--a-cyan)',
 };
+
+/** `c` at `pct`% opacity; works for hexes and var() tokens alike. */
+export const alpha = (c: string, pct: number) => `color-mix(in srgb, ${c} ${pct}%, transparent)`;
 
 /** Tracks the pointer inside an element so `.spot` can draw its ring where the cursor is. */
 export function useSpotlight() {
@@ -28,12 +34,12 @@ export function useSpotlight() {
   }, []);
 }
 
-/** A surface with the spotlight ring. `accent` is a registry key or a hex colour. */
+/** A surface with the spotlight ring. `accent` is a registry key or a CSS colour. */
 export function Card({
   accent = 'sky', still = false, className = '', style, children, ...rest
 }: React.HTMLAttributes<HTMLDivElement> & { accent?: Accent | string; still?: boolean }) {
   const onMove = useSpotlight();
-  const c = (ACCENT_HEX as Record<string, string>)[accent] ?? accent;
+  const c = (ACCENT_COLOR as Record<string, string>)[accent] ?? accent;
   return (
     <div
       {...rest}
@@ -64,7 +70,7 @@ export function Reveal({ delay = 0, className = '', children }: { delay?: number
 }
 
 export function Eyebrow({ accent, className = '', children }: { accent?: Accent | string; className?: string; children: React.ReactNode }) {
-  const c = accent ? ((ACCENT_HEX as Record<string, string>)[accent] ?? accent) : undefined;
+  const c = accent ? ((ACCENT_COLOR as Record<string, string>)[accent] ?? accent) : undefined;
   return <p className={`eyebrow ${className}`} style={c ? { ['--c' as string]: c } : undefined}>{children}</p>;
 }
 
@@ -102,7 +108,7 @@ export function PageHead({ eyebrow, title, lede, accent = 'sky', children }: {
 
 /** Lead word inside a heading, tinted with the page accent. */
 export function Accented({ accent = 'sky', children }: { accent?: Accent | string; children: React.ReactNode }) {
-  const c = (ACCENT_HEX as Record<string, string>)[accent] ?? accent;
+  const c = (ACCENT_COLOR as Record<string, string>)[accent] ?? accent;
   return <span style={{ color: c }}>{children}</span>;
 }
 
