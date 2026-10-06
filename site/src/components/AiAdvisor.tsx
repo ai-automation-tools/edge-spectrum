@@ -40,7 +40,7 @@ function Shell({
   return (
     <div className="panel-2 flex flex-col h-[520px] overflow-hidden lg:col-span-2">
       {/* Advisor Header */}
-      <div className="bg-[#0c0c0f] border-b border-zinc-800/60 px-4 py-3 flex items-center justify-between">
+      <div className="bg-(--bg-4) border-b border-zinc-800/60 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-1.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-lg">
             <BrainCircuit className="w-4 h-4 animate-glow" />

@@ -6,9 +6,9 @@ import { Card } from './ui';
 /** Shared building blocks for the standalone calculator pages. */
 
 export const INPUT_CLS =
-  'h-10 w-full rounded-lg border border-zinc-800 bg-[#0a0a0c] px-3 font-mono text-sm text-zinc-100 transition-all hover:border-zinc-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20';
+  'h-10 w-full rounded-lg border border-zinc-800 bg-(--bg-2) px-3 font-mono text-sm text-zinc-100 transition-all hover:border-zinc-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20';
 const SELECT_CLS =
-  'peer h-10 w-full appearance-none rounded-lg border border-zinc-800 bg-[#0a0a0c] pl-3 pr-9 text-sm font-medium text-zinc-200 transition-all hover:border-zinc-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer';
+  'peer h-10 w-full appearance-none rounded-lg border border-zinc-800 bg-(--bg-2) pl-3 pr-9 text-sm font-medium text-zinc-200 transition-all hover:border-zinc-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer';
 
 export const pct = (p: number, dp = 2) => `${(p * 100).toFixed(dp)}%`;
 
@@ -46,7 +46,7 @@ export function Panel({ icon: Icon, title, blurb, accent = 'violet', children }:
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-lg border border-zinc-800/60 bg-[#060606]/50 px-3 py-2.5">
+    <div className="rounded-lg border border-zinc-800/60 bg-(--bg)/50 px-3 py-2.5">
       <dt className="font-mono text-[10.5px] uppercase tracking-[.1em] text-zinc-500">{label}</dt>
       <dd className="mt-0.5 font-mono text-[17px] text-zinc-100">{value}</dd>
       {hint && <dd className="text-[11px] text-zinc-600">{hint}</dd>}

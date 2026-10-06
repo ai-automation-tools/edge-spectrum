@@ -36,7 +36,7 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
         </div>
 
         {/* Filters */}
-        <div className="flex p-0.5 bg-[#0a0a0c] rounded-lg border border-zinc-800/70 self-start sm:self-center">
+        <div className="flex p-0.5 bg-(--bg-2) rounded-lg border border-zinc-800/70 self-start sm:self-center">
           {(['all', 'win', 'loss'] as const).map((type) => (
             <button
               key={type}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { TOOLS } from '../tools';
 import { REPOSITORY_URL, SETUP_GUIDE_URL } from '../projectLinks';
-import { ACCENT_HEX } from './ui';
+import { ACCENT_COLOR } from './ui';
 
 interface Item { g: string; label: string; hint: string; c?: string; go: () => void }
 
@@ -18,9 +18,9 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
     const ext = (u: string) => () => window.open(u, '_blank', 'noopener');
     const go = (href: string, kind: string) => () => (kind === 'route' ? navigate(href) : (window.location.href = href));
     return [
-      ...TOOLS.map((t) => ({ g: 'Tools', label: t.title, hint: t.href, c: ACCENT_HEX[t.accent], go: go(t.href, t.kind) })),
-      { g: 'Pages', label: 'Home', hint: '/', c: '#38bdf8', go: () => navigate('/') },
-      { g: 'Pages', label: 'Your own site', hint: '/setup', c: '#38bdf8', go: () => navigate('/setup') },
+      ...TOOLS.map((t) => ({ g: 'Tools', label: t.title, hint: t.href, c: ACCENT_COLOR[t.accent], go: go(t.href, t.kind) })),
+      { g: 'Pages', label: 'Home', hint: '/', c: 'var(--a-sky)', go: () => navigate('/') },
+      { g: 'Pages', label: 'Your own site', hint: '/setup', c: 'var(--a-sky)', go: () => navigate('/setup') },
       { g: 'Docs', label: 'README', hint: 'github.com', go: ext(`${REPOSITORY_URL}#readme`) },
       { g: 'Docs', label: 'Methodology', hint: 'Docs/methodology.md', go: ext(`${REPOSITORY_URL}/blob/main/Docs/methodology.md`) },
       { g: 'Docs', label: 'Data architecture', hint: 'Docs/data-architecture.md', go: ext(`${REPOSITORY_URL}/blob/main/Docs/data-architecture.md`) },
@@ -55,8 +55,8 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
   if (!open) return null;
   let lastG = '';
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 px-4 pt-[12vh] backdrop-blur-[4px]" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} role="presentation">
-      <div className="w-full max-w-[560px] overflow-hidden rounded-[14px] border border-zinc-700/80 bg-[#0c0c0f] shadow-[0_40px_120px_-30px_rgba(0,0,0,1)] animate-fadeIn" role="dialog" aria-modal="true" aria-label="Jump to">
+    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 light:bg-black/25 px-4 pt-[12vh] backdrop-blur-[4px]" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} role="presentation">
+      <div className="w-full max-w-[560px] overflow-hidden rounded-[14px] border border-zinc-700/80 bg-(--bg-4) shadow-[0_40px_120px_-30px_rgba(0,0,0,1)] light:shadow-[0_30px_80px_-30px_rgba(0,0,0,.35)] animate-fadeIn" role="dialog" aria-modal="true" aria-label="Jump to">
         <div className="flex h-[52px] items-center gap-2.5 border-b border-zinc-800/60 px-4">
           <Search className="h-4 w-4 text-zinc-500" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to a tool, a page or a document…" className="min-w-0 flex-1 bg-transparent text-[15px] text-zinc-100 outline-none placeholder:text-zinc-600" spellCheck={false} autoComplete="off" />
@@ -73,9 +73,9 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
                 <div
                   onClick={() => { onClose(); i.go(); }}
                   onPointerMove={() => sel !== k && setSel(k)}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 text-sm ${k === sel ? 'bg-sky-500/15 text-white' : 'text-zinc-300'}`}
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 text-sm ${k === sel ? 'bg-sky-500/15 text-white light:text-zinc-50' : 'text-zinc-300'}`}
                 >
-                  <i className="h-2 w-2 flex-none rounded-full" style={{ background: i.c ?? '#52525b' }} />
+                  <i className="h-2 w-2 flex-none rounded-full" style={{ background: i.c ?? 'var(--fg-5)' }} />
                   <span>{i.label}</span>
                   <small className={`ml-auto whitespace-nowrap font-mono text-[11px] ${k === sel ? 'text-zinc-300' : 'text-zinc-600'}`}>{i.hint}</small>
                 </div>
