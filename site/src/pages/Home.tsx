@@ -6,14 +6,14 @@ import { EDGES } from '../data/edges';
 import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
 import { METHOD_LABEL } from '../odds';
 import { REPOSITORY_URL } from '../projectLinks';
-import { Card, Reveal, Eyebrow, SectionHead, GithubMark } from '../components/ui';
+import { Card, Reveal, Eyebrow, SectionHead, GithubMark, alpha } from '../components/ui';
 import SpectrumStrip from '../components/SpectrumStrip';
 import SiteFooter from '../components/SiteFooter';
 
 const STATUS: Record<ToolStatus, { label: string; c: string }> = {
-  live: { label: 'Live', c: '#34d399' },
-  wip: { label: 'WIP', c: '#fbbf24' },
-  soon: { label: 'Soon', c: '#71717a' },
+  live: { label: 'Live', c: 'var(--a-emerald)' },
+  wip: { label: 'WIP', c: 'var(--a-amber)' },
+  soon: { label: 'Soon', c: 'var(--a-zinc)' },
 };
 const KIND_LABEL = { route: 'in app', static: 'static page', external: 'external' } as const;
 
@@ -30,7 +30,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
         <h3 className="text-lg font-semibold tracking-[-0.015em] text-zinc-100">{tool.title}</h3>
         <p className="text-sm leading-[1.55] text-zinc-400">{tool.blurb}</p>
         <div className="mt-0.5 flex flex-wrap gap-1.5">
-          <span className="tag" style={{ color: status.c, borderColor: `${status.c}4d` }}>{status.label}</span>
+          <span className="tag" style={{ color: status.c, borderColor: alpha(status.c, 30) }}>{status.label}</span>
           <span className="tag">{KIND_LABEL[tool.kind]}</span>
         </div>
       </div>
@@ -91,12 +91,12 @@ export default function Home() {
         </div>
 
         {/* ── Fact strip ── */}
-        <div className="mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-zinc-800/60 bg-[#0a0a0c]/60 px-3 py-2.5" role="list" aria-label="At a glance">
+        <div className="mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-zinc-800/60 bg-(--bg-2)/60 px-3 py-2.5" role="list" aria-label="At a glance">
           <span className="px-1.5 font-mono text-[11px] uppercase tracking-[.12em] text-zinc-500">At a glance</span>
-          <a role="listitem" href="/spectrum/index.html" className="pill" style={{ ['--c' as string]: '#38bdf8' }}><i className="dot" />{EDGES.length} activities · 7 horizons</a>
-          <Link role="listitem" to="/backtester" className="pill" style={{ ['--c' as string]: '#34d399' }}><i className="dot" />{seasons} simulated seasons · 4 sports</Link>
-          <Link role="listitem" to="/odds" className="pill" style={{ ['--c' as string]: '#a78bfa' }}><i className="dot" />{methods} de-vig methods</Link>
-          <Link role="listitem" to="/parlay" className="pill" style={{ ['--c' as string]: '#fbbf24' }}><i className="dot" />parlay hold, leg by leg</Link>
+          <a role="listitem" href="/spectrum/index.html" className="pill" style={{ ['--c' as string]: 'var(--a-sky)' }}><i className="dot" />{EDGES.length} activities · 7 horizons</a>
+          <Link role="listitem" to="/backtester" className="pill" style={{ ['--c' as string]: 'var(--a-emerald)' }}><i className="dot" />{seasons} simulated seasons · 4 sports</Link>
+          <Link role="listitem" to="/odds" className="pill" style={{ ['--c' as string]: 'var(--a-violet)' }}><i className="dot" />{methods} de-vig methods</Link>
+          <Link role="listitem" to="/parlay" className="pill" style={{ ['--c' as string]: 'var(--a-amber)' }}><i className="dot" />parlay hold, leg by leg</Link>
           <span className="ml-auto pr-1 font-mono text-[11px] text-zinc-600">runs in the browser · AI advisor on your own instance</span>
         </div>
 
@@ -149,7 +149,7 @@ export default function Home() {
                 ].map((l, i) => (
                   <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-3 py-3 text-zinc-200 ${i ? 'border-t border-zinc-800/60' : 'pt-2'}`}>
                     <BookOpen className="mt-[3px] h-4 w-4 flex-none text-zinc-500" strokeWidth={1.6} />
-                    <span><b className="block font-medium group-hover:text-white">{l.title}</b><small className="text-[12.5px] text-zinc-500">{l.sub}</small></span>
+                    <span><b className="block font-medium group-hover:text-white light:group-hover:text-zinc-50">{l.title}</b><small className="text-[12.5px] text-zinc-500">{l.sub}</small></span>
                   </a>
                 ))}
               </Card>

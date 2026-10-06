@@ -25,7 +25,7 @@ export default function Setup() {
 
         <Reveal delay={0.08}>
           <Card accent="sky" still className="mt-12 overflow-hidden" aria-label="Demo and full instance comparison">
-            <div className="grid grid-cols-[2fr_1fr_1fr] gap-3 border-b border-zinc-800/60 bg-[#0c0c0f]/60 px-5 py-3 font-mono text-[10.5px] uppercase tracking-[.12em] text-zinc-500">
+            <div className="grid grid-cols-[2fr_1fr_1fr] gap-3 border-b border-zinc-800/60 bg-(--bg-4)/60 px-5 py-3 font-mono text-[10.5px] uppercase tracking-[.12em] text-zinc-500">
               <span>Feature</span><span>Public demo</span><span>Your instance</span>
             </div>
             {[

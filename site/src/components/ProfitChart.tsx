@@ -1,6 +1,13 @@
 import React, { useId } from 'react';
 import { ProfitHistoryPoint } from '../types';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { useTheme } from '../theme';
+
+/** Recharts writes these as SVG attributes, where CSS variables are not reliable, so they are picked per theme. */
+const CHART = {
+  dark: { up: '#10b981', down: '#f43f5e', grid: '#27272a', axis: '#71717a' },
+  light: { up: '#047857', down: '#be123c', grid: '#d4d4d8', axis: '#63636b' },
+} as const;
 
 interface ProfitChartProps {
   data: ProfitHistoryPoint[];
@@ -8,6 +15,7 @@ interface ProfitChartProps {
 
 export default function ProfitChart({ data }: ProfitChartProps) {
   const gradientId = useId();
+  const c = CHART[useTheme()];
 
   if (!data || data.length === 0) {
     return (
@@ -21,6 +29,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
 
   // Check if profit is trending positive or negative
   const isHealthy = data[data.length - 1]?.cumulativeProfit >= 0;
+  const line = isHealthy ? c.up : c.down;
 
   return (
     <div className="panel p-5">
@@ -31,7 +40,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
         </div>
         <div className="flex items-center gap-4 text-xs font-mono">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: isHealthy ? '#10b981' : '#f43f5e' }}></span>
+            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: line }}></span>
             <span className="text-zinc-300">Cumulative net profit</span>
           </div>
         </div>
@@ -45,21 +54,21 @@ export default function ProfitChart({ data }: ProfitChartProps) {
           >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={isHealthy ? '#10b981' : '#f43f5e'} stopOpacity={0.25} />
-                <stop offset="95%" stopColor={isHealthy ? '#10b981' : '#f43f5e'} stopOpacity={0.0} />
+                <stop offset="5%" stopColor={line} stopOpacity={0.25} />
+                <stop offset="95%" stopColor={line} stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.5} />
+            <CartesianGrid strokeDasharray="3 3" stroke={c.grid} opacity={0.5} />
             <XAxis
               dataKey="index"
-              stroke="#71717a"
+              stroke={c.axis}
               fontSize={10}
               tickLine={false}
               axisLine={false}
               dy={10}
             />
             <YAxis
-              stroke="#71717a"
+              stroke={c.axis}
               fontSize={10}
               tickLine={false}
               axisLine={false}
@@ -103,7 +112,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
             <Area
               type="monotone"
               dataKey="cumulativeProfit"
-              stroke={isHealthy ? '#10b981' : '#f43f5e'}
+              stroke={line}
               strokeWidth={2}
               fillOpacity={1}
               fill={`url(#${gradientId})`}
