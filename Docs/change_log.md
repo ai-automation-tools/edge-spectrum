@@ -2,6 +2,15 @@
 
 ---
 
+## October 5, 2026 — Responsible-gambling notice (Roadmap Action 3.5)
+
+The Spectrum page's footer gains a second row: education only, not investment, financial or betting
+advice; gambling is for adults (18+ or 21+); and tap-to-call help lines — US 1-800-GAMBLER, UK
+0808 8020 133, AU 1800 858 858 — with GamblingTherapy.org for everywhere else. `.footer` now wraps
+(`flex-wrap`) so the row sits under the existing two. The same wording is built into the hub's shared
+`SiteFooter.tsx`, so every React route carries it too. The `MATH & CONSTANTS`, `RAW` and
+`DATA INJECTION` blocks are untouched.
+
 ## October 5, 2026 — Light / dark theme switch
 
 A Sun / Moon switch now sits at the right end of the hub topbar (every route) and of the Spectrum

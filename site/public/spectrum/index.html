@@ -307,8 +307,9 @@
         .tt-hz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
         .tt-hz-item { 
             padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px 16px;
         }
+        .footer-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
         .tt-hz-item.active { background: var(--accent-glow); border-color: var(--accent); }
         .tt-hz-lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
         .tt-hz-val { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; }
@@ -514,6 +515,14 @@
 <footer class="footer">
     <div>V20 &mdash; THE EDGE SPECTRUM &bull; AUGUST 2026</div>
     <div style="letter-spacing: 0.05em; opacity: 0.5;">RETURN ON CAPITAL FLOORS AT &minus;100% &bull; TURNOVER COST DOES NOT</div>
+    <div class="footer-rg" style="flex-basis: 100%; font-weight: 500; letter-spacing: 0.02em; line-height: 1.6;">
+        For education only &mdash; not investment, financial or betting advice. Gambling is for adults (18+ or 21+ where you live).
+        Gambling problem? Free, confidential help:
+        <a href="tel:1-800-426-2537">US 1-800-GAMBLER</a> &middot;
+        <a href="tel:08088020133">UK 0808 8020 133</a> &middot;
+        <a href="tel:1800858858">AU 1800 858 858</a> &middot;
+        <a href="https://www.gamblingtherapy.org/" target="_blank" rel="noopener noreferrer">Worldwide: GamblingTherapy.org</a>.
+    </div>
 </footer>
 
 <script>
