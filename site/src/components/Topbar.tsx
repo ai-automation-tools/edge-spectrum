@@ -4,10 +4,11 @@ import { Menu, X } from 'lucide-react';
 import { TOOLS } from '../tools';
 import { REPOSITORY_URL } from '../projectLinks';
 import { GithubMark, Mark } from './ui';
+import ThemeToggle from './ThemeToggle';
 
 /**
  * The persistent hub bar. One link per tool from the registry plus Setup, a sliding
- * indicator under the active route, the ⌘K trigger, the GitHub button and a mobile sheet.
+ * indicator under the active route, the ⌘K trigger, the GitHub button, the theme switch and a mobile sheet.
  */
 export default function Topbar({ onPalette }: { onPalette: () => void }) {
   const { pathname } = useLocation();
@@ -74,6 +75,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
             <GithubMark className="h-[15px] w-[15px]" />
             <span className="hidden md:inline">GitHub</span>
           </a>
+          <ThemeToggle />
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
@@ -86,7 +88,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
         </div>
       </div>
       {open && (
-        <div className="border-b border-zinc-800/70 bg-[#0a0a0c]/95 md:hidden">
+        <div className="border-b border-zinc-800/70 bg-(--bg-2)/95 md:hidden">
           {items.map((i) =>
             i.kind === 'route' ? (
               <Link key={i.key} to={i.href} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">{i.label}</Link>

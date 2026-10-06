@@ -7,6 +7,17 @@
     <meta name="description" content="Edge Spectrum — a growing collection of interactive tools for sports betting, gambling, investing, and odds analysis. Includes the Edge Spectrum expected-return visualization and a 25-year sports betting backtest simulator." />
     <title>Edge Spectrum</title>
     <meta name="theme-color" content="#060606" />
+    <script>
+      // Apply the stored theme before first paint so a light-mode visitor never sees a dark
+      // flash. The fallback (dark) must match DEFAULT_THEME in src/theme.ts and the copy of
+      // this script in public/spectrum/index.html; all three share the edge-spectrum.theme key.
+      (function () {
+        var t = 'dark';
+        try { if (localStorage.getItem('edge-spectrum.theme') === 'light') t = 'light'; } catch (e) {}
+        document.documentElement.classList.add(t);
+        if (t === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f6f6f7');
+      })();
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Edge Spectrum" />
     <meta property="og:description" content="Tools for pricing a bet or an asset honestly: an expected-return visualizer, a 26-season backtest simulator, and no-vig calculators." />

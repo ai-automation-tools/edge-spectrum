@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { EDGES, type EdgeRecord } from '../data/edges';
+import { useTheme, type Theme } from '../theme';
 
 /**
  * The hero visual: every record in the dataset, drawn on two separate lanes.
@@ -17,17 +18,33 @@ const LANES = [
   { label: 'Repeated wagers', unit: 'edge per decision', pick: (r: EdgeRecord) => (r.m === 'g' ? r.e : null) },
 ] as const;
 
-function colour(v: number, max: number): [number, number, number] {
+type RGB = [number, number, number];
+
+/** Canvas colours per theme; the light set uses the 600/700 shades so dots and labels hold up on a pale ground. */
+const INK: Record<Theme, { label: string; unit: string; axis: string; zero: string; zeroText: string; ends: string; ring: string; rose: RGB; amber: RGB; emerald: RGB }> = {
+  dark: {
+    label: 'rgba(161,161,170,.95)', unit: 'rgba(113,113,122,.9)', axis: 'rgba(63,63,70,.8)', zero: 'rgba(56,189,248,.45)',
+    zeroText: 'rgba(56,189,248,.8)', ends: 'rgba(82,82,91,1)', ring: 'rgba(244,244,245,.9)',
+    rose: [251, 113, 133], amber: [251, 191, 36], emerald: [52, 211, 153],
+  },
+  light: {
+    label: '#3f3f46', unit: '#63636b', axis: 'rgba(161,161,170,.8)', zero: 'rgba(3,105,161,.45)',
+    zeroText: '#0369a1', ends: '#63636b', ring: 'rgba(24,24,27,.9)',
+    rose: [225, 29, 72], amber: [180, 83, 9], emerald: [5, 150, 105],
+  },
+};
+
+function colour(v: number, max: number, { rose, amber, emerald }: (typeof INK)[Theme]): RGB {
   // rose (−) → amber (near 0) → emerald (+), scaled to the lane's own range
   const t = Math.max(-1, Math.min(1, v / max));
-  const rose = [251, 113, 133], amber = [251, 191, 36], emerald = [52, 211, 153];
-  const mix = (a: number[], b: number[], k: number) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k] as [number, number, number];
+  const mix = (a: RGB, b: RGB, k: number) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k] as RGB;
   return t < 0 ? mix(amber, rose, -t) : mix(amber, emerald, t);
 }
-const rgba = (c: [number, number, number], a: number) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+const rgba = (c: RGB, a: number) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 
 export default function SpectrumStrip({ href }: { href: string }) {
   const reduced = useReducedMotion();
+  const theme = useTheme();
   const boxRef = useRef<HTMLDivElement>(null);
   const cvRef = useRef<HTMLCanvasElement>(null);
   const [tip, setTip] = useState<{ x: number; y: number; dot: Dot } | null>(null);
@@ -37,6 +54,7 @@ export default function SpectrumStrip({ href }: { href: string }) {
   useEffect(() => {
     const cv = cvRef.current, box = boxRef.current; if (!cv || !box) return;
     const ctx = cv.getContext('2d'); if (!ctx) return;
+    const ink = INK[theme];
     // Seeded jitter so the layout is stable between renders.
     let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
     const dots: Dot[] = [];
@@ -57,18 +75,18 @@ export default function SpectrumStrip({ href }: { href: string }) {
       LANES.forEach((l, li) => {
         const g = laneGeom(li), { min, max } = ranges[li];
         // lane label
-        ctx.fillStyle = 'rgba(161,161,170,.95)'; ctx.font = '500 11px Inter, system-ui, sans-serif'; ctx.textAlign = 'left';
+        ctx.fillStyle = ink.label; ctx.font = '500 11px Inter, system-ui, sans-serif'; ctx.textAlign = 'left';
         ctx.fillText(l.label, g.x0, g.yc - g.half - 16);
-        ctx.fillStyle = 'rgba(113,113,122,.9)'; ctx.font = '10.5px JetBrains Mono, ui-monospace, monospace';
+        ctx.fillStyle = ink.unit; ctx.font = '10.5px JetBrains Mono, ui-monospace, monospace';
         ctx.fillText(`· ${l.unit}`, g.x0 + ctx.measureText(l.label).width + 36, g.yc - g.half - 16);
         // axis, zero and extremes
-        ctx.strokeStyle = 'rgba(63,63,70,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(g.x0, g.yc + g.half + 8); ctx.lineTo(g.x1, g.yc + g.half + 8); ctx.stroke();
+        ctx.strokeStyle = ink.axis; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(g.x0, g.yc + g.half + 8); ctx.lineTo(g.x1, g.yc + g.half + 8); ctx.stroke();
         const zx = xOf(li, 0);
-        ctx.strokeStyle = 'rgba(56,189,248,.45)'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(zx, g.yc - g.half - 4); ctx.lineTo(zx, g.yc + g.half + 8); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(82,82,91,1)'; ctx.font = '10px JetBrains Mono, ui-monospace, monospace';
+        ctx.strokeStyle = ink.zero; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(zx, g.yc - g.half - 4); ctx.lineTo(zx, g.yc + g.half + 8); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = ink.ends; ctx.font = '10px JetBrains Mono, ui-monospace, monospace';
         ctx.textAlign = 'left'; ctx.fillText(`${Math.min(min, 0).toFixed(0)}%`, g.x0, g.yc + g.half + 20);
-        ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(56,189,248,.8)'; ctx.fillText('0', zx, g.yc + g.half + 20);
-        ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(82,82,91,1)'; ctx.fillText(`+${Math.max(max, 0).toFixed(0)}%`, g.x1, g.yc + g.half + 20);
+        ctx.textAlign = 'center'; ctx.fillStyle = ink.zeroText; ctx.fillText('0', zx, g.yc + g.half + 20);
+        ctx.textAlign = 'right'; ctx.fillStyle = ink.ends; ctx.fillText(`+${Math.max(max, 0).toFixed(0)}%`, g.x1, g.yc + g.half + 20);
       });
       const hov = hoverRef.current;
       dots.forEach((d) => {
@@ -76,10 +94,10 @@ export default function SpectrumStrip({ href }: { href: string }) {
         const scale = Math.max(Math.abs(min), Math.abs(max));
         d.x = xOf(d.lane, d.v);
         d.y = g.yc + d.jitter * g.half + (reduced ? 0 : Math.sin(t * 0.7 + d.ph) * 1.8);
-        const c = colour(d.v, scale), h = hov === d, r = h ? 5 : 3.2;
+        const c = colour(d.v, scale, ink), h = hov === d, r = h ? 5 : 3.2;
         if (h) { const gl = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, 16); gl.addColorStop(0, rgba(c, .45)); gl.addColorStop(1, rgba(c, 0)); ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(d.x, d.y, 16, 0, Math.PI * 2); ctx.fill(); }
         ctx.fillStyle = rgba(c, h ? 1 : 0.78); ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI * 2); ctx.fill();
-        if (h) { ctx.strokeStyle = 'rgba(244,244,245,.9)'; ctx.lineWidth = 1.2; ctx.stroke(); }
+        if (h) { ctx.strokeStyle = ink.ring; ctx.lineWidth = 1.2; ctx.stroke(); }
       });
       if (!reduced) raf = requestAnimationFrame(draw);
     };
@@ -90,14 +108,14 @@ export default function SpectrumStrip({ href }: { href: string }) {
     size(); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerleave', onLeave); addEventListener('resize', onResize);
     draw(performance.now());
     return () => { cancelAnimationFrame(raf); cv.removeEventListener('pointermove', onMove); cv.removeEventListener('pointerleave', onLeave); removeEventListener('resize', onResize); };
-  }, [reduced]);
+  }, [reduced, theme]);
 
   const assets = EDGES.filter((r) => r.m === 'i').length, wagers = EDGES.length - assets;
   return (
     <div ref={boxRef} className="relative aspect-[1/.86] w-full max-w-[560px] min-h-[300px] justify-self-center" aria-label={`All ${EDGES.length} records: ${assets} held assets by annual return and ${wagers} wagers by edge per decision. Hover a dot to read it; click to open the full visualizer.`}>
       <canvas ref={cvRef} className="absolute inset-0 block h-full w-full" onClick={() => { if (hoverRef.current) window.location.href = href; }} />
       {tip && (
-        <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border border-zinc-700/80 bg-[#0e0e11] px-2.5 py-1.5 text-xs shadow-[0_10px_30px_-10px_rgba(0,0,0,.8)]" style={{ left: tip.x, top: tip.y, transform: 'translate(-50%, calc(-100% - 14px))' }}>
+        <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border border-zinc-700/80 bg-(--bg-5) px-2.5 py-1.5 text-xs shadow-[0_10px_30px_-10px_rgba(0,0,0,.8)] light:shadow-[0_10px_30px_-12px_rgba(0,0,0,.2)]" style={{ left: tip.x, top: tip.y, transform: 'translate(-50%, calc(-100% - 14px))' }}>
           <b className="font-medium text-zinc-100">{tip.dot.r.n}</b>
           <small className="block font-mono text-[10.5px] text-zinc-500">{tip.dot.r.cat} · {tip.dot.v > 0 ? '+' : ''}{tip.dot.v}% {LANES[tip.dot.lane].unit}</small>
         </div>

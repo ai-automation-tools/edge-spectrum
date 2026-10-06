@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edge Spectrum | V20</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script>
+        // Apply the stored theme before first paint. Same key and same dark fallback as the
+        // hub (site/index.html, site/src/theme.ts) so the choice carries between the pages;
+        // change all three together.
+        (function () {
+            var t = 'dark';
+            try { if (localStorage.getItem('edge-spectrum.theme') === 'light') t = 'light'; } catch (e) {}
+            document.documentElement.classList.add(t);
+        })();
+    </script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +37,29 @@
             --radius-sm: 6px;
             --radius-md: 8px;
             --radius-lg: 12px;
+            --nav-bg: rgba(6,6,6,.85);
+            --nav-line: rgba(39,39,42,.7);
+            color-scheme: dark;
+        }
+
+        /* Light theme: same roles, accents dropped to their 700 shades for AA on the pale ground. */
+        html.light {
+            color-scheme: light;
+            --bg: #f6f6f7;
+            --surface: rgba(255,255,255,0.72);
+            --surface-elevated: #ffffff;
+            --border: rgba(212,212,216,0.9);
+            --border-hover: #a1a1aa;
+            --text-main: #18181b;
+            --text-muted: #52525b;
+            --text-dim: #63636b;
+            --accent: #0369a1;
+            --accent-glow: rgba(3,105,161,0.12);
+            --success: #047857;
+            --danger: #be123c;
+            --warning: #b45309;
+            --nav-bg: rgba(246,246,247,.9);
+            --nav-line: rgba(212,212,216,.9);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -299,6 +332,37 @@
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* ── Light-theme overrides for rules that carry literal dark values ── */
+        .light body { background-image: radial-gradient(rgba(0,0,0,0.07) 1.2px, transparent 0); }
+        .light .hdr h1 { background: linear-gradient(135deg, #09090b 40%, rgba(9,9,11,0.6)); -webkit-background-clip: text; background-clip: text; }
+        .light .dd-btn:hover { background: #f4f4f5; }
+        .light .dd-menu { background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        .light .dd-item:hover { background: rgba(0,0,0,0.04); }
+        .light .tt { background: rgba(255,255,255,0.97); border-color: rgba(0,0,0,0.1); box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04); }
+        .light .tt-hz-item { background: rgba(0,0,0,0.03); }
+        .light .tt-meter { background: rgba(0,0,0,0.08); }
+
+        /* ── Hub nav + theme switch (same control as the hub's top bar) ── */
+        .hub-nav { display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 20px; border-bottom: 1px solid var(--nav-line); background: var(--nav-bg); font: 13px Inter, system-ui, sans-serif; }
+        .hub-nav a { text-decoration: none; white-space: nowrap; }
+        .hub-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-main); font-weight: 600; }
+        .hub-crumb { color: #52525b; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+        .light .hub-crumb { color: var(--text-dim); }
+        .hub-back { margin-left: auto; color: var(--text-muted); }
+        .hub-cta, .hub-accent { color: var(--accent); }
+        .theme-toggle { display: flex; flex: none; align-items: center; gap: 2px; padding: 2px; border-radius: 12px; background: rgba(39,39,42,.6); }
+        .light .theme-toggle { background: rgba(228,228,231,.6); }
+        .theme-toggle button { display: flex; align-items: center; justify-content: center; width: 28px; height: 24px; border: 0; border-radius: 10px; background: transparent; color: #71717a; cursor: pointer; transition: color .15s, background-color .15s; }
+        .light .theme-toggle button { color: #63636b; }
+        .theme-toggle button:hover, .theme-toggle button[aria-pressed="true"] { color: var(--text-main); }
+        .theme-toggle button[aria-pressed="true"] { background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+        .theme-toggle button:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(56,189,248,.6); }
+        .light .theme-toggle button:focus-visible { box-shadow: 0 0 0 2px rgba(3,105,161,.6); }
+        .theme-toggle svg { width: 13px; height: 13px; }
+        /* Phone widths: drop the decorative crumb, then the setup link (also on the hub home), so the switch fits. */
+        @media (max-width: 640px) { .hub-crumb { display: none; } }
+        @media (max-width: 480px) { .hub-cta { display: none; } .hub-nav { padding: 0 16px; } }
+
         /* ── Mobile UI ── */
         @media (max-width: 1024px) {
             .sidebar { width: 220px; padding: 16px; }
@@ -319,11 +383,15 @@
     </style>
 </head>
 <body>
-<nav aria-label="Edge Spectrum hub" style="display:flex;align-items:center;gap:14px;height:48px;padding:0 20px;border-bottom:1px solid rgba(39,39,42,.7);background:rgba(6,6,6,.85);font:13px Inter,system-ui,sans-serif">
-    <a href="/" style="display:inline-flex;align-items:center;gap:10px;color:#f4f4f5;text-decoration:none;font-weight:600"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#38bdf8"/><path d="M 24 8 C 18 8 14 8 10 8 C 6 8 6 16 10 16 L 22 16 C 26 16 26 24 22 24 L 8 24" stroke="#0b1220" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Edge <span style="color:#38bdf8">Spectrum</span></a>
-    <span style="color:#52525b;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase">/ the visualizer</span>
-    <a href="/" style="margin-left:auto;color:#a1a1aa;text-decoration:none">← All tools</a>
-    <a href="/setup" style="color:#38bdf8;text-decoration:none">Create your own site →</a>
+<nav aria-label="Edge Spectrum hub" class="hub-nav">
+    <a href="/" class="hub-brand"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#38bdf8"/><path d="M 24 8 C 18 8 14 8 10 8 C 6 8 6 16 10 16 L 22 16 C 26 16 26 24 22 24 L 8 24" stroke="#0b1220" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Edge <span class="hub-accent">Spectrum</span></a>
+    <span class="hub-crumb">/ the visualizer</span>
+    <a href="/" class="hub-back">← All tools</a>
+    <a href="/setup" class="hub-cta">Create your own site →</a>
+    <div role="group" aria-label="Theme" class="theme-toggle">
+        <button type="button" data-theme="light" aria-label="Light theme" title="Light theme" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" data-theme="dark" aria-label="Dark theme" title="Dark theme" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg></button>
+    </div>
 </nav>
 
 <header class="hdr">
@@ -829,18 +897,29 @@ function updateStats() {
     document.getElementById('metricNote').innerHTML = m.note;
 }
 
+// Chart and tooltip colours follow the theme switch in the nav. Plotly takes literal colours,
+// so each theme gets its own set; the light set uses the 600/700 shades.
+const isLight = () => document.documentElement.classList.contains('light');
+const PLOT_INK = {
+    dark:  { up: 'rgba(34, 197, 94, 0.7)', down: 'rgba(239, 68, 68, 0.7)', edge: 'rgba(255,255,255,0.1)', grid: 'rgba(255,255,255,0.05)', zero: 'rgba(251, 191, 36, 0.4)', tick: '#71717a', ruin: '#ef4444', ruinEdge: '#fca5a5', floor: 'rgba(239, 68, 68, 0.45)', floorText: 'rgba(239, 68, 68, 0.8)' },
+    light: { up: 'rgba(22, 163, 74, 0.75)', down: 'rgba(220, 38, 38, 0.72)', edge: 'rgba(0,0,0,0.12)', grid: 'rgba(0,0,0,0.07)', zero: 'rgba(180, 83, 9, 0.5)', tick: '#63636b', ruin: '#b91c1c', ruinEdge: '#7f1d1d', floor: 'rgba(185, 28, 28, 0.5)', floorText: '#b91c1c' }
+};
+// Category and risk colours were picked for a dark ground; on light, darken them for legible text.
+const ink = c => isLight() ? `color-mix(in srgb, ${c} 55%, #000)` : c;
+
 function renderChart() {
+    const P = PLOT_INK[isLight() ? 'light' : 'dark'];
     const data = getFilteredData();
     const names = data.map(d => d.n);
     const vals = data.map(val);
 
-    const colors = data.map(d => val(d) >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)');
+    const colors = data.map(d => val(d) >= 0 ? P.up : P.down);
 
     const traces = [{
         type: 'bar', x: names, y: vals, customdata: data,
         marker: {
             color: colors,
-            line: { color: 'rgba(255,255,255,0.1)', width: 1 }
+            line: { color: P.edge, width: 1 }
         },
         hoverinfo: 'none'
     }];
@@ -853,7 +932,7 @@ function renderChart() {
             type: 'scatter', mode: 'markers',
             x: ruined.map(d => d.n), y: ruined.map(() => RUIN_FLOOR),
             customdata: ruined,
-            marker: { symbol: 'x', size: 7, color: '#ef4444', line: { color: '#fca5a5', width: 1 } },
+            marker: { symbol: 'x', size: 7, color: P.ruin, line: { color: P.ruinEdge, width: 1 } },
             hoverinfo: 'none', cliponaxis: false
         });
     }
@@ -872,9 +951,9 @@ function renderChart() {
         margin: { l: 60, r: 20, t: 30, b: 20 },
         xaxis: { showticklabels: false, showgrid: false, zeroline: false },
         yaxis: {
-            gridcolor: 'rgba(255,255,255,0.05)',
-            zerolinecolor: 'rgba(251, 191, 36, 0.4)',
-            tickfont: { family: 'Geist Mono', size: 10, color: '#71717a' },
+            gridcolor: P.grid,
+            zerolinecolor: P.zero,
+            tickfont: { family: 'Geist Mono', size: 10, color: P.tick },
             ticksuffix: '%',
             // Total capital loss is the bottom of the world on the primary measure, so
             // once a bar is there the axis stops just below it rather than letting a
@@ -885,12 +964,12 @@ function renderChart() {
         bargap: 0.15,
         shapes: onFloor ? [{
             type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: RUIN_FLOOR, y1: RUIN_FLOOR,
-            line: { color: 'rgba(239, 68, 68, 0.45)', width: 1, dash: 'dot' }
+            line: { color: P.floor, width: 1, dash: 'dot' }
         }] : [],
         annotations: onFloor ? [{
             xref: 'paper', x: 0, xanchor: 'left', yref: 'y', y: RUIN_FLOOR, yanchor: 'bottom',
             text: 'RUIN — TOTAL CAPITAL LOSS', showarrow: false,
-            font: { family: 'Geist Mono', size: 8, color: 'rgba(239, 68, 68, 0.8)' }
+            font: { family: 'Geist Mono', size: 8, color: P.floorText }
         }] : []
     };
 
@@ -971,7 +1050,7 @@ function showTT(item, e) {
                 <div class="tt-sec-label">Risk Modeling</div>
                 <div class="tt-row">
                     <span class="tt-row-label">Addiction Risk</span>
-                    <span class="tt-row-val" style="color:${AR_CLR[item.ar]}">${AR_LBL[item.ar]}</span>
+                    <span class="tt-row-val" style="color:${ink(AR_CLR[item.ar])}">${AR_LBL[item.ar]}</span>
                 </div>
             </div>`;
     }
@@ -980,7 +1059,7 @@ function showTT(item, e) {
         <div class="tt-hdr">
             <div class="tt-title">${item.n}</div>
             <div class="tt-meta">
-                <span style="color:${CC[item.cat]}">${item.cat}</span>
+                <span style="color:${ink(CC[item.cat])}">${item.cat}</span>
                 <span>&bull;</span>
                 <span>${item.type}</span>
             </div>
@@ -1126,6 +1205,21 @@ function init() {
 }
 
 window.onload = init;
+
+// Theme switch: same localStorage key as the hub, so the choice carries both ways.
+const syncThemeToggle = () => document.querySelectorAll('.theme-toggle [data-theme]').forEach(b =>
+    b.setAttribute('aria-pressed', String(document.documentElement.classList.contains(b.dataset.theme))));
+document.querySelectorAll('.theme-toggle [data-theme]').forEach(btn => {
+    btn.onclick = () => {
+        const t = btn.dataset.theme;
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(t);
+        try { localStorage.setItem('edge-spectrum.theme', t); } catch (e) {}
+        syncThemeToggle();
+        if (window.Plotly && document.getElementById('chart').data) renderChart();
+    };
+});
+syncThemeToggle();
 </script>
 </body>
 </html>

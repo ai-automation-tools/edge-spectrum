@@ -2,6 +2,24 @@
 
 ---
 
+## October 5, 2026 — Light / dark theme switch
+
+A Sun / Moon switch now sits at the right end of the hub topbar (every route) and of the Spectrum
+page's nav. The choice is stored in `localStorage` under `edge-spectrum.theme` (`light` | `dark`) and
+shared by both pages. Dark stays the default; the OS preference is not followed.
+
+- **Mechanism**: `site/src/theme.ts` (`useTheme` / `setTheme`) stamps `light` or `dark` on `<html>`;
+  pre-paint scripts in `site/index.html` and `public/spectrum/index.html` apply the stored choice
+  before first paint. All three hard-code the same dark fallback.
+- **Light palette** in `site/src/index.css`: `html.light` swaps the tokens, mirrors the Tailwind zinc
+  scale and drops the accents to their 700 shades (sky `#0369a1` 5.5:1, body ink `#18181b` 16.4:1,
+  secondary `#52525b` 7.2:1 on `#f6f6f7`). A `light:` variant covers the few spots the remap can't.
+  Registry accents are now `var(--a-*)` tokens (`ACCENT_HEX` → `ACCENT_COLOR`).
+- **Charts**: the equity curve (Recharts), the home `SpectrumStrip` canvas and the Spectrum page's
+  Plotly layout each carry a light colour set and redraw on switch.
+- Dark output is unchanged. The Spectrum page's `MATH & CONSTANTS`, `RAW` and `DATA INJECTION` blocks
+  are untouched.
+
 ## October 5, 2026 — Hub redesign in the org design vocabulary
 
 The hub was rebuilt to match the 2026-10-05 redesign of `ai-automation-tools.dev` and the Edge-Radar

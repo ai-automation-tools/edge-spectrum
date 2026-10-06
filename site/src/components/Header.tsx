@@ -15,7 +15,7 @@ export default function Header() {
         <div className="min-w-0">
           <Eyebrow accent="emerald"><b>Simulator</b> · simulated data · {MIN_SEASON}–{MAX_SEASON}</Eyebrow>
           <h1 className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-zinc-100 md:text-[36px]">
-            Sports Betting <span style={{ color: '#34d399' }}>Backtest</span> Simulator
+            Sports Betting <span style={{ color: 'var(--a-emerald)' }}>Backtest</span> Simulator
           </h1>
           <p className="mt-2 max-w-[62ch] text-[15px] leading-relaxed text-zinc-400">
             Strategy emulator over {MAX_SEASON - MIN_SEASON + 1} simulated seasons of MLB, NFL, NHL &amp; NBA. Every line is priced
