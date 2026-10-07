@@ -2,6 +2,14 @@
 
 ---
 
+## October 7, 2026 — Upstream check
+
+First pass over `Docs/UPSTREAMS.md`. ESPN's four scoreboards still return every key `espn.ts` reads;
+`gemini-2.5-flash` has no shutdown date. The Gemini row said `^2.4.0` while `package.json` declares
+`^2.26.0`; the row is corrected. Plotly 4.x is queued as roadmap Action 2.8. No code changed.
+
+---
+
 ## October 5, 2026 — Light / dark theme switch
 
 A Sun / Moon switch now sits at the right end of the hub topbar (every route) and of the Spectrum
