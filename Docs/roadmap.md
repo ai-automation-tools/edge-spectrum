@@ -89,6 +89,12 @@ Phase 7: Public Launch ⚪
      - Add IP/session rate limiting (e.g. 10 requests per hour per session).
      - Implement a hard daily spend ceiling with a fallback 503 response.
 
+6. [ ] 🔵 **Action 2.8 — Move the Spectrum page off Plotly 2.32.0 (upstream check, 2026-10-07)**
+   - **What:** Bump the pinned `cdn.plot.ly/plotly-2.32.0.min.js` in `site/public/spectrum/index.html` to a current release and fix whatever the 4.0 breaking changes touch in the page's traces and layout (4.0 switched colour parsing from TinyColor to culori and changed some subplot defaults).
+   - **Why:** plotly.js is at 4.1.2 (4.0.0 shipped 2026-08-24); the pin is two majors behind. Source: https://github.com/plotly/plotly.js/releases. No advisory affects the 2.32.0 pin as read; this is drift, not an emergency.
+   - **Where:** `site/public/spectrum/index.html` (script tag and the theme-aware layout colours); not the `RAW` block.
+   - **Done when:** the page renders in both themes, `npm run check:spectrum` and `npm run build` pass, and the three measures plot as before.
+
 
 ---
 
