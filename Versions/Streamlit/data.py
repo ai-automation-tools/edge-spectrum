@@ -224,6 +224,7 @@ RAW = [
     _gam("Craps Don't Pass", "Casino Gambling", -1.36, 40, 2),
     _gam("Craps Pass Line", "Casino Gambling", -1.41, 40, 2),
     _gam("Blackjack 6:5", "Casino Gambling", -2.0, 60, 2),
+    _gam("Craps Field (3:1 on 12)", "Casino Gambling", -2.78, 40, 2),
     _gam("Pai Gow Poker", "Casino Gambling", -2.5, 30, 3),
     _gam("Roulette Single Zero", "Casino Gambling", -2.7, 40, 3),
     _gam("Three Card Poker", "Casino Gambling", -3.4, 40, 3),
@@ -233,7 +234,9 @@ RAW = [
     _gam("Roulette Double Zero", "Casino Gambling", -5.26, 40, 3),
     _gam("Slots Average 92%", "Casino Gambling", -8.0, 500, 0.5),
     _gam("Slots Tight 85%", "Casino Gambling", -15.0, 500, 0.5),
+    _gam("Baccarat Tie (8:1)", "Casino Gambling", -14.36, 50, 3),
     _gam("Big Six Wheel", "Casino Gambling", -16.0, 20, 2),
+    _gam("Craps Any Seven", "Casino Gambling", -16.67, 40, 2),
     _gam("Keno 4-Spot", "Casino Gambling", -28.0, 10, 1),
     _gam("Keno 10-Spot", "Casino Gambling", -35.0, 10, 1),
 
