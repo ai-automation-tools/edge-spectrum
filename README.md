@@ -45,7 +45,7 @@
 
 **Edge Spectrum** is an interactive playground for exploring mathematical edges. It brings together four analytical applications:
 
-1. **The Edge Spectrum Expected-Return Visualizer** (`/spectrum/`): Compares **187 financial, investing, trading, and gambling activities** over **7 time horizons** (Single Event to 10 Years), standardized using the **DU/CED framework**. Return on capital is the primary axis and is floored at −100%; the unbounded turnover cost gets its own axis so the two are never compared as if they were the same quantity.
+1. **The Edge Spectrum Expected-Return Visualizer** (`/spectrum/`): Compares **190 financial, investing, trading, and gambling activities** over **7 time horizons** (Single Event to 10 Years), standardized using the **DU/CED framework**. Return on capital is the primary axis and is floored at −100%; the unbounded turnover cost gets its own axis so the two are never compared as if they were the same quantity.
 2. **The Backtest Simulator** (`/backtester`): Backtests sports wagering strategies across **26 simulated seasons of MLB, NFL, NHL, and NBA games** (2000–2025), providing ROI diagnostics, equity curves, live ESPN scores, and an **AI Strategy Advisor** powered by Gemini.
 3. **Odds Converter & No-Vig Calculator** (`/odds`): Converts American, decimal, fractional and implied odds, and strips bookmaker margin from any multi-way market via **multiplicative, power, or Shin** de-vigging.
 4. **Parlay & SGP Hold Calculator** (`/parlay`): De-vigs each leg, multiplies out the true joint probability, and compares it with the book's parlay payout to expose how the margin compounds per leg.
@@ -97,7 +97,7 @@ edge-spectrum/
 │   │   ├── pages/
 │   │   │   └── Home.tsx   # Landing page (dashboard tile grid mapping over tools.ts)
 │   │   ├── server/        # Shared backend engines (backtest, ESPN score, Gemini prompt engines)
-│   │   ├── data/edges.ts  # The Dataset — SINGLE SOURCE OF TRUTH for all 187 edge records
+│   │   ├── data/edges.ts  # The Dataset — SINGLE SOURCE OF TRUTH for all 190 edge records
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
