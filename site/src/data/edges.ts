@@ -252,6 +252,7 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "Craps Don't Pass", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.36, du: 40, ced: 2 },
   { n: "Craps Pass Line", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.41, du: 40, ced: 2 },
   { n: "Blackjack 6:5", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.0, du: 60, ced: 2 },
+  { n: "Craps Field (3:1 on 12)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.78, du: 40, ced: 2, source: "Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)", asOf: "2026-10-07", methodology: "Exact single-roll expectation; 2 pays 2:1 and 12 pays 3:1, per bet made." },
   { n: "Pai Gow Poker", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.5, du: 30, ced: 3 },
   { n: "Roulette Single Zero", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.7, du: 40, ced: 3 },
   { n: "Three Card Poker", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -3.4, du: 40, ced: 3 },
@@ -261,7 +262,9 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "Roulette Double Zero", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -5.26, du: 40, ced: 3 },
   { n: "Slots Average 92%", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -8.0, du: 500, ced: 0.5 },
   { n: "Slots Tight 85%", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -15.0, du: 500, ced: 0.5 },
+  { n: "Baccarat Tie (8:1)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -14.36, du: 50, ced: 3, source: "Wizard of Odds, Baccarat basics (wizardofodds.com/games/baccarat/basics/)", asOf: "2026-10-07", methodology: "Exact combinatorial analysis of an 8-deck shoe; Tie pays 8 to 1." },
   { n: "Big Six Wheel", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -16.0, du: 20, ced: 2 },
+  { n: "Craps Any Seven", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -16.67, du: 40, ced: 2, source: "Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)", asOf: "2026-10-07", methodology: "Exact single-roll expectation; pays 4 to 1, per bet made." },
   { n: "Keno 4-Spot", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -28.0, du: 10, ced: 1 },
   { n: "Keno 10-Spot", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -35.0, du: 10, ced: 1 },
 
