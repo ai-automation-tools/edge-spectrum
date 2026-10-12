@@ -207,6 +207,8 @@ Expected returns are modeled averages derived from historical market data, bookm
 > [!CAUTION]
 > **For educational purposes only.** This tool does not constitute investment or gambling advice.
 
+Gambling is for adults only (18+ or 21+ depending on where you live). If gambling is causing you a problem, free and confidential help is available: **1-800-GAMBLER** (US), **0808 8020 133** (UK National Gambling Helpline), **1800 858 858** (Gambling Help, Australia), or [GamblingTherapy.org](https://www.gamblingtherapy.org/) worldwide. Every page of the hub carries the same notice in its footer.
+
 ---
 
 <p align="center">
