@@ -349,15 +349,24 @@ Sequence: fix the section 1 bias → ship the Tier 1 calculators → then add re
 
 ---
 
-## 🟡 7. Compliance and trust
+## ✅ 7. Compliance and trust — footer and age note fixed 2026-10-05
 
 Given the subject matter and the freemium plans in roadmap Phase 4:
 
-- Responsible-gambling footer with 1-800-GAMBLER and international equivalents.
-- An age note.
+- ✅ Responsible-gambling footer with 1-800-GAMBLER and international equivalents.
+- ✅ An age note.
 - A "not financial advice" line on AI advisor output.
 
 Cheap to add, and it matters the moment this takes payments.
+
+**What shipped (roadmap Action 3.5).** Before: the hub landing passed one "nothing here is a
+recommendation" sentence into the footer as an optional `note`; the backtester, `/odds`, `/parlay`,
+`/setup` and the Spectrum page carried no disclaimer, age note or help line at all. Now the notice is
+part of `SiteFooter.tsx` itself, not a prop, so all five React routes render it and a new tool page
+cannot forget it: not investment, financial or betting advice; adults only (18+ or 21+); tap-to-call
+US 1-800-GAMBLER, UK 0808 8020 133, AU 1800 858 858, and GamblingTherapy.org worldwide. The static
+Spectrum page repeats the same text in its own footer. The advisor bullet stays open: the backtester
+footer covers the page, but the AI's own messages carry no line of their own.
 
 ---
 
@@ -573,7 +582,7 @@ variables for production. Optionally set `ADVISOR_SECRET` to a long random strin
 
 | Phase | Work |
 |---|---|
-| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · ✅ significance panel + `check:stats` in CI (section 4.1, Action 3.3) · ✅ URL-serialised strategy + `check:strategy-url` in CI (section 3, Action 3.4) · rate-limit the advisor (2a) |
+| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · ✅ significance panel + `check:stats` in CI (section 4.1, Action 3.3) · ✅ URL-serialised strategy + `check:strategy-url` in CI (section 3, Action 3.4) · ✅ responsible-gambling footer + age note (section 7, Action 3.5) · rate-limit the advisor (2a) |
 | **Next** | Export bundle + full `ledger.csv` (Action 3.2 — now the only home for the unsliced ledger) · client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · share cards · Vitest |
 | **Then** | Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
 | **After** | CLV tracker (needs a DB) · real historical odds for one sport · Edge Audit · quiz |
