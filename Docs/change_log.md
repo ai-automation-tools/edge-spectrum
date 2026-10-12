@@ -10,6 +10,28 @@ advice; gambling is for adults (18+ or 21+); and tap-to-call help lines — US 1
 (`flex-wrap`) so the row sits under the existing two. The same wording is built into the hub's shared
 `SiteFooter.tsx`, so every React route carries it too. The `MATH & CONSTANTS`, `RAW` and
 `DATA INJECTION` blocks are untouched.
+## October 7, 2026 — Three casino bets (187 → 190 records)
+
+Added to Casino Gambling, the first records in the dataset to carry provenance (`source`, `asOf`,
+`methodology`); the citation baseline moves from 0 to 3.
+
+- **Baccarat Tie (8:1)** — −14.36%, 8-deck shoe. Source: Wizard of Odds, Baccarat basics.
+- **Craps Any Seven** — −16.67%. Source: Wizard of Odds, craps house edge table.
+- **Craps Field (3:1 on 12)** — −2.78%. Source: Wizard of Odds, craps house edge table.
+
+DU/CED follow the neighbouring baccarat (50 / 3%) and craps (40 / 2%) records. `gen:edges` regenerated
+all four artifacts; the count statements in `CLAUDE.md`, `README.md`, `Docs/README.md`,
+`check-spectrum.ts` and the hub tile now read 190.
+
+---
+
+## October 7, 2026 — Upstream check
+
+First pass over `Docs/UPSTREAMS.md`. ESPN's four scoreboards still return every key `espn.ts` reads;
+`gemini-2.5-flash` has no shutdown date. The Gemini row said `^2.4.0` while `package.json` declares
+`^2.26.0`; the row is corrected. Plotly 4.x is queued as roadmap Action 2.8. No code changed.
+
+---
 
 ## October 5, 2026 — Light / dark theme switch
 

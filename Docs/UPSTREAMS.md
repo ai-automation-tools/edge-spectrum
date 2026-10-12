@@ -15,14 +15,14 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | — |
-| **Gemini API via `@google/genai`** | `^2.4.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-2.5-flash` | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | — |
+| **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | 2026-10-07 |
+| **Gemini API via `@google/genai`** | `^2.26.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-2.5-flash` | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-10-07 |
 
 ## Static page CDN assets
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases | — |
+| **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases (pinned 2.32.0; 4.x is current, see roadmap Action 2.8) | 2026-10-07 |
 | **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | — |
 
 ## Hosting and runtime
@@ -30,8 +30,8 @@ source. `—` means never checked.
 | Upstream | What the code assumes | Where | Check at | Last checked |
 |:---|:---|:---|:---|:---|
 | **Vercel** | `framework: "vite"`, `outputDirectory: "dist"`, SPA rewrite `/((?!api/).*)`; four Node functions in `site/api/` on default runtime settings | `site/vercel.json`, `site/api/*.ts` | vercel.com/changelog; vercel.com/docs/functions/runtimes/node-js/node-js-versions | — |
-| **Node.js** | `engines.node: ">=22 <25"` picks the Vercel runtime; CI pins 22 | `site/package.json`, `.github/workflows/ci.yml` | nodejs.org/en/about/previous-releases (EOL dates) | — |
-| **GitHub Actions** | `actions/checkout@v4`, `actions/setup-node@v4` | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | — |
+| **Node.js** | `engines.node: ">=22 <25"` picks the Vercel runtime; CI pins 22 | `site/package.json`, `.github/workflows/ci.yml` | nodejs.org/en/about/previous-releases (EOL dates); raw.githubusercontent.com/nodejs/Release/main/schedule.json | 2026-10-07 |
+| **GitHub Actions** | `actions/checkout@v4`, `actions/setup-node@v4` | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | 2026-10-07 |
 
 ## Framework majors
 

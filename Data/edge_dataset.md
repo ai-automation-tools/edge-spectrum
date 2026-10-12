@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 187 · **Categories:** 13 · **Layers:** 160 raw · 8 fee · 19 tax
+**Records:** 190 · **Categories:** 13 · **Layers:** 163 raw · 8 fee · 19 tax
 
 ## What is here, and what is deliberately not
 
@@ -254,7 +254,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 10. Casino Gambling
 
-**Records:** 19
+**Records:** 22
 
 ### Games — linear model
 
@@ -267,18 +267,21 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 5 | Craps Don't Pass | -1.36% | 40 | 2% | raw |
 | 6 | Craps Pass Line | -1.41% | 40 | 2% | raw |
 | 7 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
-| 8 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
-| 9 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
-| 10 | Three Card Poker | -3.4% | 40 | 3% | raw |
-| 11 | Let It Ride | -3.5% | 30 | 3% | raw |
-| 12 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
-| 13 | Caribbean Stud | -5.2% | 30 | 3% | raw |
-| 14 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
-| 15 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
-| 16 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
-| 17 | Big Six Wheel | -16.0% | 20 | 2% | raw |
-| 18 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
-| 19 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+| 8 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
+| 9 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
+| 10 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
+| 11 | Three Card Poker | -3.4% | 40 | 3% | raw |
+| 12 | Let It Ride | -3.5% | 30 | 3% | raw |
+| 13 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
+| 14 | Caribbean Stud | -5.2% | 30 | 3% | raw |
+| 15 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
+| 16 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
+| 17 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
+| 18 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
+| 19 | Big Six Wheel | -16.0% | 20 | 2% | raw |
+| 20 | Craps Any Seven | -16.67% | 40 | 2% | raw |
+| 21 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
+| 22 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
 
 ## 11. Poker & Skill-Based
 
