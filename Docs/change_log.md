@@ -2,6 +2,17 @@
 
 ---
 
+## October 13, 2026 — Phone polish (desktop unchanged)
+
+- **No iOS focus zoom** — form fields render at 16px below 640px (backtester, calculators, Spectrum
+  search / presets / "where do I sit?" form); they were 11.5–14px.
+- **Calculator tables** — on phones the No-Vig and Parlay leg tables keep their inputs at full width and
+  scroll inside their card; before, the label and price inputs were crushed to ~26px.
+- **Tap targets** — theme switch, remove-row buttons, the Advanced Screening toggle and the Spectrum
+  page's segmented controls, quick filters and category chips grow to 32–36px on phones.
+
+---
+
 ## October 13, 2026 — Spectrum page: touch scrolling, comparisons, embed mode
 
 - **Touch fix** — on touch screens the chart no longer captures swipes as drag-zoom, so the page scrolls
