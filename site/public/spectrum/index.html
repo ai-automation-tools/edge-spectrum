@@ -13,6 +13,8 @@
             var t = 'dark';
             try { if (localStorage.getItem('edge-spectrum.theme') === 'light') t = 'light'; } catch (e) {}
             document.documentElement.classList.add(t);
+            // ?embed=1 is the iframe view (Action 6.6): the chart and a caption, nothing else.
+            if (new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
         })();
     </script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
@@ -209,6 +211,7 @@
         .badge.c { --c: #a1a1aa; color: var(--c); border-color: color-mix(in srgb, var(--c) 50%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
         .pin-btn { flex: none; height: 26px; padding: 0 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-elevated); color: var(--text-muted); font-size: 0.62rem; font-weight: 600; cursor: pointer; }
         .pin-btn:hover { color: var(--text-main); border-color: var(--border-hover); }
+        .pin-btn:disabled { opacity: .45; cursor: not-allowed; }
         .insp-body { overflow-y: auto; }
         .insp-sec { padding: 14px 20px; border-bottom: 1px solid var(--border); }
         .insp-sec:last-child { border-bottom: none; }
@@ -260,6 +263,15 @@
         .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
         .light body { background-image: radial-gradient(rgba(0,0,0,0.07) 1.2px, transparent 0); }
+
+        /* ── Embed (?embed=1) ── */
+        .embed-cap { display: none; }
+        .embed .hub-nav, .embed .hdr, .embed .controls, .embed .cats, .embed .stats-row, .embed .insp, .embed .footer, .embed .chart-hint { display: none; }
+        .embed .content { padding: 0; }
+        .embed .viz { grid-template-columns: 1fr; }
+        .embed .embed-cap { display: block; margin: 0; padding: 8px 12px; font-size: 0.62rem; color: var(--text-dim); line-height: 1.5; }
+        .embed .embed-cap a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .embed .embed-cap b { color: var(--text-main); }
 
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
@@ -391,6 +403,9 @@
         <aside class="insp" id="insp" aria-live="polite"></aside>
     </div>
 </main>
+
+<p class="embed-cap"><b>The Edge Spectrum</b> &middot; <a id="embedOpen" href="./index.html" target="_blank" rel="noopener">Open the full tool &rarr;</a> &middot;
+    Education only, not advice. Gambling problem? <a href="tel:1-800-426-2537">US 1-800-GAMBLER</a> &middot; <a href="https://www.gamblingtherapy.org/" target="_blank" rel="noopener noreferrer">GamblingTherapy.org</a></p>
 
 <footer class="footer">
     <div>V21 &mdash; THE EDGE SPECTRUM &bull; OCTOBER 2026</div>
@@ -794,7 +809,7 @@ const LAYERS = ['raw','fee','tax','all'];
 const SORTS = ['value','category','name'];
 const COLORS = ['sign','cat'];
 
-const DEFAULTS = () => ({ h: '1yr', m: 'roc', l: 'raw', color: 'sign', sort: 'value', q: '', ruin: true, labels: true, real: false, cats: new Set(ALL_CATS), pin: null, form: false });
+const DEFAULTS = () => ({ h: '1yr', m: 'roc', l: 'raw', color: 'sign', sort: 'value', q: '', ruin: true, labels: true, real: false, cats: new Set(ALL_CATS), pin: null, cmp: [], form: false });
 const S = DEFAULTS();
 let hovered = null;   // transient: the bar under the cursor while nothing is pinned
 let playTimer = null;
@@ -820,6 +835,7 @@ function readUrl(p = new URLSearchParams(location.search)) {
         S.cats = new Set(ALL_CATS.filter((c, i) => idx.includes(i)));
     }
     if (p.has('pin') && findRow(p.get('pin'))) S.pin = p.get('pin');
+    if (p.has('cmp')) S.cmp = [...new Set(p.get('cmp').split('|'))].filter(findRow).slice(0, CMP_MAX);
 }
 function validYou(y) {
     if (!y || !y.n) return false;
@@ -853,6 +869,10 @@ function writeUrl() {
     }
     if (S.cats.size !== ALL_CATS.length) p.set('cats', ALL_CATS.map((c, i) => S.cats.has(c) ? i : -1).filter(i => i >= 0).join(','));
     if (S.pin) p.set('pin', S.pin);
+    if (S.cmp.length) p.set('cmp', S.cmp.join('|'));
+    // The "open the full tool" link is this same view without the embed flag.
+    document.getElementById('embedOpen').href = location.pathname + (p.toString() ? '?' + p : '');
+    if (EMBED) p.set('embed', '1');
     const qs = p.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }
@@ -911,6 +931,11 @@ const PLOT_INK = {
 // Category and risk colours were picked for a dark ground; on light, darken them for legible text.
 const ink = c => isLight() ? `color-mix(in srgb, ${c} 55%, #000)` : c;
 const catColor = c => CC[c] || '#a1a1aa';
+// Compare mode (Action 4.7): up to three activities, each with its own line colour, kept
+// apart from the pin colour and from gain/loss green and red.
+const CMP_MAX = 3;
+const CMP_INK = { dark: ['#f59e0b', '#e879f9', '#2dd4bf'], light: ['#b45309', '#a21caf', '#0f766e'] };
+const cmpColor = n => { const i = S.cmp.indexOf(n); return i < 0 ? null : CMP_INK[isLight() ? 'light' : 'dark'][i]; };
 const hexA = (hex, a) => `rgba(${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)},${a})`;
 
 // ══════════════════════════
@@ -952,10 +977,15 @@ function updateStats(data) {
 // ══════════════════════════
 const chartEl = document.getElementById('chart');
 const COARSE = matchMedia('(pointer: coarse)').matches;
+const EMBED = document.documentElement.classList.contains('embed');
+// Touch screens have no drag-zoom (see renderChart), so do not promise one.
+if (COARSE) document.querySelector('.chart-hint').textContent = 'tap a bar to pin';
 // The chart grows with the plotted span so a +4,600% ten-year bar does not squash everything
 // else into a few pixels: 1x the base height at a few percent, about 2x at a one-year span,
 // and 3x (the cap) at ten years. Base is the old fixed height, 58% of the viewport within limits.
 function chartHeight(span) {
+    // An iframe has a fixed height of its own; fill it rather than make it scroll.
+    if (EMBED) return Math.max(240, window.innerHeight - chartEl.getBoundingClientRect().top - document.querySelector('.embed-cap').offsetHeight);
     const base = Math.min(760, Math.max(420, window.innerHeight * 0.58));
     const factor = Math.min(3, Math.max(1, 1 + Math.log10(Math.max(span, 1) / 50)));
     return Math.round(base * factor);
@@ -971,8 +1001,8 @@ function renderChart(data) {
         ? hexA(catColor(d.cat), isLight() ? 0.85 : 0.8)
         : (val(d) >= 0 ? P.up : P.down));
     const opacity = data.map(d => focus ? (d.n === focus || d.you ? 1 : 0.35) : 1);
-    const lineW = data.map(d => d.n === focus || d.you ? 2 : 1);
-    const lineC = data.map(d => d.n === focus || d.you ? P.pin : P.edge);
+    const lineW = data.map(d => d.n === focus || d.you || cmpColor(d.n) ? 2 : 1);
+    const lineC = data.map(d => d.n === focus || d.you ? P.pin : cmpColor(d.n) || P.edge);
     const showLabels = S.labels && data.length > 0 && data.length <= 40;
     const hover = data.map(d => `<b>${esc(d.n)}</b><br>${esc(d.cat)} · ${d.type}${d.ly !== 'raw' ? ' · ' + LAYER_LBL[d.ly] : ''}<br>${METRICS[S.m].short}: <b>${formatValue(val(d))}</b>${S.m === 'roc' && isRuined(d) ? '<br>✕ ruined before this horizon ends' : ''}<br><i>click to pin</i>`);
 
@@ -1166,7 +1196,7 @@ function renderItem(item, pinned) {
                     ${item.ly !== 'raw' ? `<span class="badge">${LAYER_LBL[item.ly]}</span>` : ''}
                 </div>
             </div>
-            <div style="display:flex;gap:6px;flex:none">${item.you ? `<button type="button" class="pin-btn" id="youEdit">Edit</button><button type="button" class="pin-btn" id="youRemove">Remove</button>` : ''}<button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button></div>
+            <div style="display:flex;gap:6px;flex:none">${item.you ? `<button type="button" class="pin-btn" id="youEdit">Edit</button><button type="button" class="pin-btn" id="youRemove">Remove</button>` : ''}${pinned ? `<button type="button" class="pin-btn" id="cmpBtn"${!S.cmp.includes(item.n) && S.cmp.length >= CMP_MAX ? ` disabled title="Compare holds ${CMP_MAX}; remove one first"` : ''}>${S.cmp.includes(item.n) ? 'Compared ✓' : 'Compare +'}</button>` : ''}<button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button></div>
         </div>
         <div class="insp-body">
             ${moneyBlock(item)}
@@ -1199,6 +1229,13 @@ function renderItem(item, pinned) {
     if (ye) ye.onclick = () => { S.form = true; update(); };
     if (yr) yr.onclick = () => { setYou(null); if (S.pin === item.n) S.pin = null; update(); };
     document.getElementById('pinBtn').onclick = () => { S.pin = pinned ? null : item.n; hovered = null; update(); };
+    const cb = document.getElementById('cmpBtn');
+    // Adding unpins, so the inspector falls through to the comparison it just joined.
+    if (cb) cb.onclick = () => {
+        if (S.cmp.includes(item.n)) S.cmp = S.cmp.filter(n => n !== item.n);
+        else { S.cmp = [...S.cmp, item.n]; S.pin = null; }
+        hovered = null; update();
+    };
     inspEl.querySelectorAll('[data-hz]').forEach(b => b.onclick = () => { S.h = b.dataset.hz; update(); });
 }
 function renderOverview(data) {
@@ -1221,10 +1258,52 @@ function renderOverview(data) {
         </div>`;
     inspEl.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { S.pin = b.dataset.pin; update(); });
 }
+function renderCompare() {
+    inspEl.classList.remove('pinned');
+    const rows = S.cmp.map(findRow);
+    const P = PLOT_INK[isLight() ? 'light' : 'dark'];
+    const roc = (d, h) => METRICS.roc.get(d, h);
+    inspEl.innerHTML = `
+        <div class="insp-hdr"><div><div class="insp-title">Compare</div>
+            <div class="insp-meta"><span class="badge">${S.real ? 'Real return' : 'Return on capital'}</span><span class="badge">${rows.length} of ${CMP_MAX}</span></div></div>
+            <button type="button" class="pin-btn" id="cmpClear">Clear</button></div>
+        <div class="insp-body">
+            <div class="insp-sec"><div class="sec-label">By horizon</div><div id="cmpChart" style="height:240px"></div></div>
+            <div class="insp-sec"><div class="sec-label">At ${HZ_LBL[S.h].toLowerCase()}</div><div class="list">${rows.map(d => `
+                <div style="display:flex;align-items:center;gap:6px">
+                    <button type="button" class="li" style="width:auto;flex:1;margin-right:0" data-pin="${esc(d.n)}"><span class="dot" style="background:${cmpColor(d.n)}"></span><span class="nm">${esc(d.n)}</span><span class="v" style="color:${signColor(roc(d, S.h))}">${formatValue(roc(d, S.h))}</span></button>
+                    <button type="button" class="pin-btn" data-uncmp="${esc(d.n)}" aria-label="Remove ${esc(d.n)} from the comparison">✕</button>
+                </div>`).join('')}</div>
+                <div class="hint" style="margin-top:10px">A ✕ on a line marks the first horizon by which that bankroll is expected to be gone. ${rows.length < CMP_MAX ? 'Pin another bar and press <b>Compare +</b> to add it.' : ''}</div>
+            </div>
+        </div>`;
+    // The single-event horizon is left off: for a wager it is one bet, for an asset one
+    // trading day, and a shared x-axis would claim they are the same unit (Audit D1).
+    const hz = HZ.filter(h => h !== '1du'), x = hz.map(h => HZ_LBL[h]);
+    const traces = rows.flatMap(d => {
+        const y = hz.map(h => roc(d, h)), c = cmpColor(d.n);
+        const t = [{ type: 'scatter', mode: 'lines+markers', x, y, text: y.map(formatValue), line: { color: c, width: 2 }, marker: { color: c, size: 5 },
+            hovertemplate: `<b>${esc(d.n)}</b><br>%{x}: %{text}<extra></extra>` }];
+        const ruinH = hz.find(h => d.rd !== null && d.rd <= decisionCount(d.du, h));
+        if (ruinH) t.push({ type: 'scatter', mode: 'markers', x: [HZ_LBL[ruinH]], y: [roc(d, ruinH)], marker: { symbol: 'x', size: 11, color: P.ruin, line: { color: c, width: 1 } }, hoverinfo: 'skip' });
+        return t;
+    });
+    Plotly.newPlot('cmpChart', traces, {
+        paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', showlegend: false, dragmode: false,
+        margin: { l: 52, r: 10, t: 6, b: 34 },
+        xaxis: { tickfont: { family: 'JetBrains Mono', size: 8, color: P.tick }, gridcolor: P.grid, fixedrange: true },
+        yaxis: { tickfont: { family: 'JetBrains Mono', size: 9, color: P.tick }, ticksuffix: '%', gridcolor: P.grid, zerolinecolor: P.zero, fixedrange: true },
+        hoverlabel: { bgcolor: P.hoverBg, bordercolor: P.pin, font: { family: 'Inter', size: 11, color: P.hoverFg } }
+    }, { displayModeBar: false, responsive: true });
+    document.getElementById('cmpClear').onclick = () => { S.cmp = []; update(); };
+    inspEl.querySelectorAll('[data-uncmp]').forEach(b => b.onclick = () => { S.cmp = S.cmp.filter(n => n !== b.dataset.uncmp); update(); });
+    inspEl.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { S.pin = b.dataset.pin; update(); });
+}
 function renderInspector(data) {
     if (S.form) return renderForm();
     if (S.pin && findRow(S.pin)) return renderItem(findRow(S.pin), true);
     if (hovered) return renderItem(hovered, false);
+    if (S.cmp.length) return renderCompare();
     renderOverview(data);
 }
 
@@ -1314,6 +1393,7 @@ function syncControls() {
 
 function update() {
     if (S.pin && !findRow(S.pin)) S.pin = null;
+    S.cmp = S.cmp.filter(findRow);
     writeUrl();
     syncControls();
     const data = getFilteredData();

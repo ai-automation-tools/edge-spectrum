@@ -95,7 +95,7 @@ Phase 7: Public Launch ⚪
    - **Where:** `site/public/spectrum/index.html` (script tag and the theme-aware layout colours); not the `RAW` block.
    - **Done when:** the page renders in both themes, `npm run check:spectrum` and `npm run build` pass, and the three measures plot as before.
 
-7. [ ] 🟠 **Action 2.9 — Browser Smoke Test for the Spectrum Page (V21 review, 2026-10-12)**
+7. [x] 🟠 **Action 2.9 — Browser Smoke Test for the Spectrum Page (V21 review, 2026-10-12)** 🟢 (2026-10-13: `npm run check:spectrum-browser`, a plain `tsx` script on `playwright` (no test runner), runs last in CI against `vite preview` of `dist/`. Covers the roadmap's list — 225 bars with no console errors, a real bar click pins and the pin survives a reload, the theme switch redraws, "Where do I sit?" adds a bar — plus the comma search, compare mode, embed mode and touch-screen `dragmode: false`. Verified failing on a removed `.li` reset and a reverted touch fix.)
    - **Problem:** `check:spectrum` tests the page's math; nothing tests the page. Every defect found during the V21 rebuild (a squeezed plot, washed-out toggles on light, a pinned custom row dropped by `update()`) was caught by hand in a browser, not by CI.
    - **Implementation:** One Playwright run in CI against `vite preview`: the page loads with 225 bars and no console errors, a click pins and the URL round-trips, the theme switch redraws, and the "Where do I sit?" form places a bar. Pair it with Action 2.8 so the Plotly bump has a net under it.
    - **Done when:** the test is a CI step and fails on a deliberate regression (e.g. removing the `.li` button reset).
@@ -109,7 +109,7 @@ Phase 7: Public Launch ⚪
    - **Problem:** `cdn.plot.ly` is a single point of failure for the whole tool and a third-party request on every visit.
    - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `Docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
 
-10. [ ] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps**
+10. [x] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps** 🟢 (2026-10-13: took the ten-line route — `check:spectrum` now fails if any `EDGE_CATEGORIES` entry or `RAW` category is missing from the page's `CC` / `AR_DEFAULT` or the Streamlit archive's `ALL_CATS` / `CC` / `AR_DEFAULT`; verified by deleting `Lottery` from the page's `AR_DEFAULT`.)
     - **Problem:** `CC` and `AR_DEFAULT` on the Spectrum page and `ALL_CATS` / `CC` / `AR_DEFAULT` in the Streamlit archive are hand-synced with `EDGE_CATEGORIES`. A new category that misses one falls back to grey and "LOW" silently (`catColor` and `AR_DEFAULT[r.cat] || 2`).
     - **Implementation:** Either `gen:edges` emits those maps from a single colour/risk table in `edges.ts`, or `check:spectrum` asserts every category in `RAW` has an entry in both. The first is cleaner; the second is ten lines.
 
@@ -176,7 +176,7 @@ Phase 7: Public Launch ⚪
 6. [ ] 🟡 **Action 4.6 — Native React Port of Spectrum Visualizer**
    - **Feature:** Migrate `site/public/spectrum/index.html` into a native React page (`site/src/pages/Spectrum.tsx`), unifying navigation, theme state, and data loading. *(V21, 2026-10-12, rebuilt the page in place rather than porting it; the inspector, controls bar, URL state and "You" row are the component boundaries a port would keep.)*
 
-7. [ ] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page**
+7. [x] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page** 🟢 (2026-10-13: a pinned bar's **Compare +** adds it to a set of up to three, kept in the URL as `cmp=` (names joined by `|`); the inspector then plots return on capital by horizon as one line each, with a ✕ at the first horizon each bankroll is gone, honours the Real $ toggle, and outlines the compared bars on the main chart. The single-event horizon is left off the x-axis so a wager and a trading day are not drawn as one unit. Linear y-axis: a 10-year crypto line still flattens the rest.)
    - **Feature:** Pin up to three activities and show return on capital by horizon as lines in the inspector, with the ruin horizon marked on each. The per-horizon values are already precomputed (`v`, `vr`, `t` on every row); this is one Plotly line chart and a multi-pin URL key.
 
 8. [ ] 🟡 **Action 4.8 — Ranges Instead of Point Estimates**
@@ -226,7 +226,7 @@ Phase 7: Public Launch ⚪
 5. [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender**
    - **Tool:** Interactive game prompting users to estimate mathematical edges on common wagers and investments, followed by a portfolio blender tool combining positive and negative edge assets.
 
-6. [ ] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page**
+6. [x] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page** 🟢 (2026-10-13: `?embed=1` hides everything but the chart and a caption carrying the helpline and an "open the full tool" link to the same view; the chart fills the iframe's height instead of growing past it. Checked at 700×450 with no scroll. Bars carry no name labels, so a reader identifies them by hover — pair an embed with a narrow `q` filter.)
    - **Tool:** `?embed=1` hides the hub nav, header, controls and footer and shows the chart plus a one-line caption, so a preset view can sit in an iframe on a blog post or a partner page. The view is already a URL (V21), so this is a CSS class and a "open the full tool" link.
 
 7. [ ] 🟡 **Action 6.7 — Share Card per Activity**
