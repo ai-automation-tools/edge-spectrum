@@ -95,7 +95,7 @@ Phase 7: Public Launch ⚪
    - **Where:** `site/public/spectrum/index.html` (script tag and the theme-aware layout colours); not the `RAW` block.
    - **Done when:** the page renders in both themes, `npm run check:spectrum` and `npm run build` pass, and the three measures plot as before.
 
-7. [ ] 🟠 **Action 2.9 — Browser Smoke Test for the Spectrum Page (V21 review, 2026-10-12)**
+7. [x] 🟠 **Action 2.9 — Browser Smoke Test for the Spectrum Page (V21 review, 2026-10-12)** 🟢 (2026-10-13: `npm run check:spectrum-browser`, a plain `tsx` script on `playwright` (no test runner), runs last in CI against `vite preview` of `dist/`. Covers the roadmap's list — 225 bars with no console errors, a real bar click pins and the pin survives a reload, the theme switch redraws, "Where do I sit?" adds a bar — plus the comma search, compare mode, embed mode and touch-screen `dragmode: false`. Verified failing on a removed `.li` reset and a reverted touch fix.)
    - **Problem:** `check:spectrum` tests the page's math; nothing tests the page. Every defect found during the V21 rebuild (a squeezed plot, washed-out toggles on light, a pinned custom row dropped by `update()`) was caught by hand in a browser, not by CI.
    - **Implementation:** One Playwright run in CI against `vite preview`: the page loads with 225 bars and no console errors, a click pins and the URL round-trips, the theme switch redraws, and the "Where do I sit?" form places a bar. Pair it with Action 2.8 so the Plotly bump has a net under it.
    - **Done when:** the test is a CI step and fails on a deliberate regression (e.g. removing the `.li` button reset).

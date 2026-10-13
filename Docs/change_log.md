@@ -13,6 +13,8 @@
   with the ruin horizon marked; `cmp=` in the URL.
 - **Embed mode (Action 6.6)** — `?embed=1` shows only the chart and a caption with the helpline and an
   "open the full tool" link, sized to the iframe.
+- **Browser smoke test (Action 2.9)** — `check:spectrum-browser` drives the built page in headless
+  Chromium in CI; adds `playwright` as a dev dependency.
 - **Category-map guard (Action 2.12)** — `check:spectrum` fails if a category is missing from the page's
   `CC` / `AR_DEFAULT` or the Streamlit archive's `ALL_CATS` / `CC` / `AR_DEFAULT`.
 
