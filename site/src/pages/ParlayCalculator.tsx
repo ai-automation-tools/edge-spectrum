@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Layers, Plus, X, Info, TrendingDown } from 'lucide-react';
 import {
   type OddsFormat, type DevigMethod, FORMAT_LABEL, METHOD_LABEL,
   parseOdds, formatOdds, devig, parlay,
 } from '../odds';
+import { parlayFromQuery } from '../calcUrl';
 import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
 import { PageHead, Accented } from '../components/ui';
 import SiteFooter from '../components/SiteFooter';
@@ -17,14 +19,17 @@ let nextId = 4;
 const price = (d: number) => `${formatOdds(d, 'american')} · ${d.toFixed(3)}`;
 
 export default function ParlayCalculator() {
-  const [format, setFormat] = useState<OddsFormat>('american');
-  const [method, setMethod] = useState<DevigMethod>('multiplicative');
-  const [quoted, setQuoted] = useState('');
-  const [legs, setLegs] = useState<Leg[]>([
-    { id: 1, label: 'Leg 1', side: '-110', other: '-110' },
-    { id: 2, label: 'Leg 2', side: '-110', other: '-110' },
-    { id: 3, label: 'Leg 3', side: '-110', other: '-110' },
-  ]);
+  // Read once on mount; the page does not write its state back to the URL.
+  const { search } = useLocation();
+  const [init] = useState(() => parlayFromQuery(search));
+  const [format, setFormat] = useState<OddsFormat>(init.format);
+  const [method, setMethod] = useState<DevigMethod>(init.method);
+  const [quoted, setQuoted] = useState(init.quoted);
+  const [legs, setLegs] = useState<Leg[]>(() => {
+    const src = init.legs ?? [1, 2, 3].map(() => ({ side: '-110', other: '-110' }));
+    nextId = src.length + 1;
+    return src.map((l, i) => ({ id: i + 1, label: `Leg ${i + 1}`, ...l }));
+  });
 
   // Each leg is a two-way market: de-vig it to get the fair probability of the side taken.
   const parsed = legs.map((l) => {
