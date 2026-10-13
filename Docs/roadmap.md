@@ -109,7 +109,7 @@ Phase 7: Public Launch ⚪
    - **Problem:** `cdn.plot.ly` is a single point of failure for the whole tool and a third-party request on every visit.
    - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `Docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
 
-10. [ ] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps**
+10. [x] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps** 🟢 (2026-10-13: took the ten-line route — `check:spectrum` now fails if any `EDGE_CATEGORIES` entry or `RAW` category is missing from the page's `CC` / `AR_DEFAULT` or the Streamlit archive's `ALL_CATS` / `CC` / `AR_DEFAULT`; verified by deleting `Lottery` from the page's `AR_DEFAULT`.)
     - **Problem:** `CC` and `AR_DEFAULT` on the Spectrum page and `ALL_CATS` / `CC` / `AR_DEFAULT` in the Streamlit archive are hand-synced with `EDGE_CATEGORIES`. A new category that misses one falls back to grey and "LOW" silently (`catColor` and `AR_DEFAULT[r.cat] || 2`).
     - **Implementation:** Either `gen:edges` emits those maps from a single colour/risk table in `edges.ts`, or `check:spectrum` asserts every category in `RAW` has an entry in both. The first is cleaner; the second is ten lines.
 
