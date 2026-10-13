@@ -50,6 +50,9 @@ try {
   // l=all: the default Gross layer hides the fee and tax rows.
   await open(page, '?l=all');
   check((await bars(page)) === EXPECTED_RECORDS, `loaded ${await bars(page)} bars, expected ${EXPECTED_RECORDS}`);
+  // The plot area must fill its box; V21 once shipped a squeezed plot.
+  const fill = await page.evaluate(() => { const el = document.getElementById('chart') as any; return el._fullLayout._size.w / el.clientWidth; });
+  check(fill > 0.6, `the plot fills only ${(fill * 100).toFixed(0)}% of the chart width`);
 
   // ── 2. The overview's list buttons keep their reset (border 0, no fill) ────
   // Without the `.li` reset they render as grey native buttons; V21 shipped that once.
@@ -85,6 +88,13 @@ try {
   await page.click('#youForm button[type="submit"]');
   await page.waitForFunction((n) => (document.getElementById('chart') as any).data[0].x.length === n, before + 1, { timeout: 5_000 }).catch(() => {});
   check((await bars(page)) === before + 1, 'the "Where do I sit?" form did not add a bar');
+  // The link reopens it placed and pinned, and it ignores the category filters.
+  const youName = new URL(page.url()).searchParams.get('yn');
+  await open(page, new URL(page.url()).search);
+  const youNames = await page.evaluate(() => (document.getElementById('chart') as any).data[0].x as string[]);
+  check(youName && youNames.includes(youName) && (await page.locator('#insp.pinned .insp-title').textContent()) === youName, 'the "You" link does not reopen placed and pinned');
+  await page.click('#cats [data-quick="none"]');
+  check(youName && (await page.evaluate(() => (document.getElementById('chart') as any).data[0].x as string[])).includes(youName), 'the "You" bar disappears under the None category filter');
   check(new URL(page.url()).searchParams.has('ym'), 'the "You" row is not in the URL');
 
   // ── 6. Comparison search and compare mode ──────────────────────────────────
