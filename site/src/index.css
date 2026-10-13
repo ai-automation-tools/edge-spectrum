@@ -258,6 +258,16 @@ kbd.key { font-family: var(--font-mono); font-size: 10.5px; padding: 2px 5px; bo
 /* Theme switch focus: the 2px accent ring at 60% replaces the global outline. */
 .theme-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent); }
 
+/*
+  Phones only (Tailwind's sm breakpoint, so desktop is untouched). Unlayered, so these beat the
+  layered text-xs / h-6 utilities: iOS zooms the page on focus of any field under 16px, and the
+  28x24 theme switch is too small to tap.
+*/
+@media (max-width: 639.98px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: 16px; }
+  .theme-btn { width: 36px; height: 32px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
