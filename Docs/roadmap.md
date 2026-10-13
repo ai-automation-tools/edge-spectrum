@@ -226,7 +226,7 @@ Phase 7: Public Launch ⚪
 5. [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender**
    - **Tool:** Interactive game prompting users to estimate mathematical edges on common wagers and investments, followed by a portfolio blender tool combining positive and negative edge assets.
 
-6. [ ] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page**
+6. [x] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page** 🟢 (2026-10-13: `?embed=1` hides everything but the chart and a caption carrying the helpline and an "open the full tool" link to the same view; the chart fills the iframe's height instead of growing past it. Checked at 700×450 with no scroll. Bars carry no name labels, so a reader identifies them by hover — pair an embed with a narrow `q` filter.)
    - **Tool:** `?embed=1` hides the hub nav, header, controls and footer and shows the chart plus a one-line caption, so a preset view can sit in an iframe on a blog post or a partner page. The view is already a URL (V21), so this is a CSS class and a "open the full tool" link.
 
 7. [ ] 🟡 **Action 6.7 — Share Card per Activity**

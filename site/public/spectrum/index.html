@@ -13,6 +13,8 @@
             var t = 'dark';
             try { if (localStorage.getItem('edge-spectrum.theme') === 'light') t = 'light'; } catch (e) {}
             document.documentElement.classList.add(t);
+            // ?embed=1 is the iframe view (Action 6.6): the chart and a caption, nothing else.
+            if (new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
         })();
     </script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
@@ -261,6 +263,15 @@
 
         .light body { background-image: radial-gradient(rgba(0,0,0,0.07) 1.2px, transparent 0); }
 
+        /* ── Embed (?embed=1) ── */
+        .embed-cap { display: none; }
+        .embed .hub-nav, .embed .hdr, .embed .controls, .embed .cats, .embed .stats-row, .embed .insp, .embed .footer, .embed .chart-hint { display: none; }
+        .embed .content { padding: 0; }
+        .embed .viz { grid-template-columns: 1fr; }
+        .embed .embed-cap { display: block; margin: 0; padding: 8px 12px; font-size: 0.62rem; color: var(--text-dim); line-height: 1.5; }
+        .embed .embed-cap a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .embed .embed-cap b { color: var(--text-main); }
+
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
         /* ── Responsive ── */
@@ -391,6 +402,9 @@
         <aside class="insp" id="insp" aria-live="polite"></aside>
     </div>
 </main>
+
+<p class="embed-cap"><b>The Edge Spectrum</b> &middot; <a id="embedOpen" href="./index.html" target="_blank" rel="noopener">Open the full tool &rarr;</a> &middot;
+    Education only, not advice. Gambling problem? <a href="tel:1-800-426-2537">US 1-800-GAMBLER</a> &middot; <a href="https://www.gamblingtherapy.org/" target="_blank" rel="noopener noreferrer">GamblingTherapy.org</a></p>
 
 <footer class="footer">
     <div>V21 &mdash; THE EDGE SPECTRUM &bull; OCTOBER 2026</div>
@@ -853,6 +867,9 @@ function writeUrl() {
     }
     if (S.cats.size !== ALL_CATS.length) p.set('cats', ALL_CATS.map((c, i) => S.cats.has(c) ? i : -1).filter(i => i >= 0).join(','));
     if (S.pin) p.set('pin', S.pin);
+    // The "open the full tool" link is this same view without the embed flag.
+    document.getElementById('embedOpen').href = location.pathname + (p.toString() ? '?' + p : '');
+    if (EMBED) p.set('embed', '1');
     const qs = p.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }
@@ -952,10 +969,15 @@ function updateStats(data) {
 // ══════════════════════════
 const chartEl = document.getElementById('chart');
 const COARSE = matchMedia('(pointer: coarse)').matches;
+const EMBED = document.documentElement.classList.contains('embed');
+// Touch screens have no drag-zoom (see renderChart), so do not promise one.
+if (COARSE) document.querySelector('.chart-hint').textContent = 'tap a bar to pin';
 // The chart grows with the plotted span so a +4,600% ten-year bar does not squash everything
 // else into a few pixels: 1x the base height at a few percent, about 2x at a one-year span,
 // and 3x (the cap) at ten years. Base is the old fixed height, 58% of the viewport within limits.
 function chartHeight(span) {
+    // An iframe has a fixed height of its own; fill it rather than make it scroll.
+    if (EMBED) return Math.max(240, window.innerHeight - chartEl.getBoundingClientRect().top - document.querySelector('.embed-cap').offsetHeight);
     const base = Math.min(760, Math.max(420, window.innerHeight * 0.58));
     const factor = Math.min(3, Math.max(1, 1 + Math.log10(Math.max(span, 1) / 50)));
     return Math.round(base * factor);
