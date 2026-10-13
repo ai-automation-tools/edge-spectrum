@@ -15,6 +15,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { EDGE_CATEGORIES } from '../src/data/edges';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PAGE = resolve(HERE, '../public/spectrum/index.html');
@@ -46,16 +47,17 @@ type Page = {
   ruinRisk: (r: Row) => number | null;
   kellyMultiple: (r: Row) => number | null;
   realReturn: (nominal: number, h: string) => number;
+  CC: Record<string, string>;
 };
 
 // eslint-disable-next-line no-eval
 const page = eval(
   `(() => {\n${section('// MATH & CONSTANTS', '// DATA INJECTION')}\n` +
     `${section('const RAW = [', '\nconst AR_DEFAULT')}\n` +
-    'return { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn };\n})()',
+    'return { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, CC };\n})()',
 ) as Page;
 
-const { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn } = page;
+const { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, CC } = page;
 
 const failures: string[] = [];
 const fail = (msg: string) => failures.push(msg);
@@ -66,6 +68,25 @@ if (RAW.length !== EXPECTED_RECORDS) {
   fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (update Docs/roadmap.md if intentional)`);
 }
 if (RUIN_FLOOR !== -100) fail(`RUIN_FLOOR is ${RUIN_FLOOR}; total capital loss is −100% by definition`);
+
+// ── 1b. Every category has a colour and a risk level (Action 2.12) ────────────
+// The page's CC / AR_DEFAULT and the Streamlit archive's ALL_CATS / CC / AR_DEFAULT
+// are hand-kept; a category missing from one falls back to grey or "LOW" silently.
+const AR_DEFAULT = JSON.parse(section('const AR_DEFAULT = ', ';').slice('const AR_DEFAULT = '.length)) as Record<string, number>;
+const py = readFileSync(resolve(HERE, '../../Versions/Streamlit/data.py'), 'utf8');
+const pyKeys = (name: string) => {
+  const a = py.indexOf(`\n${name} = `);
+  if (a < 0) throw new Error(`check:spectrum — Versions/Streamlit/data.py no longer defines ${name}`);
+  const body = py.slice(a, py.indexOf('\n\n', a));
+  return new Set([...body.matchAll(/"([^"]+)"/g)].map((k) => k[1]));
+};
+const maps: [string, Set<string>][] = [
+  ['page CC', new Set(Object.keys(CC))], ['page AR_DEFAULT', new Set(Object.keys(AR_DEFAULT))],
+  ['Streamlit ALL_CATS', pyKeys('ALL_CATS')], ['Streamlit CC', pyKeys('CC')], ['Streamlit AR_DEFAULT', pyKeys('AR_DEFAULT')],
+];
+for (const cat of new Set([...EDGE_CATEGORIES, ...RAW.map((r) => r.cat)])) {
+  for (const [name, keys] of maps) if (!keys.has(cat)) fail(`category "${cat}" is missing from ${name}`);
+}
 
 // ── 2. Every row is well-formed for the measure its mode selects ─────────────
 for (const r of RAW) {
