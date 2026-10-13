@@ -79,6 +79,10 @@ and moving `ALL_CATS` to be read off `RAW`; `check:spectrum` passes unchanged.
   moneyline rows to the backtester with that bet type. Props, futures and parlays get no backtester
   link because the simulator does not price them.
 - `Docs/methodology.md` gains Metric D (ruin risk, Kelly multiple) and the real-terms note.
+- **Chart height follows the plotted span** (third pass). `chartHeight()` scales the base height (58% of
+  the viewport, 420-760 px) by `1 + log10(span / 50)`, clamped to 1x-3x: about 580 px at one day,
+  1,190 px at one year and 1,720 px (the cap) at ten years, so the bars between +50% and +500% are
+  readable beside a +4,600% one instead of being a flat line.
 
 ---
 
