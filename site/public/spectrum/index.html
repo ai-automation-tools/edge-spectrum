@@ -360,7 +360,7 @@
         <span class="ctl-label">Find</span>
         <label class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="search" id="q" placeholder="Filter by name… e.g. S&amp;P, parlay, slots" autocomplete="off" aria-label="Filter activities by name">
+            <input type="search" id="q" placeholder="Filter by name — commas compare, e.g. slots, S&amp;P 500 Index" autocomplete="off" aria-label="Filter activities by name; separate several names with commas to compare them">
             <kbd>/</kbd>
         </label>
     </div>
@@ -806,7 +806,7 @@ function readUrl(p = new URLSearchParams(location.search)) {
     if (LAYERS.includes(p.get('l'))) S.l = p.get('l');
     if (COLORS.includes(p.get('c'))) S.color = p.get('c');
     if (SORTS.includes(p.get('s'))) S.sort = p.get('s');
-    if (p.has('q')) S.q = p.get('q').slice(0, 60);
+    if (p.has('q')) S.q = p.get('q').slice(0, 120);
     if (p.get('r') === '0') S.ruin = false;
     if (p.get('lb') === '0') S.labels = false;
     if (p.get('real') === '1') S.real = true;
@@ -866,7 +866,9 @@ function getFilteredData() {
     // shown on that axis rather than being given a fabricated value.
     if (S.m === 'turn') d = d.filter(x => x.m === 'g');
     if (S.l !== 'all') d = d.filter(x => x.ly === 'raw' || x.ly === S.l);
-    if (S.q) { const q = S.q.toLowerCase(); d = d.filter(x => x.n.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)); }
+    // Comma-separated terms are ORed, so "slots, S&P 500 Index" puts both side by side.
+    const terms = S.q.toLowerCase().split(',').map(t => t.trim()).filter(Boolean);
+    if (terms.length) d = d.filter(x => terms.some(q => x.n.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)));
     // The reader's own row ignores the filters: it is the point of reference, not a record.
     if (YOU && (S.m === 'roc' || YOU.m === 'g')) d.push(YOU);
     const byVal = (a, b) => val(b) - val(a);
@@ -1370,7 +1372,7 @@ function init() {
 
     document.querySelectorAll('.seg [data-k]').forEach(b => b.onclick = () => { S[b.dataset.k] = b.dataset.v; update(); });
     document.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () => { S[b.dataset.toggle] = !S[b.dataset.toggle]; update(); });
-    document.getElementById('q').oninput = e => { S.q = e.target.value.slice(0, 60); update(); };
+    document.getElementById('q').oninput = e => { S.q = e.target.value.slice(0, 120); update(); };
     document.getElementById('btnShare').onclick = share;
     const ci = (...names) => names.map(n => ALL_CATS.indexOf(n)).filter(i => i >= 0).join(',');
     const PRESETS = [
