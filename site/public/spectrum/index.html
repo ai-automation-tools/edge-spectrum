@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edge Spectrum | V20</title>
+    <title>Edge Spectrum | V21</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script>
         // Apply the stored theme before first paint. Same key and same dark fallback as the
@@ -24,6 +24,7 @@
             --bg: #060606;
             --surface: rgba(24,24,27,0.45);
             --surface-elevated: #0e0e11;
+            --surface-hover: #161619;
             --border: rgba(63,63,70,0.45);
             --border-hover: rgba(63,63,70,0.9);
             --text-main: #f4f4f5;
@@ -39,6 +40,7 @@
             --radius-lg: 12px;
             --nav-bg: rgba(6,6,6,.85);
             --nav-line: rgba(39,39,42,.7);
+            --mono: 'JetBrains Mono', ui-monospace, monospace;
             color-scheme: dark;
         }
 
@@ -48,6 +50,7 @@
             --bg: #f6f6f7;
             --surface: rgba(255,255,255,0.72);
             --surface-elevated: #ffffff;
+            --surface-hover: #f4f4f5;
             --border: rgba(212,212,216,0.9);
             --border-hover: #a1a1aa;
             --text-main: #18181b;
@@ -63,291 +66,26 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
+
+        body {
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             background-image: radial-gradient(rgba(255,255,255,0.035) 1.2px, transparent 0);
-            background-size: 24px 24px; 
-            color: var(--text-main); 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
+            background-size: 24px 24px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
             flex-direction: column;
             -webkit-font-smoothing: antialiased;
         }
-
-        /* ── Header ── */
-        .hdr {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 32px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            z-index: 1000;
-        }
-        .hdr-brand { display: flex; flex-direction: column; }
-        .hdr h1 { 
-            font-size: 1.25rem; 
-            font-weight: 800; 
-            letter-spacing: -0.04em; 
-            background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.5));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hdr p { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
-        
-        .legend { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
-        .legend-grad { 
-            width: 120px; height: 4px; border-radius: 2px; 
-            background: linear-gradient(90deg, var(--success), #a3e635, var(--warning), #fb923c, var(--danger));
-            box-shadow: 0 0 10px rgba(74, 222, 128, 0.1);
-        }
-
-        /* ── App Shell ── */
-        .main-container {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-        }
-
-        /* ── Sidebar / Controls ── */
-        .sidebar {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            overflow-y: auto;
-        }
-
-        .section-label { 
-            font-size: 0.55rem; 
-            font-weight: 800; 
-            color: var(--text-dim); 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-        /* ── Custom Dropdown ── */
-        .dd { position: relative; width: 100%; }
-        .dd-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: var(--surface-elevated);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            color: var(--text-main);
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .dd-btn:hover { border-color: var(--border-hover); background: #161616; }
-        .dd.open .dd-btn { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-        .dd-btn .caret { font-size: 0.6rem; opacity: 0.5; transition: transform 0.3s; }
-        .dd.open .caret { transform: rotate(180deg); }
-
-        .dd-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            width: 100%;
-            background: #0f0f0f;
-            border: 1px solid var(--border-hover);
-            border-radius: var(--radius-lg);
-            z-index: 2000;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            overflow: hidden;
-            animation: slideIn 0.2s ease-out;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .dd.open .dd-menu { display: block; }
-
-        .dd-item {
-            padding: 10px 14px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.1s;
-        }
-        .dd-item:hover { background: rgba(255,255,255,0.03); color: var(--text-main); }
-        .dd-item.active { color: var(--accent); font-weight: 600; background: var(--accent-glow); }
-        .dd-item .dot { width: 8px; height: 8px; border-radius: 50%; }
-        
-        .dd-item.toggle { position: relative; padding-left: 38px; }
-        .dd-item.toggle::before { 
-            content: ''; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); 
-            width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--border-hover); 
-            background: var(--surface); transition: all 0.2s; 
-        }
-        .dd-item.toggle.on::before { background: var(--accent); border-color: var(--accent); }
-        .dd-item.toggle.on::after { 
-            content: ''; position: absolute; left: 18px; top: 50%; transform: translateY(-50%) rotate(45deg); 
-            width: 3px; height: 7px; border: solid #fff; border-width: 0 1.5px 1.5px 0; margin-top: -1px; 
-        }
-
-        /* ── Grid Pill Selector ── */
-        .pill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .pbtn {
-            padding: 8px 4px;
-            background: var(--surface-elevated);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        .pbtn:hover { border-color: var(--border-hover); color: var(--text-main); }
-        .pbtn.active { 
-            background: var(--accent); color: #fff; border-color: var(--accent); 
-            box-shadow: 0 4px 12px var(--accent-glow);
-        }
-
-        /* ── Content Area ── */
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg);
-            padding: 24px;
-            gap: 24px;
-            min-width: 0;
-        }
-
-        /* ── Stat Cards ── */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            transition: transform 0.2s;
-        }
-        .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-        .stat-label { font-size: 0.6rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-value { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 1.1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* ── Chart Container ── */
-        .chart-container {
-            flex: 1;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .chart-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chart-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
-        .chart-title::before { content: ''; width: 4px; height: 12px; background: var(--accent); border-radius: 2px; }
-        .chart-sub { font-size: 0.6rem; font-weight: 500; color: var(--text-dim); margin-top: 4px; padding-left: 12px; }
-        .section-note { font-size: 0.55rem; line-height: 1.5; color: var(--text-dim); font-weight: 500; margin-top: 8px; }
-
-        #chart { flex: 1; min-height: 0; width: 100%; }
-
-        /* ── Tooltip ── */
-        .tt {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 18px;
-            width: 420px;
-            max-height: 85vh;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-            pointer-events: none;
-            overflow: hidden;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .tt-hdr { padding: 20px 24px; border-bottom: 1px solid var(--border); }
-        .tt-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
-        .tt-meta { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-        
-        .tt-body { overflow-y: auto; max-height: calc(85vh - 100px); }
-        .tt-section { padding: 16px 24px; border-bottom: 1px solid var(--border); }
-        .tt-section:last-child { border-bottom: none; }
-        .tt-sec-label { font-size: 0.55rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
-
-        .tt-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
-        .tt-row-label { font-size: 0.75rem; color: var(--text-muted); }
-        .tt-row-val { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; font-weight: 600; color: var(--text-main); }
-
-        .tt-hz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
-        .tt-hz-item { 
-            padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .footer-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-        .tt-hz-item.active { background: var(--accent-glow); border-color: var(--accent); }
-        .tt-hz-lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
-        .tt-hz-val { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; }
-
-        .tt-ruin-box { 
-            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); 
-            border-radius: var(--radius-lg); padding: 16px; margin-top: 8px;
-        }
-        .tt-ruin-val { font-size: 1.25rem; font-weight: 900; color: var(--danger); letter-spacing: -0.02em; margin-bottom: 8px; }
-        .tt-meter { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin: 12px 0 8px; }
-        .tt-meter-fill { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* ── Footer ── */
-        .footer { 
-            padding: 10px 32px; font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
-            background: var(--bg); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px 16px;
-        }
-
-        /* ── Animations ── */
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* ── Light-theme overrides for rules that carry literal dark values ── */
-        .light body { background-image: radial-gradient(rgba(0,0,0,0.07) 1.2px, transparent 0); }
-        .light .hdr h1 { background: linear-gradient(135deg, #09090b 40%, rgba(9,9,11,0.6)); -webkit-background-clip: text; background-clip: text; }
-        .light .dd-btn:hover { background: #f4f4f5; }
-        .light .dd-menu { background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
-        .light .dd-item:hover { background: rgba(0,0,0,0.04); }
-        .light .tt { background: rgba(255,255,255,0.97); border-color: rgba(0,0,0,0.1); box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04); }
-        .light .tt-hz-item { background: rgba(0,0,0,0.03); }
-        .light .tt-meter { background: rgba(0,0,0,0.08); }
+        button { font: inherit; color: inherit; }
+        button:focus-visible, input:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
 
         /* ── Hub nav + theme switch (same control as the hub's top bar) ── */
         .hub-nav { display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 20px; border-bottom: 1px solid var(--nav-line); background: var(--nav-bg); font: 13px Inter, system-ui, sans-serif; }
         .hub-nav a { text-decoration: none; white-space: nowrap; }
         .hub-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-main); font-weight: 600; }
-        .hub-crumb { color: #52525b; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+        .hub-crumb { color: #52525b; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
         .light .hub-crumb { color: var(--text-dim); }
         .hub-back { margin-left: auto; color: var(--text-muted); }
         .hub-cta, .hub-accent { color: var(--accent); }
@@ -357,30 +95,182 @@
         .light .theme-toggle button { color: #63636b; }
         .theme-toggle button:hover, .theme-toggle button[aria-pressed="true"] { color: var(--text-main); }
         .theme-toggle button[aria-pressed="true"] { background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
-        .theme-toggle button:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(56,189,248,.6); }
-        .light .theme-toggle button:focus-visible { box-shadow: 0 0 0 2px rgba(3,105,161,.6); }
         .theme-toggle svg { width: 13px; height: 13px; }
-        /* Phone widths: drop the decorative crumb, then the setup link (also on the hub home), so the switch fits. */
         @media (max-width: 640px) { .hub-crumb { display: none; } }
         @media (max-width: 480px) { .hub-cta { display: none; } .hub-nav { padding: 0 16px; } }
 
-        /* ── Mobile UI ── */
-        @media (max-width: 1024px) {
-            .sidebar { width: 220px; padding: 16px; }
+        /* ── Page header ── */
+        .hdr { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding: 22px 28px 14px; }
+        .hdr h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+        .hdr h1 span { color: var(--accent); }
+        .hdr p { font-size: 0.74rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; max-width: 60ch; line-height: 1.5; }
+        .hdr-meta { font-family: var(--mono); font-size: 0.62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+        .hdr-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .abtn {
+            display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px;
+            background: var(--surface-elevated); border: 1px solid var(--border); border-radius: var(--radius-md);
+            color: var(--text-muted); font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+        }
+        .abtn:hover { border-color: var(--border-hover); color: var(--text-main); background: var(--surface-hover); }
+        .abtn svg { width: 13px; height: 13px; }
+
+        /* ── Controls bar ── */
+        .controls {
+            display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px;
+            padding: 12px 28px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            background: var(--surface); backdrop-filter: blur(12px);
+        }
+        .ctl { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .ctl-label { font-size: 0.55rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+        .seg { display: inline-flex; flex-wrap: wrap; padding: 3px; gap: 2px; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); }
+        .seg button {
+            height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent;
+            color: var(--text-muted); font-size: 0.68rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+            transition: background .15s, color .15s;
+        }
+        .seg button:hover { color: var(--text-main); }
+        .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
+        .seg button.icon { width: 28px; padding: 0; font-size: 0.7rem; }
+        .seg .tog[aria-pressed="true"] { background: var(--accent-glow); color: var(--accent); box-shadow: none; }
+        .search { position: relative; }
+        .search input {
+            height: 32px; width: 220px; padding: 0 30px 0 30px; background: var(--surface-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius-md); color: var(--text-main); font-size: 0.72rem;
+        }
+        .search input::placeholder { color: var(--text-dim); }
+        .search svg { position: absolute; left: 10px; top: 50%; width: 13px; height: 13px; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+        .search kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 0.55rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+        .ctl.grow { margin-left: auto; }
+
+        /* ── Category chips ── */
+        .cats { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 12px 28px 0; }
+        .chip {
+            --c: #a1a1aa;
+            display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px 0 8px;
+            background: color-mix(in srgb, var(--c) 14%, transparent); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+            border-radius: 999px; color: var(--text-main); font-size: 0.68rem; font-weight: 600; cursor: pointer;
+            transition: background .15s, border-color .15s, color .15s, opacity .15s;
+        }
+        .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px color-mix(in srgb, var(--c) 60%, transparent); }
+        .chip .n { font-family: var(--mono); font-size: 0.58rem; color: var(--text-muted); font-weight: 500; }
+        .chip[aria-pressed="false"] { background: transparent; border-color: var(--border); color: var(--text-dim); }
+        .chip[aria-pressed="false"] .dot { background: var(--text-dim); box-shadow: none; }
+        .chip[aria-pressed="false"] .n { color: var(--text-dim); }
+        .chip:hover { border-color: var(--c); }
+        .quick { display: inline-flex; gap: 2px; margin-right: 6px; }
+        .quick button { height: 28px; padding: 0 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-elevated); color: var(--text-muted); font-size: 0.62rem; font-weight: 600; cursor: pointer; }
+        .quick button:hover { color: var(--text-main); border-color: var(--border-hover); }
+
+        /* ── Content ── */
+        .content { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px 28px 24px; min-width: 0; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; transition: border-color .2s;
+        }
+        .stat-card:hover { border-color: var(--border-hover); }
+        .stat-label { font-size: 0.58rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+        .stat-value { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-sub { font-size: 0.62rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .viz { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+
+        .chart-container {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .chart-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+        .chart-title { font-size: 0.78rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .chart-title::before { content: ''; width: 4px; height: 12px; background: var(--accent); border-radius: 2px; }
+        .chart-sub { font-size: 0.62rem; font-weight: 500; color: var(--text-muted); margin-top: 4px; padding-left: 12px; line-height: 1.5; max-width: 70ch; }
+        .key { display: flex; gap: 12px; align-items: center; justify-content: flex-end; font-family: var(--mono); font-size: 0.58rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+        .key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+        #chart { height: clamp(420px, 58vh, 760px); width: 100%; }
+        .chart-hint { margin-top: 6px; font-family: var(--mono); font-size: 0.55rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
+        .empty { position: absolute; inset: 60px 0 0; display: none; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.8rem; text-align: center; padding: 24px; }
+        .chart-container.is-empty .empty { display: flex; }
+
+        /* ── Inspector ── */
+        .insp {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+            position: sticky; top: 12px; max-height: calc(100vh - 24px); display: flex; flex-direction: column;
+        }
+        .insp.pinned { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .insp-hdr { padding: 16px 20px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+        .insp-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+        .insp-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: 0.66rem; font-weight: 600; color: var(--text-muted); margin-top: 6px; }
+        .badge { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; font-family: var(--mono); font-size: 0.55rem; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--border); color: var(--text-muted); }
+        .badge.c { --c: #a1a1aa; color: var(--c); border-color: color-mix(in srgb, var(--c) 50%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
+        .pin-btn { flex: none; height: 26px; padding: 0 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-elevated); color: var(--text-muted); font-size: 0.62rem; font-weight: 600; cursor: pointer; }
+        .pin-btn:hover { color: var(--text-main); border-color: var(--border-hover); }
+        .insp-body { overflow-y: auto; }
+        .insp-sec { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+        .insp-sec:last-child { border-bottom: none; }
+        .sec-label { font-size: 0.55rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+        .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0; }
+        .row-label { font-size: 0.72rem; color: var(--text-muted); }
+        .row-val { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--text-main); text-align: right; }
+        .hz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .hz {
+            padding: 7px 10px; background: var(--surface-elevated); border-radius: 8px; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: border-color .15s;
+        }
+        .hz:hover { border-color: var(--border-hover); }
+        .hz.active { background: var(--accent-glow); border-color: var(--accent); }
+        .hz-lbl { font-size: 0.58rem; font-weight: 700; color: var(--text-muted); }
+        .hz-val { font-family: var(--mono); font-size: 0.64rem; font-weight: 700; }
+        .ruin-box { background: color-mix(in srgb, var(--danger) 8%, transparent); border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent); border-radius: var(--radius-lg); padding: 14px; }
+        .ruin-box.ok { background: color-mix(in srgb, var(--success) 8%, transparent); border-color: color-mix(in srgb, var(--success) 25%, transparent); }
+        .ruin-val { font-size: 1.15rem; font-weight: 900; color: var(--danger); letter-spacing: -0.02em; margin-bottom: 6px; }
+        .ruin-box.ok .ruin-val { color: var(--success); }
+        .meter { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 10px 0 6px; }
+        .meter-fill { height: 100%; border-radius: 3px; transition: width .5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .fine { font-size: 0.62rem; color: var(--text-muted); line-height: 1.5; }
+        .cite { font-size: 0.66rem; color: var(--text-muted); line-height: 1.55; }
+        .cite b { color: var(--text-main); font-weight: 600; }
+        .list { display: flex; flex-direction: column; gap: 2px; }
+        .li { display: flex; align-items: center; gap: 9px; width: calc(100% + 16px); padding: 6px 8px; margin: 0 -8px; border: 0; background: transparent; border-radius: 8px; cursor: pointer; font-size: 0.7rem; text-align: left; }
+        .li:hover { background: var(--surface-hover); }
+        .li .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+        .li .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .li .v { font-family: var(--mono); font-size: 0.66rem; font-weight: 700; }
+        .hint { font-size: 0.66rem; color: var(--text-dim); line-height: 1.6; }
+        .hint kbd { font-family: var(--mono); font-size: 0.58rem; border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; color: var(--text-muted); }
+
+        /* ── Footer ── */
+        .footer {
+            padding: 10px 28px; font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+            background: var(--bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px 16px;
+        }
+        .footer-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+        .toast {
+            position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+            background: var(--surface-elevated); border: 1px solid var(--border-hover); color: var(--text-main);
+            padding: 9px 14px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; box-shadow: 0 20px 40px rgba(0,0,0,.4);
+            transition: opacity .2s, transform .2s; z-index: 50; max-width: calc(100% - 32px);
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        .light body { background-image: radial-gradient(rgba(0,0,0,0.07) 1.2px, transparent 0); }
+
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+        /* ── Responsive ── */
+        @media (max-width: 1100px) {
+            .viz { grid-template-columns: 1fr; }
+            .insp { position: static; max-height: none; }
             .stats-row { grid-template-columns: repeat(2, 1fr); }
         }
-
         @media (max-width: 768px) {
-            body { overflow-y: auto; height: auto; }
-            .main-container { flex-direction: column; height: auto; }
-            .sidebar { width: 100%; height: auto; overflow: visible; border-right: none; border-bottom: 1px solid var(--border); }
-            .content { padding: 16px; height: auto; }
-            .stats-row { grid-template-columns: 1fr; }
-            .chart-container { height: 500px; }
-            .hdr { padding: 12px 16px; }
-            .tt { width: calc(100% - 32px); left: 16px !important; bottom: 16px !important; top: auto !important; position: fixed; }
-            .tt-hz-grid { grid-template-columns: 1fr; }
+            .hdr, .controls, .cats, .content, .footer { padding-left: 16px; padding-right: 16px; }
+            .ctl.grow { margin-left: 0; width: 100%; }
+            .search input { width: 100%; }
+            #chart { height: 420px; }
         }
+        @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -396,124 +286,108 @@
 </nav>
 
 <header class="hdr">
-    <div class="hdr-brand">
-        <h1>THE EDGE SPECTRUM</h1>
-        <p>RE-DEFINING THE BOUNDARY OF EXPECTED RETURNS</p>
+    <div>
+        <div class="hdr-meta" id="hdrMeta">Loading…</div>
+        <h1>The Edge <span>Spectrum</span></h1>
+        <p>Every held asset and repeated wager on one floored axis. Pick a horizon, hover a bar to read it, click to pin it, and switch measures to see the cost of turnover that the capital axis cannot show.</p>
     </div>
-    <div class="legend">
-        <span>PLAYER</span>
-        <div class="legend-grad"></div>
-        <span>HOUSE</span>
+    <div class="hdr-actions">
+        <button type="button" class="abtn" id="btnShare" title="Copy a link to this exact view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Share view</button>
+        <button type="button" class="abtn" id="btnCsv" title="Download the activities in view, all horizons, as CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
+        <button type="button" class="abtn" id="btnPng" title="Download the chart as a PNG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>PNG</button>
     </div>
 </header>
 
-<div class="main-container">
-    <aside class="sidebar">
-        <div class="sidebar-section">
-            <h3 class="section-label">Category Filter</h3>
-            <div class="dd" id="catDD">
-                <button class="dd-btn" id="catBtn">
-                    <span>11 Selected</span>
-                    <span class="caret">&#9662;</span>
-                </button>
-                <div class="dd-menu" id="catMenu">
-                    <div class="dd-item cat-all" data-f="all">Toggle All</div>
-                    <!-- Categories will be injected here -->
-                </div>
-            </div>
+<section class="controls" aria-label="Chart controls">
+    <div class="ctl">
+        <span class="ctl-label">Measure</span>
+        <div class="seg" role="group" aria-label="Measure">
+            <button type="button" data-k="m" data-v="roc">Return on capital</button>
+            <button type="button" data-k="m" data-v="turn">Turnover cost</button>
         </div>
-
-        <div class="sidebar-section">
-            <h3 class="section-label">Measure</h3>
-            <div class="pill-grid" id="metricGrid">
-                <button class="pbtn active" data-m="roc">ON CAPITAL</button>
-                <button class="pbtn" data-m="turn">TURNOVER COST</button>
-            </div>
-            <p class="section-note" id="metricNote"></p>
+    </div>
+    <div class="ctl">
+        <span class="ctl-label">Horizon <span style="font-weight:500;letter-spacing:0;text-transform:none">· ← → keys</span></span>
+        <div class="seg" role="group" aria-label="Time horizon">
+            <button type="button" data-k="h" data-v="1du">Single event</button>
+            <button type="button" data-k="h" data-v="1day">1 day</button>
+            <button type="button" data-k="h" data-v="1wk">1 wk</button>
+            <button type="button" data-k="h" data-v="1mo">1 mo</button>
+            <button type="button" data-k="h" data-v="1yr">1 yr</button>
+            <button type="button" data-k="h" data-v="5yr">5 yr</button>
+            <button type="button" data-k="h" data-v="10yr">10 yr</button>
+            <button type="button" class="icon tog" id="btnPlay" aria-pressed="false" aria-label="Play through horizons" title="Play through the horizons">▶</button>
         </div>
-
-        <div class="sidebar-section">
-            <h3 class="section-label">Time Horizon</h3>
-            <div class="pill-grid" id="timeGrid">
-                <button class="pbtn" data-t="1du">SINGLE EVENT</button>
-                <button class="pbtn" data-t="1day">1 DAY</button>
-                <button class="pbtn" data-t="1wk">1 WEEK</button>
-                <button class="pbtn" data-t="1mo">1 MONTH</button>
-                <button class="pbtn active" data-t="1yr">1 YEAR</button>
-                <button class="pbtn" data-t="5yr">5 YEARS</button>
-                <button class="pbtn" data-t="10yr">10 YEARS</button>
-            </div>
-            <p class="section-note">
-                A horizon is elapsed calendar time, not a count of decisions. Games accumulate
-                wagers at their own frequency; held assets simply stay held. &ldquo;Single event&rdquo;
-                means <strong>one wager</strong> for a game and <strong>one trading day</strong>
-                for a held asset &mdash; the two are not the same unit.
-            </p>
+    </div>
+    <div class="ctl">
+        <span class="ctl-label">Layer</span>
+        <div class="seg" role="group" aria-label="Projection layer">
+            <button type="button" data-k="l" data-v="raw">Gross</button>
+            <button type="button" data-k="l" data-v="fee">+ Fees</button>
+            <button type="button" data-k="l" data-v="tax">+ Tax</button>
+            <button type="button" data-k="l" data-v="all">All</button>
         </div>
-
-        <div class="sidebar-section" id="layerSection">
-            <h3 class="section-label">Projection Layer</h3>
-            <div class="pill-grid" id="layerGrid">
-                <button class="pbtn active" data-l="raw">RAW</button>
-                <button class="pbtn" data-l="fees">FEES</button>
-                <button class="pbtn" data-l="tax">TAX</button>
-                <button class="pbtn" data-l="all">OVERLAY</button>
-            </div>
+    </div>
+    <div class="ctl">
+        <span class="ctl-label">Color</span>
+        <div class="seg" role="group" aria-label="Bar colour">
+            <button type="button" data-k="color" data-v="sign">Gain / loss</button>
+            <button type="button" data-k="color" data-v="cat">Category</button>
         </div>
-
-        <div class="sidebar-section">
-            <h3 class="section-label">Insights & Overlays</h3>
-            <div class="dd" id="insDD">
-                <button class="dd-btn" id="insBtn">
-                    <span>Configuration</span>
-                    <span class="caret">&#9662;</span>
-                </button>
-                <div class="dd-menu" id="insMenu">
-                    <div class="dd-item toggle" data-ins="dca">Dollar Cost ($100/wk)</div>
-                    <div class="dd-item toggle" data-ins="risk">Addiction Modeling</div>
-                    <div class="dd-item toggle" data-ins="ruin">Ruin Point Overlay</div>
-                </div>
-            </div>
+    </div>
+    <div class="ctl">
+        <span class="ctl-label">Sort</span>
+        <div class="seg" role="group" aria-label="Sort order">
+            <button type="button" data-k="sort" data-v="value">Value</button>
+            <button type="button" data-k="sort" data-v="category">Category</button>
+            <button type="button" data-k="sort" data-v="name">Name</button>
         </div>
-    </aside>
-
-    <main class="content">
-        <div class="stats-row">
-            <div class="stat-card">
-                <span class="stat-label" id="mCL">Total Assets</span>
-                <span class="stat-value" id="mC">0</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label" id="mBL">Peak Performer</span>
-                <span class="stat-value" id="mB" style="color: var(--success)">—</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label" id="mWL">Maximum Drain</span>
-                <span class="stat-value" id="mW" style="color: var(--danger)">—</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label" id="mSL">Ruined By Horizon</span>
-                <span class="stat-value" id="mS" style="color: var(--warning)">—</span>
-            </div>
+    </div>
+    <div class="ctl">
+        <span class="ctl-label">Overlays</span>
+        <div class="seg" role="group" aria-label="Overlays">
+            <button type="button" class="tog" data-toggle="ruin" aria-pressed="true" title="Mark every activity whose bankroll is expected to be gone before the horizon ends">✕ Ruin marks</button>
+            <button type="button" class="tog" data-toggle="labels" aria-pressed="true" title="Print values on the bars when 40 or fewer are shown">Labels</button>
         </div>
+    </div>
+    <div class="ctl grow">
+        <span class="ctl-label">Find</span>
+        <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="search" id="q" placeholder="Filter by name… e.g. S&amp;P, parlay, slots" autocomplete="off" aria-label="Filter activities by name">
+            <kbd>/</kbd>
+        </label>
+    </div>
+</section>
 
-        <div class="chart-container">
+<section class="cats" id="cats" aria-label="Categories"></section>
+
+<main class="content">
+    <div class="stats-row">
+        <div class="stat-card"><span class="stat-label" id="mCL">Activities shown</span><span class="stat-value" id="mC">0</span><span class="stat-sub" id="mCS"></span></div>
+        <div class="stat-card"><span class="stat-label" id="mBL">Peak performer</span><span class="stat-value" id="mB" style="color: var(--success)">—</span><span class="stat-sub" id="mBS"></span></div>
+        <div class="stat-card"><span class="stat-label" id="mWL">Maximum drain</span><span class="stat-value" id="mW" style="color: var(--danger)">—</span><span class="stat-sub" id="mWS"></span></div>
+        <div class="stat-card"><span class="stat-label" id="mSL">Ruined by horizon</span><span class="stat-value" id="mS" style="color: var(--warning)">—</span><span class="stat-sub" id="mSS"></span></div>
+    </div>
+
+    <div class="viz">
+        <div class="chart-container" id="chartBox">
             <div class="chart-header">
                 <div>
                     <div class="chart-title" id="mTitle">Return on Capital (%)</div>
                     <div class="chart-sub" id="mSub"></div>
                 </div>
-                <div style="font-size: 0.6rem; color: var(--text-dim); font-weight: 700;">LIVE CALCULATION &bull; V20.0</div>
+                <div style="text-align:right"><div class="key" id="key"></div><div class="chart-hint">drag to zoom · double-click to reset</div></div>
             </div>
             <div id="chart"></div>
+            <div class="empty">Nothing matches. Turn a category back on or clear the filter.</div>
         </div>
-    </main>
-</div>
-
-<div class="tt" id="tt"></div>
+        <aside class="insp" id="insp" aria-live="polite"></aside>
+    </div>
+</main>
 
 <footer class="footer">
-    <div>V20 &mdash; THE EDGE SPECTRUM &bull; AUGUST 2026</div>
+    <div>V21 &mdash; THE EDGE SPECTRUM &bull; OCTOBER 2026</div>
     <div style="letter-spacing: 0.05em; opacity: 0.5;">RETURN ON CAPITAL FLOORS AT &minus;100% &bull; TURNOVER COST DOES NOT</div>
     <div class="footer-rg" style="flex-basis: 100%; font-weight: 500; letter-spacing: 0.02em; line-height: 1.6;">
         For education only &mdash; not investment, financial or betting advice. Gambling is for adults (18+ or 21+ where you live).
@@ -524,6 +398,8 @@
         <a href="https://www.gamblingtherapy.org/" target="_blank" rel="noopener noreferrer">Worldwide: GamblingTherapy.org</a>.
     </div>
 </footer>
+
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 // ══════════════════════════
@@ -567,7 +443,6 @@ const HZ = ['1du','1day','1wk','1mo','1yr','5yr','10yr'];
 const HZ_LBL = {'1du':'SINGLE EVENT','1day':'1 DAY','1wk':'1 WEEK','1mo':'1 MONTH','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
 const HZ_DAYS = {'1du':0,'1day':1,'1wk':7,'1mo':30,'1yr':365,'5yr':1825,'10yr':3650};
 const I_Y = {'1du':1/252,'1day':1/252,'1wk':1/52,'1mo':1/12,'1yr':1,'5yr':5,'10yr':10};
-const DCA_AMT = {'1du':100,'1day':100,'1wk':100,'1mo':430,'1yr':5200,'5yr':26000,'10yr':52000};
 
 // The "single event" horizon means different things to a game and to a held asset, so
 // it is never labelled generically on a row that knows which it is.
@@ -576,19 +451,19 @@ const horizonBasis = (r, h) => r.m === 'g'
     ? fmtCount(decisionCount(r.du, h)) + (decisionCount(r.du, h) === 1 ? ' wager' : ' wagers')
     : (h === '1du' || h === '1day') ? '1 trading day held' : fmtNum(I_Y[h]) + ' years held';
 
-const ALL_CATS = ["Cash & Savings","Stock Market","Bonds","Real Estate","Cryptocurrency","Collectibles","Precious Metals","Insurance & Annuities","Sports Betting","Casino Gambling","Poker & Skill-Based","Prediction Markets","Lottery"];
+// Category colours. Categories themselves are read off the dataset below (ALL_CATS).
 const CC = {
     "Cash & Savings":"#34d399","Stock Market":"#3b82f6","Bonds":"#06b6d4","Real Estate":"#8b5cf6",
     "Cryptocurrency":"#f59e0b","Collectibles":"#d97706","Precious Metals":"#fbbf24",
-    "Insurance & Annuities":"#ec4899",
-    "Sports Betting":"#22c55e","Casino Gambling":"#a855f7",
+    "Insurance & Annuities":"#ec4899","Trading & Derivatives":"#f97316",
+    "Sports Betting":"#22c55e","Horse Racing & Pari-Mutuel":"#84cc16","Casino Gambling":"#a855f7",
     "Poker & Skill-Based":"#14b8a6","Prediction Markets":"#6366f1","Lottery":"#f43f5e"
 };
 
 // ══════════════════════════
-// DATA INJECTION (From V18)
+// DATA INJECTION
 // ══════════════════════════
-// Note: We'll use the same raw data but wrap it in our pre-computation layer
+// The RAW block is GENERATED from site/src/data/edges.ts by `npm run gen:edges` — do not hand-edit.
 const RAW = [
   // --- STOCK MARKET (Compound) ---
   {n:"NASDAQ 100 (QQQ)",cat:"Stock Market",g:"Stock Market",m:"i",a:12.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -656,6 +531,7 @@ const RAW = [
   {n:"International Bond (BNDX)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Short-Term Treasury (SHY)",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"TIPS Inflation-Protected (TIP)",cat:"Bonds",g:"Bonds",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Private Credit / BDC Index (BIZD)",cat:"Bonds",g:"Bonds",m:"i",a:9.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Representative long-run total return of listed business development companies; high distribution yield offset by NAV erosion and credit losses. Approximate."},
   {n:"Bond Fund After 1% Advisory Fee",cat:"Bonds",g:"Bonds",m:"i",a:2.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Bond Interest After Income Tax (37%)",cat:"Bonds",g:"Bonds",m:"i",a:2.21,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Muni Bonds Tax-Exempt (Effective)",cat:"Bonds",g:"Bonds",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -683,6 +559,9 @@ const RAW = [
   {n:"DeFi LP Volatile Pairs",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Altcoin Portfolio (Retail)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Meme Coins (Retail Avg)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-70.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Staked Ethereum (ETH + Staking Yield)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:13.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Ethereum spot figure plus a ~3% native staking yield; ignores slashing and liquidity risk. Approximate."},
+  {n:"Leveraged Perpetual Futures (Retail Avg)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:-60.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Representative annual outcome for retail accounts trading 10x-plus perpetual swaps: funding costs plus liquidation losses. Approximate."},
+  {n:"Bitcoin Spot ETF After 0.25% Fee (IBIT)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:44.75,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Bitcoin spot figure less the 0.25% sponsor fee of the largest US spot ETF."},
   {n:"Bitcoin After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:36.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Bitcoin After STCG Tax (37%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:28.35,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Ethereum After LTCG Tax (20%)",cat:"Cryptocurrency",g:"Cryptocurrency",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -726,13 +605,29 @@ const RAW = [
   {n:"Annuity Gains After Ordinary Income Tax (37%)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:2.65,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Whole Life Cash Value (Tax-Free via Policy Loans)",cat:"Insurance & Annuities",g:"Insurance & Annuities",m:"i",a:3.5,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
 
+  // --- TRADING & DERIVATIVES (Mixed) ---
+  {n:"Covered Call ETF (JEPI/QYLD)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:7.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Representative total return of option-overwriting equity income ETFs: high distributions, capped upside. Approximate."},
+  {n:"Systematic Put Writing (PUTW)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Long-run total return of a rules-based cash-secured S&P 500 put-writing index. Approximate."},
+  {n:"Managed Futures / Trend Following (DBMF)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Representative long-run return of diversified trend-following CTAs net of fees. Approximate."},
+  {n:"3x Leveraged Nasdaq Held (TQQQ)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Path-dependent: daily 3x rebalancing carries volatility decay, so the realised figure swings from strongly positive in a bull run to deeply negative across a drawdown. Rough bull-market average."},
+  {n:"Retail Day Trading (Avg)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:-15.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Barber, Lee, Liu & Odean, 'Do Day Traders Rationally Learn About Their Ability?' (2014); Chague, De-Losso & Giovannetti, 'Day Trading for a Living?' (2020)",asOf:"2026-10-12",how:"The large majority of retail day traders lose money net of costs in every market studied; the figure is a round representative annual loss, not a measured index."},
+  {n:"Retail Options Buying (Avg)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:-20.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Short-dated call and put buying by retail accounts shows persistent aggregate losses after bid-ask spreads and time decay. Approximate."},
+  {n:"Retail Forex / CFD Trading (Avg)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:-25.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"ESMA retail CFD intervention measures; mandated broker risk warnings (74-89% of retail CFD accounts lose money)",asOf:"2026-10-12",how:"Representative annual loss consistent with the loss-rate disclosures regulators require brokers to publish. Approximate."},
+  {n:"0DTE Options Buying (Retail)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:-40.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"Same-day-expiry contracts bought outright: time decay and spread make the expected hold-to-expiry outcome sharply negative. Approximate."},
+  {n:"Inverse / Short ETF Held (SQQQ)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"i",a:-60.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",asOf:"2026-10-12",how:"A −3x daily index fund held through a rising market: leverage decay plus the index's own drift. Approximate long-run realised figure."},
+  {n:"Binary Options (Offshore)",cat:"Trading & Derivatives",g:"Trading & Derivatives",m:"g",e:-10.0,du:10,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"A typical offshore binary pays 70-85% on a win and loses 100% on a loss; at a 50% strike the expected loss per contract is 8-15% of stake."},
+
   // --- SPORTS BETTING (Linear) ---
+  {n:"Sharp Bettor (+2% Closing Line Value)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:2.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"A bettor who consistently beats the closing line by 2% after the vig; the small minority of accounts books limit. Representative, not an index."},
+  {n:"Betting Exchange (2% Commission)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-1.0,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Betfair Exchange market base rate (2% of net winnings per market)",asOf:"2026-10-12",how:"Commission is charged on net winnings only, so at even money the expected cost is about half the rate, i.e. 1% of stake."},
+  {n:"Reduced Juice Line (-105)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-2.38,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Two-way market priced at -105 each side: 2 × 51.22% = 102.44% implied; hold on handle = 2.44 / 102.44 = 2.38%."},
   {n:"Single Game Spread (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Single Game O/U (-110)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Moneyline (Standard Juice)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-4.55,du:2,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Teaser 2-Team 6pt",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-5.0,du:1,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Live / In-Game Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-6.5,du:5,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Player Prop Bet",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-7.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Micro-Bet (Next Play / Next Pitch)",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-9.0,du:20,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"In-play micro markets are typically priced with an 8-10% hold, roughly double a standard -110 two-way line. Approximate."},
   {n:"Season Win Total Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-8.0,du:0.05,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"2-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-10.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Championship Future",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-12.0,du:0.03,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
@@ -746,27 +641,42 @@ const RAW = [
   {n:"8-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-30.0,du:0.2,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"10-Team Parlay",cat:"Sports Betting",g:"Sports Betting",m:"g",e:-35.0,du:0.1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
 
+  // --- HORSE RACING & PARI-MUTUEL (Linear) ---
+  {n:"Horse Racing with 8% ADW Rebate",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-12.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"A ~20% exotic takeout less an 8% advance-deposit-wagering volume rebate; rebates of 5-10% are common for high-volume players."},
+  {n:"Horse Racing Win / Place / Show",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-17.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Horseplayers Association of North America (HANA) track takeout ratings",asOf:"2026-10-12",how:"Typical US win/place/show pool takeout is 15-20%; the midpoint is used."},
+  {n:"Horse Racing Exacta / Daily Double",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-20.0,du:2,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Horseplayers Association of North America (HANA) track takeout ratings",asOf:"2026-10-12",how:"Typical US two-horse exotic pool takeout is 18-22%; the midpoint is used."},
+  {n:"Greyhound Racing",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-20.0,du:3,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Pari-mutuel takeout at the remaining US and UK dog tracks, 18-25% across pools. Approximate."},
+  {n:"Horse Racing Trifecta / Superfecta",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-25.0,du:2,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Horseplayers Association of North America (HANA) track takeout ratings",asOf:"2026-10-12",how:"Typical US multi-horse exotic pool takeout is 22-26%."},
+  {n:"Horse Racing Pick 4 / Pick 6",cat:"Horse Racing & Pari-Mutuel",g:"Horse Racing & Pari-Mutuel",m:"g",e:-25.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Multi-race pools carry the same 22-26% takeout as the exotics; occasional carryovers lower it. Approximate."},
+
   // --- CASINO GAMBLING (Linear) ---
+  {n:"Blackjack Card Counting (Skilled)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:1.0,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Card counting (wizardofodds.com/games/blackjack/card-counting/); Thorp, Beat the Dealer (1962)",asOf:"2026-10-12",how:"Typical long-run advantage of a competent Hi-Lo counter with a 1-8 bet spread on a 6-deck shoe, +0.5% to +1.5%; the midpoint is used."},
+  {n:"Spanish 21 (Dealer Stands Soft 17)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.4,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Spanish 21 (wizardofodds.com/games/spanish-21/)",asOf:"2026-10-12",how:"House edge with the dealer standing on soft 17 under optimal strategy."},
   {n:"Video Poker 9/6 JoB",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.46,du:80,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Blackjack 3:2 Basic Strategy",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-0.5,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Baccarat Banker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.06,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Crypto Dice (1% House Edge)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.0,du:1000,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Provably-fair dice sites advertise a 1% edge; auto-bet modes run hundreds of rolls an hour, which is what makes the time to ruin so short."},
   {n:"Baccarat Player",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.24,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Craps Don't Pass",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.36,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Craps Pass Line",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-1.41,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Blackjack 6:5",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.0,du:60,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
-  {n:"Craps Field (3:1 on 12)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.78,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Ultimate Texas Hold'em",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.19,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Ultimate Texas Hold'em (wizardofodds.com/games/ultimate-texas-hold-em/)",asOf:"2026-10-12",how:"House edge relative to the Ante bet under optimal strategy."},
+  {n:"Craps Field (3:1 on 12)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.78,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)",asOf:"2026-10-07",how:"Exact single-roll expectation; 2 pays 2:1 and 12 pays 3:1, per bet made."},
   {n:"Pai Gow Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Roulette Single Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.7,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Sic Bo Big / Small",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.78,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Sic Bo (wizardofodds.com/games/sic-bo/)",asOf:"2026-10-12",how:"Exact single-roll expectation: Big and Small pay even money and lose to any triple, 105 wins against 111 losses of 216 outcomes."},
+  {n:"Casino War",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-2.88,du:50,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Casino War (wizardofodds.com/games/casino-war/)",asOf:"2026-10-12",how:"Six decks, always going to war on a tie, no tie side bet."},
   {n:"Three Card Poker",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.4,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Let It Ride",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-3.5,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Online Slots 96% RTP",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-4.0,du:600,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Published return-to-player of a typical regulated online slot is 94-97%; online spin rates run higher than a casino floor."},
   {n:"Slots Loose 95%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Caribbean Stud",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.2,du:30,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Roulette Double Zero",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-5.26,du:40,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Slots Average 92%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-8.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Slots Tight 85%",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-15.0,du:500,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
-  {n:"Baccarat Tie (8:1)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-14.36,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Baccarat Tie (8:1)",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-14.36,du:50,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Baccarat basics (wizardofodds.com/games/baccarat/basics/)",asOf:"2026-10-07",how:"Exact combinatorial analysis of an 8-deck shoe; Tie pays 8 to 1."},
   {n:"Big Six Wheel",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-16.0,du:20,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
-  {n:"Craps Any Seven",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-16.67,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Craps Any Seven",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-16.67,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)",asOf:"2026-10-07",how:"Exact single-roll expectation; pays 4 to 1, per bet made."},
   {n:"Keno 4-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-28.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Keno 10-Spot",cat:"Casino Gambling",g:"Casino Gambling",m:"g",e:-35.0,du:10,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
 
@@ -796,20 +706,26 @@ const RAW = [
   {n:"PredictIt US Politics",cat:"Prediction Markets",g:"Prediction Markets",m:"g",e:-10.0,du:1,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
 
   // --- LOTTERY (Linear) ---
+  {n:"Pull-Tab Tickets",cat:"Lottery",g:"Lottery",m:"g",e:-20.0,du:1,ced:0.3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Charitable pull-tab deals are manufactured to a fixed 75-85% payout; the midpoint is used."},
   {n:"$1 Scratch-Off Best Odds",cat:"Lottery",g:"Lottery",m:"g",e:-25.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Bingo Hall Session",cat:"Lottery",g:"Lottery",m:"g",e:-25.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"Commercial and charity bingo halls return roughly 70-80% of card sales as prizes. Approximate."},
   {n:"Premium Scratch-Off $20+",cat:"Lottery",g:"Lottery",m:"g",e:-30.0,du:0.5,ced:1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Scratch-Off Tickets Avg",cat:"Lottery",g:"Lottery",m:"g",e:-35.0,du:0.5,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Keno State-Run",cat:"Lottery",g:"Lottery",m:"g",e:-40.0,du:2,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Daily Numbers Game",cat:"Lottery",g:"Lottery",m:"g",e:-42.0,du:1,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"State Pick 6 / Lotto",cat:"Lottery",g:"Lottery",m:"g",e:-45.0,du:0.15,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"State Lottery Pick 3/4",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,du:0.5,ced:0.3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"EuroMillions",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",src:"EuroMillions game procedures: 50% of ticket revenue is allocated to the prize fund",asOf:"2026-10-12",how:"Expected return equals the prize-fund share of sales, ignoring unclaimed prizes."},
+  {n:"Charity 50/50 Raffle",cat:"Lottery",g:"Lottery",m:"g",e:-50.0,du:0.05,ced:0.5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",asOf:"2026-10-12",how:"By construction half the pot goes to the single winner and half to the cause."},
   {n:"Powerball / Mega Millions",cat:"Lottery",g:"Lottery",m:"g",e:-52.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Multi-State Cash4Life",cat:"Lottery",g:"Lottery",m:"g",e:-55.0,du:0.1,ced:0.1,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
 ];
 
-const AR_DEFAULT = {"Cash & Savings":1,"Stock Market":1,"Bonds":1,"Real Estate":1,"Cryptocurrency":3,"Collectibles":1,"Precious Metals":1,"Insurance & Annuities":1,"Sports Betting":4,"Casino Gambling":3,"Poker & Skill-Based":3,"Prediction Markets":2,"Lottery":3};
+const AR_DEFAULT = {"Cash & Savings":1,"Stock Market":1,"Bonds":1,"Real Estate":1,"Cryptocurrency":3,"Collectibles":1,"Precious Metals":1,"Insurance & Annuities":1,"Trading & Derivatives":3,"Sports Betting":4,"Horse Racing & Pari-Mutuel":4,"Casino Gambling":3,"Poker & Skill-Based":3,"Prediction Markets":2,"Lottery":3};
 const AR_CLR = {1:'#22c55e',2:'#84cc16',3:'#eab308',4:'#f97316',5:'#ef4444'};
 const AR_LBL = {1:'MINIMAL',2:'LOW',3:'MEDIUM',4:'HIGH',5:'EXTREME'};
+const ALL_CATS = [...new Set(RAW.map(r => r.cat))];
+const LAYER_LBL = { raw: 'Gross', fee: 'After fees', tax: 'After tax' };
 
 // ══════════════════════════
 // PRE-COMPUTE
@@ -824,49 +740,84 @@ const D = RAW.map(r => {
     const rd = ruinDecisions(r);
     return {...r, v, t, rd, ruinDays: rd === null ? null : rd / r.du, decay90: decayYears90(r), ar: AR_DEFAULT[r.cat] || 2};
 });
+const byName = new Map(D.map(d => [d.n, d]));
 
 // ══════════════════════════
-// STATE & CONTROLS
+// STATE
 // ══════════════════════════
 const METRICS = {
     roc: {
-        title: 'Return on Capital (%)',
+        title: 'Return on Capital (%)', short: 'Return on capital',
         sub: 'What one bankroll does. Floored at &minus;100% &mdash; a bar on the floor is a bankroll that is gone.',
-        note: 'Return on the capital you actually staked, floored at &minus;100%. The only measure that compares a held asset to a wagering activity on one axis.',
         get: (d, h) => d.v[h],
-        labels: ['Activities Shown','Peak Performer','Maximum Drain','Ruined By Horizon'],
+        labels: ['Activities shown','Peak performer','Maximum drain','Ruined by horizon'],
     },
     turn: {
-        title: 'Expected Turnover Cost (% of starting bankroll)',
+        title: 'Expected Turnover Cost (% of starting bankroll)', short: 'Turnover cost',
         sub: 'Wagering activities only. Flat stakes, reloaded on ruin &mdash; deliberately unbounded, so it is never plotted beside a capital return.',
-        note: 'Cumulative expected loss at constant turnover, as a multiple of the starting bankroll. Passes &minus;100% because it assumes you keep reloading.',
         get: (d, h) => d.t[h],
-        labels: ['Wagering Activities','Cheapest Turnover','Costliest Turnover','Median Cost'],
+        labels: ['Wagering activities','Cheapest turnover','Costliest turnover','Median cost'],
     },
 };
+const LAYERS = ['raw','fee','tax','all'];
+const SORTS = ['value','category','name'];
+const COLORS = ['sign','cat'];
 
-let catSet = new Set(ALL_CATS.filter(c => c !== "Casino Gambling" && c !== "Poker & Skill-Based"));
-let timeF = '1yr', layerF = 'raw', metricF = 'roc';
-let showDCA = false, showRisk = false, showRuin = true;
+const S = { h: '1yr', m: 'roc', l: 'raw', color: 'sign', sort: 'value', q: '', ruin: true, labels: true, cats: new Set(ALL_CATS), pin: null };
+let hovered = null;   // transient: the bar under the cursor while nothing is pinned
+let playTimer = null;
 
-const isAllCats = () => catSet.size === ALL_CATS.length;
-const val = d => METRICS[metricF].get(d, timeF);
-const isRuined = d => d.rd !== null && d.rd <= decisionCount(d.du, timeF);
+// The view is a URL, so a view can be sent. Defaults are omitted to keep links short.
+function readUrl() {
+    const p = new URLSearchParams(location.search);
+    if (HZ.includes(p.get('h'))) S.h = p.get('h');
+    if (METRICS[p.get('m')]) S.m = p.get('m');
+    if (LAYERS.includes(p.get('l'))) S.l = p.get('l');
+    if (COLORS.includes(p.get('c'))) S.color = p.get('c');
+    if (SORTS.includes(p.get('s'))) S.sort = p.get('s');
+    if (p.has('q')) S.q = p.get('q').slice(0, 60);
+    if (p.get('r') === '0') S.ruin = false;
+    if (p.get('lb') === '0') S.labels = false;
+    if (p.has('cats')) {
+        const idx = p.get('cats') === '' ? [] : p.get('cats').split(',').map(Number);
+        S.cats = new Set(ALL_CATS.filter((c, i) => idx.includes(i)));
+    }
+    if (p.has('pin') && byName.has(p.get('pin'))) S.pin = p.get('pin');
+}
+function writeUrl() {
+    const p = new URLSearchParams();
+    if (S.h !== '1yr') p.set('h', S.h);
+    if (S.m !== 'roc') p.set('m', S.m);
+    if (S.l !== 'raw') p.set('l', S.l);
+    if (S.color !== 'sign') p.set('c', S.color);
+    if (S.sort !== 'value') p.set('s', S.sort);
+    if (S.q) p.set('q', S.q);
+    if (!S.ruin) p.set('r', '0');
+    if (!S.labels) p.set('lb', '0');
+    if (S.cats.size !== ALL_CATS.length) p.set('cats', ALL_CATS.map((c, i) => S.cats.has(c) ? i : -1).filter(i => i >= 0).join(','));
+    if (S.pin) p.set('pin', S.pin);
+    const qs = p.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+}
+
+const val = d => METRICS[S.m].get(d, S.h);
+const isRuined = d => d.rd !== null && d.rd <= decisionCount(d.du, S.h);
 
 function getFilteredData() {
-    let d = D.filter(x => catSet.has(x.cat));
+    let d = D.filter(x => S.cats.has(x.cat));
     // Turnover cost is a property of turnover; held assets have none, so they are not
     // shown on that axis rather than being given a fabricated value.
-    if (metricF === 'turn') d = d.filter(x => x.m === 'g');
-    if (layerF !== 'all') {
-        if (layerF === 'raw') d = d.filter(x => x.ly === 'raw');
-        else d = d.filter(x => x.ly === 'raw' || x.ly === layerF);
-    }
-    return d.sort((a,b) => val(b) - val(a));
+    if (S.m === 'turn') d = d.filter(x => x.m === 'g');
+    if (S.l !== 'all') d = d.filter(x => x.ly === 'raw' || x.ly === S.l);
+    if (S.q) { const q = S.q.toLowerCase(); d = d.filter(x => x.n.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)); }
+    const byVal = (a, b) => val(b) - val(a);
+    if (S.sort === 'name') return d.sort((a, b) => a.n.localeCompare(b.n));
+    if (S.sort === 'category') return d.sort((a, b) => ALL_CATS.indexOf(a.cat) - ALL_CATS.indexOf(b.cat) || byVal(a, b));
+    return d.sort(byVal);
 }
 
 // ══════════════════════════
-// UI UPDATES
+// FORMATTING
 // ══════════════════════════
 function formatValue(v) {
     if (v === null || !isFinite(v)) return '—';
@@ -879,7 +830,6 @@ function fmtCount(n) {
     if (n >= 1000) return Math.round(n).toLocaleString();
     return Number.isInteger(n) ? String(n) : fmtNum(n);
 }
-
 // Decisions to ruin, rendered as a duration a human can picture.
 function fmtDuration(days) {
     if (days < 1) return (days * 24).toFixed(1) + ' hours';
@@ -887,65 +837,94 @@ function fmtDuration(days) {
     if (days < 730) return fmtNum(days / 30.44) + ' months';
     return fmtNum(days / 365) + ' years';
 }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const signColor = v => v === null ? 'var(--text-dim)' : v >= 0 ? 'var(--success)' : 'var(--danger)';
 
-function updateStats() {
-    const data = getFilteredData();
-    const m = METRICS[metricF];
-    const vals = data.map(val).filter(v => v !== null && isFinite(v));
-    ['mCL','mBL','mWL','mSL'].forEach((id, i) => document.getElementById(id).textContent = m.labels[i]);
-    document.getElementById('mC').textContent = data.length;
-    document.getElementById('mB').textContent = vals.length ? formatValue(Math.max(...vals)) : '—';
-    document.getElementById('mW').textContent = vals.length ? formatValue(Math.min(...vals)) : '—';
-
-    if (metricF === 'roc') {
-        const ruined = data.filter(isRuined).length;
-        document.getElementById('mS').textContent = ruined + ' of ' + data.length;
-    } else {
-        const sorted = [...vals].sort((a,b) => a-b);
-        document.getElementById('mS').textContent = sorted.length ? formatValue(sorted[Math.floor(sorted.length/2)]) : '—';
-    }
-    document.getElementById('mTitle').textContent = m.title;
-    document.getElementById('mSub').innerHTML = m.sub;
-    document.getElementById('metricNote').innerHTML = m.note;
-}
-
-// Chart and tooltip colours follow the theme switch in the nav. Plotly takes literal colours,
+// Chart and inspector colours follow the theme switch in the nav. Plotly takes literal colours,
 // so each theme gets its own set; the light set uses the 600/700 shades.
 const isLight = () => document.documentElement.classList.contains('light');
 const PLOT_INK = {
-    dark:  { up: 'rgba(34, 197, 94, 0.7)', down: 'rgba(239, 68, 68, 0.7)', edge: 'rgba(255,255,255,0.1)', grid: 'rgba(255,255,255,0.05)', zero: 'rgba(251, 191, 36, 0.4)', tick: '#71717a', ruin: '#ef4444', ruinEdge: '#fca5a5', floor: 'rgba(239, 68, 68, 0.45)', floorText: 'rgba(239, 68, 68, 0.8)' },
-    light: { up: 'rgba(22, 163, 74, 0.75)', down: 'rgba(220, 38, 38, 0.72)', edge: 'rgba(0,0,0,0.12)', grid: 'rgba(0,0,0,0.07)', zero: 'rgba(180, 83, 9, 0.5)', tick: '#63636b', ruin: '#b91c1c', ruinEdge: '#7f1d1d', floor: 'rgba(185, 28, 28, 0.5)', floorText: '#b91c1c' }
+    dark:  { up: 'rgba(34, 197, 94, 0.75)', down: 'rgba(239, 68, 68, 0.72)', edge: 'rgba(255,255,255,0.08)', grid: 'rgba(255,255,255,0.05)', zero: 'rgba(251, 191, 36, 0.4)', tick: '#71717a', ruin: '#ef4444', ruinEdge: '#fca5a5', floor: 'rgba(239, 68, 68, 0.45)', floorText: 'rgba(239, 68, 68, 0.8)', pin: '#38bdf8', hoverBg: '#0e0e11', hoverFg: '#f4f4f5', band: 0.045, bandText: '#a1a1aa' },
+    light: { up: 'rgba(22, 163, 74, 0.8)', down: 'rgba(220, 38, 38, 0.75)', edge: 'rgba(0,0,0,0.12)', grid: 'rgba(0,0,0,0.07)', zero: 'rgba(180, 83, 9, 0.5)', tick: '#63636b', ruin: '#b91c1c', ruinEdge: '#7f1d1d', floor: 'rgba(185, 28, 28, 0.5)', floorText: '#b91c1c', pin: '#0369a1', hoverBg: '#ffffff', hoverFg: '#18181b', band: 0.08, bandText: '#52525b' }
 };
 // Category and risk colours were picked for a dark ground; on light, darken them for legible text.
 const ink = c => isLight() ? `color-mix(in srgb, ${c} 55%, #000)` : c;
+const catColor = c => CC[c] || '#a1a1aa';
+const hexA = (hex, a) => `rgba(${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)},${a})`;
 
-function renderChart() {
+// ══════════════════════════
+// RENDER: STATS
+// ══════════════════════════
+function updateStats(data) {
+    const m = METRICS[S.m];
+    const vals = data.map(val).filter(v => v !== null && isFinite(v));
+    ['mCL','mBL','mWL','mSL'].forEach((id, i) => document.getElementById(id).textContent = m.labels[i]);
+    const best = data.length ? data.reduce((a, b) => val(b) > val(a) ? b : a) : null;
+    const worst = data.length ? data.reduce((a, b) => val(b) < val(a) ? b : a) : null;
+    document.getElementById('mC').textContent = data.length;
+    document.getElementById('mCS').textContent = `${data.filter(d => d.m === 'i').length} held · ${data.filter(d => d.m === 'g').length} wagered · ${new Set(data.map(d => d.cat)).size} categories`;
+    document.getElementById('mB').textContent = best ? formatValue(val(best)) : '—';
+    document.getElementById('mBS').textContent = best ? best.n : '';
+    document.getElementById('mW').textContent = worst ? formatValue(val(worst)) : '—';
+    document.getElementById('mWS').textContent = worst ? worst.n : '';
+    if (S.m === 'roc') {
+        const ruined = data.filter(isRuined).length;
+        document.getElementById('mS').textContent = ruined + ' of ' + data.length;
+        document.getElementById('mSS').textContent = ruined ? 'bankroll expected gone before ' + HZ_LBL[S.h].toLowerCase() + ' ends' : 'nothing reaches the floor at this horizon';
+    } else {
+        const sorted = [...vals].sort((a, b) => a - b);
+        document.getElementById('mS').textContent = sorted.length ? formatValue(sorted[Math.floor(sorted.length/2)]) : '—';
+        document.getElementById('mSS').textContent = 'median of the wagering activities shown';
+    }
+    document.getElementById('mTitle').textContent = m.title + ' · ' + HZ_LBL[S.h];
+    document.getElementById('mSub').innerHTML = m.sub;
+    document.getElementById('hdrMeta').textContent = `${D.length} activities · ${ALL_CATS.length} categories · 7 horizons · live calculation`;
+
     const P = PLOT_INK[isLight() ? 'light' : 'dark'];
-    const data = getFilteredData();
+    document.getElementById('key').innerHTML = S.color === 'sign'
+        ? `<span><i style="background:${P.up}"></i>gain</span><span><i style="background:${P.down}"></i>loss</span>${S.m === 'roc' && S.ruin ? `<span><b style="color:${P.ruin}">✕</b> ruined</span>` : ''}`
+        : `<span>coloured by category</span>${S.m === 'roc' && S.ruin ? `<span><b style="color:${P.ruin}">✕</b> ruined</span>` : ''}`;
+}
+
+// ══════════════════════════
+// RENDER: CHART
+// ══════════════════════════
+const chartEl = document.getElementById('chart');
+function renderChart(data) {
+    const P = PLOT_INK[isLight() ? 'light' : 'dark'];
+    document.getElementById('chartBox').classList.toggle('is-empty', data.length === 0);
     const names = data.map(d => d.n);
     const vals = data.map(val);
+    const focus = S.pin;
 
-    const colors = data.map(d => val(d) >= 0 ? P.up : P.down);
+    const colors = data.map(d => S.color === 'cat'
+        ? hexA(catColor(d.cat), isLight() ? 0.85 : 0.8)
+        : (val(d) >= 0 ? P.up : P.down));
+    const opacity = data.map(d => focus ? (d.n === focus ? 1 : 0.35) : 1);
+    const lineW = data.map(d => d.n === focus ? 2 : 1);
+    const lineC = data.map(d => d.n === focus ? P.pin : P.edge);
+    const showLabels = S.labels && data.length > 0 && data.length <= 40;
+    const hover = data.map(d => `<b>${esc(d.n)}</b><br>${esc(d.cat)} · ${d.type}${d.ly !== 'raw' ? ' · ' + LAYER_LBL[d.ly] : ''}<br>${METRICS[S.m].short}: <b>${formatValue(val(d))}</b>${S.m === 'roc' && isRuined(d) ? '<br>✕ ruined before this horizon ends' : ''}<br><i>click to pin</i>`);
 
     const traces = [{
         type: 'bar', x: names, y: vals, customdata: data,
-        marker: {
-            color: colors,
-            line: { color: P.edge, width: 1 }
-        },
-        hoverinfo: 'none'
+        marker: { color: colors, opacity, line: { color: lineC, width: lineW } },
+        text: showLabels ? data.map(d => (S.m === 'roc' && isRuined(d)) ? '' : formatValue(val(d))) : undefined,
+        textposition: 'outside', cliponaxis: false,
+        textfont: { family: 'JetBrains Mono', size: 9, color: P.tick },
+        hovertext: hover, hoverinfo: 'text'
     }];
 
     // The ruin marker rides on the primary chart rather than hiding in a tooltip: every
     // ✕ is an activity whose bankroll is expected to be gone before this horizon ends.
-    const ruined = metricF === 'roc' && showRuin ? data.filter(isRuined) : [];
+    const ruined = S.m === 'roc' && S.ruin ? data.filter(isRuined) : [];
     if (ruined.length) {
         traces.push({
             type: 'scatter', mode: 'markers',
             x: ruined.map(d => d.n), y: ruined.map(() => RUIN_FLOOR),
             customdata: ruined,
             marker: { symbol: 'x', size: 7, color: P.ruin, line: { color: P.ruinEdge, width: 1 } },
-            hoverinfo: 'none', cliponaxis: false
+            hoverinfo: 'skip', cliponaxis: false
         });
     }
 
@@ -956,270 +935,305 @@ function renderChart() {
     // The floor is drawn only once something has actually reached it. Pinning the axis
     // to -100% at every horizon would flatten the short-horizon views the same way the
     // unbounded turnover numbers used to flatten the long ones.
-    const onFloor = metricF === 'roc' && lo <= RUIN_FLOOR + 1e-9;
+    const onFloor = S.m === 'roc' && lo <= RUIN_FLOOR + 1e-9;
+    const shapes = [], annotations = [];
+    if (onFloor) {
+        shapes.push({ type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: RUIN_FLOOR, y1: RUIN_FLOOR, line: { color: P.floor, width: 1, dash: 'dot' } });
+        annotations.push({ xref: 'paper', x: 0, xanchor: 'left', yref: 'y', y: RUIN_FLOOR, yanchor: 'bottom', text: 'RUIN — TOTAL CAPITAL LOSS', showarrow: false, font: { family: 'JetBrains Mono', size: 8, color: P.floorText } });
+    }
+    // Sorted by category, each group gets a tinted band and, where it is wide enough, a name.
+    if (S.sort === 'category' && data.length) {
+        // A group gets a name only when it is wide enough on screen to carry one (~90px).
+        const minBars = Math.max(3, Math.ceil(data.length * 90 / Math.max(200, chartEl.clientWidth - 84)));
+        let start = 0;
+        for (let i = 1; i <= data.length; i++) {
+            if (i === data.length || data[i].cat !== data[start].cat) {
+                const c = catColor(data[start].cat);
+                shapes.push({ type: 'rect', xref: 'x', x0: start - 0.5, x1: i - 0.5, yref: 'paper', y0: 0, y1: 1, fillcolor: hexA(c, P.band), line: { width: 0 }, layer: 'below' });
+                if (i - start >= minBars) annotations.push({ xref: 'x', x: (start + i - 1) / 2, yref: 'paper', y: 1, yanchor: 'bottom', yshift: 4, text: data[start].cat.toUpperCase(), showarrow: false, font: { family: 'JetBrains Mono', size: 8, color: isLight() ? `rgb(${parseInt(c.slice(1,3),16)*0.55|0},${parseInt(c.slice(3,5),16)*0.55|0},${parseInt(c.slice(5,7),16)*0.55|0})` : c } });
+                start = i;
+            }
+        }
+    }
+
     const layout = {
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        margin: { l: 60, r: 20, t: 30, b: 20 },
-        xaxis: { showticklabels: false, showgrid: false, zeroline: false },
+        paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { l: 64, r: 20, t: S.sort === 'category' ? 34 : 24, b: 20 },
+        xaxis: { showticklabels: false, showgrid: false, zeroline: false, range: [-0.5, Math.max(0.5, data.length - 0.5)] },
         yaxis: {
-            gridcolor: P.grid,
-            zerolinecolor: P.zero,
-            tickfont: { family: 'Geist Mono', size: 10, color: P.tick },
-            ticksuffix: '%',
+            gridcolor: P.grid, zerolinecolor: P.zero,
+            tickfont: { family: 'JetBrains Mono', size: 10, color: P.tick }, ticksuffix: '%',
             // Total capital loss is the bottom of the world on the primary measure, so
             // once a bar is there the axis stops just below it rather than letting a
             // +4,000% ten-year crypto bar dictate how much empty space sits underneath.
-            range: onFloor ? [RUIN_FLOOR - Math.min(pad, 8), hi + pad] : [lo - pad, hi + pad]
+            range: onFloor ? [RUIN_FLOOR - Math.min(pad, 8), hi + pad * (showLabels ? 1.8 : 1)] : [lo - pad * (showLabels ? 1.8 : 1), hi + pad * (showLabels ? 1.8 : 1)]
         },
-        showlegend: false,
-        bargap: 0.15,
-        shapes: onFloor ? [{
-            type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: RUIN_FLOOR, y1: RUIN_FLOOR,
-            line: { color: P.floor, width: 1, dash: 'dot' }
-        }] : [],
-        annotations: onFloor ? [{
-            xref: 'paper', x: 0, xanchor: 'left', yref: 'y', y: RUIN_FLOOR, yanchor: 'bottom',
-            text: 'RUIN — TOTAL CAPITAL LOSS', showarrow: false,
-            font: { family: 'Geist Mono', size: 8, color: P.floorText }
-        }] : []
+        showlegend: false, bargap: data.length > 120 ? 0.1 : 0.2, dragmode: 'zoom',
+        hoverlabel: { bgcolor: P.hoverBg, bordercolor: P.pin, font: { family: 'Inter', size: 12, color: P.hoverFg }, align: 'left' },
+        shapes, annotations
     };
-
-    Plotly.newPlot('chart', traces, layout, { displayModeBar: false, responsive: true });
-
-    document.getElementById('chart').on('plotly_hover', ev => {
-        showTT(ev.points[0].customdata, ev.event);
-    });
-    document.getElementById('chart').on('plotly_unhover', hideTT);
+    Plotly.react(chartEl, traces, layout, { displayModeBar: false, responsive: true, doubleClick: 'reset', scrollZoom: false });
 }
 
 // ══════════════════════════
-// TOOLTIP RENDER
+// RENDER: INSPECTOR
 // ══════════════════════════
-const ttEl = document.getElementById('tt');
-function showTT(item, e) {
-    let hzHTML = '';
-    HZ.forEach(h => {
-        // A held asset's "single event" IS one trading day, so listing both would print
-        // the same number twice under two names — the conflation this fix exists to end.
-        if (h === '1du' && item.m === 'i') return;
-        const active = h === timeF ? 'active' : '';
+const inspEl = document.getElementById('insp');
+function hzGrid(item) {
+    return HZ.filter(h => !(h === '1du' && item.m === 'i')).map(h => {
         const v = item.v[h];
-        hzHTML += `
-            <div class="tt-hz-item ${active}">
-                <span class="tt-hz-lbl">${rowHzLabel(item, h)}</span>
-                <span class="tt-hz-val" style="color:${v>=0?'var(--success)':'var(--danger)'}">${formatValue(v)}</span>
-            </div>`;
-    });
-
-    // The three measures, side by side and named, so the floored and unfloored numbers
-    // can never again be mistaken for the same quantity.
-    const roc = item.v[timeF];
-    const turnover = item.t[timeF];
-    let measuresHTML = `
-        <div class="tt-row">
-            <span class="tt-row-label">Return on capital${roc <= RUIN_FLOOR ? ' <span style="color:var(--danger)">(at floor)</span>' : ''}</span>
-            <span class="tt-row-val" style="color:${roc>=0?'var(--success)':'var(--danger)'}">${formatValue(roc)}</span>
-        </div>
-        <div class="tt-row">
-            <span class="tt-row-label">Expected turnover cost</span>
-            <span class="tt-row-val" style="color:${turnover===null?'var(--text-dim)':turnover>=0?'var(--success)':'var(--danger)'}">${turnover === null ? 'n/a — held, not wagered' : formatValue(turnover)}</span>
-        </div>
-        <div class="tt-row">
-            <span class="tt-row-label">Horizon basis</span>
-            <span class="tt-row-val">${horizonBasis(item, timeF)}</span>
-        </div>`;
-
-    let insightHTML = '';
-    if (showRuin) {
-        let ruinHTML;
-        if (item.rd !== null) {
-            const pct = Math.max(4, Math.min(100, (decisionCount(item.du, timeF) / item.rd) * 100));
-            ruinHTML = `
-                <div class="tt-ruin-val">${fmtCount(item.rd)} wagers &rarr; $0</div>
-                <div class="tt-row"><span class="tt-row-label">Time to ruin at ${fmtNum(item.du)}/day</span><span class="tt-row-val">${fmtDuration(item.ruinDays)}</span></div>
-                <div class="tt-row"><span class="tt-row-label">Staked per wager</span><span class="tt-row-val">${fmtNum(item.ced)}% of bankroll</span></div>
-                <div class="tt-row"><span class="tt-row-label">Expected loss per wager</span><span class="tt-row-val">${formatValue((item.ced/100) * item.e)}</span></div>
-                <div class="tt-meter"><div class="tt-meter-fill" style="width:${pct}%;background:${pct>=100?'var(--danger)':'var(--warning)'}"></div></div>
-                <div style="font-size:0.6rem;color:var(--text-muted)">${pct >= 100 ? 'Bankroll is expected to be gone before this horizon ends.' : fmtNum(pct) + '% of the way to ruin at this horizon.'}</div>`;
-        } else if (item.decay90 !== null) {
-            ruinHTML = `
-                <div class="tt-ruin-val">${fmtNum(item.decay90)} years &rarr; &minus;90%</div>
-                <div style="font-size:0.6rem;color:var(--text-muted)">A held position erodes geometrically and never literally reaches $0; this is the time to lose nine tenths of it.</div>`;
-        } else {
-            ruinHTML = `<div class="tt-ruin-val" style="color:var(--success)">No ruin point</div>
-                <div style="font-size:0.6rem;color:var(--text-muted)">Positive expectation &mdash; capital is not being drained.</div>`;
-        }
-        insightHTML += `
-            <div class="tt-section">
-                <div class="tt-sec-label">Ruin Point</div>
-                <div class="tt-ruin-box">${ruinHTML}</div>
-            </div>`;
+        return `<button type="button" class="hz ${h === S.h ? 'active' : ''}" data-hz="${h}" title="Switch the chart to this horizon">
+            <span class="hz-lbl">${rowHzLabel(item, h)}</span>
+            <span class="hz-val" style="color:${signColor(v)}">${formatValue(v)}</span></button>`;
+    }).join('');
+}
+function ruinBox(item) {
+    if (item.rd !== null) {
+        const n = decisionCount(item.du, S.h);
+        const pct = Math.max(2, Math.min(100, (n / item.rd) * 100));
+        return `<div class="ruin-box">
+            <div class="ruin-val">${fmtCount(item.rd)} wagers &rarr; $0</div>
+            <div class="row"><span class="row-label">Time to ruin at ${fmtNum(item.du)}/day</span><span class="row-val">${fmtDuration(item.ruinDays)}</span></div>
+            <div class="row"><span class="row-label">Staked per wager</span><span class="row-val">${fmtNum(item.ced)}% of bankroll</span></div>
+            <div class="row"><span class="row-label">Expected loss per wager</span><span class="row-val">${formatValue((item.ced/100) * item.e)}</span></div>
+            <div class="meter"><div class="meter-fill" style="width:${pct}%;background:${pct>=100?'var(--danger)':'var(--warning)'}"></div></div>
+            <div class="fine">${pct >= 100 ? 'Bankroll is expected to be gone before this horizon ends.' : fmtNum(pct) + '% of the way to ruin at this horizon.'}</div></div>`;
     }
-    if (showRisk) {
-        insightHTML += `
-            <div class="tt-section">
-                <div class="tt-sec-label">Risk Modeling</div>
-                <div class="tt-row">
-                    <span class="tt-row-label">Addiction Risk</span>
-                    <span class="tt-row-val" style="color:${ink(AR_CLR[item.ar])}">${AR_LBL[item.ar]}</span>
+    if (item.decay90 !== null) {
+        return `<div class="ruin-box"><div class="ruin-val">${fmtNum(item.decay90)} years &rarr; &minus;90%</div>
+            <div class="fine">A held position erodes geometrically and never literally reaches $0; this is the time to lose nine tenths of it.</div></div>`;
+    }
+    return `<div class="ruin-box ok"><div class="ruin-val">No ruin point</div><div class="fine">Positive expectation &mdash; capital is not being drained.</div></div>`;
+}
+function inputsRows(item) {
+    return item.m === 'i'
+        ? `<div class="row"><span class="row-label">Model</span><span class="row-val">compound</span></div>
+           <div class="row"><span class="row-label">Annual return</span><span class="row-val" style="color:${signColor(item.a)}">${formatValue(item.a)}</span></div>`
+        : `<div class="row"><span class="row-label">Model</span><span class="row-val">linear, flat stakes</span></div>
+           <div class="row"><span class="row-label">Edge per wager</span><span class="row-val" style="color:${signColor(item.e)}">${formatValue(item.e)}</span></div>
+           <div class="row"><span class="row-label">Wagers per day</span><span class="row-val">${fmtNum(item.du)}</span></div>
+           <div class="row"><span class="row-label">Bankroll per wager</span><span class="row-val">${fmtNum(item.ced)}%</span></div>`;
+}
+function citeBlock(item) {
+    if (!item.src && !item.how && !item.asOf) return `<div class="cite" style="color:var(--text-dim)">No citation recorded yet for this figure. It is a representative estimate carried over from the original dataset.</div>`;
+    return `<div class="cite">
+        ${item.src ? `<div><b>Source</b> &middot; ${esc(item.src)}</div>` : ''}
+        ${item.how ? `<div style="margin-top:6px">${esc(item.how)}</div>` : ''}
+        ${item.asOf || item.win ? `<div style="margin-top:6px;font-family:var(--mono);font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim)">${item.win ? 'window ' + esc(item.win) + ' · ' : ''}${item.asOf ? 'verified ' + esc(item.asOf) : ''}</div>` : ''}
+    </div>`;
+}
+function renderItem(item, pinned) {
+    const roc = item.v[S.h], turnover = item.t[S.h];
+    inspEl.classList.toggle('pinned', pinned);
+    inspEl.innerHTML = `
+        <div class="insp-hdr">
+            <div>
+                <div class="insp-title">${esc(item.n)}</div>
+                <div class="insp-meta">
+                    <span class="badge c" style="--c:${ink(catColor(item.cat))}">${esc(item.cat)}</span>
+                    <span class="badge">${item.type}</span>
+                    ${item.ly !== 'raw' ? `<span class="badge">${LAYER_LBL[item.ly]}</span>` : ''}
                 </div>
-            </div>`;
-    }
-
-    ttEl.innerHTML = `
-        <div class="tt-hdr">
-            <div class="tt-title">${item.n}</div>
-            <div class="tt-meta">
-                <span style="color:${ink(CC[item.cat])}">${item.cat}</span>
-                <span>&bull;</span>
-                <span>${item.type}</span>
             </div>
+            <button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button>
         </div>
-        <div class="tt-body">
-            <div class="tt-section">
-                <div class="tt-sec-label">At ${rowHzLabel(item, timeF)}</div>
-                ${measuresHTML}
+        <div class="insp-body">
+            <div class="insp-sec">
+                <div class="sec-label">At ${rowHzLabel(item, S.h)}</div>
+                <div class="row"><span class="row-label">Return on capital${roc <= RUIN_FLOOR ? ' <span style="color:var(--danger)">(at floor)</span>' : ''}</span><span class="row-val" style="color:${signColor(roc)}">${formatValue(roc)}</span></div>
+                <div class="row"><span class="row-label">Expected turnover cost</span><span class="row-val" style="color:${signColor(turnover)}">${turnover === null ? 'n/a — held, not wagered' : formatValue(turnover)}</span></div>
+                <div class="row"><span class="row-label">Horizon basis</span><span class="row-val">${horizonBasis(item, S.h)}</span></div>
             </div>
-            <div class="tt-section">
-                <div class="tt-sec-label">Return on Capital by Horizon</div>
-                <div class="tt-hz-grid">${hzHTML}</div>
+            <div class="insp-sec">
+                <div class="sec-label">Return on capital by horizon</div>
+                <div class="hz-grid">${hzGrid(item)}</div>
             </div>
-            ${insightHTML}
-            <div class="tt-section">
-                <div class="tt-sec-label">Contextual Data</div>
-                <div class="tt-row"><span class="tt-row-label">Volatility</span><span class="tt-row-val">${item.vol}</span></div>
-                <div class="tt-row"><span class="tt-row-label">Win Prob</span><span class="tt-row-val">${item.wp}</span></div>
-                <div class="tt-row"><span class="tt-row-label">Skill Factor</span><span class="tt-row-val">${item.sk}</span></div>
+            <div class="insp-sec">
+                <div class="sec-label">Ruin point</div>
+                ${ruinBox(item)}
+            </div>
+            <div class="insp-sec">
+                <div class="sec-label">Inputs</div>
+                ${inputsRows(item)}
+                <div class="row"><span class="row-label">Addiction risk tier</span><span class="row-val" style="color:${ink(AR_CLR[item.ar])}">${AR_LBL[item.ar]}</span></div>
+            </div>
+            <div class="insp-sec">
+                <div class="sec-label">Provenance</div>
+                ${citeBlock(item)}
             </div>
         </div>`;
-    
-    ttEl.style.display = 'block';
-    posTT(e);
+    document.getElementById('pinBtn').onclick = () => { S.pin = pinned ? null : item.n; hovered = null; update(); };
+    inspEl.querySelectorAll('[data-hz]').forEach(b => b.onclick = () => { S.h = b.dataset.hz; update(); });
+}
+function renderOverview(data) {
+    inspEl.classList.remove('pinned');
+    const li = d => `<button type="button" class="li" data-pin="${esc(d.n)}"><span class="dot" style="background:${catColor(d.cat)}"></span><span class="nm">${esc(d.n)}</span><span class="v" style="color:${signColor(val(d))}">${formatValue(val(d))}</span></button>`;
+    const sorted = [...data].sort((a, b) => val(b) - val(a));
+    const few = sorted.length <= 10;
+    const lead = few ? sorted : sorted.slice(0, 5), lag = few ? [] : sorted.slice(-5).reverse();
+    inspEl.innerHTML = `
+        <div class="insp-hdr"><div><div class="insp-title">This view</div>
+            <div class="insp-meta"><span class="badge">${METRICS[S.m].short}</span><span class="badge">${HZ_LBL[S.h]}</span><span class="badge">${S.l === 'all' ? 'all layers' : LAYER_LBL[S.l]}</span></div></div></div>
+        <div class="insp-body">
+            ${data.length ? `
+            <div class="insp-sec"><div class="sec-label">${few ? 'Ranked' : 'Leaders'}</div><div class="list">${lead.map(li).join('')}</div></div>
+            ${lag.length ? `<div class="insp-sec"><div class="sec-label">Laggards</div><div class="list">${lag.map(li).join('')}</div></div>` : ''}` : ''}
+            <div class="insp-sec"><div class="hint">
+                Hover a bar to read it here; <b>click</b> to pin it. <kbd>←</kbd> <kbd>→</kbd> step the horizon, <kbd>/</kbd> finds an activity, <kbd>Esc</kbd> unpins.<br><br>
+                Held assets compound their annual return; wagers accrue a flat-stake edge and stop at &minus;100% because a bankroll cannot go below zero. The two share this axis only because both are a return on the capital you brought.
+            </div></div>
+        </div>`;
+    inspEl.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { S.pin = b.dataset.pin; update(); });
+}
+function renderInspector(data) {
+    if (S.pin && byName.has(S.pin)) return renderItem(byName.get(S.pin), true);
+    if (hovered) return renderItem(hovered, false);
+    renderOverview(data);
 }
 
-function posTT(e) {
-    const padding = 20;
-    let x = e.clientX + padding;
-    let y = e.clientY + padding;
-    
-    if (x + 420 > window.innerWidth) x = e.clientX - 420 - padding;
-    if (y + ttEl.offsetHeight > window.innerHeight) y = window.innerHeight - ttEl.offsetHeight - padding;
-    
-    ttEl.style.left = x + 'px';
-    ttEl.style.top = y + 'px';
+// ══════════════════════════
+// RENDER: CONTROLS
+// ══════════════════════════
+function buildChips() {
+    const box = document.getElementById('cats');
+    const counts = {}; D.forEach(d => counts[d.cat] = (counts[d.cat] || 0) + 1);
+    box.innerHTML = `<div class="quick">
+            <button type="button" data-quick="all" title="Show every category">All</button>
+            <button type="button" data-quick="none" title="Hide every category">None</button>
+            <button type="button" data-quick="i" title="Only held assets">Held assets</button>
+            <button type="button" data-quick="g" title="Only repeated wagers">Wagers</button>
+        </div>` + ALL_CATS.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" style="--c:${catColor(c)}" aria-pressed="true"><span class="dot"></span>${esc(c)}<span class="n">${counts[c]}</span></button>`).join('');
+    box.querySelectorAll('[data-cat]').forEach(b => b.onclick = e => {
+        const c = b.dataset.cat;
+        // Alt-click (or a lone chip) solos the category so one group can be read on its own.
+        if (e.altKey) S.cats = new Set([c]);
+        else if (S.cats.has(c)) S.cats.delete(c); else S.cats.add(c);
+        update();
+    });
+    const modeOf = {}; D.forEach(d => modeOf[d.cat] = d.m);
+    box.querySelectorAll('[data-quick]').forEach(b => b.onclick = () => {
+        const q = b.dataset.quick;
+        S.cats = new Set(q === 'all' ? ALL_CATS : q === 'none' ? [] : ALL_CATS.filter(c => D.some(d => d.cat === c && d.m === q)));
+        update();
+    });
+}
+function syncControls() {
+    document.querySelectorAll('.seg [data-k]').forEach(b => b.setAttribute('aria-pressed', String(S[b.dataset.k] === b.dataset.v)));
+    document.querySelectorAll('[data-toggle]').forEach(b => b.setAttribute('aria-pressed', String(!!S[b.dataset.toggle])));
+    document.querySelectorAll('[data-cat]').forEach(b => b.setAttribute('aria-pressed', String(S.cats.has(b.dataset.cat))));
+    const q = document.getElementById('q'); if (q.value !== S.q) q.value = S.q;
 }
 
-function hideTT() { ttEl.style.display = 'none'; }
+function update() {
+    if (S.pin && !byName.has(S.pin)) S.pin = null;
+    writeUrl();
+    syncControls();
+    const data = getFilteredData();
+    updateStats(data);
+    renderChart(data);
+    renderInspector(data);
+}
+
+// ══════════════════════════
+// EXPORT & SHARE
+// ══════════════════════════
+let toastTimer;
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function download(name, blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function exportCsv() {
+    const data = getFilteredData();
+    const csv = v => v === null || v === undefined ? '' : /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v);
+    const head = ['name','category','model','layer','annual_return_pct','edge_pct','wagers_per_day','bankroll_per_wager_pct',
+        ...HZ.map(h => 'return_on_capital_' + h + '_pct'), ...HZ.map(h => 'turnover_cost_' + h + '_pct'),
+        'ruin_wagers','ruin_days','decay_to_minus90_years','source','as_of','methodology'];
+    const rows = data.map(d => [d.n, d.cat, d.m === 'i' ? 'compound' : 'linear', d.ly, d.a ?? '', d.e ?? '', d.du ?? '', d.ced ?? '',
+        ...HZ.map(h => d.v[h].toFixed(4)), ...HZ.map(h => d.t[h] === null ? '' : d.t[h].toFixed(4)),
+        d.rd === null ? '' : d.rd.toFixed(2), d.ruinDays === null ? '' : d.ruinDays.toFixed(2), d.decay90 === null ? '' : d.decay90.toFixed(2),
+        d.src ?? '', d.asOf ?? '', d.how ?? '']);
+    const text = [head, ...rows].map(r => r.map(csv).join(',')).join('\n');
+    download(`edge-spectrum-${S.m}-${S.h}.csv`, new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' }));
+    toast(`${data.length} rows exported`);
+}
+function exportPng() {
+    const bg = isLight() ? '#f6f6f7' : '#060606';
+    Plotly.relayout(chartEl, { paper_bgcolor: bg, plot_bgcolor: bg })
+        .then(() => Plotly.downloadImage(chartEl, { format: 'png', width: 1800, height: 1000, scale: 1, filename: `edge-spectrum-${S.m}-${S.h}` }))
+        .finally(() => Plotly.relayout(chartEl, { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' }));
+}
+function share() {
+    const url = location.href;
+    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+        .then(() => toast('Link to this view copied'))
+        .catch(() => toast(url));
+}
 
 // ══════════════════════════
 // INITIALIZATION
 // ══════════════════════════
 function init() {
-    // Inject Categories
-    const menu = document.getElementById('catMenu');
-    ALL_CATS.forEach(c => {
-        const item = document.createElement('div');
-        item.className = `dd-item toggle ${catSet.has(c) ? 'on' : ''}`;
-        item.dataset.f = c;
-        item.innerHTML = `<span class="dot" style="background:${CC[c]}"></span>${c}`;
-        item.onclick = (e) => {
-            e.stopPropagation();
-            if (catSet.has(c)) catSet.delete(c); else catSet.add(c);
-            item.classList.toggle('on');
-            document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
-            updateStats();
-            renderChart();
-        };
-        menu.appendChild(item);
-    });
+    readUrl();
+    buildChips();
 
-    // Toggle All button
-    document.querySelector('.cat-all').onclick = (e) => {
-        e.stopPropagation();
-        if (catSet.size === ALL_CATS.length) {
-            catSet.clear();
-        } else {
-            catSet = new Set(ALL_CATS);
-        }
-        menu.querySelectorAll('.dd-item.toggle').forEach(el => {
-            el.classList.toggle('on', catSet.has(el.dataset.f));
-        });
-        document.getElementById('catBtn').querySelector('span').textContent = catSet.size + ' Selected';
-        updateStats();
-        renderChart();
+    document.querySelectorAll('.seg [data-k]').forEach(b => b.onclick = () => { S[b.dataset.k] = b.dataset.v; update(); });
+    document.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () => { S[b.dataset.toggle] = !S[b.dataset.toggle]; update(); });
+    document.getElementById('q').oninput = e => { S.q = e.target.value.slice(0, 60); update(); };
+    document.getElementById('btnShare').onclick = share;
+    document.getElementById('btnCsv').onclick = exportCsv;
+    document.getElementById('btnPng').onclick = exportPng;
+
+    // Play steps through the horizons so a reader can watch the floor fill up.
+    const playBtn = document.getElementById('btnPlay');
+    const stopPlay = () => { clearInterval(playTimer); playTimer = null; playBtn.textContent = '▶'; playBtn.setAttribute('aria-pressed', 'false'); };
+    playBtn.onclick = () => {
+        if (playTimer) return stopPlay();
+        playBtn.textContent = '❚❚'; playBtn.setAttribute('aria-pressed', 'true');
+        playTimer = setInterval(() => {
+            const i = HZ.indexOf(S.h);
+            S.h = HZ[(i + 1) % HZ.length]; update();
+            if (S.h === HZ[HZ.length - 1]) stopPlay();
+        }, 1100);
     };
 
-    // Time Buttons
-    document.querySelectorAll('[data-t]').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('[data-t]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            timeF = btn.dataset.t;
-            updateStats();
-            renderChart();
-        };
+    // Hover reads, click pins. The handlers bind once; Plotly.react keeps them across redraws.
+    chartEl.on('plotly_hover', ev => {
+        if (S.pin) return;
+        hovered = ev.points[0].customdata; renderInspector();
+    });
+    chartEl.on('plotly_unhover', () => {
+        if (S.pin || !hovered) return;
+        hovered = null; renderInspector(getFilteredData());
+    });
+    chartEl.on('plotly_click', ev => {
+        const n = ev.points[0].customdata.n;
+        S.pin = S.pin === n ? null : n; hovered = null; update();
     });
 
-    // Metric Buttons
-    document.querySelectorAll('[data-m]').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('[data-m]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            metricF = btn.dataset.m;
-            updateStats();
-            renderChart();
-        };
+    document.addEventListener('keydown', e => {
+        const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+        if (e.key === 'Escape') { if (typing) { document.activeElement.blur(); } else if (S.pin) { S.pin = null; update(); } return; }
+        if (typing) return;
+        if (e.key === '/') { e.preventDefault(); document.getElementById('q').focus(); return; }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            const i = HZ.indexOf(S.h) + (e.key === 'ArrowRight' ? 1 : -1);
+            if (i >= 0 && i < HZ.length) { S.h = HZ[i]; update(); }
+        }
     });
 
-    // Layer Buttons
-    document.querySelectorAll('[data-l]').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('[data-l]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            layerF = btn.dataset.l;
-            updateStats();
-            renderChart();
-        };
-    });
-
-    // Insights
-    document.querySelectorAll('[data-ins]').forEach(item => {
-        item.onclick = (e) => {
-            e.stopPropagation();
-            item.classList.toggle('on');
-            const ins = item.dataset.ins;
-            if (ins === 'dca') showDCA = !showDCA;
-            if (ins === 'risk') showRisk = !showRisk;
-            if (ins === 'ruin') showRuin = !showRuin;
-            updateStats();
-            renderChart();
-        };
-    });
-
-    // The ruin overlay is on by default — it is the point of the primary chart, not an extra.
-    document.querySelector('[data-ins="ruin"]').classList.toggle('on', showRuin);
-
-    // Dropdowns
-    document.querySelectorAll('.dd-btn').forEach(btn => {
-        btn.onclick = (e) => {
-            e.stopPropagation();
-            const parent = btn.parentElement;
-            const wasOpen = parent.classList.contains('open');
-            document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
-            if (!wasOpen) parent.classList.add('open');
-        };
-    });
-    window.onclick = () => document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
-
-    updateStats();
-    renderChart();
+    update();
 }
-
-window.onload = init;
+// Plotly.react needs a plot to exist before .on() will bind, so seed an empty one.
+Plotly.newPlot(chartEl, [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' }, { displayModeBar: false, responsive: true }).then(init);
 
 // Theme switch: same localStorage key as the hub, so the choice carries both ways.
-const syncThemeToggle = () => document.querySelectorAll('.theme-toggle [data-theme]').forEach(b =>
+const syncTheme = () => document.querySelectorAll('.theme-toggle [data-theme]').forEach(b =>
     b.setAttribute('aria-pressed', String(document.documentElement.classList.contains(b.dataset.theme))));
 document.querySelectorAll('.theme-toggle [data-theme]').forEach(btn => {
     btn.onclick = () => {
@@ -1227,11 +1241,11 @@ document.querySelectorAll('.theme-toggle [data-theme]').forEach(btn => {
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(t);
         try { localStorage.setItem('edge-spectrum.theme', t); } catch (e) {}
-        syncThemeToggle();
-        if (window.Plotly && document.getElementById('chart').data) renderChart();
+        syncTheme();
+        if (chartEl.data) update();
     };
 });
-syncThemeToggle();
+syncTheme();
 </script>
 </body>
 </html>

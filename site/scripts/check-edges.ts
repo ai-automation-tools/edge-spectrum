@@ -24,12 +24,16 @@ const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) as {
   totalRecords: number;
   withSource: number;
 };
-assert.equal(
-  EDGES.length,
-  baseline.totalRecords,
-  `edges.ts has ${EDGES.length} records but the baseline expects ${baseline.totalRecords} — ` +
-    'update provenance-baseline.json (run with --write-baseline) if this is intentional',
-);
+const writeBaseline = process.argv.includes('--write-baseline');
+// `--write-baseline` exists to record a new count, so the count assertion must not block it.
+if (!writeBaseline) {
+  assert.equal(
+    EDGES.length,
+    baseline.totalRecords,
+    `edges.ts has ${EDGES.length} records but the baseline expects ${baseline.totalRecords} — ` +
+      'update provenance-baseline.json (run with --write-baseline) if this is intentional',
+  );
+}
 
 const byCategory = new Map<string, number>();
 for (const r of EDGES) byCategory.set(r.cat, (byCategory.get(r.cat) ?? 0) + 1);
@@ -58,7 +62,7 @@ for (const r of EDGES) {
 // ── Provenance citation ratchet ──
 const withSource = EDGES.filter((r) => r.source).length;
 
-if (process.argv.includes('--write-baseline')) {
+if (writeBaseline) {
   writeFileSync(BASELINE_PATH, JSON.stringify({ totalRecords: EDGES.length, withSource }, null, 2) + '\n');
   console.log(`provenance-baseline.json updated: ${withSource}/${EDGES.length} records cite a source.`);
 } else {

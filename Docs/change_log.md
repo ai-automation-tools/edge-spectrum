@@ -2,6 +2,58 @@
 
 ---
 
+## October 12, 2026 — Spectrum page V21: redesigned UI, interactive chart, 35 new records (190 → 225)
+
+### Dataset
+
+Two new categories and gaps filled in five existing ones; the citation baseline moves from 3 to 15.
+
+- **Trading & Derivatives** (new, 10, mixed-mode) — Covered Call ETF, Systematic Put Writing, Managed
+  Futures, 3x Leveraged Nasdaq held, Retail Day Trading, Retail Options Buying, Retail Forex / CFD,
+  0DTE Options Buying, Inverse / Short ETF held, Binary Options (a repeated wager). V11 had cut these
+  as outlier noise because a −60%/yr row squashed the old single axis; the −100% floor (Action 2.1)
+  removed that reason. Sources: Barber/Lee/Liu/Odean (2014), Chague et al. (2020), ESMA loss-rate
+  disclosures.
+- **Horse Racing & Pari-Mutuel** (new, 6) — Win/Place/Show, Exacta / Daily Double, Trifecta /
+  Superfecta, Pick 4 / Pick 6, Greyhounds, and an 8% ADW-rebate row. Takeout rates from HANA.
+- **Casino Gambling** (+7) — Blackjack Card Counting (+1%), Spanish 21, Ultimate Texas Hold'em, Sic Bo
+  Big/Small, Casino War, Online Slots 96% RTP, Crypto Dice. Wizard of Odds for the exact figures.
+- **Sports Betting** (+4) — Sharp Bettor (+2% CLV), Betting Exchange (2% commission), Reduced Juice
+  (−105), Micro-Bets.
+- **Lottery** (+4) — EuroMillions, Charity 50/50 Raffle, Bingo Hall Session, Pull-Tabs.
+- **Bonds** (+1) Private Credit / BDC Index; **Cryptocurrency** (+3) Staked Ethereum, Leveraged
+  Perpetual Futures, Bitcoin Spot ETF after fee (`fee` layer).
+- `toSpectrumRow()` now carries provenance (`src`, `asOf`, `win`, `how`) into the page rows and
+  `edges.json`, so the page can cite it. The generator's category banner reads `(Mixed)` when a category
+  holds both models. `check-edges.ts --write-baseline` no longer trips over its own count assertion.
+- Count statements updated in `CLAUDE.md`, `README.md`, `Docs/README.md`, `Docs/data-architecture.md`
+  (category table rewritten for 15), `check-spectrum.ts`, the hub tile, and the Streamlit archive's
+  `ALL_CATS` / `CC` / `AR_DEFAULT`.
+
+### Page (`site/public/spectrum/index.html`)
+
+The sidebar layout is replaced by a controls bar, a row of coloured category chips, and a chart with
+a side inspector. The `MATH & CONSTANTS` block is unchanged apart from dropping the unused `DCA_AMT`
+and moving `ALL_CATS` to be read off `RAW`; `check:spectrum` passes unchanged.
+
+- **Inspector** replaces the floating tooltip: hover reads a bar into it, click pins it (bar outlined,
+  others dimmed), with return by horizon (each cell switches the chart), ruin point, inputs, risk tier
+  and provenance. Unpinned it lists the view's leaders and laggards.
+- **Controls**: measure, horizon (with a ▶ play-through and ← → keys), layer, colour by gain/loss or
+  category, sort by value / category (tinted bands with names) / name, ruin-mark and value-label
+  toggles, and a name filter (`/`). Chips toggle categories; Alt-click solos one; All / None / Held
+  assets / Wagers quick picks.
+- **Chart**: native Plotly hover label, drag-zoom / double-click reset, value labels when ≤ 40 bars,
+  empty state.
+- **Share / export**: the view is encoded in the URL (`?h=10yr&m=turn&c=cat&s=category&cats=…&pin=…`);
+  Share copies it; CSV exports the activities in view across all horizons with provenance; PNG
+  downloads the chart on the theme's ground.
+- Dead controls removed: the Dollar-Cost toggle never did anything, and the Addiction-Modeling toggle
+  only revealed a row that is now always in the inspector.
+- Plotly stays pinned at 2.32.0 (Action 2.8 remains open). Fonts corrected to JetBrains Mono.
+
+---
+
 ## October 7, 2026 — Three casino bets (187 → 190 records)
 
 Added to Casino Gambling, the first records in the dataset to carry provenance (`source`, `asOf`,

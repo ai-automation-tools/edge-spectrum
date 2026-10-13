@@ -11,7 +11,7 @@
  * Only the fields that carry information live here. `g`, `type`, `vol`,
  * `wp` and `sk` are pure functions of `cat` and `m`, so
  * `toSpectrumRow()` re-expands them for the visualizer rather than storing
- * 187 copies of the string "Varies".
+ * hundreds of copies of the string "Varies".
  */
 
 /** Projection layer: gross, after fees, or after tax. */
@@ -26,7 +26,9 @@ export const EDGE_CATEGORIES = [
   "Collectibles",
   "Precious Metals",
   "Insurance & Annuities",
+  "Trading & Derivatives",
   "Sports Betting",
+  "Horse Racing & Pari-Mutuel",
   "Casino Gambling",
   "Poker & Skill-Based",
   "Prediction Markets",
@@ -36,9 +38,9 @@ export const EDGE_CATEGORIES = [
 export type EdgeCategory = (typeof EDGE_CATEGORIES)[number];
 
 /**
- * Optional citation for a record's figures. Roadmap Action 2.3 — none of the
- * 187 records carry one yet; `npm run check:edges` ratchets coverage upward
- * as they're filled in, so it can only improve, never silently regress.
+ * Optional citation for a record's figures. Roadmap Action 2.3 — `npm run check:edges`
+ * ratchets coverage upward as records are cited, so it can only improve, never
+ * silently regress.
  */
 export type Provenance = {
   /** Where the figure comes from, e.g. a data provider or publication. */
@@ -82,9 +84,16 @@ export type EdgeRecord = InvestmentEdge | GameEdge;
  * stored. Kept next to the data so the React port (Action 4.6) reuses it.
  */
 export function toSpectrumRow(r: EdgeRecord) {
+  // Provenance rides along under short keys so the page can cite it; absent fields are omitted.
+  const cite = {
+    ...(r.source ? { src: r.source } : {}),
+    ...(r.asOf ? { asOf: r.asOf } : {}),
+    ...(r.window ? { win: r.window } : {}),
+    ...(r.methodology ? { how: r.methodology } : {}),
+  };
   return r.m === 'i'
-    ? { n: r.n, cat: r.cat, g: r.cat, m: r.m, a: r.a, ly: r.ly, type: 'Asset', vol: 'Varies', wp: 'Market Rate', sk: 'Passive' }
-    : { n: r.n, cat: r.cat, g: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ly: r.ly, type: 'Game', vol: 'Varies', wp: 'EV Calculated', sk: 'Varies' };
+    ? { n: r.n, cat: r.cat, g: r.cat, m: r.m, a: r.a, ly: r.ly, type: 'Asset', vol: 'Varies', wp: 'Market Rate', sk: 'Passive', ...cite }
+    : { n: r.n, cat: r.cat, g: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ly: r.ly, type: 'Game', vol: 'Varies', wp: 'EV Calculated', sk: 'Varies', ...cite };
 }
 
 export const EDGES: readonly EdgeRecord[] = [
@@ -154,6 +163,7 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "International Bond (BNDX)", cat: "Bonds", m: 'i', ly: 'raw', a: 2.5 },
   { n: "Short-Term Treasury (SHY)", cat: "Bonds", m: 'i', ly: 'raw', a: 2.5 },
   { n: "TIPS Inflation-Protected (TIP)", cat: "Bonds", m: 'i', ly: 'raw', a: 1.5 },
+  { n: "Private Credit / BDC Index (BIZD)", cat: "Bonds", m: 'i', ly: 'raw', a: 9.0, asOf: "2026-10-12", methodology: "Representative long-run total return of listed business development companies; high distribution yield offset by NAV erosion and credit losses. Approximate." },
   { n: "Bond Fund After 1% Advisory Fee", cat: "Bonds", m: 'i', ly: 'fee', a: 2.5 },
   { n: "Bond Interest After Income Tax (37%)", cat: "Bonds", m: 'i', ly: 'tax', a: 2.21 },
   { n: "Muni Bonds Tax-Exempt (Effective)", cat: "Bonds", m: 'i', ly: 'tax', a: 3.5 },
@@ -181,6 +191,9 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "DeFi LP Volatile Pairs", cat: "Cryptocurrency", m: 'i', ly: 'raw', a: -10.0 },
   { n: "Altcoin Portfolio (Retail)", cat: "Cryptocurrency", m: 'i', ly: 'raw', a: -15.0 },
   { n: "Meme Coins (Retail Avg)", cat: "Cryptocurrency", m: 'i', ly: 'raw', a: -70.0 },
+  { n: "Staked Ethereum (ETH + Staking Yield)", cat: "Cryptocurrency", m: 'i', ly: 'raw', a: 13.0, asOf: "2026-10-12", methodology: "Ethereum spot figure plus a ~3% native staking yield; ignores slashing and liquidity risk. Approximate." },
+  { n: "Leveraged Perpetual Futures (Retail Avg)", cat: "Cryptocurrency", m: 'i', ly: 'raw', a: -60.0, asOf: "2026-10-12", methodology: "Representative annual outcome for retail accounts trading 10x-plus perpetual swaps: funding costs plus liquidation losses. Approximate." },
+  { n: "Bitcoin Spot ETF After 0.25% Fee (IBIT)", cat: "Cryptocurrency", m: 'i', ly: 'fee', a: 44.75, asOf: "2026-10-12", methodology: "Bitcoin spot figure less the 0.25% sponsor fee of the largest US spot ETF." },
   { n: "Bitcoin After LTCG Tax (20%)", cat: "Cryptocurrency", m: 'i', ly: 'tax', a: 36.0 },
   { n: "Bitcoin After STCG Tax (37%)", cat: "Cryptocurrency", m: 'i', ly: 'tax', a: 28.35 },
   { n: "Ethereum After LTCG Tax (20%)", cat: "Cryptocurrency", m: 'i', ly: 'tax', a: 8.0 },
@@ -224,13 +237,31 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "Annuity Gains After Ordinary Income Tax (37%)", cat: "Insurance & Annuities", m: 'i', ly: 'tax', a: 2.65 },
   { n: "Whole Life Cash Value (Tax-Free via Policy Loans)", cat: "Insurance & Annuities", m: 'i', ly: 'tax', a: 3.5 },
 
+  // --- TRADING & DERIVATIVES (Mixed) ---
+  // Re-admitted 2026-10-12. V11 cut these as "outlier noise" because a −60%/yr row squashed the
+  // old single shared axis; return on capital is floored at −100% now, so that reason is gone.
+  { n: "Covered Call ETF (JEPI/QYLD)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: 7.0, asOf: "2026-10-12", methodology: "Representative total return of option-overwriting equity income ETFs: high distributions, capped upside. Approximate." },
+  { n: "Systematic Put Writing (PUTW)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: 6.0, asOf: "2026-10-12", methodology: "Long-run total return of a rules-based cash-secured S&P 500 put-writing index. Approximate." },
+  { n: "Managed Futures / Trend Following (DBMF)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: 5.0, asOf: "2026-10-12", methodology: "Representative long-run return of diversified trend-following CTAs net of fees. Approximate." },
+  { n: "3x Leveraged Nasdaq Held (TQQQ)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: 15.0, asOf: "2026-10-12", methodology: "Path-dependent: daily 3x rebalancing carries volatility decay, so the realised figure swings from strongly positive in a bull run to deeply negative across a drawdown. Rough bull-market average." },
+  { n: "Retail Day Trading (Avg)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: -15.0, source: "Barber, Lee, Liu & Odean, 'Do Day Traders Rationally Learn About Their Ability?' (2014); Chague, De-Losso & Giovannetti, 'Day Trading for a Living?' (2020)", asOf: "2026-10-12", methodology: "The large majority of retail day traders lose money net of costs in every market studied; the figure is a round representative annual loss, not a measured index." },
+  { n: "Retail Options Buying (Avg)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: -20.0, asOf: "2026-10-12", methodology: "Short-dated call and put buying by retail accounts shows persistent aggregate losses after bid-ask spreads and time decay. Approximate." },
+  { n: "Retail Forex / CFD Trading (Avg)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: -25.0, source: "ESMA retail CFD intervention measures; mandated broker risk warnings (74-89% of retail CFD accounts lose money)", asOf: "2026-10-12", methodology: "Representative annual loss consistent with the loss-rate disclosures regulators require brokers to publish. Approximate." },
+  { n: "0DTE Options Buying (Retail)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: -40.0, asOf: "2026-10-12", methodology: "Same-day-expiry contracts bought outright: time decay and spread make the expected hold-to-expiry outcome sharply negative. Approximate." },
+  { n: "Inverse / Short ETF Held (SQQQ)", cat: "Trading & Derivatives", m: 'i', ly: 'raw', a: -60.0, asOf: "2026-10-12", methodology: "A −3x daily index fund held through a rising market: leverage decay plus the index's own drift. Approximate long-run realised figure." },
+  { n: "Binary Options (Offshore)", cat: "Trading & Derivatives", m: 'g', ly: 'raw', e: -10.0, du: 10, ced: 2, asOf: "2026-10-12", methodology: "A typical offshore binary pays 70-85% on a win and loses 100% on a loss; at a 50% strike the expected loss per contract is 8-15% of stake." },
+
   // --- SPORTS BETTING (Linear) ---
+  { n: "Sharp Bettor (+2% Closing Line Value)", cat: "Sports Betting", m: 'g', ly: 'raw', e: 2.0, du: 3, ced: 2, asOf: "2026-10-12", methodology: "A bettor who consistently beats the closing line by 2% after the vig; the small minority of accounts books limit. Representative, not an index." },
+  { n: "Betting Exchange (2% Commission)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -1.0, du: 2, ced: 3, source: "Betfair Exchange market base rate (2% of net winnings per market)", asOf: "2026-10-12", methodology: "Commission is charged on net winnings only, so at even money the expected cost is about half the rate, i.e. 1% of stake." },
+  { n: "Reduced Juice Line (-105)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -2.38, du: 2, ced: 3, asOf: "2026-10-12", methodology: "Two-way market priced at -105 each side: 2 × 51.22% = 102.44% implied; hold on handle = 2.44 / 102.44 = 2.38%." },
   { n: "Single Game Spread (-110)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -4.55, du: 2, ced: 3 },
   { n: "Single Game O/U (-110)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -4.55, du: 2, ced: 3 },
   { n: "Moneyline (Standard Juice)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -4.55, du: 2, ced: 3 },
   { n: "Teaser 2-Team 6pt", cat: "Sports Betting", m: 'g', ly: 'raw', e: -5.0, du: 1, ced: 3 },
   { n: "Live / In-Game Bet", cat: "Sports Betting", m: 'g', ly: 'raw', e: -6.5, du: 5, ced: 3 },
   { n: "Player Prop Bet", cat: "Sports Betting", m: 'g', ly: 'raw', e: -7.0, du: 3, ced: 2 },
+  { n: "Micro-Bet (Next Play / Next Pitch)", cat: "Sports Betting", m: 'g', ly: 'raw', e: -9.0, du: 20, ced: 1, asOf: "2026-10-12", methodology: "In-play micro markets are typically priced with an 8-10% hold, roughly double a standard -110 two-way line. Approximate." },
   { n: "Season Win Total Future", cat: "Sports Betting", m: 'g', ly: 'raw', e: -8.0, du: 0.05, ced: 5 },
   { n: "2-Team Parlay", cat: "Sports Betting", m: 'g', ly: 'raw', e: -10.0, du: 2, ced: 2 },
   { n: "Championship Future", cat: "Sports Betting", m: 'g', ly: 'raw', e: -12.0, du: 0.03, ced: 5 },
@@ -244,19 +275,36 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "8-Team Parlay", cat: "Sports Betting", m: 'g', ly: 'raw', e: -30.0, du: 0.2, ced: 1 },
   { n: "10-Team Parlay", cat: "Sports Betting", m: 'g', ly: 'raw', e: -35.0, du: 0.1, ced: 0.5 },
 
+  // --- HORSE RACING & PARI-MUTUEL (Linear) ---
+  // Pari-mutuel pools return the pool minus the track's takeout, so for a bettor with no edge the
+  // takeout rate IS the expected loss per dollar wagered.
+  { n: "Horse Racing with 8% ADW Rebate", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -12.0, du: 3, ced: 2, asOf: "2026-10-12", methodology: "A ~20% exotic takeout less an 8% advance-deposit-wagering volume rebate; rebates of 5-10% are common for high-volume players." },
+  { n: "Horse Racing Win / Place / Show", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -17.0, du: 3, ced: 2, source: "Horseplayers Association of North America (HANA) track takeout ratings", asOf: "2026-10-12", methodology: "Typical US win/place/show pool takeout is 15-20%; the midpoint is used." },
+  { n: "Horse Racing Exacta / Daily Double", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -20.0, du: 2, ced: 2, source: "Horseplayers Association of North America (HANA) track takeout ratings", asOf: "2026-10-12", methodology: "Typical US two-horse exotic pool takeout is 18-22%; the midpoint is used." },
+  { n: "Greyhound Racing", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -20.0, du: 3, ced: 2, asOf: "2026-10-12", methodology: "Pari-mutuel takeout at the remaining US and UK dog tracks, 18-25% across pools. Approximate." },
+  { n: "Horse Racing Trifecta / Superfecta", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -25.0, du: 2, ced: 1, source: "Horseplayers Association of North America (HANA) track takeout ratings", asOf: "2026-10-12", methodology: "Typical US multi-horse exotic pool takeout is 22-26%." },
+  { n: "Horse Racing Pick 4 / Pick 6", cat: "Horse Racing & Pari-Mutuel", m: 'g', ly: 'raw', e: -25.0, du: 0.5, ced: 1, asOf: "2026-10-12", methodology: "Multi-race pools carry the same 22-26% takeout as the exotics; occasional carryovers lower it. Approximate." },
+
   // --- CASINO GAMBLING (Linear) ---
+  { n: "Blackjack Card Counting (Skilled)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: 1.0, du: 60, ced: 2, source: "Wizard of Odds, Card counting (wizardofodds.com/games/blackjack/card-counting/); Thorp, Beat the Dealer (1962)", asOf: "2026-10-12", methodology: "Typical long-run advantage of a competent Hi-Lo counter with a 1-8 bet spread on a 6-deck shoe, +0.5% to +1.5%; the midpoint is used." },
+  { n: "Spanish 21 (Dealer Stands Soft 17)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -0.4, du: 60, ced: 2, source: "Wizard of Odds, Spanish 21 (wizardofodds.com/games/spanish-21/)", asOf: "2026-10-12", methodology: "House edge with the dealer standing on soft 17 under optimal strategy." },
   { n: "Video Poker 9/6 JoB", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -0.46, du: 80, ced: 1 },
   { n: "Blackjack 3:2 Basic Strategy", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -0.5, du: 60, ced: 2 },
   { n: "Baccarat Banker", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.06, du: 50, ced: 3 },
+  { n: "Crypto Dice (1% House Edge)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.0, du: 1000, ced: 0.5, asOf: "2026-10-12", methodology: "Provably-fair dice sites advertise a 1% edge; auto-bet modes run hundreds of rolls an hour, which is what makes the time to ruin so short." },
   { n: "Baccarat Player", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.24, du: 50, ced: 3 },
   { n: "Craps Don't Pass", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.36, du: 40, ced: 2 },
   { n: "Craps Pass Line", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -1.41, du: 40, ced: 2 },
   { n: "Blackjack 6:5", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.0, du: 60, ced: 2 },
+  { n: "Ultimate Texas Hold'em", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.19, du: 30, ced: 3, source: "Wizard of Odds, Ultimate Texas Hold'em (wizardofodds.com/games/ultimate-texas-hold-em/)", asOf: "2026-10-12", methodology: "House edge relative to the Ante bet under optimal strategy." },
   { n: "Craps Field (3:1 on 12)", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.78, du: 40, ced: 2, source: "Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)", asOf: "2026-10-07", methodology: "Exact single-roll expectation; 2 pays 2:1 and 12 pays 3:1, per bet made." },
   { n: "Pai Gow Poker", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.5, du: 30, ced: 3 },
   { n: "Roulette Single Zero", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.7, du: 40, ced: 3 },
+  { n: "Sic Bo Big / Small", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.78, du: 40, ced: 2, source: "Wizard of Odds, Sic Bo (wizardofodds.com/games/sic-bo/)", asOf: "2026-10-12", methodology: "Exact single-roll expectation: Big and Small pay even money and lose to any triple, 105 wins against 111 losses of 216 outcomes." },
+  { n: "Casino War", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -2.88, du: 50, ced: 2, source: "Wizard of Odds, Casino War (wizardofodds.com/games/casino-war/)", asOf: "2026-10-12", methodology: "Six decks, always going to war on a tie, no tie side bet." },
   { n: "Three Card Poker", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -3.4, du: 40, ced: 3 },
   { n: "Let It Ride", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -3.5, du: 30, ced: 3 },
+  { n: "Online Slots 96% RTP", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -4.0, du: 600, ced: 0.5, asOf: "2026-10-12", methodology: "Published return-to-player of a typical regulated online slot is 94-97%; online spin rates run higher than a casino floor." },
   { n: "Slots Loose 95%", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -5.0, du: 500, ced: 0.5 },
   { n: "Caribbean Stud", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -5.2, du: 30, ced: 3 },
   { n: "Roulette Double Zero", cat: "Casino Gambling", m: 'g', ly: 'raw', e: -5.26, du: 40, ced: 3 },
@@ -294,13 +342,17 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "PredictIt US Politics", cat: "Prediction Markets", m: 'g', ly: 'raw', e: -10.0, du: 1, ced: 5 },
 
   // --- LOTTERY (Linear) ---
+  { n: "Pull-Tab Tickets", cat: "Lottery", m: 'g', ly: 'raw', e: -20.0, du: 1, ced: 0.3, asOf: "2026-10-12", methodology: "Charitable pull-tab deals are manufactured to a fixed 75-85% payout; the midpoint is used." },
   { n: "$1 Scratch-Off Best Odds", cat: "Lottery", m: 'g', ly: 'raw', e: -25.0, du: 1, ced: 0.5 },
+  { n: "Bingo Hall Session", cat: "Lottery", m: 'g', ly: 'raw', e: -25.0, du: 0.5, ced: 1, asOf: "2026-10-12", methodology: "Commercial and charity bingo halls return roughly 70-80% of card sales as prizes. Approximate." },
   { n: "Premium Scratch-Off $20+", cat: "Lottery", m: 'g', ly: 'raw', e: -30.0, du: 0.5, ced: 1 },
   { n: "Scratch-Off Tickets Avg", cat: "Lottery", m: 'g', ly: 'raw', e: -35.0, du: 0.5, ced: 0.5 },
   { n: "Keno State-Run", cat: "Lottery", m: 'g', ly: 'raw', e: -40.0, du: 2, ced: 0.5 },
   { n: "Daily Numbers Game", cat: "Lottery", m: 'g', ly: 'raw', e: -42.0, du: 1, ced: 0.5 },
   { n: "State Pick 6 / Lotto", cat: "Lottery", m: 'g', ly: 'raw', e: -45.0, du: 0.15, ced: 0.1 },
   { n: "State Lottery Pick 3/4", cat: "Lottery", m: 'g', ly: 'raw', e: -50.0, du: 0.5, ced: 0.3 },
+  { n: "EuroMillions", cat: "Lottery", m: 'g', ly: 'raw', e: -50.0, du: 0.1, ced: 0.1, source: "EuroMillions game procedures: 50% of ticket revenue is allocated to the prize fund", asOf: "2026-10-12", methodology: "Expected return equals the prize-fund share of sales, ignoring unclaimed prizes." },
+  { n: "Charity 50/50 Raffle", cat: "Lottery", m: 'g', ly: 'raw', e: -50.0, du: 0.05, ced: 0.5, asOf: "2026-10-12", methodology: "By construction half the pot goes to the single winner and half to the cause." },
   { n: "Powerball / Mega Millions", cat: "Lottery", m: 'g', ly: 'raw', e: -52.0, du: 0.1, ced: 0.1 },
   { n: "Multi-State Cash4Life", cat: "Lottery", m: 'g', ly: 'raw', e: -55.0, du: 0.1, ced: 0.1 },
 ];

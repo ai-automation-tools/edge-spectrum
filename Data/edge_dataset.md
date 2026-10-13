@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 190 · **Categories:** 13 · **Layers:** 163 raw · 8 fee · 19 tax
+**Records:** 225 · **Categories:** 15 · **Layers:** 197 raw · 9 fee · 19 tax
 
 ## What is here, and what is deliberately not
 
@@ -102,7 +102,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 3. Bonds
 
-**Records:** 16
+**Records:** 17
 
 ### Held assets — compound model
 
@@ -120,10 +120,11 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 10 | International Bond (BNDX) | 2.5% | raw |
 | 11 | Short-Term Treasury (SHY) | 2.5% | raw |
 | 12 | TIPS Inflation-Protected (TIP) | 1.5% | raw |
-| 13 | Bond Fund After 1% Advisory Fee | 2.5% | fee |
-| 14 | Bond Interest After Income Tax (37%) | 2.21% | tax |
-| 15 | Muni Bonds Tax-Exempt (Effective) | 3.5% | tax |
-| 16 | Treasury Interest After Federal Tax (24%) | 2.89% | tax |
+| 13 | Private Credit / BDC Index (BIZD) | 9.0% | raw |
+| 14 | Bond Fund After 1% Advisory Fee | 2.5% | fee |
+| 15 | Bond Interest After Income Tax (37%) | 2.21% | tax |
+| 16 | Muni Bonds Tax-Exempt (Effective) | 3.5% | tax |
+| 17 | Treasury Interest After Federal Tax (24%) | 2.89% | tax |
 
 ## 4. Real Estate
 
@@ -148,7 +149,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 5. Cryptocurrency
 
-**Records:** 10
+**Records:** 13
 
 ### Held assets — compound model
 
@@ -161,9 +162,12 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 5 | DeFi LP Volatile Pairs | -10.0% | raw |
 | 6 | Altcoin Portfolio (Retail) | -15.0% | raw |
 | 7 | Meme Coins (Retail Avg) | -70.0% | raw |
-| 8 | Bitcoin After LTCG Tax (20%) | 36.0% | tax |
-| 9 | Bitcoin After STCG Tax (37%) | 28.35% | tax |
-| 10 | Ethereum After LTCG Tax (20%) | 8.0% | tax |
+| 8 | Staked Ethereum (ETH + Staking Yield) | 13.0% | raw |
+| 9 | Leveraged Perpetual Futures (Retail Avg) | -60.0% | raw |
+| 10 | Bitcoin Spot ETF After 0.25% Fee (IBIT) | 44.75% | fee |
+| 11 | Bitcoin After LTCG Tax (20%) | 36.0% | tax |
+| 12 | Bitcoin After STCG Tax (37%) | 28.35% | tax |
+| 13 | Ethereum After LTCG Tax (20%) | 8.0% | tax |
 
 ## 6. Collectibles
 
@@ -225,34 +229,31 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 10 | Annuity Gains After Ordinary Income Tax (37%) | 2.65% | tax |
 | 11 | Whole Life Cash Value (Tax-Free via Policy Loans) | 3.5% | tax |
 
-## 9. Sports Betting
+## 9. Trading & Derivatives
 
-**Records:** 18
+**Records:** 10
+
+### Held assets — compound model
+
+| # | Name | Annual return | Layer |
+|---|------|--------------:|-------|
+| 1 | Covered Call ETF (JEPI/QYLD) | 7.0% | raw |
+| 2 | Systematic Put Writing (PUTW) | 6.0% | raw |
+| 3 | Managed Futures / Trend Following (DBMF) | 5.0% | raw |
+| 4 | 3x Leveraged Nasdaq Held (TQQQ) | 15.0% | raw |
+| 5 | Retail Day Trading (Avg) | -15.0% | raw |
+| 6 | Retail Options Buying (Avg) | -20.0% | raw |
+| 7 | Retail Forex / CFD Trading (Avg) | -25.0% | raw |
+| 8 | 0DTE Options Buying (Retail) | -40.0% | raw |
+| 9 | Inverse / Short ETF Held (SQQQ) | -60.0% | raw |
 
 ### Games — linear model
 
 | # | Name | Edge | DU/day | CED | Layer |
 |---|------|-----:|-------:|----:|-------|
-| 1 | Single Game Spread (-110) | -4.55% | 2 | 3% | raw |
-| 2 | Single Game O/U (-110) | -4.55% | 2 | 3% | raw |
-| 3 | Moneyline (Standard Juice) | -4.55% | 2 | 3% | raw |
-| 4 | Teaser 2-Team 6pt | -5.0% | 1 | 3% | raw |
-| 5 | Live / In-Game Bet | -6.5% | 5 | 3% | raw |
-| 6 | Player Prop Bet | -7.0% | 3 | 2% | raw |
-| 7 | Season Win Total Future | -8.0% | 0.05 | 5% | raw |
-| 8 | 2-Team Parlay | -10.0% | 2 | 2% | raw |
-| 9 | Championship Future | -12.0% | 0.03 | 5% | raw |
-| 10 | 3-Team Parlay | -12.5% | 1 | 2% | raw |
-| 11 | 4-Team Parlay | -15.0% | 1 | 1% | raw |
-| 12 | Same-Game Parlay (SGP) | -15.0% | 2 | 2% | raw |
-| 13 | First Touchdown Scorer | -18.0% | 1 | 1% | raw |
-| 14 | 5-Team Parlay | -20.0% | 0.5 | 1% | raw |
-| 15 | Correct Score (Soccer) | -20.0% | 0.5 | 1% | raw |
-| 16 | 6-Team Parlay | -25.0% | 0.3 | 1% | raw |
-| 17 | 8-Team Parlay | -30.0% | 0.2 | 1% | raw |
-| 18 | 10-Team Parlay | -35.0% | 0.1 | 0.5% | raw |
+| 1 | Binary Options (Offshore) | -10.0% | 10 | 2% | raw |
 
-## 10. Casino Gambling
+## 10. Sports Betting
 
 **Records:** 22
 
@@ -260,30 +261,83 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer |
 |---|------|-----:|-------:|----:|-------|
-| 1 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw |
-| 2 | Blackjack 3:2 Basic Strategy | -0.5% | 60 | 2% | raw |
-| 3 | Baccarat Banker | -1.06% | 50 | 3% | raw |
-| 4 | Baccarat Player | -1.24% | 50 | 3% | raw |
-| 5 | Craps Don't Pass | -1.36% | 40 | 2% | raw |
-| 6 | Craps Pass Line | -1.41% | 40 | 2% | raw |
-| 7 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
-| 8 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
-| 9 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
-| 10 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
-| 11 | Three Card Poker | -3.4% | 40 | 3% | raw |
-| 12 | Let It Ride | -3.5% | 30 | 3% | raw |
-| 13 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
-| 14 | Caribbean Stud | -5.2% | 30 | 3% | raw |
-| 15 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
-| 16 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
-| 17 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
-| 18 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
-| 19 | Big Six Wheel | -16.0% | 20 | 2% | raw |
-| 20 | Craps Any Seven | -16.67% | 40 | 2% | raw |
-| 21 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
-| 22 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+| 1 | Sharp Bettor (+2% Closing Line Value) | 2.0% | 3 | 2% | raw |
+| 2 | Betting Exchange (2% Commission) | -1.0% | 2 | 3% | raw |
+| 3 | Reduced Juice Line (-105) | -2.38% | 2 | 3% | raw |
+| 4 | Single Game Spread (-110) | -4.55% | 2 | 3% | raw |
+| 5 | Single Game O/U (-110) | -4.55% | 2 | 3% | raw |
+| 6 | Moneyline (Standard Juice) | -4.55% | 2 | 3% | raw |
+| 7 | Teaser 2-Team 6pt | -5.0% | 1 | 3% | raw |
+| 8 | Live / In-Game Bet | -6.5% | 5 | 3% | raw |
+| 9 | Player Prop Bet | -7.0% | 3 | 2% | raw |
+| 10 | Micro-Bet (Next Play / Next Pitch) | -9.0% | 20 | 1% | raw |
+| 11 | Season Win Total Future | -8.0% | 0.05 | 5% | raw |
+| 12 | 2-Team Parlay | -10.0% | 2 | 2% | raw |
+| 13 | Championship Future | -12.0% | 0.03 | 5% | raw |
+| 14 | 3-Team Parlay | -12.5% | 1 | 2% | raw |
+| 15 | 4-Team Parlay | -15.0% | 1 | 1% | raw |
+| 16 | Same-Game Parlay (SGP) | -15.0% | 2 | 2% | raw |
+| 17 | First Touchdown Scorer | -18.0% | 1 | 1% | raw |
+| 18 | 5-Team Parlay | -20.0% | 0.5 | 1% | raw |
+| 19 | Correct Score (Soccer) | -20.0% | 0.5 | 1% | raw |
+| 20 | 6-Team Parlay | -25.0% | 0.3 | 1% | raw |
+| 21 | 8-Team Parlay | -30.0% | 0.2 | 1% | raw |
+| 22 | 10-Team Parlay | -35.0% | 0.1 | 0.5% | raw |
 
-## 11. Poker & Skill-Based
+## 11. Horse Racing & Pari-Mutuel
+
+**Records:** 6
+
+### Games — linear model
+
+| # | Name | Edge | DU/day | CED | Layer |
+|---|------|-----:|-------:|----:|-------|
+| 1 | Horse Racing with 8% ADW Rebate | -12.0% | 3 | 2% | raw |
+| 2 | Horse Racing Win / Place / Show | -17.0% | 3 | 2% | raw |
+| 3 | Horse Racing Exacta / Daily Double | -20.0% | 2 | 2% | raw |
+| 4 | Greyhound Racing | -20.0% | 3 | 2% | raw |
+| 5 | Horse Racing Trifecta / Superfecta | -25.0% | 2 | 1% | raw |
+| 6 | Horse Racing Pick 4 / Pick 6 | -25.0% | 0.5 | 1% | raw |
+
+## 12. Casino Gambling
+
+**Records:** 29
+
+### Games — linear model
+
+| # | Name | Edge | DU/day | CED | Layer |
+|---|------|-----:|-------:|----:|-------|
+| 1 | Blackjack Card Counting (Skilled) | 1.0% | 60 | 2% | raw |
+| 2 | Spanish 21 (Dealer Stands Soft 17) | -0.4% | 60 | 2% | raw |
+| 3 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw |
+| 4 | Blackjack 3:2 Basic Strategy | -0.5% | 60 | 2% | raw |
+| 5 | Baccarat Banker | -1.06% | 50 | 3% | raw |
+| 6 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw |
+| 7 | Baccarat Player | -1.24% | 50 | 3% | raw |
+| 8 | Craps Don't Pass | -1.36% | 40 | 2% | raw |
+| 9 | Craps Pass Line | -1.41% | 40 | 2% | raw |
+| 10 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
+| 11 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw |
+| 12 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
+| 13 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
+| 14 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
+| 15 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
+| 16 | Casino War | -2.88% | 50 | 2% | raw |
+| 17 | Three Card Poker | -3.4% | 40 | 3% | raw |
+| 18 | Let It Ride | -3.5% | 30 | 3% | raw |
+| 19 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
+| 20 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
+| 21 | Caribbean Stud | -5.2% | 30 | 3% | raw |
+| 22 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
+| 23 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
+| 24 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
+| 25 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
+| 26 | Big Six Wheel | -16.0% | 20 | 2% | raw |
+| 27 | Craps Any Seven | -16.67% | 40 | 2% | raw |
+| 28 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
+| 29 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+
+## 13. Poker & Skill-Based
 
 **Records:** 9
 
@@ -301,7 +355,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 8 | Poker Sit & Go Average | -15.0% | 5 | 5% | raw |
 | 9 | DFS Casual | -20.0% | 3 | 5% | raw |
 
-## 12. Prediction Markets
+## 14. Prediction Markets
 
 **Records:** 12
 
@@ -322,23 +376,27 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 11 | Kalshi Weather | -7.0% | 0.5 | 2% | raw |
 | 12 | PredictIt US Politics | -10.0% | 1 | 5% | raw |
 
-## 13. Lottery
+## 15. Lottery
 
-**Records:** 9
+**Records:** 13
 
 ### Games — linear model
 
 | # | Name | Edge | DU/day | CED | Layer |
 |---|------|-----:|-------:|----:|-------|
-| 1 | $1 Scratch-Off Best Odds | -25.0% | 1 | 0.5% | raw |
-| 2 | Premium Scratch-Off $20+ | -30.0% | 0.5 | 1% | raw |
-| 3 | Scratch-Off Tickets Avg | -35.0% | 0.5 | 0.5% | raw |
-| 4 | Keno State-Run | -40.0% | 2 | 0.5% | raw |
-| 5 | Daily Numbers Game | -42.0% | 1 | 0.5% | raw |
-| 6 | State Pick 6 / Lotto | -45.0% | 0.15 | 0.1% | raw |
-| 7 | State Lottery Pick 3/4 | -50.0% | 0.5 | 0.3% | raw |
-| 8 | Powerball / Mega Millions | -52.0% | 0.1 | 0.1% | raw |
-| 9 | Multi-State Cash4Life | -55.0% | 0.1 | 0.1% | raw |
+| 1 | Pull-Tab Tickets | -20.0% | 1 | 0.3% | raw |
+| 2 | $1 Scratch-Off Best Odds | -25.0% | 1 | 0.5% | raw |
+| 3 | Bingo Hall Session | -25.0% | 0.5 | 1% | raw |
+| 4 | Premium Scratch-Off $20+ | -30.0% | 0.5 | 1% | raw |
+| 5 | Scratch-Off Tickets Avg | -35.0% | 0.5 | 0.5% | raw |
+| 6 | Keno State-Run | -40.0% | 2 | 0.5% | raw |
+| 7 | Daily Numbers Game | -42.0% | 1 | 0.5% | raw |
+| 8 | State Pick 6 / Lotto | -45.0% | 0.15 | 0.1% | raw |
+| 9 | State Lottery Pick 3/4 | -50.0% | 0.5 | 0.3% | raw |
+| 10 | EuroMillions | -50.0% | 0.1 | 0.1% | raw |
+| 11 | Charity 50/50 Raffle | -50.0% | 0.05 | 0.5% | raw |
+| 12 | Powerball / Mega Millions | -52.0% | 0.1 | 0.1% | raw |
+| 13 | Multi-State Cash4Life | -55.0% | 0.1 | 0.1% | raw |
 
 <p align="center">
   <a href="../Docs/roadmap.md">Roadmap</a> ·
