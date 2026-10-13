@@ -42,16 +42,20 @@ type Page = {
   ruinDecisions: (r: Row) => number | null;
   decayYears90: (r: Row) => number | null;
   rowHzLabel: (r: Row, h: string) => string;
+  INFLATION: number;
+  ruinRisk: (r: Row) => number | null;
+  kellyMultiple: (r: Row) => number | null;
+  realReturn: (nominal: number, h: string) => number;
 };
 
 // eslint-disable-next-line no-eval
 const page = eval(
   `(() => {\n${section('// MATH & CONSTANTS', '// DATA INJECTION')}\n` +
     `${section('const RAW = [', '\nconst AR_DEFAULT')}\n` +
-    'return { RAW, HZ, RUIN_FLOOR, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel };\n})()',
+    'return { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn };\n})()',
 ) as Page;
 
-const { RAW, HZ, RUIN_FLOOR, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel } = page;
+const { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn } = page;
 
 const failures: string[] = [];
 const fail = (msg: string) => failures.push(msg);
@@ -119,6 +123,28 @@ for (const r of RAW) {
   const losing = r.m === 'g' ? r.e! < 0 : r.a! < 0;
   if (losing && ruinDecisions(r) === null && decayYears90(r) === null) {
     fail(`${r.n}: loses capital but reports neither a ruin point nor a decay horizon`);
+  }
+}
+
+// ── 6b. A positive edge still carries risk, and says so ──────────────────────
+// Expected ruin is null for a winning game, but flat stakes can still go broke; the
+// page must report that probability (strictly between 0 and 1) and the Kelly multiple.
+for (const r of RAW.filter((x) => x.m === 'g' && x.e! > 0)) {
+  const rr = ruinRisk(r), km = kellyMultiple(r);
+  if (rr === null || !(rr > 0 && rr < 1)) fail(`${r.n}: positive edge but ruin risk is ${rr}`);
+  if (km === null || !(km > 0)) fail(`${r.n}: positive edge but Kelly multiple is ${km}`);
+}
+for (const r of RAW.filter((x) => x.m === 'g' && x.e! <= 0)) {
+  if (ruinRisk(r) !== null) fail(`${r.n}: losing game should report expected ruin, not a ruin probability`);
+}
+
+// ── 6c. Real returns sit below nominal and keep the floor ────────────────────
+if (!(INFLATION > 0)) fail(`INFLATION is ${INFLATION}; the real layer would be a no-op`);
+for (const h of HZ) {
+  for (const r of RAW) {
+    const v = returnOnCapital(r, h), real = realReturn(v, h);
+    if (real > v + 1e-9) fail(`${r.n} @ ${h}: real return ${real.toFixed(2)}% exceeds nominal ${v.toFixed(2)}%`);
+    if (real < RUIN_FLOOR - 1e-9) fail(`${r.n} @ ${h}: real return breaches the floor`);
   }
 }
 
