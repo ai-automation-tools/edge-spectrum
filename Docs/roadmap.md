@@ -95,6 +95,28 @@ Phase 7: Public Launch ⚪
    - **Where:** `site/public/spectrum/index.html` (script tag and the theme-aware layout colours); not the `RAW` block.
    - **Done when:** the page renders in both themes, `npm run check:spectrum` and `npm run build` pass, and the three measures plot as before.
 
+7. [ ] 🟠 **Action 2.9 — Browser Smoke Test for the Spectrum Page (V21 review, 2026-10-12)**
+   - **Problem:** `check:spectrum` tests the page's math; nothing tests the page. Every defect found during the V21 rebuild (a squeezed plot, washed-out toggles on light, a pinned custom row dropped by `update()`) was caught by hand in a browser, not by CI.
+   - **Implementation:** One Playwright run in CI against `vite preview`: the page loads with 225 bars and no console errors, a click pins and the URL round-trips, the theme switch redraws, and the "Where do I sit?" form places a bar. Pair it with Action 2.8 so the Plotly bump has a net under it.
+   - **Done when:** the test is a CI step and fails on a deliberate regression (e.g. removing the `.li` button reset).
+
+8. [ ] 🟠 **Action 2.10 — Provenance on the Headline Figures & a Stale-Figure Flag**
+   - **Problem:** 15 of 225 records cite a source and none of them are the ones visitors argue about: S&P 500 at 10%, Bitcoin at 45%, HYSA at 4.5%, the 1-year CD. Those are also the rate-sensitive ones.
+   - **Implementation:** Add `source` / `asOf` / `window` to the top twenty rows by visibility (every `raw` Cash & Savings row, the index ETFs, Bitcoin, Ethereum, gold); have the Spectrum inspector flag any figure whose `asOf` is older than twelve months or missing. The ratchet in `check:edges` already holds the count.
+   - **Done when:** coverage is above 35 and the inspector shows a "verify" badge on stale rows.
+
+9. [ ] 🟡 **Action 2.11 — Self-Host Plotly**
+   - **Problem:** `cdn.plot.ly` is a single point of failure for the whole tool and a third-party request on every visit.
+   - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `Docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
+
+10. [ ] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps**
+    - **Problem:** `CC` and `AR_DEFAULT` on the Spectrum page and `ALL_CATS` / `CC` / `AR_DEFAULT` in the Streamlit archive are hand-synced with `EDGE_CATEGORIES`. A new category that misses one falls back to grey and "LOW" silently (`catColor` and `AR_DEFAULT[r.cat] || 2`).
+    - **Implementation:** Either `gen:edges` emits those maps from a single colour/risk table in `edges.ts`, or `check:spectrum` asserts every category in `RAW` has an entry in both. The first is cleaner; the second is ten lines.
+
+11. [ ] 🔵 **Action 2.13 — Payoff Shape for Positive-Edge Rows**
+    - **Problem:** `ruinRisk` and `kellyMultiple` (shipped 2026-10-12) assume an even-money payoff for every row. Tournament poker and DFS pay top-heavy, so the true Kelly fraction is smaller and the ruin risk larger than shown; the inspector says "approximation" but cannot say by how much.
+    - **Implementation:** Optional `payout` (average win multiple) and `winRate` fields on `GameEdge`; when present, compute Kelly as `(p·b − q)/b` and ruin risk by the general formula. Rows without them keep the even-money approximation.
+
 
 ---
 
@@ -152,7 +174,16 @@ Phase 7: Public Launch ⚪
    - **Feature:** Lazy-load secondary routes (`/backtester`, `/odds`, `/parlay`, and each later calculator) with `React.lazy` and split vendor chunks (`recharts`, `react-markdown`) to reduce initial JS payload to <150 kB. Measured 2026-09-03: a single **799 kB** chunk (was ~776 kB before the two calculators; the calculators themselves are small — the weight is the backtester's `recharts` + `react-markdown` + `dataGenerator`, which the hub landing and the calculators never use). Each new Phase 6 tool that lands before this makes the case for it stronger.
 
 6. [ ] 🟡 **Action 4.6 — Native React Port of Spectrum Visualizer**
-   - **Feature:** Migrate `site/public/spectrum/index.html` into a native React page (`site/src/pages/Spectrum.tsx`), unifying navigation, theme state, and data loading.
+   - **Feature:** Migrate `site/public/spectrum/index.html` into a native React page (`site/src/pages/Spectrum.tsx`), unifying navigation, theme state, and data loading. *(V21, 2026-10-12, rebuilt the page in place rather than porting it; the inspector, controls bar, URL state and "You" row are the component boundaries a port would keep.)*
+
+7. [ ] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page**
+   - **Feature:** Pin up to three activities and show return on capital by horizon as lines in the inspector, with the ruin horizon marked on each. The per-horizon values are already precomputed (`v`, `vr`, `t` on every row); this is one Plotly line chart and a multi-pin URL key.
+
+8. [ ] 🟡 **Action 4.8 — Ranges Instead of Point Estimates**
+   - **Feature:** Optional `lo` / `hi` on each record (e.g. a 10th–90th percentile of the annual return, or the takeout range across tracks) rendered as Plotly `error_y` bars and shown in the inspector. Cheap on the page; the work is in the dataset, and it answers "says who?" better than a citation does.
+
+9. [ ] 🔵 **Action 4.9 — Edit Any Row's Assumptions**
+   - **Feature:** The "Where do I sit?" form (2026-10-12) lets a reader place their own row; this extends it so the pinned record's `du` and `ced` can be overridden in place ("I play two hours a week at $25") and the ruin point recomputes live, without creating a second row. The frequency assumption is the most contestable input in the dataset and the one readers most want to argue with.
 
 ---
 
@@ -189,11 +220,20 @@ Phase 7: Public Launch ⚪
 3. [ ] 🟡 **Action 6.3 — Standalone Kelly & Bankroll Sizing Calculator**
    - **Tool:** Single and simultaneous multi-event Kelly sizing with risk-of-ruin curves and fractional sizing recommendations.
 
-4. [ ] 🟡 **Action 6.4 — Personal Edge Audit Tool**
+4. [ ] 🟡 **Action 6.4 — Personal Edge Audit Tool** 🟡 *(first step shipped 2026-10-12: the Spectrum page's "Where do I sit?" form places one activity — a wager from any game or a custom edge with bankroll, stake and frequency, or a holding — on the chart as a "You" bar and reports it in dollars, kept in the URL. The blended multi-activity audit remains.)*
    - **Tool:** User enters their personal activities (401k index funds, sports betting volume, poker hours, lottery tickets) and receives a blended annualized return and expected drag calculation.
 
 5. [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender**
    - **Tool:** Interactive game prompting users to estimate mathematical edges on common wagers and investments, followed by a portfolio blender tool combining positive and negative edge assets.
+
+6. [ ] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page**
+   - **Tool:** `?embed=1` hides the hub nav, header, controls and footer and shows the chart plus a one-line caption, so a preset view can sit in an iframe on a blog post or a partner page. The view is already a URL (V21), so this is a CSS class and a "open the full tool" link.
+
+7. [ ] 🟡 **Action 6.7 — Share Card per Activity**
+   - **Tool:** A PNG per pinned activity (name, category, the return at the chosen horizon, the ruin figure, the helpline line) sized for social, generated client-side from the inspector or via `@vercel/og` alongside Action 7.3. The "Where do I sit?" row is the obvious first card: "my Sunday parlays reach $0 in 13 months".
+
+8. [ ] 🔵 **Action 6.8 — Regional Variants**
+   - **Tool:** UK and Australian lottery rows (Lotto, EuroMillions is in; Oz Lotto, Powerball AU), European single-zero roulette as the default casino row, bookmaker margins by market (Betfair vs. a UK high-street book), and non-US tax layers (UK ISA, CGT allowances). The helplines are already regional; the dataset is not.
 
 ---
 
@@ -208,6 +248,9 @@ Phase 7: Public Launch ⚪
 
 3. [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop**
    - **Feature:** Implement `@vercel/og` to generate dynamic social sharing cards for backtest equity curves and calculator results, with automated sitemaps and meta tags.
+
+4. [ ] 🟡 **Action 7.4 — Publish the Dataset as an Endpoint**
+   - **Feature:** `site/public/spectrum/edges.json` is already generated and served. Document it as a public, CORS-enabled dataset with a stable schema and version header, add `/api/edges` returning the computed horizons (`returnOnCapital`, `expectedTurnoverCost`, `ruinPoint` per row per horizon, from the same functions `check:spectrum` holds), and state the licence. Other people building on the data is the cheapest distribution the project can get, and the provenance ratchet (2.3, 2.10) is what makes it citable.
 
 ---
 

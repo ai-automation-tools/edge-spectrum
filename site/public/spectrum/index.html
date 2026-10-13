@@ -113,6 +113,11 @@
         }
         .abtn:hover { border-color: var(--border-hover); color: var(--text-main); background: var(--surface-hover); }
         .abtn svg { width: 13px; height: 13px; }
+        select.abtn { appearance: auto; padding-right: 8px; }
+        .fld { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 0.62rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; }
+        .fld input, .fld select { height: 32px; padding: 0 10px; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font: 500 0.74rem Inter, sans-serif; text-transform: none; letter-spacing: 0; }
+        .fld select { max-width: 100%; }
+        a.li:hover { background: var(--surface-hover); }
 
         /* ── Controls bar ── */
         .controls {
@@ -292,6 +297,7 @@
         <p>Every held asset and repeated wager on one floored axis. Pick a horizon, hover a bar to read it, click to pin it, and switch measures to see the cost of turnover that the capital axis cannot show.</p>
     </div>
     <div class="hdr-actions">
+        <select class="abtn" id="presets" aria-label="Preset views"><option value="">Preset views…</option></select>
         <button type="button" class="abtn" id="btnShare" title="Copy a link to this exact view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Share view</button>
         <button type="button" class="abtn" id="btnCsv" title="Download the activities in view, all horizons, as CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
         <button type="button" class="abtn" id="btnPng" title="Download the chart as a PNG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>PNG</button>
@@ -348,6 +354,7 @@
         <div class="seg" role="group" aria-label="Overlays">
             <button type="button" class="tog" data-toggle="ruin" aria-pressed="true" title="Mark every activity whose bankroll is expected to be gone before the horizon ends">✕ Ruin marks</button>
             <button type="button" class="tog" data-toggle="labels" aria-pressed="true" title="Print values on the bars when 40 or fewer are shown">Labels</button>
+            <button type="button" class="tog" data-toggle="real" aria-pressed="false" title="Deflate return on capital by a flat 3% a year; cash and bonds turn negative, which is the point">Real $ (−3% CPI)</button>
         </div>
     </div>
     <div class="ctl grow">
@@ -439,6 +446,19 @@ const ruinDecisions = r => (r.m === 'g' && r.e < 0) ? 100 / ((r.ced / 100) * Mat
 // to lose 90% instead, which is the honest analogue.
 const decayYears90 = r => (r.m === 'i' && r.a < 0) ? Math.log(0.1) / Math.log(1 + r.a/100) : null;
 
+// A positive edge has no EXPECTED ruin, but flat stakes still risk it. This is the classic
+// gambler's-ruin probability for an even-money game staked at 1/units of the bankroll:
+// ((1-e)/(1+e))^units. The even-money payoff is an approximation for every row.
+const ruinRisk = r => (r.m === 'g' && r.e > 0 && r.e < 100) ? Math.pow((1 - r.e/100) / (1 + r.e/100), 100 / r.ced) : null;
+// Kelly's growth-optimal stake on an even-money edge is the edge itself. This is how many
+// times that the row actually stakes; above 2x the bankroll is expected to shrink anyway.
+const kellyMultiple = r => (r.m === 'g' && r.e > 0) ? r.ced / r.e : null;
+
+// Real terms: the nominal return deflated by a flat CPI assumption over the horizon's
+// calendar time. The floor survives the deflation, so the ruin story does not change.
+const INFLATION = 3.0;
+const realReturn = (nominal, h) => Math.max(RUIN_FLOOR, ((1 + nominal/100) / Math.pow(1 + INFLATION/100, I_Y[h]) - 1) * 100);
+
 const HZ = ['1du','1day','1wk','1mo','1yr','5yr','10yr'];
 const HZ_LBL = {'1du':'SINGLE EVENT','1day':'1 DAY','1wk':'1 WEEK','1mo':'1 MONTH','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
 const HZ_DAYS = {'1du':0,'1day':1,'1wk':7,'1mo':30,'1yr':365,'5yr':1825,'10yr':3650};
@@ -457,7 +477,8 @@ const CC = {
     "Cryptocurrency":"#f59e0b","Collectibles":"#d97706","Precious Metals":"#fbbf24",
     "Insurance & Annuities":"#ec4899","Trading & Derivatives":"#f97316",
     "Sports Betting":"#22c55e","Horse Racing & Pari-Mutuel":"#84cc16","Casino Gambling":"#a855f7",
-    "Poker & Skill-Based":"#14b8a6","Prediction Markets":"#6366f1","Lottery":"#f43f5e"
+    "Poker & Skill-Based":"#14b8a6","Prediction Markets":"#6366f1","Lottery":"#f43f5e",
+    "You":"#38bdf8"
 };
 
 // ══════════════════════════
@@ -730,17 +751,28 @@ const LAYER_LBL = { raw: 'Gross', fee: 'After fees', tax: 'After tax' };
 // ══════════════════════════
 // PRE-COMPUTE
 // ══════════════════════════
-const D = RAW.map(r => {
+function enrich(r) {
     const v = {};   // returnOnCapital — the primary, floored measure
+    const vr = {};  // the same, in real terms
     const t = {};   // expectedTurnoverCost — games only, deliberately unfloored
     HZ.forEach(h => {
         v[h] = returnOnCapital(r, h);
+        vr[h] = realReturn(v[h], h);
         t[h] = r.m === 'g' ? expectedTurnoverCost(r.e, r.du, r.ced, h) : null;
     });
     const rd = ruinDecisions(r);
-    return {...r, v, t, rd, ruinDays: rd === null ? null : rd / r.du, decay90: decayYears90(r), ar: AR_DEFAULT[r.cat] || 2};
-});
+    return {...r, v, vr, t, rd, ruinDays: rd === null ? null : rd / r.du, decay90: decayYears90(r), rr: ruinRisk(r), km: kellyMultiple(r), ar: AR_DEFAULT[r.cat] || 2};
+}
+const D = RAW.map(enrich);
 const byName = new Map(D.map(d => [d.n, d]));
+// The reader's own activity, if they have placed one. It joins the chart as a "You" row.
+let YOU = null;
+const findRow = n => byName.get(n) || (YOU && YOU.n === n ? YOU : null);
+function setYou(y) {
+    YOU = y ? enrich(y.m === 'g'
+        ? { n: y.n, cat: 'You', g: 'You', m: 'g', e: y.e, du: y.du, ced: y.ced, ly: 'raw', type: 'Game', you: true, bank: y.bank }
+        : { n: y.n, cat: 'You', g: 'You', m: 'i', a: y.a, ly: 'raw', type: 'Asset', you: true, bank: y.bank }) : null;
+}
 
 // ══════════════════════════
 // STATE
@@ -749,7 +781,7 @@ const METRICS = {
     roc: {
         title: 'Return on Capital (%)', short: 'Return on capital',
         sub: 'What one bankroll does. Floored at &minus;100% &mdash; a bar on the floor is a bankroll that is gone.',
-        get: (d, h) => d.v[h],
+        get: (d, h) => S.real ? d.vr[h] : d.v[h],
         labels: ['Activities shown','Peak performer','Maximum drain','Ruined by horizon'],
     },
     turn: {
@@ -763,13 +795,13 @@ const LAYERS = ['raw','fee','tax','all'];
 const SORTS = ['value','category','name'];
 const COLORS = ['sign','cat'];
 
-const S = { h: '1yr', m: 'roc', l: 'raw', color: 'sign', sort: 'value', q: '', ruin: true, labels: true, cats: new Set(ALL_CATS), pin: null };
+const DEFAULTS = () => ({ h: '1yr', m: 'roc', l: 'raw', color: 'sign', sort: 'value', q: '', ruin: true, labels: true, real: false, cats: new Set(ALL_CATS), pin: null, form: false });
+const S = DEFAULTS();
 let hovered = null;   // transient: the bar under the cursor while nothing is pinned
 let playTimer = null;
 
 // The view is a URL, so a view can be sent. Defaults are omitted to keep links short.
-function readUrl() {
-    const p = new URLSearchParams(location.search);
+function readUrl(p = new URLSearchParams(location.search)) {
     if (HZ.includes(p.get('h'))) S.h = p.get('h');
     if (METRICS[p.get('m')]) S.m = p.get('m');
     if (LAYERS.includes(p.get('l'))) S.l = p.get('l');
@@ -778,11 +810,30 @@ function readUrl() {
     if (p.has('q')) S.q = p.get('q').slice(0, 60);
     if (p.get('r') === '0') S.ruin = false;
     if (p.get('lb') === '0') S.labels = false;
+    if (p.get('real') === '1') S.real = true;
+    if (p.has('ym')) {
+        const num = k => { const v = parseFloat(p.get(k)); return Number.isFinite(v) ? v : null; };
+        const y = { n: (p.get('yn') || 'You').slice(0, 40), m: p.get('ym') === 'i' ? 'i' : 'g', e: num('ye'), du: num('ydu'), ced: num('yced'), a: num('ya'), bank: num('yb') };
+        if (validYou(y)) setYou(y);
+    }
     if (p.has('cats')) {
         const idx = p.get('cats') === '' ? [] : p.get('cats').split(',').map(Number);
         S.cats = new Set(ALL_CATS.filter((c, i) => idx.includes(i)));
     }
-    if (p.has('pin') && byName.has(p.get('pin'))) S.pin = p.get('pin');
+    if (p.has('pin') && findRow(p.get('pin'))) S.pin = p.get('pin');
+}
+function validYou(y) {
+    if (!y || !y.n) return false;
+    if (y.bank !== null && !(y.bank > 0)) return false;
+    return y.m === 'g'
+        ? Number.isFinite(y.e) && y.e > -100 && y.e < 100 && y.du > 0 && y.ced > 0 && y.ced <= 100
+        : Number.isFinite(y.a) && y.a > -100;
+}
+// Swap the whole view for another query string (presets) without a reload.
+function applyQuery(qs) {
+    Object.assign(S, DEFAULTS());
+    readUrl(new URLSearchParams(qs));
+    update();
 }
 function writeUrl() {
     const p = new URLSearchParams();
@@ -794,6 +845,13 @@ function writeUrl() {
     if (S.q) p.set('q', S.q);
     if (!S.ruin) p.set('r', '0');
     if (!S.labels) p.set('lb', '0');
+    if (S.real) p.set('real', '1');
+    if (YOU) {
+        p.set('yn', YOU.n); p.set('ym', YOU.m);
+        const r4 = n => String(Math.round(n * 1e4) / 1e4);
+        if (YOU.m === 'g') { p.set('ye', r4(YOU.e)); p.set('ydu', r4(YOU.du)); p.set('yced', r4(YOU.ced)); } else p.set('ya', r4(YOU.a));
+        if (YOU.bank) p.set('yb', YOU.bank);
+    }
     if (S.cats.size !== ALL_CATS.length) p.set('cats', ALL_CATS.map((c, i) => S.cats.has(c) ? i : -1).filter(i => i >= 0).join(','));
     if (S.pin) p.set('pin', S.pin);
     const qs = p.toString();
@@ -810,6 +868,8 @@ function getFilteredData() {
     if (S.m === 'turn') d = d.filter(x => x.m === 'g');
     if (S.l !== 'all') d = d.filter(x => x.ly === 'raw' || x.ly === S.l);
     if (S.q) { const q = S.q.toLowerCase(); d = d.filter(x => x.n.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q)); }
+    // The reader's own row ignores the filters: it is the point of reference, not a record.
+    if (YOU && (S.m === 'roc' || YOU.m === 'g')) d.push(YOU);
     const byVal = (a, b) => val(b) - val(a);
     if (S.sort === 'name') return d.sort((a, b) => a.n.localeCompare(b.n));
     if (S.sort === 'category') return d.sort((a, b) => ALL_CATS.indexOf(a.cat) - ALL_CATS.indexOf(b.cat) || byVal(a, b));
@@ -862,7 +922,7 @@ function updateStats(data) {
     const best = data.length ? data.reduce((a, b) => val(b) > val(a) ? b : a) : null;
     const worst = data.length ? data.reduce((a, b) => val(b) < val(a) ? b : a) : null;
     document.getElementById('mC').textContent = data.length;
-    document.getElementById('mCS').textContent = `${data.filter(d => d.m === 'i').length} held · ${data.filter(d => d.m === 'g').length} wagered · ${new Set(data.map(d => d.cat)).size} categories`;
+    document.getElementById('mCS').textContent = `${data.filter(d => d.m === 'i').length} held · ${data.filter(d => d.m === 'g').length} wagered · ${new Set(data.filter(d => !d.you).map(d => d.cat)).size} categories`;
     document.getElementById('mB').textContent = best ? formatValue(val(best)) : '—';
     document.getElementById('mBS').textContent = best ? best.n : '';
     document.getElementById('mW').textContent = worst ? formatValue(val(worst)) : '—';
@@ -876,7 +936,7 @@ function updateStats(data) {
         document.getElementById('mS').textContent = sorted.length ? formatValue(sorted[Math.floor(sorted.length/2)]) : '—';
         document.getElementById('mSS').textContent = 'median of the wagering activities shown';
     }
-    document.getElementById('mTitle').textContent = m.title + ' · ' + HZ_LBL[S.h];
+    document.getElementById('mTitle').textContent = m.title + ' · ' + HZ_LBL[S.h] + (S.real && S.m === 'roc' ? ' · real, after ' + INFLATION + '% inflation' : '');
     document.getElementById('mSub').innerHTML = m.sub;
     document.getElementById('hdrMeta').textContent = `${D.length} activities · ${ALL_CATS.length} categories · 7 horizons · live calculation`;
 
@@ -897,21 +957,21 @@ function renderChart(data) {
     const vals = data.map(val);
     const focus = S.pin;
 
-    const colors = data.map(d => S.color === 'cat'
+    const colors = data.map(d => d.you ? P.pin : S.color === 'cat'
         ? hexA(catColor(d.cat), isLight() ? 0.85 : 0.8)
         : (val(d) >= 0 ? P.up : P.down));
-    const opacity = data.map(d => focus ? (d.n === focus ? 1 : 0.35) : 1);
-    const lineW = data.map(d => d.n === focus ? 2 : 1);
-    const lineC = data.map(d => d.n === focus ? P.pin : P.edge);
+    const opacity = data.map(d => focus ? (d.n === focus || d.you ? 1 : 0.35) : 1);
+    const lineW = data.map(d => d.n === focus || d.you ? 2 : 1);
+    const lineC = data.map(d => d.n === focus || d.you ? P.pin : P.edge);
     const showLabels = S.labels && data.length > 0 && data.length <= 40;
     const hover = data.map(d => `<b>${esc(d.n)}</b><br>${esc(d.cat)} · ${d.type}${d.ly !== 'raw' ? ' · ' + LAYER_LBL[d.ly] : ''}<br>${METRICS[S.m].short}: <b>${formatValue(val(d))}</b>${S.m === 'roc' && isRuined(d) ? '<br>✕ ruined before this horizon ends' : ''}<br><i>click to pin</i>`);
 
     const traces = [{
         type: 'bar', x: names, y: vals, customdata: data,
         marker: { color: colors, opacity, line: { color: lineC, width: lineW } },
-        text: showLabels ? data.map(d => (S.m === 'roc' && isRuined(d)) ? '' : formatValue(val(d))) : undefined,
-        textposition: 'outside', cliponaxis: false,
-        textfont: { family: 'JetBrains Mono', size: 9, color: P.tick },
+        text: data.map(d => d.you ? '▼ ' + d.n : showLabels && !(S.m === 'roc' && isRuined(d)) ? formatValue(val(d)) : ''),
+        textposition: 'outside', cliponaxis: false, constraintext: 'none',
+        textfont: { family: 'JetBrains Mono', size: 9, color: data.map(d => d.you ? P.pin : P.tick) },
         hovertext: hover, hoverinfo: 'text'
     }];
 
@@ -1003,7 +1063,62 @@ function ruinBox(item) {
         return `<div class="ruin-box"><div class="ruin-val">${fmtNum(item.decay90)} years &rarr; &minus;90%</div>
             <div class="fine">A held position erodes geometrically and never literally reaches $0; this is the time to lose nine tenths of it.</div></div>`;
     }
+    if (item.rr !== null) {
+        const km = item.km;
+        const verdict = km > 2 ? 'Overbet: above twice the growth-optimal stake the bankroll is expected to shrink despite the edge.'
+            : km > 1 ? 'Above the growth-optimal stake &mdash; part of the edge is being spent on variance.'
+            : 'At or under the growth-optimal stake.';
+        return `<div class="ruin-box ${km > 2 ? '' : 'ok'}"><div class="ruin-val">No expected ruin</div>
+            <div class="row"><span class="row-label">Chance of going broke at flat stakes</span><span class="row-val" style="color:${item.rr > 0.25 ? 'var(--danger)' : 'var(--warning)'}">${(item.rr * 100).toFixed(1)}%</span></div>
+            <div class="row"><span class="row-label">Stake vs Kelly optimum (${fmtNum(item.e)}%)</span><span class="row-val">${fmtNum(km)}&times;</span></div>
+            <div class="fine" style="margin-top:6px">${verdict}</div>
+            <div class="fine" style="margin-top:6px">The return above is a linear expectation at flat stakes and assumes unlimited action. Bet caps, contest sizes and edge decay bind long before the long-horizon figure.</div></div>`;
+    }
     return `<div class="ruin-box ok"><div class="ruin-val">No ruin point</div><div class="fine">Positive expectation &mdash; capital is not being drained.</div></div>`;
+}
+const money = n => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: Math.abs(n) >= 100 ? 0 : 2 });
+function moneyBlock(item) {
+    if (!item.bank) return '';
+    const roc = val(item);
+    const end = item.bank * (1 + roc / 100);
+    const weekly = item.m === 'g' ? item.bank * (item.ced / 100) * (item.e / 100) * item.du * 7 : item.bank * (Math.pow(1 + item.a / 100, 1 / 52) - 1);
+    return `<div class="insp-sec"><div class="sec-label">Your money</div>
+        <div class="row"><span class="row-label">Start</span><span class="row-val">${money(item.bank)}</span></div>
+        <div class="row"><span class="row-label">Expected after ${rowHzLabel(item, S.h).toLowerCase()}</span><span class="row-val" style="color:${signColor(roc)}">${money(end)}</span></div>
+        <div class="row"><span class="row-label">Expected change per week</span><span class="row-val" style="color:${signColor(weekly)}">${money(weekly)}</span></div>
+        ${item.m === 'g' ? `<div class="row"><span class="row-label">Per wager</span><span class="row-val">${money(item.bank * item.ced / 100)} staked · ${money(item.bank * (item.ced/100) * (item.e/100))} expected</span></div>` : ''}
+    </div>`;
+}
+// A losing two-way market priced symmetrically: hold h puts (1+h)/2 on each side, so the
+// row's edge becomes the American line the odds converter should open on.
+function symmetricLine(e) {
+    const dec = 2 / (1 + Math.abs(e) / 100);
+    return String(Math.round(dec >= 2 ? (dec - 1) * 100 : -100 / (dec - 1)));
+}
+// The calculators take pre-fill parameters (site/src/calcUrl.ts); the backtester takes a strategy.
+function relatedTools(item) {
+    const links = [];
+    const multi = /parlay|sgp|teaser/i.test(item.n);
+    const two = /Sports Betting|Horse|Prediction/.test(item.cat) && !multi;
+    if (item.m === 'g' && two) {
+        const line = item.e < 0 ? symmetricLine(item.e) : null;
+        links.push([line ? `/odds?legs=${line},${line}` : '/odds', 'Odds converter &amp; no-vig',
+            line ? `this edge is a two-way market at ${line} / ${line}` : 'strip the margin out of a real line']);
+    }
+    const teams = /(\d+)-Team Parlay/i.exec(item.n);
+    if (multi) {
+        const n = teams ? +teams[1] : /teaser/i.test(item.n) ? 2 : 3;
+        links.push([`/parlay?n=${n}`, 'Parlay &amp; SGP hold', `${n} legs at -110: see how the hold compounds`]);
+    }
+    // The simulator prices spreads, totals and moneylines only; props, futures and parlays get no link.
+    const bt = /spread/i.test(item.n) ? 'spread' : /o\/u|total/i.test(item.n) ? 'totals' : /moneyline/i.test(item.n) ? 'moneyline' : null;
+    if (item.cat === 'Sports Betting' && bt) {
+        links.push([`/backtester?betType=${bt}`, 'Backtest simulator', `test a ${bt} strategy over 26 seasons`]);
+    }
+    if (!links.length) return '';
+    return `<div class="insp-sec"><div class="sec-label">Related tools</div><div class="list">${links.map(([href, title, sub]) =>
+        `<a class="li" href="${href}" style="text-decoration:none;color:inherit"><span class="nm"><b>${title}</b> <span style="color:var(--text-muted)">&middot; ${sub}</span></span><span class="v" style="color:var(--accent)">&rarr;</span></a>`
+    ).join('')}</div></div>`;
 }
 function inputsRows(item) {
     return item.m === 'i'
@@ -1035,9 +1150,10 @@ function renderItem(item, pinned) {
                     ${item.ly !== 'raw' ? `<span class="badge">${LAYER_LBL[item.ly]}</span>` : ''}
                 </div>
             </div>
-            <button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button>
+            <div style="display:flex;gap:6px;flex:none">${item.you ? `<button type="button" class="pin-btn" id="youEdit">Edit</button><button type="button" class="pin-btn" id="youRemove">Remove</button>` : ''}<button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button></div>
         </div>
         <div class="insp-body">
+            ${moneyBlock(item)}
             <div class="insp-sec">
                 <div class="sec-label">At ${rowHzLabel(item, S.h)}</div>
                 <div class="row"><span class="row-label">Return on capital${roc <= RUIN_FLOOR ? ' <span style="color:var(--danger)">(at floor)</span>' : ''}</span><span class="row-val" style="color:${signColor(roc)}">${formatValue(roc)}</span></div>
@@ -1057,11 +1173,15 @@ function renderItem(item, pinned) {
                 ${inputsRows(item)}
                 <div class="row"><span class="row-label">Addiction risk tier</span><span class="row-val" style="color:${ink(AR_CLR[item.ar])}">${AR_LBL[item.ar]}</span></div>
             </div>
+            ${relatedTools(item)}
             <div class="insp-sec">
                 <div class="sec-label">Provenance</div>
-                ${citeBlock(item)}
+                ${item.you ? '<div class="cite">Your own inputs. Share the link to keep them.</div>' : citeBlock(item)}
             </div>
         </div>`;
+    const ye = document.getElementById('youEdit'), yr = document.getElementById('youRemove');
+    if (ye) ye.onclick = () => { S.form = true; update(); };
+    if (yr) yr.onclick = () => { setYou(null); if (S.pin === item.n) S.pin = null; update(); };
     document.getElementById('pinBtn').onclick = () => { S.pin = pinned ? null : item.n; hovered = null; update(); };
     inspEl.querySelectorAll('[data-hz]').forEach(b => b.onclick = () => { S.h = b.dataset.hz; update(); });
 }
@@ -1086,9 +1206,60 @@ function renderOverview(data) {
     inspEl.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { S.pin = b.dataset.pin; update(); });
 }
 function renderInspector(data) {
-    if (S.pin && byName.has(S.pin)) return renderItem(byName.get(S.pin), true);
+    if (S.form) return renderForm();
+    if (S.pin && findRow(S.pin)) return renderItem(findRow(S.pin), true);
     if (hovered) return renderItem(hovered, false);
     renderOverview(data);
+}
+
+// ══════════════════════════
+// RENDER: YOUR OWN ROW
+// ══════════════════════════
+function renderForm() {
+    inspEl.classList.add('pinned');
+    const y = YOU || { m: 'g', n: '', e: -4.55, du: 2, ced: 3, a: 7, bank: 1000 };
+    const games = D.filter(d => d.m === 'g');
+    const opts = ALL_CATS.filter(c => games.some(g => g.cat === c)).map(c =>
+        `<optgroup label="${esc(c)}">${games.filter(g => g.cat === c).map(g => `<option value="${esc(g.n)}">${esc(g.n)} (${formatValue(g.e)})</option>`).join('')}</optgroup>`).join('');
+    inspEl.innerHTML = `
+        <div class="insp-hdr"><div><div class="insp-title">Where do you sit?</div>
+            <div class="insp-meta">Place your own habit or holding on the spectrum.</div></div>
+            <button type="button" class="pin-btn" id="formCancel">Cancel</button></div>
+        <div class="insp-body"><form id="youForm" class="insp-sec" style="display:flex;flex-direction:column;gap:12px">
+            <div class="seg" role="group" aria-label="Kind"><button type="button" data-ym="g" aria-pressed="${y.m === 'g'}">Repeated wager</button><button type="button" data-ym="i" aria-pressed="${y.m === 'i'}">Held asset</button></div>
+            <label class="fld"><span>Name</span><input name="n" maxlength="40" placeholder="e.g. My Sunday parlays" value="${esc(y.n)}"></label>
+            <div data-kind="g">
+                <label class="fld"><span>Start from a game</span><select name="game"><option value="">Custom edge</option>${opts}</select></label>
+                <label class="fld"><span>Edge per wager (%)</span><input name="e" type="number" step="0.01" min="-99.99" max="99.99" value="${y.e ?? ''}"></label>
+                <label class="fld"><span>Bankroll ($)</span><input name="bank" type="number" step="1" min="1" value="${y.bank ?? ''}"></label>
+                <label class="fld"><span>Stake per wager ($)</span><input name="stake" type="number" step="0.01" min="0.01" value="${y.bank && y.ced ? (y.bank * y.ced / 100).toFixed(2) : ''}"></label>
+                <label class="fld"><span>Wagers per week</span><input name="perWeek" type="number" step="0.1" min="0.1" value="${y.du ? +(y.du * 7).toFixed(2) : ''}"></label>
+            </div>
+            <div data-kind="i">
+                <label class="fld"><span>Annual return (%)</span><input name="a" type="number" step="0.01" min="-99.99" value="${y.a ?? ''}"></label>
+                <label class="fld"><span>Amount held ($)</span><input name="amt" type="number" step="1" min="1" value="${y.bank ?? ''}"></label>
+            </div>
+            <div class="fine" id="formErr" style="color:var(--danger)"></div>
+            <button type="submit" class="abtn" style="justify-content:center;background:var(--accent);color:#fff;border-color:var(--accent)">Place me on the spectrum</button>
+            <div class="fine">Edge is per wager after the vig, as a percent of the stake. A wager is modelled at flat stakes; a holding compounds. Nothing is stored except in the link.</div>
+        </form></div>`;
+    const form = document.getElementById('youForm');
+    let kind = y.m;
+    const showKind = () => { form.querySelectorAll('[data-kind]').forEach(el => el.style.display = el.dataset.kind === kind ? '' : 'none'); form.querySelectorAll('[data-ym]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ym === kind))); };
+    form.querySelectorAll('[data-ym]').forEach(b => b.onclick = () => { kind = b.dataset.ym; showKind(); });
+    showKind();
+    form.game.onchange = () => { const g = byName.get(form.game.value); if (g) { form.e.value = g.e; form.perWeek.value = +(g.du * 7).toFixed(2); if (!form.n.value) form.n.value = 'My ' + g.n; } };
+    document.getElementById('formCancel').onclick = () => { S.form = false; update(); };
+    form.onsubmit = ev => {
+        ev.preventDefault();
+        const f = form, num = el => parseFloat(el.value);
+        const n = (f.n.value.trim() || (kind === 'g' ? 'My wagers' : 'My holding')).slice(0, 40);
+        const yv = kind === 'g'
+            ? { n, m: 'g', e: num(f.e), du: num(f.perWeek) / 7, ced: num(f.stake) / num(f.bank) * 100, bank: num(f.bank) }
+            : { n, m: 'i', a: num(f.a), bank: num(f.amt) || null };
+        if (!validYou(yv)) { document.getElementById('formErr').textContent = kind === 'g' ? 'Check the numbers: the stake must be between $0.01 and the whole bankroll, and the edge between -100% and +100%.' : 'The annual return must be above -100%.'; return; }
+        setYou(yv); S.form = false; S.pin = YOU.n; update();
+    };
 }
 
 // ══════════════════════════
@@ -1102,6 +1273,7 @@ function buildChips() {
             <button type="button" data-quick="none" title="Hide every category">None</button>
             <button type="button" data-quick="i" title="Only held assets">Held assets</button>
             <button type="button" data-quick="g" title="Only repeated wagers">Wagers</button>
+            <button type="button" id="addYou" title="Place your own habit or holding on the chart" style="color:var(--accent);border-color:var(--accent)">＋ Where do I sit?</button>
         </div>` + ALL_CATS.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" style="--c:${catColor(c)}" aria-pressed="true"><span class="dot"></span>${esc(c)}<span class="n">${counts[c]}</span></button>`).join('');
     box.querySelectorAll('[data-cat]').forEach(b => b.onclick = e => {
         const c = b.dataset.cat;
@@ -1110,7 +1282,7 @@ function buildChips() {
         else if (S.cats.has(c)) S.cats.delete(c); else S.cats.add(c);
         update();
     });
-    const modeOf = {}; D.forEach(d => modeOf[d.cat] = d.m);
+    document.getElementById('addYou').onclick = () => { S.form = true; update(); if (window.innerWidth <= 1100) inspEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     box.querySelectorAll('[data-quick]').forEach(b => b.onclick = () => {
         const q = b.dataset.quick;
         S.cats = new Set(q === 'all' ? ALL_CATS : q === 'none' ? [] : ALL_CATS.filter(c => D.some(d => d.cat === c && d.m === q)));
@@ -1125,7 +1297,7 @@ function syncControls() {
 }
 
 function update() {
-    if (S.pin && !byName.has(S.pin)) S.pin = null;
+    if (S.pin && !findRow(S.pin)) S.pin = null;
     writeUrl();
     syncControls();
     const data = getFilteredData();
@@ -1186,6 +1358,20 @@ function init() {
     document.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () => { S[b.dataset.toggle] = !S[b.dataset.toggle]; update(); });
     document.getElementById('q').oninput = e => { S.q = e.target.value.slice(0, 60); update(); };
     document.getElementById('btnShare').onclick = share;
+    const ci = (...names) => names.map(n => ALL_CATS.indexOf(n)).filter(i => i >= 0).join(',');
+    const PRESETS = [
+        ['Everything at one year', ''],
+        ['Ten years, grouped by category', 'h=10yr&c=cat&s=category'],
+        ['The casino floor at one year', 'h=1yr&c=cat&cats=' + ci('Casino Gambling')],
+        ['Every parlay', 'q=parlay&h=1yr'],
+        ['Fees and tax on the S&P over ten years', 'q=s%26p+500&l=all&h=10yr'],
+        ['Cash and bonds in real terms', 'real=1&h=10yr&c=cat&cats=' + ci('Cash & Savings', 'Bonds')],
+        ['Turnover cost at one month', 'm=turn&h=1mo'],
+        ['The positive-edge wagers', 'h=1yr&cats=' + ci('Poker & Skill-Based', 'Sports Betting', 'Casino Gambling') + '&pin=DFS%20Top%205%25'],
+    ];
+    const sel = document.getElementById('presets');
+    PRESETS.forEach(([l, q], i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = l; sel.appendChild(o); });
+    sel.onchange = () => { if (sel.value !== '') applyQuery(PRESETS[+sel.value][1]); sel.value = ''; };
     document.getElementById('btnCsv').onclick = exportCsv;
     document.getElementById('btnPng').onclick = exportPng;
 
@@ -1218,7 +1404,7 @@ function init() {
 
     document.addEventListener('keydown', e => {
         const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
-        if (e.key === 'Escape') { if (typing) { document.activeElement.blur(); } else if (S.pin) { S.pin = null; update(); } return; }
+        if (e.key === 'Escape') { if (S.form) { S.form = false; update(); } else if (typing) { document.activeElement.blur(); } else if (S.pin) { S.pin = null; update(); } return; }
         if (typing) return;
         if (e.key === '/') { e.preventDefault(); document.getElementById('q').focus(); return; }
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {

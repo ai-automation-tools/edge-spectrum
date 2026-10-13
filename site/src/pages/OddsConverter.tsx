@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Calculator, Scale, Plus, X, Info } from 'lucide-react';
 import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
 import { PageHead, Accented } from '../components/ui';
@@ -7,15 +8,16 @@ import {
   type OddsFormat, type DevigMethod, FORMAT_LABEL, METHOD_LABEL, METHOD_BLURB,
   parseOdds, formatOdds, devig,
 } from '../odds';
+import { oddsFromQuery, type OddsPageQuery } from '../calcUrl';
 
 const FORMATS = Object.keys(FORMAT_LABEL) as OddsFormat[];
 const METHODS = Object.keys(METHOD_LABEL) as DevigMethod[];
 
 // ── Converter ────────────────────────────────────────────────────────────
 
-function Converter() {
+function Converter({ init }: { init: OddsPageQuery }) {
   // The field being typed in keeps its raw text; every other field is derived.
-  const [src, setSrc] = useState<{ format: OddsFormat; text: string }>({ format: 'american', text: '-110' });
+  const [src, setSrc] = useState<{ format: OddsFormat; text: string }>({ format: init.format, text: init.odds ?? '-110' });
   const decimal = parseOdds(src.text, src.format);
 
   return (
@@ -57,13 +59,15 @@ function Converter() {
 interface Leg { id: number; label: string; text: string }
 let nextId = 3;
 
-function NoVig() {
-  const [format, setFormat] = useState<OddsFormat>('american');
-  const [method, setMethod] = useState<DevigMethod>('multiplicative');
-  const [legs, setLegs] = useState<Leg[]>([
-    { id: 1, label: 'Home', text: '-110' },
-    { id: 2, label: 'Away', text: '-110' },
-  ]);
+function NoVig({ init }: { init: OddsPageQuery }) {
+  const [format, setFormat] = useState<OddsFormat>(init.format);
+  const [method, setMethod] = useState<DevigMethod>(init.method);
+  const [legs, setLegs] = useState<Leg[]>(() => {
+    const prices = init.legs ?? ['-110', '-110'];
+    const labels = prices.length === 2 ? ['Home', 'Away'] : prices.map((_, i) => `Outcome ${i + 1}`);
+    nextId = prices.length + 1;
+    return prices.map((text, i) => ({ id: i + 1, label: labels[i], text }));
+  });
 
   const decimals = legs.map((l) => parseOdds(l.text, format));
   const complete = decimals.every((d): d is number => d !== null);
@@ -173,6 +177,9 @@ function NoVig() {
 }
 
 export default function OddsConverter() {
+  // Read once on mount; the page does not write its state back to the URL.
+  const { search } = useLocation();
+  const [init] = useState(() => oddsFromQuery(search));
   return (
     <>
     <main className="mx-auto max-w-5xl px-5 py-12 md:py-16">
@@ -183,8 +190,8 @@ export default function OddsConverter() {
         lede="Convert between American, decimal, fractional and implied-probability odds, then remove the bookmaker's margin from any two-way or multi-way market using the multiplicative, power, or Shin method."
       />
       <div className="flex flex-col gap-6">
-        <Converter />
-        <NoVig />
+        <Converter init={init} />
+        <NoVig init={init} />
       </div>
     </main>
     <SiteFooter />

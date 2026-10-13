@@ -57,7 +57,19 @@ $$N_{\text{ruin}} \approx \frac{B_0}{\text{Bet Size} \times |E|} \;=\; \frac{100
 
 The right-hand form is what the visualizer evaluates, expressing bankroll and stake as percentages so no notional dollar amount has to be assumed. A losing **held** asset never literally reaches zero under geometric decay, so its analogue is the time to lose 90%: $t_{90} = \ln(0.1) / \ln(1 + r_{\text{ann}}/100)$.
 
-**These three are consistent by construction.** $C_{\text{turn}}$ passes $-100\%$ at exactly $N_{\text{ruin}}$ decisions, which is exactly where $R_{\text{cap}}$ reaches its floor — so the floored bar and the ruin marker are the same statement made twice. `npm run check:spectrum` asserts that agreement across all 187 records and 7 horizons.
+**These three are consistent by construction.** $C_{\text{turn}}$ passes $-100\%$ at exactly $N_{\text{ruin}}$ decisions, which is exactly where $R_{\text{cap}}$ reaches its floor — so the floored bar and the ruin marker are the same statement made twice. `npm run check:spectrum` asserts that agreement across all 225 records and 7 horizons.
+
+### Metric D: Ruin Risk and Kelly Multiple (positive edges only)
+
+A positive edge has no *expected* ruin, but a flat-staking player can still go broke on variance. The visualizer reports the classic gambler's-ruin probability for an even-money game staked at $u = 100 / \text{CED}$ units of the bankroll:
+
+$$P_{\text{ruin}} = \left(\frac{1 - E}{1 + E}\right)^{u}$$
+
+and the stake as a multiple of Kelly's growth-optimal fraction, which for an even-money edge is the edge itself: $k = \text{CED} / E$. Above $k = 2$ the bankroll is expected to shrink despite the edge. Both are shown in the ruin box for every winning game (shipped V21, 2026-10-12; `check:spectrum` asserts $0 < P_{\text{ruin}} < 1$ for every positive-edge row). The even-money payoff is an approximation for every row; the return itself stays a linear flat-stake expectation and assumes unlimited action, which the inspector says in as many words.
+
+### Real terms
+
+An optional overlay deflates $R_{\text{cap}}$ by a flat $3\%$ a year over the horizon's calendar time: $R_{\text{real}} = (1 + R_{\text{cap}}) / 1.03^{\,t} - 1$, floored at $-100\%$. The floor survives the deflation, so the ruin markers do not move.
 
 In the platform's visualizers, $R_{\text{cap}}$ is the primary axis and is capped at $-100\%$, turnover drag $C_{\text{turn}}$ is presented on a **separate axis** behind a measure toggle, and the Ruin Point is rendered directly on the primary chart as a floor line and a per-activity marker. Shipped in Spectrum V20 (roadmap Action 2.1, 2026-08-31); before that all three were conflated on one unconstrained axis.
 
