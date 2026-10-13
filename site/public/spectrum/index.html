@@ -949,6 +949,7 @@ function updateStats(data) {
 // RENDER: CHART
 // ══════════════════════════
 const chartEl = document.getElementById('chart');
+const COARSE = matchMedia('(pointer: coarse)').matches;
 // The chart grows with the plotted span so a +4,600% ten-year bar does not squash everything
 // else into a few pixels: 1x the base height at a few percent, about 2x at a one-year span,
 // and 3x (the cap) at ten years. Base is the old fixed height, 58% of the viewport within limits.
@@ -1038,7 +1039,9 @@ function renderChart(data) {
             // +4,000% ten-year crypto bar dictate how much empty space sits underneath.
             range: onFloor ? [RUIN_FLOOR - Math.min(pad, 8), hi + pad * (showLabels ? 1.8 : 1)] : [lo - pad * (showLabels ? 1.8 : 1), hi + pad * (showLabels ? 1.8 : 1)]
         },
-        showlegend: false, bargap: data.length > 120 ? 0.1 : 0.2, dragmode: 'zoom',
+        // Touch screens get no drag-zoom: in 'zoom' mode Plotly swallows every swipe, so a
+        // thumb scrolling past the chart box-zoomed it instead of scrolling the page.
+        showlegend: false, bargap: data.length > 120 ? 0.1 : 0.2, dragmode: COARSE ? false : 'zoom',
         hoverlabel: { bgcolor: P.hoverBg, bordercolor: P.pin, font: { family: 'Inter', size: 12, color: P.hoverFg }, align: 'left' },
         shapes, annotations
     };
@@ -1408,7 +1411,16 @@ function init() {
         if (S.pin || !hovered) return;
         hovered = null; renderInspector(getFilteredData());
     });
+    // With dragmode off Plotly reports the end of every touch as a click, scrolls included,
+    // so a finger that moved more than a tap's worth must not toggle the pin.
+    let touchStart = null, swiped = false;
+    chartEl.addEventListener('touchstart', e => { touchStart = e.touches[0]; swiped = false; }, { passive: true });
+    chartEl.addEventListener('touchmove', e => {
+        const t = e.touches[0];
+        if (touchStart && Math.hypot(t.clientX - touchStart.clientX, t.clientY - touchStart.clientY) > 10) swiped = true;
+    }, { passive: true });
     chartEl.on('plotly_click', ev => {
+        if (swiped) return;
         const n = ev.points[0].customdata.n;
         S.pin = S.pin === n ? null : n; hovered = null; update();
     });
