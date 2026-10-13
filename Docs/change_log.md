@@ -70,9 +70,14 @@ and moving `ALL_CATS` to be read off `RAW`; `check:spectrum` passes unchanged.
 - **Preset views** — a select in the header swaps the whole view (everything, ten years by category,
   casino floor, every parlay, fees and tax on the S&P, cash and bonds in real terms, turnover at one
   month, the positive-edge wagers) without a reload.
-- **Related tools** — sports, horse and prediction rows link to the odds converter, parlay rows to the
-  parlay calculator, sports rows to the backtester. The calculators take no URL parameters yet, so the
-  links are plain.
+- **Related tools, pre-filled.** `site/src/calcUrl.ts` (held by `npm run check:calc-url`, now in CI)
+  reads `/odds?odds=&legs=&method=&format=` and `/parlay?n=&legs=&quoted=&method=&format=` once on
+  mount; anything that does not parse under the chosen format is dropped field by field, the leg count
+  is capped at 15, and a literal `+` must travel as `%2B`. The Spectrum inspector links a two-way row to
+  the odds converter at the symmetric line its edge implies (−4.55% → −110 / −110, a 17% takeout →
+  −141 / −141), an N-team parlay to the parlay calculator with N legs at −110, and spread / totals /
+  moneyline rows to the backtester with that bet type. Props, futures and parlays get no backtester
+  link because the simulator does not price them.
 - `Docs/methodology.md` gains Metric D (ruin risk, Kelly multiple) and the real-terms note.
 
 ---

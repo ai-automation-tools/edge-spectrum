@@ -1089,21 +1089,36 @@ function moneyBlock(item) {
         ${item.m === 'g' ? `<div class="row"><span class="row-label">Per wager</span><span class="row-val">${money(item.bank * item.ced / 100)} staked · ${money(item.bank * (item.ced/100) * (item.e/100))} expected</span></div>` : ''}
     </div>`;
 }
-const TOOL_LINKS = {
-    odds: ['/odds', 'Odds converter &amp; no-vig', 'strip the margin out of a real line'],
-    parlay: ['/parlay', 'Parlay &amp; SGP hold', 'see how the hold compounds per leg'],
-    backtester: ['/backtester', 'Backtest simulator', 'test a wagering strategy over 26 seasons'],
-};
+// A losing two-way market priced symmetrically: hold h puts (1+h)/2 on each side, so the
+// row's edge becomes the American line the odds converter should open on.
+function symmetricLine(e) {
+    const dec = 2 / (1 + Math.abs(e) / 100);
+    return String(Math.round(dec >= 2 ? (dec - 1) * 100 : -100 / (dec - 1)));
+}
+// The calculators take pre-fill parameters (site/src/calcUrl.ts); the backtester takes a strategy.
 function relatedTools(item) {
-    const keys = [];
-    if (item.m === 'g' && /Sports Betting|Horse|Prediction/.test(item.cat)) keys.push('odds');
-    if (/parlay|sgp|teaser/i.test(item.n)) keys.push('parlay');
-    if (item.cat === 'Sports Betting') keys.push('backtester');
-    if (!keys.length) return '';
-    return `<div class="insp-sec"><div class="sec-label">Related tools</div><div class="list">${keys.map(k => {
-        const [href, title, sub] = TOOL_LINKS[k];
-        return `<a class="li" href="${href}" style="text-decoration:none;color:inherit"><span class="nm"><b>${title}</b> <span style="color:var(--text-muted)">&middot; ${sub}</span></span><span class="v" style="color:var(--accent)">&rarr;</span></a>`;
-    }).join('')}</div></div>`;
+    const links = [];
+    const multi = /parlay|sgp|teaser/i.test(item.n);
+    const two = /Sports Betting|Horse|Prediction/.test(item.cat) && !multi;
+    if (item.m === 'g' && two) {
+        const line = item.e < 0 ? symmetricLine(item.e) : null;
+        links.push([line ? `/odds?legs=${line},${line}` : '/odds', 'Odds converter &amp; no-vig',
+            line ? `this edge is a two-way market at ${line} / ${line}` : 'strip the margin out of a real line']);
+    }
+    const teams = /(\d+)-Team Parlay/i.exec(item.n);
+    if (multi) {
+        const n = teams ? +teams[1] : /teaser/i.test(item.n) ? 2 : 3;
+        links.push([`/parlay?n=${n}`, 'Parlay &amp; SGP hold', `${n} legs at -110: see how the hold compounds`]);
+    }
+    // The simulator prices spreads, totals and moneylines only; props, futures and parlays get no link.
+    const bt = /spread/i.test(item.n) ? 'spread' : /o\/u|total/i.test(item.n) ? 'totals' : /moneyline/i.test(item.n) ? 'moneyline' : null;
+    if (item.cat === 'Sports Betting' && bt) {
+        links.push([`/backtester?betType=${bt}`, 'Backtest simulator', `test a ${bt} strategy over 26 seasons`]);
+    }
+    if (!links.length) return '';
+    return `<div class="insp-sec"><div class="sec-label">Related tools</div><div class="list">${links.map(([href, title, sub]) =>
+        `<a class="li" href="${href}" style="text-decoration:none;color:inherit"><span class="nm"><b>${title}</b> <span style="color:var(--text-muted)">&middot; ${sub}</span></span><span class="v" style="color:var(--accent)">&rarr;</span></a>`
+    ).join('')}</div></div>`;
 }
 function inputsRows(item) {
     return item.m === 'i'
