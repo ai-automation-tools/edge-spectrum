@@ -2,6 +2,22 @@
 
 ---
 
+## October 13, 2026 — Spectrum page: touch scrolling, comparisons, embed mode
+
+- **Touch fix** — on touch screens the chart no longer captures swipes as drag-zoom, so the page scrolls
+  past it; a touch that moves more than 10px no longer pins or unpins a bar. The chart hint reads "tap a
+  bar to pin" there instead of promising a zoom.
+- **Comma search** — the name filter ORs comma-separated terms, so `slots, S&P 500 Index` puts those
+  records side by side across categories. Cap raised from 60 to 120 characters.
+- **Compare mode (Action 4.7)** — up to three pinned activities as return-on-capital lines by horizon,
+  with the ruin horizon marked; `cmp=` in the URL.
+- **Embed mode (Action 6.6)** — `?embed=1` shows only the chart and a caption with the helpline and an
+  "open the full tool" link, sized to the iframe.
+- **Category-map guard (Action 2.12)** — `check:spectrum` fails if a category is missing from the page's
+  `CC` / `AR_DEFAULT` or the Streamlit archive's `ALL_CATS` / `CC` / `AR_DEFAULT`.
+
+---
+
 ## October 12, 2026 — Spectrum page V21: redesigned UI, interactive chart, 35 new records (190 → 225)
 
 ### Dataset

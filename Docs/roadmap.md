@@ -176,7 +176,7 @@ Phase 7: Public Launch ⚪
 6. [ ] 🟡 **Action 4.6 — Native React Port of Spectrum Visualizer**
    - **Feature:** Migrate `site/public/spectrum/index.html` into a native React page (`site/src/pages/Spectrum.tsx`), unifying navigation, theme state, and data loading. *(V21, 2026-10-12, rebuilt the page in place rather than porting it; the inspector, controls bar, URL state and "You" row are the component boundaries a port would keep.)*
 
-7. [ ] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page**
+7. [x] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page** 🟢 (2026-10-13: a pinned bar's **Compare +** adds it to a set of up to three, kept in the URL as `cmp=` (names joined by `|`); the inspector then plots return on capital by horizon as one line each, with a ✕ at the first horizon each bankroll is gone, honours the Real $ toggle, and outlines the compared bars on the main chart. The single-event horizon is left off the x-axis so a wager and a trading day are not drawn as one unit. Linear y-axis: a 10-year crypto line still flattens the rest.)
    - **Feature:** Pin up to three activities and show return on capital by horizon as lines in the inspector, with the ruin horizon marked on each. The per-horizon values are already precomputed (`v`, `vr`, `t` on every row); this is one Plotly line chart and a multi-pin URL key.
 
 8. [ ] 🟡 **Action 4.8 — Ranges Instead of Point Estimates**
