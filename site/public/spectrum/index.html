@@ -191,7 +191,7 @@
         .chart-sub { font-size: 0.62rem; font-weight: 500; color: var(--text-muted); margin-top: 4px; padding-left: 12px; line-height: 1.5; max-width: 70ch; }
         .key { display: flex; gap: 12px; align-items: center; justify-content: flex-end; font-family: var(--mono); font-size: 0.58rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
         .key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-        #chart { height: clamp(420px, 58vh, 760px); width: 100%; }
+        #chart { height: 480px; width: 100%; } /* the height is set per view in chartHeight() */
         .chart-hint { margin-top: 6px; font-family: var(--mono); font-size: 0.55rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
         .empty { position: absolute; inset: 60px 0 0; display: none; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.8rem; text-align: center; padding: 24px; }
         .chart-container.is-empty .empty { display: flex; }
@@ -273,7 +273,6 @@
             .hdr, .controls, .cats, .content, .footer { padding-left: 16px; padding-right: 16px; }
             .ctl.grow { margin-left: 0; width: 100%; }
             .search input { width: 100%; }
-            #chart { height: 420px; }
         }
         @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
     </style>
@@ -950,6 +949,14 @@ function updateStats(data) {
 // RENDER: CHART
 // ══════════════════════════
 const chartEl = document.getElementById('chart');
+// The chart grows with the plotted span so a +4,600% ten-year bar does not squash everything
+// else into a few pixels: 1x the base height at a few percent, about 2x at a one-year span,
+// and 3x (the cap) at ten years. Base is the old fixed height, 58% of the viewport within limits.
+function chartHeight(span) {
+    const base = Math.min(760, Math.max(420, window.innerHeight * 0.58));
+    const factor = Math.min(3, Math.max(1, 1 + Math.log10(Math.max(span, 1) / 50)));
+    return Math.round(base * factor);
+}
 function renderChart(data) {
     const P = PLOT_INK[isLight() ? 'light' : 'dark'];
     document.getElementById('chartBox').classList.toggle('is-empty', data.length === 0);
@@ -992,6 +999,9 @@ function renderChart(data) {
     const lo = finite.length ? Math.min(...finite) : 0;
     const hi = finite.length ? Math.max(...finite) : 0;
     const pad = (hi - lo) * 0.06 || 1;
+    const height = chartHeight(hi - lo) + 'px';
+    const grew = chartEl.style.height !== height;
+    if (grew) chartEl.style.height = height;
     // The floor is drawn only once something has actually reached it. Pinning the axis
     // to -100% at every horizon would flatten the short-horizon views the same way the
     // unbounded turnover numbers used to flatten the long ones.
@@ -1033,6 +1043,7 @@ function renderChart(data) {
         shapes, annotations
     };
     Plotly.react(chartEl, traces, layout, { displayModeBar: false, responsive: true, doubleClick: 'reset', scrollZoom: false });
+    if (grew) Plotly.Plots.resize(chartEl);
 }
 
 // ══════════════════════════
