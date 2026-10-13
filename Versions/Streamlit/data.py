@@ -18,16 +18,16 @@ Schema per row:
 
 ALL_CATS = [
     "Cash & Savings", "Stock Market", "Bonds", "Real Estate", "Cryptocurrency",
-    "Collectibles", "Precious Metals", "Insurance & Annuities",
-    "Sports Betting", "Casino Gambling", "Poker & Skill-Based",
+    "Collectibles", "Precious Metals", "Insurance & Annuities", "Trading & Derivatives",
+    "Sports Betting", "Horse Racing & Pari-Mutuel", "Casino Gambling", "Poker & Skill-Based",
     "Prediction Markets", "Lottery",
 ]
 
 CC = {
     "Cash & Savings": "#34d399", "Stock Market": "#3b82f6", "Bonds": "#06b6d4",
     "Real Estate": "#8b5cf6", "Cryptocurrency": "#f59e0b", "Collectibles": "#d97706",
-    "Precious Metals": "#fbbf24", "Insurance & Annuities": "#ec4899",
-    "Sports Betting": "#22c55e", "Casino Gambling": "#a855f7",
+    "Precious Metals": "#fbbf24", "Insurance & Annuities": "#ec4899", "Trading & Derivatives": "#f97316",
+    "Sports Betting": "#22c55e", "Horse Racing & Pari-Mutuel": "#84cc16", "Casino Gambling": "#a855f7",
     "Poker & Skill-Based": "#14b8a6", "Prediction Markets": "#6366f1",
     "Lottery": "#f43f5e",
 }
@@ -43,7 +43,8 @@ DCA_AMT = {"1du": 100, "1day": 100, "1wk": 100, "1mo": 430,
 AR_DEFAULT = {
     "Cash & Savings": 1, "Stock Market": 1, "Bonds": 1, "Real Estate": 1,
     "Cryptocurrency": 3, "Collectibles": 1, "Precious Metals": 1,
-    "Insurance & Annuities": 1, "Sports Betting": 4, "Casino Gambling": 3,
+    "Insurance & Annuities": 1, "Trading & Derivatives": 3, "Sports Betting": 4,
+    "Horse Racing & Pari-Mutuel": 4, "Casino Gambling": 3,
     "Poker & Skill-Based": 3, "Prediction Markets": 2, "Lottery": 3,
 }
 AR_CLR = {1: "#22c55e", 2: "#84cc16", 3: "#eab308", 4: "#f97316", 5: "#ef4444"}
@@ -126,6 +127,7 @@ RAW = [
     _inv("International Bond (BNDX)", "Bonds", 2.5),
     _inv("Short-Term Treasury (SHY)", "Bonds", 2.5),
     _inv("TIPS Inflation-Protected (TIP)", "Bonds", 1.5),
+    _inv("Private Credit / BDC Index (BIZD)", "Bonds", 9.0),
     _inv("Bond Fund After 1% Advisory Fee", "Bonds", 2.5, "fee"),
     _inv("Bond Interest After Income Tax (37%)", "Bonds", 2.21, "tax"),
     _inv("Muni Bonds Tax-Exempt (Effective)", "Bonds", 3.5, "tax"),
@@ -153,6 +155,9 @@ RAW = [
     _inv("DeFi LP Volatile Pairs", "Cryptocurrency", -10.0),
     _inv("Altcoin Portfolio (Retail)", "Cryptocurrency", -15.0),
     _inv("Meme Coins (Retail Avg)", "Cryptocurrency", -70.0),
+    _inv("Staked Ethereum (ETH + Staking Yield)", "Cryptocurrency", 13.0),
+    _inv("Leveraged Perpetual Futures (Retail Avg)", "Cryptocurrency", -60.0),
+    _inv("Bitcoin Spot ETF After 0.25% Fee (IBIT)", "Cryptocurrency", 44.75, "fee"),
     _inv("Bitcoin After LTCG Tax (20%)", "Cryptocurrency", 36.0, "tax"),
     _inv("Bitcoin After STCG Tax (37%)", "Cryptocurrency", 28.35, "tax"),
     _inv("Ethereum After LTCG Tax (20%)", "Cryptocurrency", 8.0, "tax"),
@@ -196,13 +201,29 @@ RAW = [
     _inv("Annuity Gains After Ordinary Income Tax (37%)", "Insurance & Annuities", 2.65, "tax"),
     _inv("Whole Life Cash Value (Tax-Free via Policy Loans)", "Insurance & Annuities", 3.5, "tax"),
 
+    # --- TRADING & DERIVATIVES (Mixed) ---
+    _inv("Covered Call ETF (JEPI/QYLD)", "Trading & Derivatives", 7.0),
+    _inv("Systematic Put Writing (PUTW)", "Trading & Derivatives", 6.0),
+    _inv("Managed Futures / Trend Following (DBMF)", "Trading & Derivatives", 5.0),
+    _inv("3x Leveraged Nasdaq Held (TQQQ)", "Trading & Derivatives", 15.0),
+    _inv("Retail Day Trading (Avg)", "Trading & Derivatives", -15.0),
+    _inv("Retail Options Buying (Avg)", "Trading & Derivatives", -20.0),
+    _inv("Retail Forex / CFD Trading (Avg)", "Trading & Derivatives", -25.0),
+    _inv("0DTE Options Buying (Retail)", "Trading & Derivatives", -40.0),
+    _inv("Inverse / Short ETF Held (SQQQ)", "Trading & Derivatives", -60.0),
+    _gam("Binary Options (Offshore)", "Trading & Derivatives", -10.0, 10, 2),
+
     # --- SPORTS BETTING (Linear) ---
+    _gam("Sharp Bettor (+2% Closing Line Value)", "Sports Betting", 2.0, 3, 2),
+    _gam("Betting Exchange (2% Commission)", "Sports Betting", -1.0, 2, 3),
+    _gam("Reduced Juice Line (-105)", "Sports Betting", -2.38, 2, 3),
     _gam("Single Game Spread (-110)", "Sports Betting", -4.55, 2, 3),
     _gam("Single Game O/U (-110)", "Sports Betting", -4.55, 2, 3),
     _gam("Moneyline (Standard Juice)", "Sports Betting", -4.55, 2, 3),
     _gam("Teaser 2-Team 6pt", "Sports Betting", -5.0, 1, 3),
     _gam("Live / In-Game Bet", "Sports Betting", -6.5, 5, 3),
     _gam("Player Prop Bet", "Sports Betting", -7.0, 3, 2),
+    _gam("Micro-Bet (Next Play / Next Pitch)", "Sports Betting", -9.0, 20, 1),
     _gam("Season Win Total Future", "Sports Betting", -8.0, 0.05, 5),
     _gam("2-Team Parlay", "Sports Betting", -10.0, 2, 2),
     _gam("Championship Future", "Sports Betting", -12.0, 0.03, 5),
@@ -216,19 +237,34 @@ RAW = [
     _gam("8-Team Parlay", "Sports Betting", -30.0, 0.2, 1),
     _gam("10-Team Parlay", "Sports Betting", -35.0, 0.1, 0.5),
 
+    # --- HORSE RACING & PARI-MUTUEL (Linear) ---
+    _gam("Horse Racing with 8% ADW Rebate", "Horse Racing & Pari-Mutuel", -12.0, 3, 2),
+    _gam("Horse Racing Win / Place / Show", "Horse Racing & Pari-Mutuel", -17.0, 3, 2),
+    _gam("Horse Racing Exacta / Daily Double", "Horse Racing & Pari-Mutuel", -20.0, 2, 2),
+    _gam("Greyhound Racing", "Horse Racing & Pari-Mutuel", -20.0, 3, 2),
+    _gam("Horse Racing Trifecta / Superfecta", "Horse Racing & Pari-Mutuel", -25.0, 2, 1),
+    _gam("Horse Racing Pick 4 / Pick 6", "Horse Racing & Pari-Mutuel", -25.0, 0.5, 1),
+
     # --- CASINO GAMBLING (Linear) ---
+    _gam("Blackjack Card Counting (Skilled)", "Casino Gambling", 1.0, 60, 2),
+    _gam("Spanish 21 (Dealer Stands Soft 17)", "Casino Gambling", -0.4, 60, 2),
     _gam("Video Poker 9/6 JoB", "Casino Gambling", -0.46, 80, 1),
     _gam("Blackjack 3:2 Basic Strategy", "Casino Gambling", -0.5, 60, 2),
     _gam("Baccarat Banker", "Casino Gambling", -1.06, 50, 3),
+    _gam("Crypto Dice (1% House Edge)", "Casino Gambling", -1.0, 1000, 0.5),
     _gam("Baccarat Player", "Casino Gambling", -1.24, 50, 3),
     _gam("Craps Don't Pass", "Casino Gambling", -1.36, 40, 2),
     _gam("Craps Pass Line", "Casino Gambling", -1.41, 40, 2),
     _gam("Blackjack 6:5", "Casino Gambling", -2.0, 60, 2),
+    _gam("Ultimate Texas Hold'em", "Casino Gambling", -2.19, 30, 3),
     _gam("Craps Field (3:1 on 12)", "Casino Gambling", -2.78, 40, 2),
     _gam("Pai Gow Poker", "Casino Gambling", -2.5, 30, 3),
     _gam("Roulette Single Zero", "Casino Gambling", -2.7, 40, 3),
+    _gam("Sic Bo Big / Small", "Casino Gambling", -2.78, 40, 2),
+    _gam("Casino War", "Casino Gambling", -2.88, 50, 2),
     _gam("Three Card Poker", "Casino Gambling", -3.4, 40, 3),
     _gam("Let It Ride", "Casino Gambling", -3.5, 30, 3),
+    _gam("Online Slots 96% RTP", "Casino Gambling", -4.0, 600, 0.5),
     _gam("Slots Loose 95%", "Casino Gambling", -5.0, 500, 0.5),
     _gam("Caribbean Stud", "Casino Gambling", -5.2, 30, 3),
     _gam("Roulette Double Zero", "Casino Gambling", -5.26, 40, 3),
@@ -266,13 +302,17 @@ RAW = [
     _gam("PredictIt US Politics", "Prediction Markets", -10.0, 1, 5),
 
     # --- LOTTERY (Linear) ---
+    _gam("Pull-Tab Tickets", "Lottery", -20.0, 1, 0.3),
     _gam("$1 Scratch-Off Best Odds", "Lottery", -25.0, 1, 0.5),
+    _gam("Bingo Hall Session", "Lottery", -25.0, 0.5, 1),
     _gam("Premium Scratch-Off $20+", "Lottery", -30.0, 0.5, 1),
     _gam("Scratch-Off Tickets Avg", "Lottery", -35.0, 0.5, 0.5),
     _gam("Keno State-Run", "Lottery", -40.0, 2, 0.5),
     _gam("Daily Numbers Game", "Lottery", -42.0, 1, 0.5),
     _gam("State Pick 6 / Lotto", "Lottery", -45.0, 0.15, 0.1),
     _gam("State Lottery Pick 3/4", "Lottery", -50.0, 0.5, 0.3),
+    _gam("EuroMillions", "Lottery", -50.0, 0.1, 0.1),
+    _gam("Charity 50/50 Raffle", "Lottery", -50.0, 0.05, 0.5),
     _gam("Powerball / Mega Millions", "Lottery", -52.0, 0.1, 0.1),
     _gam("Multi-State Cash4Life", "Lottery", -55.0, 0.1, 0.1),
 ]
