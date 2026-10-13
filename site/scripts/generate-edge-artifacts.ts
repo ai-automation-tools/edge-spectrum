@@ -31,8 +31,13 @@ const SOURCE = 'site/src/data/edges.ts';
 const pct = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
 
 /** The banner that opens each category, in whichever comment syntax the target uses. */
-const banner = (r: EdgeRecord, mark: string) =>
-  `${mark} --- ${r.cat.toUpperCase()} (${r.m === 'i' ? 'Compound' : 'Linear'}) ---`;
+const MODES = new Map<string, Set<string>>();
+for (const r of EDGES) MODES.set(r.cat, (MODES.get(r.cat) ?? new Set()).add(r.m));
+const banner = (r: EdgeRecord, mark: string) => {
+  const modes = MODES.get(r.cat)!;
+  const model = modes.size > 1 ? 'Mixed' : r.m === 'i' ? 'Compound' : 'Linear';
+  return `${mark} --- ${r.cat.toUpperCase()} (${model}) ---`;
+};
 
 // ── The Spectrum visualizer's inlined RAW array ──────────────────────────────
 function spectrumBlock(): string {
