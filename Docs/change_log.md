@@ -2,6 +2,15 @@
 
 ---
 
+## October 12, 2026 — Browser smoke test for the Spectrum page (Action 2.9)
+
+No change to the page. `npm run check:spectrum-page` now drives the built page in headless Chromium in
+CI: 225 bars, the plot fills its box, a bar click pins and the URL reopens it, the theme switch redraws,
+"Where do I sit?" places a "You" bar whose link reopens it, and no console errors. A future edit that
+breaks any of those fails the PR instead of being found by hand.
+
+---
+
 ## October 12, 2026 — Spectrum page V21: redesigned UI, interactive chart, 35 new records (190 → 225)
 
 ### Dataset

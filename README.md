@@ -101,7 +101,7 @@ edge-spectrum/
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
-│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
+│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, check:spectrum-page, gen:edges)
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
