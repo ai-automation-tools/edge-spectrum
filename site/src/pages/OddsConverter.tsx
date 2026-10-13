@@ -98,7 +98,8 @@ function NoVig({ init }: { init: OddsPageQuery }) {
       </p>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        {/* Phones: keep the inputs at their set width and scroll the table inside its wrapper instead of crushing them. */}
+        <table className="w-full text-sm max-sm:min-w-[620px]">
           <thead>
             <tr className="text-left text-[11px] font-medium uppercase tracking-wider text-zinc-500">
               <th className="pb-2 pr-3 font-medium">Outcome</th>
@@ -140,7 +141,7 @@ function NoVig({ init }: { init: OddsPageQuery }) {
                       onClick={() => setLegs((ls) => ls.filter((l) => l.id !== leg.id))}
                       disabled={legs.length <= 2}
                       aria-label="Remove outcome"
-                      className="rounded p-1 text-zinc-600 transition-colors hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30"
+                      className="rounded p-1 max-sm:p-2.5 text-zinc-600 transition-colors hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       <X className="h-4 w-4" />
                     </button>
