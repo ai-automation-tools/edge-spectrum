@@ -49,7 +49,7 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
                        #   validation) — imported by BOTH server.ts and api/
     strategyBounds.ts  # the numeric limits and enum lists the schema enforces; no imports, so the strategy
                        #   form can clamp to them without pulling Zod into the client bundle
-    data/edges.ts      # THE DATASET — the canonical 225 edge records. Everything else that
+    data/edges.ts      # THE DATASET — the canonical 228 edge records. Everything else that
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
   scripts/            # not shipped: check-market.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
@@ -100,7 +100,7 @@ Images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   names the script destructures, breaks the guard. Its three measures are not interchangeable:
   `returnOnCapital` is floored at −100%, `expectedTurnoverCost` is deliberately not, and they must
   keep agreeing on `ruinPoint`. Never plot them on one axis again — that was roadmap Action 2.1.
-- **Generated data.** `site/src/data/edges.ts` is the only place the 225 edge records are authored.
+- **Generated data.** `site/src/data/edges.ts` is the only place the 228 edge records are authored.
   `npm run gen:edges` regenerates every copy from it — the `RAW` block inside
   `site/public/spectrum/index.html`, `site/public/spectrum/edges.json`, `Versions/Streamlit/data.py`
   and `Data/edge_dataset.md`. Edit `edges.ts`, run the script, commit the result; editing an
@@ -128,7 +128,7 @@ That repo is canonical: **edit them there, never in `.claude/skills/`.**
 | Skill | Reach for it when |
 |:---|:---|
 | `edge-spectrum-hub-tool` | Adding/changing a tool tile or page — `tools.ts`, `App.tsx`, `Home.tsx`, `pages/` |
-| `edge-spectrum-dataset` | Touching the 225 records, `gen:edges`, or the Spectrum page's measures |
+| `edge-spectrum-dataset` | Touching the 228 records, `gen:edges`, or the Spectrum page's measures |
 | `edge-spectrum-endpoint` | Anything under `site/api/`, `site/server.ts`, `site/src/server/` |
 
 `.claude/` is **gitignored here**, so the installed copies are local to your clone and a fresh
