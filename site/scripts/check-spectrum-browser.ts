@@ -14,7 +14,7 @@ import { chromium, type Page } from 'playwright';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PORT = 4317;
 const PAGE_URL = `http://127.0.0.1:${PORT}/spectrum/index.html`;
-const EXPECTED_RECORDS = 225;
+const EXPECTED_RECORDS = 228;
 
 const failures: string[] = [];
 const check = (ok: unknown, msg: string) => { if (!ok) failures.push(msg); };
