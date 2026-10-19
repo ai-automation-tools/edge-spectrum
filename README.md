@@ -106,12 +106,16 @@ edge-spectrum/
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
 ├── Docs/                  # In-depth logs, standardized analysis, and future ideas
+│   └── diagrams/          # Code-pinned Archify diagram of the hub (shown on the homepage)
+├── scripts/               # build-diagram.mjs: builds and drift-checks Docs/diagrams/ (docs tooling, not shipped)
 ├── Data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
 ├── Images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
 └── Versions/              # Legacy and alternate versions (Streamlit port, original themes)
 ```
 
-> **Note:** everything the site needs lives under `site/`; the repo root holds only docs and archives.
+> **Note:** everything the site needs lives under `site/`; the repo root holds only docs, archives and
+> the diagram builder. The [hub data-flow diagram](Docs/diagrams/README.md) shows how the pieces connect;
+> it lives on the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow), interactive and linked to the code.
 > Run all app commands (`npm …`, `vercel …`) from inside `site/`.
 
 ---

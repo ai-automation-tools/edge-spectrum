@@ -1,0 +1,6 @@
+# The diagram check hashes hub-data-flow.json against its build receipt, and compares the homepage
+# copies byte-for-byte with the build, so a CRLF checkout would read as drift. Pin LF.
+Docs/diagrams/*.json text eol=lf
+Docs/diagrams/*.html text eol=lf
+site/public/diagram/*.html text eol=lf
+*.png binary

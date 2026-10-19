@@ -2,6 +2,19 @@
 
 ---
 
+## October 19, 2026 — Hub data-flow diagram on the homepage
+
+- **Docs** [`Docs/diagrams/`](diagrams/README.md) holds an Archify diagram of how the hub fits
+  together: `edges.ts` generated into the Spectrum page, the `tools.ts` registry drawing every tile
+  and route, and the Backtest Simulator calling the backtest, ESPN proxy and passcode-gated Gemini
+  advisor functions. Every node cites its code at a pinned commit.
+- **Homepage** a new *How it works* section embeds it live (same-origin iframe, Live motion, follows
+  the Light | Dark switch). `node scripts/build-diagram.mjs` builds it and copies the HTML and PNG
+  into `site/public/diagram/`; `--check` reports drift, and CI warns (never fails) when cited code
+  changes.
+
+---
+
 ## October 19, 2026 — Roadmap on the lab's roadmap standard
 
 - **Docs** `Docs/roadmap.md` is now `Docs/ROADMAP.md` and this file `Docs/CHANGELOG.md` (was

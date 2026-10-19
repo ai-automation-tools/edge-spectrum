@@ -22,6 +22,12 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: site/package-lock.json
+      # Warns, never fails: rebuilding needs Chrome + Archify, which CI doesn't have. A warning
+      # means code cited by Docs/diagrams/hub-data-flow.json changed since its pinned commit;
+      # Docs/diagrams/README.md says how to update it. Runs from the repo root (the script is there).
+      - name: Diagram drift
+        working-directory: .
+        run: node scripts/build-diagram.mjs --hook | sed 's/^ISSUE:/::warning title=Diagram drift::ISSUE:/'
       - run: npm ci
       - run: npm run lint
       - run: npm run gen:edges -- --check
