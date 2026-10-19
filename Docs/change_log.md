@@ -2,6 +2,18 @@
 
 ---
 
+## October 14, 2026 — Three casino records (225 → 228)
+
+- **Roulette Single Zero La Partage** (−1.35%) — half the stake back on zero; source: Wizard of Odds,
+  Roulette basics.
+- **Roulette Five-Number Bet (0-00-1-2-3)** (−7.89%) — the one American-wheel bet worse than 5.26%;
+  source: Wizard of Odds, Roulette basics.
+- **Craps Hard 6 / Hard 8** (−2.78%) — 9-to-1 hard ways, per bet made; source: Wizard of Odds, craps
+  house edge table.
+- All three carry `source` and `asOf`; the citation baseline moves from 15 to 18.
+
+---
+
 ## October 13, 2026 — Phone polish (desktop unchanged)
 
 - **No iOS focus zoom** — form fields render at 16px below 640px (backtester, calculators, Spectrum
