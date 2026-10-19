@@ -8,7 +8,7 @@
     "output": "hub-data-flow.html",
     "repository": {
       "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
-      "revision": "c42334501c841d5939226b23325624545d117ce2"
+      "revision": "f3c0fe38347fe04b38b900a8ee296abd421475ef"
     }
   },
   "stages": [
@@ -84,8 +84,8 @@
       "sources": [
         {
           "path": "site/src/pages/Home.tsx",
-          "line": 55,
-          "end_line": 110
+          "line": 77,
+          "end_line": 132
         },
         {
           "path": "site/src/App.tsx",
