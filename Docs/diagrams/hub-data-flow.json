@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Edge Spectrum — Hub Data Flow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "hub-data-flow.html",
+    "repository": {
+      "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
+      "revision": "c42334501c841d5939226b23325624545d117ce2"
+    }
+  },
+  "stages": [
+    {
+      "label": "Authored in repo"
+    },
+    {
+      "label": "Build + hub shell"
+    },
+    {
+      "label": "Browser tools"
+    },
+    {
+      "label": "Serverless API"
+    },
+    {
+      "label": "Outside services"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "edges",
+      "type": "database",
+      "label": "edges.ts",
+      "sublabel": "228 edge records",
+      "stage": 0,
+      "row": 0,
+      "sources": [
+        {
+          "path": "site/src/data/edges.ts",
+          "line": 86,
+          "end_line": 101
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "tools.ts registry",
+      "sublabel": "One entry per tool",
+      "stage": 0,
+      "row": 2,
+      "sources": [
+        {
+          "path": "site/src/tools.ts",
+          "line": 37,
+          "end_line": 88
+        }
+      ]
+    },
+    {
+      "id": "gen",
+      "type": "backend",
+      "label": "gen:edges",
+      "sublabel": "Splice + --check in CI",
+      "stage": 1,
+      "row": 0,
+      "sources": [
+        {
+          "path": "site/scripts/generate-edge-artifacts.ts",
+          "line": 175,
+          "end_line": 217
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "type": "frontend",
+      "label": "Hub home + router",
+      "sublabel": "Tile grid / routes",
+      "stage": 1,
+      "row": 2,
+      "sources": [
+        {
+          "path": "site/src/pages/Home.tsx",
+          "line": 55,
+          "end_line": 110
+        },
+        {
+          "path": "site/src/App.tsx",
+          "line": 28,
+          "end_line": 36
+        }
+      ]
+    },
+    {
+      "id": "spectrum",
+      "type": "frontend",
+      "label": "Edge Spectrum page",
+      "sublabel": "Static Plotly, inlined RAW",
+      "stage": 2,
+      "row": 0,
+      "sources": [
+        {
+          "path": "site/public/spectrum/index.html",
+          "line": 509,
+          "end_line": 510
+        },
+        {
+          "path": "site/public/spectrum/index.html",
+          "line": 1157,
+          "end_line": 1167
+        }
+      ]
+    },
+    {
+      "id": "calcs",
+      "type": "frontend",
+      "label": "Odds + parlay calcs",
+      "sublabel": "Pure odds.ts, in browser",
+      "stage": 2,
+      "row": 1,
+      "sources": [
+        {
+          "path": "site/src/odds.ts",
+          "line": 1,
+          "end_line": 8
+        },
+        {
+          "path": "site/src/calcUrl.ts",
+          "line": 1,
+          "end_line": 17
+        }
+      ]
+    },
+    {
+      "id": "backtester",
+      "type": "frontend",
+      "label": "Backtest Simulator",
+      "sublabel": "Strategy, ESPN feed, advisor",
+      "stage": 2,
+      "row": 3,
+      "sources": [
+        {
+          "path": "site/src/BacktesterApp.tsx",
+          "line": 42,
+          "end_line": 50
+        },
+        {
+          "path": "site/src/components/EspnFeed.tsx",
+          "line": 84,
+          "end_line": 92
+        },
+        {
+          "path": "site/src/components/AiAdvisor.tsx",
+          "line": 151,
+          "end_line": 158
+        }
+      ]
+    },
+    {
+      "id": "api_backtest",
+      "type": "backend",
+      "label": "/api/backtest",
+      "sublabel": "Zod, simulated seasons",
+      "stage": 3,
+      "row": 2,
+      "sources": [
+        {
+          "path": "site/api/backtest.ts",
+          "line": 1,
+          "end_line": 18
+        },
+        {
+          "path": "site/src/server/backtest.ts",
+          "line": 15,
+          "end_line": 29
+        },
+        {
+          "path": "site/src/server/strategySchema.ts",
+          "line": 156,
+          "end_line": 169
+        }
+      ]
+    },
+    {
+      "id": "api_espn",
+      "type": "backend",
+      "label": "ESPN proxy",
+      "sublabel": "/api/espn-scoreboard",
+      "stage": 3,
+      "row": 3,
+      "sources": [
+        {
+          "path": "site/api/espn-scoreboard.ts",
+          "line": 1,
+          "end_line": 15
+        },
+        {
+          "path": "site/src/server/espn.ts",
+          "line": 27,
+          "end_line": 43
+        }
+      ]
+    },
+    {
+      "id": "api_advisor",
+      "type": "security",
+      "label": "Advisor gate",
+      "sublabel": "/api/strategy-advisor",
+      "stage": 3,
+      "row": 4,
+      "sources": [
+        {
+          "path": "site/api/strategy-advisor.ts",
+          "line": 1,
+          "end_line": 27
+        },
+        {
+          "path": "site/src/server/auth.ts",
+          "line": 250,
+          "end_line": 281
+        },
+        {
+          "path": "site/src/server/deployment.ts",
+          "line": 1,
+          "end_line": 4
+        }
+      ]
+    },
+    {
+      "id": "espn",
+      "type": "external",
+      "label": "ESPN scoreboard",
+      "sublabel": "site.api.espn.com",
+      "stage": 4,
+      "row": 3,
+      "sources": [
+        {
+          "path": "site/src/server/espn.ts",
+          "line": 27,
+          "end_line": 43
+        }
+      ]
+    },
+    {
+      "id": "gemini",
+      "type": "cloud",
+      "label": "Gemini",
+      "sublabel": "gemini-2.5-flash, JSON",
+      "stage": 4,
+      "row": 4,
+      "sources": [
+        {
+          "path": "site/src/server/advisor.ts",
+          "line": 47,
+          "end_line": 69
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "from": "edges",
+      "to": "gen",
+      "label": "EDGES rows",
+      "variant": "emphasis"
+    },
+    {
+      "from": "gen",
+      "to": "spectrum",
+      "label": "RAW + edges.json",
+      "variant": "emphasis"
+    },
+    {
+      "from": "registry",
+      "to": "home",
+      "label": "TOOLS entries"
+    },
+    {
+      "from": "home",
+      "to": "spectrum",
+      "label": "static link"
+    },
+    {
+      "from": "home",
+      "to": "calcs",
+      "label": "route"
+    },
+    {
+      "from": "home",
+      "to": "backtester",
+      "label": "route"
+    },
+    {
+      "from": "spectrum",
+      "to": "calcs",
+      "label": "?legs= / ?n= link"
+    },
+    {
+      "from": "backtester",
+      "to": "api_backtest",
+      "label": "POST strategy",
+      "variant": "emphasis"
+    },
+    {
+      "from": "backtester",
+      "to": "api_espn",
+      "label": "GET sport, date"
+    },
+    {
+      "from": "backtester",
+      "to": "api_advisor",
+      "label": "POST prompt",
+      "variant": "security"
+    },
+    {
+      "from": "api_espn",
+      "to": "espn",
+      "label": "fetch scoreboard"
+    },
+    {
+      "from": "api_advisor",
+      "to": "gemini",
+      "label": "generateContent",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One dataset, generated copies",
+      "items": [
+        "site/src/data/edges.ts is the only place the edge records are authored. npm run gen:edges rewrites the Spectrum page's inlined RAW block, site/public/spectrum/edges.json, the Streamlit port's data.py and Data/edge_dataset.md from it.",
+        "CI runs gen:edges --check and fails on any artifact that drifted. The page keeps its data inlined so check:spectrum tests the file that actually deploys."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "One registry, every tile and route",
+      "items": [
+        "Home maps over TOOLS for the tile grid; route tools get a React Router route in App.tsx, static tools are served from site/public/. Adding a tool is one entry in tools.ts plus one page.",
+        "The odds and parlay calculators run entirely in the browser on the pure functions in odds.ts. The Spectrum inspector opens them pre-filled through query strings that calcUrl.ts parses as untrusted input."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "What the server does",
+      "items": [
+        "On Vercel, site/api/* run as serverless functions; locally server.ts mirrors the same routes. Both call the shared modules in site/src/server/.",
+        "/api/backtest validates the strategy with Zod, rejecting out-of-bounds input with a 400, then runs the engine over synthetic seasons. The lines are priced off the same distribution the scores come from, so the book's hold is the only edge.",
+        "/api/espn-scoreboard proxies ESPN's public scoreboard to get around browser CORS."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "The advisor fails closed",
+      "items": [
+        "EDGE_SPECTRUM_MODE defaults to demo, which answers 403; only the exact value full enables live AI. The public demo stays in demo mode and holds no Gemini key.",
+        "In full mode the endpoint needs ADVISOR_PASSCODE set (otherwise 503) and a valid session cookie (otherwise 401) before it calls Gemini with the server-side GEMINI_API_KEY."
+      ]
+    }
+  ]
+}

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Sparkles, FlaskConical, Scale, KeyRound, BookOpen } from 'lucide-react';
 import { TOOLS, type Tool, type ToolStatus } from '../tools';
+import { useTheme } from '../theme';
 import { EDGES } from '../data/edges';
 import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
 import { METHOD_LABEL } from '../odds';
@@ -16,6 +17,27 @@ const STATUS: Record<ToolStatus, { label: string; c: string }> = {
   soon: { label: 'Soon', c: 'var(--a-zinc)' },
 };
 const KIND_LABEL = { route: 'in app', static: 'static page', external: 'external' } as const;
+
+/**
+ * The hub data-flow diagram. public/diagram/ holds copies scripts/build-diagram.mjs writes from
+ * Docs/diagrams/ (the source); never edit them here. Archify opens Still unless
+ * localStorage['archify-motion'] is "live", so the homepage sets it (reduced-motion readers still
+ * get Still), and the frame follows this page's Light | Dark switch.
+ */
+function DiagramFrame() {
+  const theme = useTheme();
+  const ref = useRef<HTMLIFrameElement>(null);
+  const sync = useCallback(() => {
+    try { ref.current?.contentDocument?.documentElement.setAttribute('data-theme', theme); } catch { /* not loaded yet */ }
+  }, [theme]);
+  useEffect(() => { try { localStorage.setItem('archify-motion', 'live'); } catch { /* storage blocked */ } }, []);
+  useEffect(sync, [sync]);
+  return (
+    <iframe id="diagram-frame" ref={ref} src="/diagram/hub-data-flow.html" loading="lazy" onLoad={sync}
+      className="block h-[clamp(420px,62vw,860px)] w-full border-0 bg-(--bg)"
+      title="Edge Spectrum hub data flow, interactive: edges.ts is generated into the Spectrum page; the tools registry drives the hub's tiles and routes; the Backtest Simulator calls the backtest, ESPN proxy and passcode-gated Gemini advisor functions" />
+  );
+}
 
 function ToolCard({ tool, index }: { tool: Tool; index: number }) {
   const Icon = tool.icon;
@@ -115,6 +137,19 @@ export default function Home() {
               </div>
             </Reveal>
           </div>
+        </section>
+
+        {/* ── How it works (code-pinned diagram) ── */}
+        <section id="sec-flow" className="scroll-mt-[72px] border-t border-zinc-800/60 py-14">
+          <Reveal>
+            <SectionHead eyebrow="How it works" title="One dataset, one registry, three serverless functions." sub="The edge records are authored once and generated into the Spectrum page; the tools registry draws every tile and route; the simulator is the only tool that calls the server, and its AI advisor fails closed." />
+          </Reveal>
+          <figure className="mt-6 overflow-hidden rounded-xl border border-zinc-800/60 bg-(--bg-2)">
+            <DiagramFrame />
+            <figcaption className="border-t border-zinc-800/60 px-4 py-2.5 text-[13px] text-zinc-500">
+              Every node links to the code it describes; Route and Lens trace paths. <a href="/diagram/hub-data-flow.html" className="text-sky-400 hover:text-sky-300">Open full screen ↗</a>
+            </figcaption>
+          </figure>
         </section>
 
         {/* ── Principles ── */}

@@ -21,6 +21,7 @@
 | [**Run your own site**](self-hosting.md) | Demo versus full mode, Vercel deployment, environment variables, and local setup. | Getting Started |
 | [**🗺️ Product Roadmap**](ROADMAP.md) | Sequenced action items, milestone tracking, release gates, and feature pipelines. | All Hub Tools |
 | [**📐 Mathematical Methodology**](methodology.md) | The DU/CED framework, metric semantics (return on capital vs. turnover cost vs. ruin), and Kelly sizing. | Core Analysis |
+| [**🧭 Diagrams**](diagrams/README.md) | The hub data-flow diagram the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow) shows: dataset → generated Spectrum page, registry → tiles and routes, simulator → serverless functions → ESPN and Gemini. Interactive, every node linked to its code, and drift-checked in CI. | All Hub Tools |
 | [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 13 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
 | [**💡 Planning & Ideas**](Ideas/README.md) | Over-engineering audits, hub improvement records, and visualizer feature backlogs. | Research & Audits |
 | [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
