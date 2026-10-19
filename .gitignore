@@ -19,3 +19,6 @@ coverage/
 # Archived analysis & scratch (local only, not in remote repo)
 .archive/
 Docs/_archive/
+
+# Archify build receipts and screenshots (scripts/build-diagram.mjs)
+Docs/diagrams/.build/
