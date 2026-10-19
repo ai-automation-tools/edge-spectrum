@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/records-225_canonical-8B5CF6?style=for-the-badge" alt="Records: 225">
+  <img src="https://img.shields.io/badge/records-228_canonical-8B5CF6?style=for-the-badge" alt="Records: 228">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-Docs_Home-6B7280?style=for-the-badge" alt="Docs Home"></a>
 </p>
 
@@ -17,7 +17,7 @@
 typed TypeScript source; the three former hand-maintained copies are now generated artifacts:
 
 ```
-site/src/data/edges.ts (Typed canonical dataset: 225 records)  ← edit only this
+site/src/data/edges.ts (Typed canonical dataset: 228 records)  ← edit only this
           │
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
@@ -40,7 +40,7 @@ actually deploys. The generator owns that block; the page still ships it.
 
 Only fields that carry information are stored. The visualizer's `g`, `type`, `vol`, `wp` and `sk`
 fields are pure functions of `cat` and `m`, so `toSpectrumRow()` re-expands them rather than the
-dataset holding 225 copies of the string `"Varies"`. Addiction risk is likewise per-category
+dataset holding 228 copies of the string `"Varies"`. Addiction risk is likewise per-category
 (`AR_DEFAULT`), not per-record.
 
 ```typescript
@@ -84,7 +84,7 @@ export interface ProvenanceInfo {
 
 ## 📊 2. The 15 Asset & Wagering Categories
 
-The canonical dataset spans 225 records across 15 categories. Category names below are the exact
+The canonical dataset spans 228 records across 15 categories. Category names below are the exact
 `cat` values in `edges.ts`; counts are generated into [`Data/edge_dataset.md`](../Data/edge_dataset.md)
 and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
@@ -120,8 +120,8 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 1. **`npm run gen:edges -- --check`** — regenerates all four artifacts from `edges.ts` and fails if
    any has drifted. This is what makes "single source of truth" enforceable rather than aspirational.
-2. **`npm run check:spectrum`** — asserts the record count (225), that every row is well-formed for
-   its model, and the mathematical invariants of the three measures over all 225 records × 7 horizons.
+2. **`npm run check:spectrum`** — asserts the record count (228), that every row is well-formed for
+   its model, and the mathematical invariants of the three measures over all 228 records × 7 horizons.
 
 **Planned — roadmap Action 2.3, not yet built.** A dedicated `site/scripts/check-edges.ts`
 (`npm run check:edges`) adding:
