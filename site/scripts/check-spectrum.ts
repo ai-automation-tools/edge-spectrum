@@ -65,7 +65,7 @@ const fail = (msg: string) => failures.push(msg);
 // ── 1. The page still carries the dataset the docs describe ──────────────────
 const EXPECTED_RECORDS = 228;
 if (RAW.length !== EXPECTED_RECORDS) {
-  fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (update Docs/roadmap.md if intentional)`);
+  fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (update Docs/ROADMAP.md if intentional)`);
 }
 if (RUIN_FLOOR !== -100) fail(`RUIN_FLOOR is ${RUIN_FLOOR}; total capital loss is −100% by definition`);
 

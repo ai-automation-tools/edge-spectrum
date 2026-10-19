@@ -23,6 +23,6 @@
 
 <p align="center">
   <a href="../README.md">← Docs Home</a> ·
-  <a href="../roadmap.md">Roadmap</a> ·
+  <a href="../ROADMAP.md">Roadmap</a> ·
   <a href="../methodology.md">Methodology</a>
 </p>
