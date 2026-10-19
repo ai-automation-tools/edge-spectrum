@@ -3,7 +3,7 @@
 **Date:** 2026-08-18
 **Scope:** Full review of the `edge-spectrum` repo, the `site/` app, and the two live tools
 (The Edge Spectrum viz + the Backtest Simulator).
-**Companion docs:** [roadmap.md](../roadmap.md) (phased milestones) ·
+**Companion docs:** [ROADMAP.md](../ROADMAP.md) (phased milestones) ·
 [improvement_ideas.md](improvement_ideas.md) (Spectrum viz feature backlog)
 
 **Status Key:** 🔴 Critical · 🟠 High · 🟡 Medium · ✨ Feature · ✅ Done

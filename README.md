@@ -27,7 +27,7 @@
 <p align="center">
   <a href="https://edge-spectrum.ai-automation-tools.dev"><img src="https://img.shields.io/badge/Live_Deployment-edge--spectrum.ai--automation--tools.dev-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Deployment"></a>
   <img src="https://img.shields.io/badge/status-active-2ea44f?style=for-the-badge" alt="Status: Active">
-  <a href="Docs/roadmap.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
+  <a href="Docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
   <a href="https://github.com/ai-automation-tools/edge-spectrum/actions/workflows/ci.yml"><img src="https://github.com/ai-automation-tools/edge-spectrum/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
 </p>
 
@@ -67,7 +67,7 @@ Served as a static page at `/spectrum/index.html` (internally routes to `public/
 - **Interactive Controls:** Toggle any combination of categories, switch measure (On Capital / Turnover Cost), adjust time horizons (Single Event to 10 Years), switch overlays (Raw Returns, Fee-Adjusted, After-Tax).
 - **Ruin Point Overlay** *(on by default)*: a dotted −100% floor line on the primary chart, an ✕ per activity whose bankroll is gone before the horizon ends, a **Ruined By Horizon** counter, and per-activity decisions-to-$0 and time-to-ruin in the tooltip.
 - **Addiction Risk Scoring:** Color-coded border alerts based on feedback loops and documentation of problem behavior.
-- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [change_log.md](Docs/change_log.md))*: intended to translate percentages into dollar outcomes at $100/week.
+- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [CHANGELOG.md](Docs/CHANGELOG.md))*: intended to translate percentages into dollar outcomes at $100/week.
 
 ### 2. The Sports Wagering Backtester
 Served inside the SPA React shell at `/backtester`.

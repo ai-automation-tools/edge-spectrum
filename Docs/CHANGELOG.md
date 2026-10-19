@@ -2,6 +2,17 @@
 
 ---
 
+## October 19, 2026 — Roadmap on the lab's roadmap standard
+
+- **Docs** `Docs/roadmap.md` is now `Docs/ROADMAP.md` and this file `Docs/CHANGELOG.md` (was
+  `change_log.md`), with every link updated, including the hub's command palette and home page and
+  the generated `Data/edge_dataset.md` footer. The roadmap takes the lab's standard shape: centred
+  header and badges, a markers line, every item a `- [ ]` / `- [x]` line (the numbered lists became
+  bullets, done notes read `— done YYYY-MM-DD`), Phases 1 and 2 above a ticked `🚦 Public release`
+  gate list, and Phases 3 to 7 as groups under `## After public release`. No items added or dropped.
+
+---
+
 ## October 14, 2026 — Three casino records (225 → 228)
 
 - **Roulette Single Zero La Partage** (−1.35%) — half the stake back on zero; source: Wizard of Odds,
@@ -233,7 +244,7 @@ simulator; both sit on one pure math module, `site/src/odds.ts`, guarded by `npm
 
 ## V20 — August 31, 2026
 
-Roadmap [Action 2.1](roadmap.md) — metric semantics and dual-axis correction. Evidence and
+Roadmap [Action 2.1](ROADMAP.md) — metric semantics and dual-axis correction. Evidence and
 measurements in [§8 of hub_improvement_plan.md](Ideas/hub_improvement_plan.md).
 
 > **Log gap:** V18 and V19 were never recorded here. V18 shipped the Ruin Calculator (idea #4);
