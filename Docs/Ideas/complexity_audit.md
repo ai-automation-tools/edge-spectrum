@@ -6,8 +6,8 @@
 left as-is.
 **Lens:** Over-engineering only — duplication, dead code, unused dependencies, and config nobody
 sets. Correctness, security, and performance were explicitly out of scope for this pass and are
-tracked in [hub_improvement_plan.md](hub_improvement_plan.md) and [../roadmap.md](../roadmap.md).
-**Companion docs:** [roadmap.md](../roadmap.md) (phased milestones) ·
+tracked in [hub_improvement_plan.md](hub_improvement_plan.md) and [../ROADMAP.md](../ROADMAP.md).
+**Companion docs:** [ROADMAP.md](../ROADMAP.md) (phased milestones) ·
 [hub_improvement_plan.md](hub_improvement_plan.md) (Phase 2 evidence) ·
 [improvement_ideas.md](improvement_ideas.md) (Spectrum viz backlog)
 

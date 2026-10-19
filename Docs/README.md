@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-active-2ea44f?style=for-the-badge" alt="Status: Active">
-  <a href="roadmap.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
   <a href="../README.md"><img src="https://img.shields.io/badge/↩-repository_root-6B7280?style=for-the-badge" alt="Repo Root"></a>
 </p>
 
@@ -19,11 +19,11 @@
 | Section / Document | Purpose | Scope |
 | :--- | :--- | :--- |
 | [**Run your own site**](self-hosting.md) | Demo versus full mode, Vercel deployment, environment variables, and local setup. | Getting Started |
-| [**🗺️ Product Roadmap**](roadmap.md) | Sequenced action items, milestone tracking, release gates, and feature pipelines. | All Hub Tools |
+| [**🗺️ Product Roadmap**](ROADMAP.md) | Sequenced action items, milestone tracking, release gates, and feature pipelines. | All Hub Tools |
 | [**📐 Mathematical Methodology**](methodology.md) | The DU/CED framework, metric semantics (return on capital vs. turnover cost vs. ruin), and Kelly sizing. | Core Analysis |
 | [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 13 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
 | [**💡 Planning & Ideas**](Ideas/README.md) | Over-engineering audits, hub improvement records, and visualizer feature backlogs. | Research & Audits |
-| [**📋 Change Log**](change_log.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
+| [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
 
 ---
 
@@ -63,7 +63,7 @@ Edge Spectrum operates as a multi-tool web application hosted on **Vercel** with
 
 <p align="center">
   <a href="../README.md">← Repository Root</a> ·
-  <a href="roadmap.md">Roadmap</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
   <a href="methodology.md">Methodology</a> ·
   <a href="data-architecture.md">Data Architecture</a>
 </p>

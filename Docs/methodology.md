@@ -116,6 +116,6 @@ The backtester simulation engine creates synthetic seasons without structural ho
 
 <p align="center">
   <a href="README.md">← Documentation Home</a> ·
-  <a href="roadmap.md">Roadmap</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
   <a href="data-architecture.md">Data Architecture</a>
 </p>
