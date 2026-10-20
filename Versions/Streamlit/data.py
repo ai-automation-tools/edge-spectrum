@@ -96,8 +96,8 @@ RAW = [
     _inv("Qualified Dividends (SPYD) After 15% Tax", "Stock Market", 6.8, "tax"),
 
     # --- CASH & SAVINGS (Compound) ---
-    _inv("Money Market Fund (SPAXX/VMFXX)", "Cash & Savings", 4.8),
-    _inv("High-Yield Savings Account (Online)", "Cash & Savings", 4.5),
+    _inv("Money Market Fund (SPAXX/VMFXX)", "Cash & Savings", 3.7),
+    _inv("High-Yield Savings Account (Online)", "Cash & Savings", 4.2),
     _inv("1-Year CD (Top Rate)", "Cash & Savings", 4.5),
     _inv("6-Month CD", "Cash & Savings", 4.3),
     _inv("High-Yield Money Market Account", "Cash & Savings", 4.3),
@@ -106,13 +106,13 @@ RAW = [
     _inv("3-Month CD", "Cash & Savings", 4.0),
     _inv("2-Year CD", "Cash & Savings", 3.8),
     _inv("5-Year CD", "Cash & Savings", 3.5),
-    _inv("Bank Money Market (Traditional)", "Cash & Savings", 1.5),
-    _inv("Credit Union Savings", "Cash & Savings", 0.5),
-    _inv("National Average Savings Rate", "Cash & Savings", 0.45),
+    _inv("Bank Money Market (Traditional)", "Cash & Savings", 0.63),
+    _inv("Credit Union Savings", "Cash & Savings", 0.19),
+    _inv("National Average Savings Rate", "Cash & Savings", 0.38),
     _inv("Big Bank Savings (Chase/BofA)", "Cash & Savings", 0.01),
     _inv("Regular Checking Account", "Cash & Savings", 0.01),
-    _inv("HYSA After Income Tax (24%)", "Cash & Savings", 3.42, "tax"),
-    _inv("HYSA After Income Tax (37%)", "Cash & Savings", 2.84, "tax"),
+    _inv("HYSA After Income Tax (24%)", "Cash & Savings", 3.19, "tax"),
+    _inv("HYSA After Income Tax (37%)", "Cash & Savings", 2.65, "tax"),
 
     # --- BONDS (Compound) ---
     _inv("High-Yield Corporate (HYG/JNK)", "Bonds", 5.5),
@@ -175,7 +175,7 @@ RAW = [
     _inv("Collectibles After 28% Tax Rate", "Collectibles", 4.32, "tax"),
 
     # --- PRECIOUS METALS (Compound) ---
-    _inv("Gold Bullion (Physical / GLD)", "Precious Metals", 7.5),
+    _inv("Gold Bullion (Physical / GLD)", "Precious Metals", 7.1),
     _inv("Rhodium (Physical)", "Precious Metals", 6.0),
     _inv("Gold Mining Stocks (GDX)", "Precious Metals", 5.0),
     _inv("Silver Bullion (Physical / SLV)", "Precious Metals", 4.5),
@@ -185,7 +185,7 @@ RAW = [
     _inv("Platinum Bullion (PPLT)", "Precious Metals", 2.0),
     _inv("Precious Coins (Numismatic)", "Precious Metals", 1.5),
     _inv("Junior Mining Stocks (GDXJ)", "Precious Metals", 1.0),
-    _inv("Gold After Collectibles Tax (28%)", "Precious Metals", 5.4, "tax"),
+    _inv("Gold After Collectibles Tax (28%)", "Precious Metals", 5.11, "tax"),
     _inv("Gold Mining After LTCG Tax (20%)", "Precious Metals", 4.0, "tax"),
 
     # --- INSURANCE & ANNUITIES (Compound) ---
