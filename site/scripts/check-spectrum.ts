@@ -31,7 +31,7 @@ function section(from: string, to: string): string {
 
 type Row = {
   n: string; cat: string; m: 'i' | 'g';
-  a?: number; e?: number; du?: number; ced?: number;
+  a?: number; e?: number; du?: number; ced?: number; src?: string; asOf?: string;
 };
 type Page = {
   RAW: Row[];
@@ -47,6 +47,7 @@ type Page = {
   ruinRisk: (r: Row) => number | null;
   kellyMultiple: (r: Row) => number | null;
   realReturn: (nominal: number, h: string) => number;
+  isStale: (r: Row, now: number) => boolean;
   CC: Record<string, string>;
 };
 
@@ -54,10 +55,10 @@ type Page = {
 const page = eval(
   `(() => {\n${section('// MATH & CONSTANTS', '// DATA INJECTION')}\n` +
     `${section('const RAW = [', '\nconst AR_DEFAULT')}\n` +
-    'return { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, CC };\n})()',
+    'return { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, isStale, CC };\n})()',
 ) as Page;
 
-const { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, CC } = page;
+const { RAW, HZ, RUIN_FLOOR, INFLATION, decisionCount, expectedTurnoverCost, returnOnCapital, ruinDecisions, decayYears90, rowHzLabel, ruinRisk, kellyMultiple, realReturn, isStale, CC } = page;
 
 const failures: string[] = [];
 const fail = (msg: string) => failures.push(msg);
@@ -188,11 +189,24 @@ if (share < MIN_INVESTING_SHARE) {
   fail(`at 10 years the best investment spans only ${share.toFixed(2)}% of the axis (min ${MIN_INVESTING_SHARE}%)`);
 }
 
+// ── 9. The "verify" badge flags undated and year-old figures (Action 2.10) ───
+// Clock pinned, so a citation ageing past a year shows on the page but never fails CI.
+const DAY = 864e5, NOW = Date.parse('2026-10-19');
+if (!isStale({ n: 'x', cat: 'x', m: 'i' }, NOW)) fail('isStale: a row with no asOf must be flagged');
+if (isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2026-10-19' }, NOW)) fail('isStale: a figure verified today was flagged');
+if (isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2025-10-19' }, NOW)) fail('isStale: a figure exactly a year old was flagged');
+if (!isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2025-10-19' }, NOW + DAY)) fail('isStale: a figure a year and a day old was not flagged');
+for (const r of RAW.filter((x) => x.src && !(x.asOf && Number.isFinite(Date.parse(x.asOf))))) {
+  fail(`${r.n}: cites a source but has no valid asOf date, so the page would flag it forever`);
+}
+const staleToday = RAW.filter((r) => isStale(r, Date.now())).length;
+
 console.log(`Spectrum check — ${RAW.length} records, ${HZ.length} horizons, read live from the page`);
 console.log(`  return on capital       worst ${worstROC.toFixed(2)}%  (floor ${RUIN_FLOOR}%)`);
 console.log(`  expected turnover cost  worst ${worstTurnover.toFixed(0)}%  (deliberately unfloored)`);
 console.log(`  floor / ruin-point disagreements: ${mismatches}`);
 console.log(`  best investment spans ${share.toFixed(2)}% of the 10-year axis (was 2.83%)`);
+console.log(`  rows the page flags "verify" today: ${staleToday}`);
 for (const h of HZ) {
   const ruined = RAW.filter((r) => {
     const rp = ruinDecisions(r);

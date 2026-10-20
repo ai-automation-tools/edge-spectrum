@@ -65,19 +65,20 @@ export type EdgeRecord = InvestmentEdge | GameEdge;
 export const EDGES: readonly EdgeRecord[];
 ```
 
-### Planned: provenance fields (roadmap Action 2.3, not yet built)
+### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-No record currently carries a citation or an as-of date. Action 2.3 adds these optional fields and
-the ratchet that stops citation coverage from regressing:
+Every record may carry an optional citation. 38 of the 228 do: the casino and racing math, and since
+Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
+rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
+row whose `asOf` is missing or more than a year old.
 
 ```typescript
-export interface ProvenanceInfo {
-  source?: string;       // e.g. "S&P Dow Jones Indices", "Wizard of Odds", "UNLV Center for Gaming Research"
-  asOf?: string;         // ISO date or year, e.g. "2026-01"
-  window?: string;       // e.g. "1926-2025 (100-year annualized)"
-  confidence?: 'high' | 'medium' | 'estimated';
-  methodologyUrl?: string;
-}
+export type Provenance = {
+  source?: string;       // where the figure comes from, e.g. "FDIC National Rates and Rate Caps"
+  asOf?: string;         // ISO date the figure was last checked against that source
+  window?: string;       // the period it was computed over, e.g. "1928-2025"
+  methodology?: string;  // how it was derived, in a sentence
+};
 ```
 
 ---
@@ -123,8 +124,8 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 2. **`npm run check:spectrum`** — asserts the record count (228), that every row is well-formed for
    its model, and the mathematical invariants of the three measures over all 228 records × 7 horizons.
 
-**Planned — roadmap Action 2.3, not yet built.** A dedicated `site/scripts/check-edges.ts`
-(`npm run check:edges`) adding:
+**Built — roadmap Action 2.3, 2026-09-07.** `site/scripts/check-edges.ts` (`npm run check:edges`, in CI)
+asserts:
 
 1. **Category Invariant:** every `cat` is one of the 15 declared categories, with per-category counts.
 2. **Mathematical Bounds:** no investing annualized return exceeds realistic bounds, and every

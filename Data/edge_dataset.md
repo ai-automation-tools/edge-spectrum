@@ -82,8 +82,8 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer |
 |---|------|--------------:|-------|
-| 1 | Money Market Fund (SPAXX/VMFXX) | 4.8% | raw |
-| 2 | High-Yield Savings Account (Online) | 4.5% | raw |
+| 1 | Money Market Fund (SPAXX/VMFXX) | 3.7% | raw |
+| 2 | High-Yield Savings Account (Online) | 4.2% | raw |
 | 3 | 1-Year CD (Top Rate) | 4.5% | raw |
 | 4 | 6-Month CD | 4.3% | raw |
 | 5 | High-Yield Money Market Account | 4.3% | raw |
@@ -92,13 +92,13 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 8 | 3-Month CD | 4.0% | raw |
 | 9 | 2-Year CD | 3.8% | raw |
 | 10 | 5-Year CD | 3.5% | raw |
-| 11 | Bank Money Market (Traditional) | 1.5% | raw |
-| 12 | Credit Union Savings | 0.5% | raw |
-| 13 | National Average Savings Rate | 0.45% | raw |
+| 11 | Bank Money Market (Traditional) | 0.63% | raw |
+| 12 | Credit Union Savings | 0.19% | raw |
+| 13 | National Average Savings Rate | 0.38% | raw |
 | 14 | Big Bank Savings (Chase/BofA) | 0.01% | raw |
 | 15 | Regular Checking Account | 0.01% | raw |
-| 16 | HYSA After Income Tax (24%) | 3.42% | tax |
-| 17 | HYSA After Income Tax (37%) | 2.84% | tax |
+| 16 | HYSA After Income Tax (24%) | 3.19% | tax |
+| 17 | HYSA After Income Tax (37%) | 2.65% | tax |
 
 ## 3. Bonds
 
@@ -196,7 +196,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer |
 |---|------|--------------:|-------|
-| 1 | Gold Bullion (Physical / GLD) | 7.5% | raw |
+| 1 | Gold Bullion (Physical / GLD) | 7.1% | raw |
 | 2 | Rhodium (Physical) | 6.0% | raw |
 | 3 | Gold Mining Stocks (GDX) | 5.0% | raw |
 | 4 | Silver Bullion (Physical / SLV) | 4.5% | raw |
@@ -206,7 +206,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 8 | Platinum Bullion (PPLT) | 2.0% | raw |
 | 9 | Precious Coins (Numismatic) | 1.5% | raw |
 | 10 | Junior Mining Stocks (GDXJ) | 1.0% | raw |
-| 11 | Gold After Collectibles Tax (28%) | 5.4% | tax |
+| 11 | Gold After Collectibles Tax (28%) | 5.11% | tax |
 | 12 | Gold Mining After LTCG Tax (20%) | 4.0% | tax |
 
 ## 8. Insurance & Annuities
