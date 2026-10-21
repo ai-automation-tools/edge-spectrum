@@ -2,6 +2,15 @@
 
 ---
 
+## October 21, 2026 — Dev server's HMR socket pinned to 24679
+
+- **Dev** `server.ts` runs Vite in middleware mode, which opens its hot-reload WebSocket on a port
+  of its own, `24678` by default. my-prompt-library does the same, so whichever started second lost
+  HMR (`WebSocket server error: Port 24678 is already in use`). `site/vite.config.ts` now pins it to
+  `24679`; `DISABLE_HMR=true` still turns it off. The app's own port is unchanged.
+
+---
+
 ## October 19, 2026 — Hub data-flow diagram on the homepage
 
 - **Docs** [`Docs/diagrams/`](diagrams/README.md) holds an Archify diagram of how the hub fits
