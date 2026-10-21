@@ -130,6 +130,12 @@ Phase 7: Public Launch ⚪
     - **Problem:** `ruinRisk` and `kellyMultiple` (shipped 2026-10-12) assume an even-money payoff for every row. Tournament poker and DFS pay top-heavy, so the true Kelly fraction is smaller and the ruin risk larger than shown; the inspector says "approximation" but cannot say by how much.
     - **Implementation:** Optional `payout` (average win multiple) and `winRate` fields on `GameEdge`; when present, compute Kelly as `(p·b − q)/b` and ruin risk by the general formula. Rows without them keep the even-money approximation.
 
+- [ ] 🔵 **Action 2.14 — Catch up on the framework majors Dependabot ignores (upstream check, 2026-10-21)**
+    - **What:** Take the toolchain majors one at a time, each with the full CI order green: Vite 6 → 8 with `@vitejs/plugin-react` 5 → 6, TypeScript 5.9 → 7, Zod 3 → 4 (`site/src/server/strategySchema.ts` and anything reading `.issues` / error shapes), Express 4 → 5 (`site/server.ts`, dev only), motion 12 → 14, dotenv 17 → 18, lucide-react 0.x → 1.x. Skip any whose changelog shows nothing the repo uses.
+    - **Why:** `.github/dependabot.yml` ignores every major, so nothing tracks them; the npm registry's `latest` on 2026-10-21 was vite 8.3.5, @vitejs/plugin-react 6.1.2, typescript 7.0.2, zod 4.6.7, express 5.3.0, motion 14.5.0, dotenv 18.0.8, lucide-react 1.61.0. Source: https://registry.npmjs.org/<package>/latest. This is drift, not a known break; read each package's release notes before bumping.
+    - **Where:** `site/package.json`, `site/package-lock.json`, and the call sites above. `.github/workflows/ci.yml` pins `actions/checkout@v4` / `actions/setup-node@v4` (latest tags v7.0.1 / v7.1.0 per api.github.com/repos/actions/*/releases/latest): a workflow edit, so it needs Mike.
+    - **Done when:** `npm run lint`, every `check:*`, and `npm run build` pass on the new versions, and `Docs/UPSTREAMS.md` lists the new declared versions.
+
 ## 🚦 Public release
 
 - [x] Public repo in the `ai-automation-tools` org under Apache-2.0 (`LICENSE`), with CI running on every PR — done 2026-09-11: `d2b59bd`

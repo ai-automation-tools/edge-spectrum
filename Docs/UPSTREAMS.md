@@ -15,34 +15,34 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | 2026-10-07 |
-| **Gemini API via `@google/genai`** | `^2.26.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-2.5-flash` | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-10-07 |
+| **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | 2026-10-21 |
+| **Gemini API via `@google/genai`** | `^2.28.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-2.5-flash` | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-10-21 |
 
 ## Static page CDN assets
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases (pinned 2.32.0; 4.x is current, see roadmap Action 2.8) | 2026-10-07 |
-| **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | — |
+| **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases (pinned 2.32.0; 4.x is current, see roadmap Action 2.8) | 2026-10-21 |
+| **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | 2026-10-21 |
 
 ## Hosting and runtime
 
 | Upstream | What the code assumes | Where | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Vercel** | `framework: "vite"`, `outputDirectory: "dist"`, SPA rewrite `/((?!api/).*)`; four Node functions in `site/api/` on default runtime settings | `site/vercel.json`, `site/api/*.ts` | vercel.com/changelog; vercel.com/docs/functions/runtimes/node-js/node-js-versions | — |
-| **Node.js** | `engines.node: ">=22 <25"` picks the Vercel runtime; CI pins 22 | `site/package.json`, `.github/workflows/ci.yml` | nodejs.org/en/about/previous-releases (EOL dates); raw.githubusercontent.com/nodejs/Release/main/schedule.json | 2026-10-07 |
-| **GitHub Actions** | `actions/checkout@v4`, `actions/setup-node@v4` | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | 2026-10-07 |
+| **Vercel** | `framework: "vite"`, `outputDirectory: "dist"`, SPA rewrite `/((?!api/).*)`; four Node functions in `site/api/` on default runtime settings | `site/vercel.json`, `site/api/*.ts` | vercel.com/changelog; vercel.com/docs/functions/runtimes/node-js/node-js-versions (supports 24.x default and 22.x) | 2026-10-21 |
+| **Node.js** | `engines.node: ">=22 <25"` picks the Vercel runtime; CI pins 22 | `site/package.json`, `.github/workflows/ci.yml` | nodejs.org/en/about/previous-releases (EOL dates); raw.githubusercontent.com/nodejs/Release/main/schedule.json | 2026-10-21 |
+| **GitHub Actions** | `actions/checkout@v4`, `actions/setup-node@v4` | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | 2026-10-21 |
 
 ## Framework majors
 
 | Upstream | Declared in `site/package.json` | Check at | Last checked |
 |:---|:---|:---|:---|
-| React / react-dom | `^19.0.1` | react.dev/blog | — |
-| react-router-dom | `^7.9.1` | github.com/remix-run/react-router/releases | — |
-| Vite, @vitejs/plugin-react | `^6.2.3`, `^5.0.4` | github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md | — |
-| Tailwind CSS v4 | `^4.1.14` | github.com/tailwindlabs/tailwindcss/releases | — |
-| TypeScript | `~5.8.2` | devblogs.microsoft.com/typescript | — |
-| zod, recharts, d3, motion, react-markdown, express (dev only) | see `package.json` | each package's GitHub releases | — |
+| React / react-dom | `^19.3.0` | react.dev/blog | 2026-10-21 |
+| react-router-dom | `^7.18.4` | github.com/remix-run/react-router/releases | 2026-10-21 |
+| Vite, @vitejs/plugin-react | `^6.4.4`, `^5.0.4` (latest 8.3.5, 6.1.2; roadmap Action 2.14) | github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md | 2026-10-21 |
+| Tailwind CSS v4 | `^4.1.14` (`@tailwindcss/vite` `^4.3.3`) | github.com/tailwindlabs/tailwindcss/releases | 2026-10-21 |
+| TypeScript | `~5.9.3` (latest 7.0.2; roadmap Action 2.14) | devblogs.microsoft.com/typescript | 2026-10-21 |
+| zod, recharts, d3, motion, react-markdown, express (dev only) | see `package.json` (zod 3 vs latest 4.6.7, express 4 vs 5.3.0, motion 12 vs 14.5.0; roadmap Action 2.14) | each package's GitHub releases | 2026-10-21 |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are
 Dependabot's job.
