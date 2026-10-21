@@ -2,6 +2,16 @@
 
 ---
 
+## October 21, 2026 — Dev server reachable through a proxy hostname
+
+- **Dev** Vite's DNS-rebinding guard answers `403 Blocked request` to any Host but localhost, and it
+  runs in middleware mode too, so a proxy such as `tailscale serve` (which forwards the browser's
+  Host unchanged) could not reach the local server. `site/vite.config.ts` now sets
+  `server.allowedHosts` from `ALLOWED_HOSTS` in `site/.env` (comma-separated; documented in
+  `.env.example`). Unset, Vite's default is unchanged, and any host not on the list is still refused.
+
+---
+
 ## October 21, 2026 — Dev server's HMR socket pinned to 24679
 
 - **Dev** `server.ts` runs Vite in middleware mode, which opens its hot-reload WebSocket on a port
