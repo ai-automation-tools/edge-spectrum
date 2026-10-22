@@ -32,6 +32,16 @@
 
 ---
 
+## October 21, 2026 — Three more casino bets (228 → 231 records)
+
+- **Data** Casino Gambling gains **Craps Place 6 / Place 8** (−0.46%) and **Craps Any Craps**
+  (−11.11%), both from the Wizard of Odds craps house-edge table, and **Three Card Poker Pair Plus**
+  (−7.28%, pay table 1) from the Wizard of Odds Three Card Poker page. They fill the gaps between the
+  Pass Line and the one-roll proposition bets already in the set. Each carries source and as-of date;
+  the provenance baseline moves to 231 records, 41 cited (the 38 from the October 19 sourcing pass plus these three).
+
+---
+
 ## October 21, 2026 — Dev server reachable through a proxy hostname
 
 - **Dev** Vite's DNS-rebinding guard answers `403 Blocked request` to any Host but localhost, and it
