@@ -4,8 +4,8 @@
  *
  * Roadmap Action 2.2. Three copies of this data used to exist and drift:
  * the inlined `RAW` array in `site/public/spectrum/index.html`, the
- * `RAW` list in `Versions/Streamlit/data.py`, and the tables in `Data/`.
- * They now all come from here — run `npm run gen:edges` after editing this
+ * `RAW` list in the Streamlit port (since removed), and the tables in `data/`.
+ * The remaining copies all come from here — run `npm run gen:edges` after editing this
  * file, and CI runs `npm run gen:edges -- --check` to fail on drift.
  *
  * Only the fields that carry information live here. `g`, `type`, `vol`,
