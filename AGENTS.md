@@ -125,8 +125,8 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 ## Project skills
 
 Three repo-specific skills live in the org's skills repo, not here — `agent-skills` under
-[`Skills/Projects/edge-spectrum/`](../../Tools/agent-skills/Skills/Projects/edge-spectrum/README.md)
-([GitHub](https://github.com/ai-automation-tools/agent-skills/tree/main/Skills/Projects/edge-spectrum)).
+[`skills/projects/edge-spectrum/`](../../Tools/agent-skills/skills/projects/edge-spectrum/README.md)
+([GitHub](https://github.com/ai-automation-tools/agent-skills/tree/main/skills/projects/edge-spectrum)).
 That repo is canonical: **edit them there, never in `.claude/skills/`.**
 
 | Skill | Reach for it when |
