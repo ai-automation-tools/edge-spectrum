@@ -4,8 +4,8 @@
   "status": "current",
   "command": "deliver",
   "type": "dataflow",
-  "input": "Docs/diagrams/hub-data-flow.json",
-  "output": "Docs/diagrams/hub-data-flow.html",
+  "input": "docs/diagrams/hub-data-flow.json",
+  "output": "docs/diagrams/hub-data-flow.html",
   "specification": {
     "sha256": "e686679de4fd3062e40b0eb4235d4d6fb6b8d7998360117834c129a3936051b0",
     "bytes": 8925

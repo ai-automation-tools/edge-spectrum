@@ -14,7 +14,7 @@ tool is roughly *one registry entry + one page*.
 - **Vite + React 19 + TS**, Tailwind v4 (`@tailwindcss/vite`), Recharts + D3, `@google/genai` (Gemini),
   `zod` (request validation, server-side only — keep it out of the client bundle).
 - **The entire web app lives in `site/`.** The repo root holds only docs/archives (`README.md`,
-  `CLAUDE.md`, `Data/`, `Docs/`, `Images/`, `Versions/`, plus `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands
+  `CLAUDE.md`, `Data/`, `docs/`, `Images/`, `Versions/`, plus `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands
   (`npm install`, `npm run dev`, `npm run build`, `vercel …`) from **inside `site/`**.
 - **Host: Vercel** (project `edge-spectrum`). The Vercel project's **Root Directory is set to `site`**
   (dashboard → Settings → Build & Deployment → Root Directory), so `vercel.json` and `api/` inside
@@ -57,8 +57,8 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
                       #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
   index.html, server.ts, package.json, vite.config.ts, vercel.json, tsconfig.json
-Versions/ Data/ Docs/ Images/   # preserved Edge Spectrum archives & screenshots (repo root, not deployed)
-Docs/diagrams/        # code-pinned Archify diagram; hub-data-flow.json is the only file to edit
+Versions/ Data/ docs/ Images/   # preserved Edge Spectrum archives & screenshots (repo root, not deployed)
+docs/diagrams/        # code-pinned Archify diagram; hub-data-flow.json is the only file to edit
 scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diagram/ (never edit
                       #   those copies); --check = drift. Re-pin with --pin-head after cited code changes
 Images/favicon.svg    # archived copy of the app icon (the served icon is site/public/favicon.svg)
@@ -77,7 +77,7 @@ Images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 ## Env / secrets
 
 - `EDGE_SPECTRUM_MODE` defaults to `demo`. Only the exact value `full` enables live AI. The public
-  demo must stay in demo mode and must not hold Gemini credentials. See `Docs/self-hosting.md`.
+  demo must stay in demo mode and must not hold Gemini credentials. See `docs/self-hosting.md`.
 - `GEMINI_API_KEY` (Gemini advisor). Loaded from `site/.env` locally (gitignored), and set
   in the Vercel project's env vars for production. **Never commit `.env`** — advisor stays server-side; do
   not move the key client-side.
