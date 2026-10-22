@@ -120,7 +120,7 @@ Phase 7: Public Launch ⚪
 
 - [ ] 🟡 **Action 2.11 — Self-Host Plotly**
    - **Problem:** `cdn.plot.ly` is a single point of failure for the whole tool and a third-party request on every visit.
-   - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `Docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
+   - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
 
 - [x] 🟡 **Action 2.12 — Guard the Hand-Maintained Category Maps** — done 2026-10-13: took the ten-line route — `check:spectrum` now fails if any `EDGE_CATEGORIES` entry or `RAW` category is missing from the page's `CC` / `AR_DEFAULT` or the Streamlit archive's `ALL_CATS` / `CC` / `AR_DEFAULT`; verified by deleting `Lottery` from the page's `AR_DEFAULT`.
     - **Problem:** `CC` and `AR_DEFAULT` on the Spectrum page and `ALL_CATS` / `CC` / `AR_DEFAULT` in the Streamlit archive are hand-synced with `EDGE_CATEGORIES`. A new category that misses one falls back to grey and "LOW" silently (`catColor` and `AR_DEFAULT[r.cat] || 2`).

@@ -2,6 +2,18 @@
 
 ---
 
+## October 22, 2026 — `Docs/` renamed to `docs/`
+
+- **Docs** the top-level docs folder is now lowercase `docs/`, the org's layout standard. GitHub
+  paths are case-sensitive, so `docs/...` links into this repo from elsewhere returned 404. Every
+  in-repo reference moved with it: the README and CLAUDE.md, `.gitignore`, `.gitattributes`, the CI
+  and Dependabot comments, `scripts/build-diagram.mjs` and the diagram's delivery file, and the GitHub
+  links the hub builds (command palette, home page, setup-guide URL) plus the generated
+  `Data/edge_dataset.md` footer. `Data/`, `Images/` and `Versions/` keep their names. Older entries
+  below still say `Docs/`, as they were written.
+
+---
+
 ## October 21, 2026 — Dev server reachable through a proxy hostname
 
 - **Dev** Vite's DNS-rebinding guard answers `403 Blocked request` to any Host but localhost, and it

@@ -27,8 +27,8 @@ data. One place computes them, one guard checks them.
 | `i` — compound | Held assets | `returnOnCapital` compounds the annual return over the horizon. |
 | `g` — linear | Games | `returnOnCapital` accrues the flat-stake loss and **stops at −100%**; `expectedTurnoverCost` is the same loss left unbounded. |
 
-See [`../Docs/methodology.md`](../Docs/methodology.md) for the DU/CED framework and the ruin
-formulas, and [`../Docs/Ideas/hub_improvement_plan.md`](../Docs/Ideas/hub_improvement_plan.md)
+See [`../docs/methodology.md`](../docs/methodology.md) for the DU/CED framework and the ruin
+formulas, and [`../docs/Ideas/hub_improvement_plan.md`](../docs/Ideas/hub_improvement_plan.md)
 section 8 for why the two measures are no longer plotted on one axis.
 
 ---
@@ -402,7 +402,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 13 | Multi-State Cash4Life | -55.0% | 0.1 | 0.1% | raw |
 
 <p align="center">
-  <a href="../Docs/ROADMAP.md">Roadmap</a> ·
-  <a href="../Docs/data-architecture.md">Data Architecture</a> ·
+  <a href="../docs/ROADMAP.md">Roadmap</a> ·
+  <a href="../docs/data-architecture.md">Data Architecture</a> ·
   <a href="edge_analysis12.md">V12 archive</a>
 </p>
