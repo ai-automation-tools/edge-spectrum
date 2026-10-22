@@ -26,7 +26,7 @@ session. Below the map, four cards cover the generated dataset, the registry, wh
 and the advisor gate.
 
 **See it on the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow)**, or open the interactive version: [`hub-data-flow.html`](hub-data-flow.html) in a browser
-from a clone, or [render it from GitHub](https://raw.githack.com/ai-automation-tools/edge-spectrum/main/Docs/diagrams/hub-data-flow.html).
+from a clone, or [render it from GitHub](https://raw.githack.com/ai-automation-tools/edge-spectrum/main/docs/diagrams/hub-data-flow.html).
 Each node links to the exact lines it describes at the pinned commit, and the viewer adds route
 tracing, search, light/dark, and SVG/PNG export.
 
@@ -76,7 +76,7 @@ To bring it up to date:
 Building needs Node 18+, Chrome, and the [Archify](https://github.com/tt-a1i/archify) skill
 (default path `~/.claude/skills/archify/bin/archify.mjs`; pass `--archify <path>` to point
 elsewhere). The check needs only git. A failed build exits 1 and leaves the last good HTML and
-PNG in place; the reason is in `Docs/diagrams/.build/hub-data-flow.finalize-summary.json`.
+PNG in place; the reason is in `docs/diagrams/.build/hub-data-flow.finalize-summary.json`.
 
 ---
 

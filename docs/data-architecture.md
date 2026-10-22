@@ -22,12 +22,11 @@ site/src/data/edges.ts (Typed canonical dataset: 228 records)  ← edit only thi
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
           ├──► site/public/spectrum/index.html  — the inlined `RAW` block the live page ships
-          ├──► Versions/Streamlit/data.py       — the Streamlit port's `RAW` list
           ├──► site/public/spectrum/edges.json  — machine-readable copy for the React port (4.6)
-          └──► Data/edge_dataset.md             — human-readable catalog of the inputs
+          └──► data/edge_dataset.md             — human-readable catalog of the inputs
 ```
 
-`npm run gen:edges -- --check` regenerates all four in memory and exits non-zero if any has
+`npm run gen:edges -- --check` regenerates all three in memory and exits non-zero if any has
 drifted from the source. It runs in CI on every pull request, so an artifact edited by hand fails
 the build instead of silently becoming a fourth version of the truth.
 
@@ -85,7 +84,7 @@ export interface ProvenanceInfo {
 ## 📊 2. The 15 Asset & Wagering Categories
 
 The canonical dataset spans 228 records across 15 categories. Category names below are the exact
-`cat` values in `edges.ts`; counts are generated into [`Data/edge_dataset.md`](../Data/edge_dataset.md)
+`cat` values in `edges.ts`; counts are generated into [`data/edge_dataset.md`](../data/edge_dataset.md)
 and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 | Category | Model | Records | Representative Items |
@@ -108,7 +107,7 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 > **Trading & Derivatives** returned on 2026-10-12. V11 had cut **Options & Derivatives** and
 > **Active Trading** as "outlier noise" because a −60%/yr row squashed the old single shared axis
-> (see [`../Data/edge_analysis12.md`](../Data/edge_analysis12.md)). Return on capital has been floored
+> (see [`../data/edge_analysis12.md`](../data/edge_analysis12.md)). Return on capital has been floored
 > at −100% since Action 2.1, so that reason no longer holds; the category is mixed-mode (held
 > positions compound, binary options are a repeated wager).
 
@@ -118,7 +117,7 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 **Live today.** Two guards run in CI on every pull request:
 
-1. **`npm run gen:edges -- --check`** — regenerates all four artifacts from `edges.ts` and fails if
+1. **`npm run gen:edges -- --check`** — regenerates all three artifacts from `edges.ts` and fails if
    any has drifted. This is what makes "single source of truth" enforceable rather than aspirational.
 2. **`npm run check:spectrum`** — asserts the record count (228), that every row is well-formed for
    its model, and the mathematical invariants of the three measures over all 228 records × 7 horizons.
