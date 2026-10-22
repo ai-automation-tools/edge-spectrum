@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://edge-spectrum.ai-automation-tools.dev">
-    <img src="Images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
+    <img src="images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
   </a>
 </p>
 
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="Docs/README.md"><strong>Explore the docs »</strong></a>
+  <a href="docs/README.md"><strong>Explore the docs »</strong></a>
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 <p align="center">
   <a href="https://edge-spectrum.ai-automation-tools.dev"><img src="https://img.shields.io/badge/Live_Deployment-edge--spectrum.ai--automation--tools.dev-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Deployment"></a>
   <img src="https://img.shields.io/badge/status-active-2ea44f?style=for-the-badge" alt="Status: Active">
-  <a href="Docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
+  <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
   <a href="https://github.com/ai-automation-tools/edge-spectrum/actions/workflows/ci.yml"><img src="https://github.com/ai-automation-tools/edge-spectrum/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
 </p>
 
@@ -67,7 +67,7 @@ Served as a static page at `/spectrum/index.html` (internally routes to `public/
 - **Interactive Controls:** Toggle any combination of categories, switch measure (On Capital / Turnover Cost), adjust time horizons (Single Event to 10 Years), switch overlays (Raw Returns, Fee-Adjusted, After-Tax).
 - **Ruin Point Overlay** *(on by default)*: a dotted −100% floor line on the primary chart, an ✕ per activity whose bankroll is gone before the horizon ends, a **Ruined By Horizon** counter, and per-activity decisions-to-$0 and time-to-ruin in the tooltip.
 - **Addiction Risk Scoring:** Color-coded border alerts based on feedback loops and documentation of problem behavior.
-- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [CHANGELOG.md](Docs/CHANGELOG.md))*: intended to translate percentages into dollar outcomes at $100/week.
+- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [CHANGELOG.md](docs/CHANGELOG.md))*: intended to translate percentages into dollar outcomes at $100/week.
 
 ### 2. The Sports Wagering Backtester
 Served inside the SPA React shell at `/backtester`.
@@ -105,16 +105,15 @@ edge-spectrum/
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
-├── Docs/                  # In-depth logs, standardized analysis, and future ideas
+├── docs/                  # In-depth logs, standardized analysis, and future ideas
 │   └── diagrams/          # Code-pinned Archify diagram of the hub (shown on the homepage)
-├── scripts/               # build-diagram.mjs: builds and drift-checks Docs/diagrams/ (docs tooling, not shipped)
-├── Data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
-├── Images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
-└── Versions/              # Legacy and alternate versions (Streamlit port, original themes)
+├── scripts/               # build-diagram.mjs: builds and drift-checks docs/diagrams/ (docs tooling, not shipped)
+├── data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
+└── images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
 ```
 
 > **Note:** everything the site needs lives under `site/`; the repo root holds only docs, archives and
-> the diagram builder. The [hub data-flow diagram](Docs/diagrams/README.md) shows how the pieces connect;
+> the diagram builder. The [hub data-flow diagram](docs/diagrams/README.md) shows how the pieces connect;
 > it lives on the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow), interactive and linked to the code.
 > Run all app commands (`npm …`, `vercel …`) from inside `site/`.
 
@@ -139,7 +138,7 @@ Use **Use this template** on GitHub to create a complete copy you can customize.
 | Gemini advisor | Written samples | Live, passcode protected |
 | Source and branding | Browse | Customize |
 
-See the [self-hosting guide](Docs/self-hosting.md) for deployment steps and environment settings.
+See the [self-hosting guide](docs/self-hosting.md) for deployment steps and environment settings.
 The server defaults to demo mode; only `EDGE_SPECTRUM_MODE=full` enables live AI.
 
 ### Local development
@@ -154,7 +153,7 @@ npm ci
 
 Copy `.env.example` to `.env`, then run `npm run dev` and open `http://localhost:3001`.
 The default demo needs no API key. For full mode, fill in the four variables documented
-in the [setup guide](Docs/self-hosting.md). Never commit your `.env` file.
+in the [setup guide](docs/self-hosting.md). Never commit your `.env` file.
 
 ```sh
 npm run lint
