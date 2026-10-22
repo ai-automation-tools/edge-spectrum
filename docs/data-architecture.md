@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/records-228_canonical-8B5CF6?style=for-the-badge" alt="Records: 228">
+  <img src="https://img.shields.io/badge/records-231_canonical-8B5CF6?style=for-the-badge" alt="Records: 231">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-Docs_Home-6B7280?style=for-the-badge" alt="Docs Home"></a>
 </p>
 
@@ -17,7 +17,7 @@
 typed TypeScript source; the three former hand-maintained copies are now generated artifacts:
 
 ```
-site/src/data/edges.ts (Typed canonical dataset: 228 records)  ← edit only this
+site/src/data/edges.ts (Typed canonical dataset: 231 records)  ← edit only this
           │
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
@@ -39,7 +39,7 @@ actually deploys. The generator owns that block; the page still ships it.
 
 Only fields that carry information are stored. The visualizer's `g`, `type`, `vol`, `wp` and `sk`
 fields are pure functions of `cat` and `m`, so `toSpectrumRow()` re-expands them rather than the
-dataset holding 228 copies of the string `"Varies"`. Addiction risk is likewise per-category
+dataset holding 231 copies of the string `"Varies"`. Addiction risk is likewise per-category
 (`AR_DEFAULT`), not per-record.
 
 ```typescript
@@ -64,26 +64,27 @@ export type EdgeRecord = InvestmentEdge | GameEdge;
 export const EDGES: readonly EdgeRecord[];
 ```
 
-### Planned: provenance fields (roadmap Action 2.3, not yet built)
+### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-No record currently carries a citation or an as-of date. Action 2.3 adds these optional fields and
-the ratchet that stops citation coverage from regressing:
+Every record may carry an optional citation. 41 of the 231 do: the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
+Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
+rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
+row whose `asOf` is missing or more than a year old.
 
 ```typescript
-export interface ProvenanceInfo {
-  source?: string;       // e.g. "S&P Dow Jones Indices", "Wizard of Odds", "UNLV Center for Gaming Research"
-  asOf?: string;         // ISO date or year, e.g. "2026-01"
-  window?: string;       // e.g. "1926-2025 (100-year annualized)"
-  confidence?: 'high' | 'medium' | 'estimated';
-  methodologyUrl?: string;
-}
+export type Provenance = {
+  source?: string;       // where the figure comes from, e.g. "FDIC National Rates and Rate Caps"
+  asOf?: string;         // ISO date the figure was last checked against that source
+  window?: string;       // the period it was computed over, e.g. "1928-2025"
+  methodology?: string;  // how it was derived, in a sentence
+};
 ```
 
 ---
 
 ## 📊 2. The 15 Asset & Wagering Categories
 
-The canonical dataset spans 228 records across 15 categories. Category names below are the exact
+The canonical dataset spans 231 records across 15 categories. Category names below are the exact
 `cat` values in `edges.ts`; counts are generated into [`data/edge_dataset.md`](../data/edge_dataset.md)
 and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
@@ -100,7 +101,7 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 | **📉 Trading & Derivatives** | mixed | 10 | Covered Call ETFs, Put Writing, Managed Futures, TQQQ / SQQQ held, Retail Day Trading, Forex / CFDs, 0DTE, Binary Options |
 | **🏈 Sports Betting** | `g` linear | 22 | Spread (−110), Reduced Juice (−105), Betting Exchange, Sharp Bettor (+2% CLV), Micro-Bets, up to 10-Team Parlay |
 | **🐎 Horse Racing & Pari-Mutuel** | `g` linear | 6 | Win/Place/Show, Exacta, Trifecta / Superfecta, Pick 4 / Pick 6, ADW Rebate, Greyhounds |
-| **🎰 Casino Gambling** | `g` linear | 29 | Card Counting (+1%), Spanish 21, 9/6 Video Poker, Ultimate Texas Hold'em, Sic Bo, Casino War, Online Slots, Crypto Dice, Keno |
+| **🎰 Casino Gambling** | `g` linear | 35 | Card Counting (+1%), Spanish 21, 9/6 Video Poker, Ultimate Texas Hold'em, Sic Bo, Casino War, Online Slots, Crypto Dice, Keno |
 | **♠️ Poker & Skill-Based** | `g` linear | 9 | DFS Top 5%, Skilled Tournaments, Recreational Live, DFS Casual |
 | **🔮 Prediction Markets** | `g` linear | 12 | Polymarket Elections, Kalshi Economic, Metaculus, PredictIt |
 | **🎟️ Lottery** | `g` linear | 13 | Powerball / Mega Millions, EuroMillions, Scratch-Offs, Pull-Tabs, Bingo, 50/50 Raffle |
@@ -119,11 +120,11 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 1. **`npm run gen:edges -- --check`** — regenerates all three artifacts from `edges.ts` and fails if
    any has drifted. This is what makes "single source of truth" enforceable rather than aspirational.
-2. **`npm run check:spectrum`** — asserts the record count (228), that every row is well-formed for
-   its model, and the mathematical invariants of the three measures over all 228 records × 7 horizons.
+2. **`npm run check:spectrum`** — asserts the record count (231), that every row is well-formed for
+   its model, and the mathematical invariants of the three measures over all 231 records × 7 horizons.
 
-**Planned — roadmap Action 2.3, not yet built.** A dedicated `site/scripts/check-edges.ts`
-(`npm run check:edges`) adding:
+**Built — roadmap Action 2.3, 2026-09-07.** `site/scripts/check-edges.ts` (`npm run check:edges`, in CI)
+asserts:
 
 1. **Category Invariant:** every `cat` is one of the 15 declared categories, with per-category counts.
 2. **Mathematical Bounds:** no investing annualized return exceeds realistic bounds, and every
