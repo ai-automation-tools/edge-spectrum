@@ -20,7 +20,7 @@ const KIND_LABEL = { route: 'in app', static: 'static page', external: 'external
 
 /**
  * The hub data-flow diagram. public/diagram/ holds copies scripts/build-diagram.mjs writes from
- * Docs/diagrams/ (the source); never edit them here. Archify opens Still unless
+ * docs/diagrams/ (the source); never edit them here. Archify opens Still unless
  * localStorage['archify-motion'] is "live", so the homepage sets it (reduced-motion readers still
  * get Still), and the frame follows this page's Light | Dark switch.
  */
@@ -177,9 +177,9 @@ export default function Home() {
               <Card accent="sky" still className="p-5">
                 <Eyebrow>Read on</Eyebrow>
                 {[
-                  { href: `${REPOSITORY_URL}/blob/main/Docs/methodology.md`, title: 'Methodology', sub: 'The DU/CED framework and the three measures' },
-                  { href: `${REPOSITORY_URL}/blob/main/Docs/data-architecture.md`, title: 'Data architecture', sub: `How the ${EDGES.length} records flow to every copy` },
-                  { href: `${REPOSITORY_URL}/blob/main/Docs/CHANGELOG.md`, title: 'Change log', sub: 'What changed, with the measurements' },
+                  { href: `${REPOSITORY_URL}/blob/main/docs/methodology.md`, title: 'Methodology', sub: 'The DU/CED framework and the three measures' },
+                  { href: `${REPOSITORY_URL}/blob/main/docs/data-architecture.md`, title: 'Data architecture', sub: `How the ${EDGES.length} records flow to every copy` },
+                  { href: `${REPOSITORY_URL}/blob/main/docs/CHANGELOG.md`, title: 'Change log', sub: 'What changed, with the measurements' },
                   { href: REPOSITORY_URL, title: 'github.com/ai-automation-tools/edge-spectrum', sub: 'Source for everything on this page' },
                 ].map((l, i) => (
                   <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-3 py-3 text-zinc-200 ${i ? 'border-t border-zinc-800/60' : 'pt-2'}`}>
