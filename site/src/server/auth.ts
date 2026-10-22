@@ -138,7 +138,7 @@ export function buildClearCookie(): string {
  * Best-effort brute-force damper, keyed by IP. Serverless instances are
  * short-lived so this is not a hard limit — it just makes online guessing
  * expensive enough to be pointless against a decent passcode. Durable
- * rate limiting (Upstash/Vercel KV) is tracked in docs/Ideas/hub_improvement_plan.md.
+ * rate limiting (Upstash/Vercel KV) is tracked in docs/ideas/hub_improvement_plan.md.
  */
 const FAILURE_WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES = 8;

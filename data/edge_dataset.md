@@ -28,7 +28,7 @@ data. One place computes them, one guard checks them.
 | `g` — linear | Games | `returnOnCapital` accrues the flat-stake loss and **stops at −100%**; `expectedTurnoverCost` is the same loss left unbounded. |
 
 See [`../docs/methodology.md`](../docs/methodology.md) for the DU/CED framework and the ruin
-formulas, and [`../docs/Ideas/hub_improvement_plan.md`](../docs/Ideas/hub_improvement_plan.md)
+formulas, and [`../docs/ideas/hub_improvement_plan.md`](../docs/ideas/hub_improvement_plan.md)
 section 8 for why the two measures are no longer plotted on one axis.
 
 ---
