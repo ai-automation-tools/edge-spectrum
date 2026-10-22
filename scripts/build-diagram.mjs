@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Build and drift-check the hub data-flow diagram (Docs/diagrams/).
+ * Build and drift-check the hub data-flow diagram (docs/diagrams/).
  *
- * Docs/diagrams/hub-data-flow.json is the only file to edit. Every node cites
+ * docs/diagrams/hub-data-flow.json is the only file to edit. Every node cites
  * the code it describes (path + line range) at the commit pinned in
  * `meta.repository.revision`. A build renders it with Archify
  * (https://github.com/tt-a1i/archify) into hub-data-flow.html (interactive;
@@ -34,7 +34,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const DIAGRAMS = join(ROOT, 'Docs', 'diagrams');
+const DIAGRAMS = join(ROOT, 'docs', 'diagrams');
 const STEM = 'hub-data-flow';
 const KIND = 'dataflow';
 const NAME = 'spectrum-diagram';
