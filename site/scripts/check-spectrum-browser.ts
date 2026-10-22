@@ -72,6 +72,16 @@ try {
   await open(page, new URL(pinUrl).search);
   check((await page.locator('#insp.pinned .insp-title').textContent()) === pinned, 'the pinned bar did not survive a reload');
 
+  // ── 3b. Undated figures carry a "verify" badge; freshly cited ones do not ──
+  // Clock pinned, so the S&P 500 citation ageing past a year cannot fail CI.
+  await page.clock.setFixedTime(new Date('2026-10-20'));
+  const verifyBadge = async (name: string) => {
+    await open(page, '?l=all&pin=' + encodeURIComponent(name));
+    return page.locator('#insp .insp-meta .badge', { hasText: /^verify$/ }).count();
+  };
+  check((await verifyBadge('Bitcoin Spot (Buy & Hold)')) === 1, 'an undated row shows no "verify" badge');
+  check((await verifyBadge('S&P 500 Index (SPY/VOO)')) === 0, 'a cited, dated row shows a "verify" badge');
+
   // ── 4. The theme switch redraws the chart in the other palette ─────────────
   const tick = () => page.evaluate(() => (document.getElementById('chart') as any).layout.yaxis.tickfont.color as string);
   const darkTick = await tick();
