@@ -544,6 +544,14 @@ source yet) can only go up. Wired into CI after `check:market`. Still open: nobo
 and actually cited a source for any of the 187 numbers — the fields and the ratchet just make that
 fixable in one place instead of impossible to notice.
 
+**Action 2.10 — fixed 2026-10-19.** The headline rows are now cited: 38 of 228 records carry a
+`source` (was 18). Checking them against their sources moved six figures that had gone stale with
+rates: money market 4.8 → 3.7 (Crane 100), online HYSA 4.5 → 4.2 (Bankrate), traditional bank money
+market 1.5 → 0.63 and national savings 0.45 → 0.38 (FDIC), credit-union savings 0.5 → 0.19 (NCUA),
+gold 7.5 → 7.1 (Damodaran 1976–2025), plus the tax rows derived from them. The S&P 500's 10.0% was
+right: Damodaran's 1928–2025 compound return is 10.02%. The inspector badges every undated or
+year-old figure **verify** (`isStale`, 167 rows today), so what is still unchecked shows on the page.
+
 ---
 
 ## 🔐 Auth gate (implemented 2026-08-18)
@@ -582,7 +590,7 @@ variables for production. Optionally set `ADVISOR_SECRET` to a long random strin
 
 | Phase | Work |
 |---|---|
-| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · ✅ significance panel + `check:stats` in CI (section 4.1, Action 3.3) · ✅ URL-serialised strategy + `check:strategy-url` in CI (section 3, Action 3.4) · ✅ responsible-gambling footer + age note (section 7, Action 3.5) · rate-limit the advisor (2a) |
+| **Now** | ✅ Auth gate on the advisor · ✅ section 1 generator bias + regression guard · ✅ "Live Data Engine" → "Simulated Data" · ✅ Zod-validate `/api/backtest` · ✅ ESPN cache headers · ✅ `check:market` wired into CI · ✅ debounce + abort the backtester (2d) · ✅ section 8 Spectrum metric split + `check:spectrum` in CI · ✅ section 9 canonical dataset + `gen:edges --check` in CI · ✅ dataset provenance fields + citation ratchet + `check:edges` in CI (section 9, Action 2.3) · ✅ headline figures cited + "verify" badge on stale rows (section 9, Action 2.10) · ✅ purge the dead strategy controls (2f, Action 2.4) · ✅ explicit ledger response contract (2e, Action 3.1) · ✅ significance panel + `check:stats` in CI (section 4.1, Action 3.3) · ✅ URL-serialised strategy + `check:strategy-url` in CI (section 3, Action 3.4) · ✅ responsible-gambling footer + age note (section 7, Action 3.5) · rate-limit the advisor (2a) |
 | **Next** | Export bundle + full `ledger.csv` (Action 3.2 — now the only home for the unsliced ledger) · client-side sim in a Web Worker (removes the API round-trip entirely) · lazy routes · share cards · Vitest |
 | **Then** | Monte Carlo fan chart + staking grid · odds / vig / parlay calculators |
 | **After** | CLV tracker (needs a DB) · real historical odds for one sport · Edge Audit · quiz |
