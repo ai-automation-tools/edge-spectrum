@@ -16,7 +16,7 @@
 
 [![Edge Spectrum hub data flow](hub-data-flow.png)](hub-data-flow.html)
 
-How the hub is put together: the 228 edge records are authored once in `site/src/data/edges.ts`
+How the hub is put together: the 231 edge records are authored once in `site/src/data/edges.ts`
 and `gen:edges` splices them into the static Spectrum page; the `tools.ts` registry draws every tile
 on the home page and every route. The odds and parlay calculators run entirely in the browser (the
 Spectrum inspector opens them pre-filled by query string). The Backtest Simulator is the one tool

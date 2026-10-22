@@ -480,6 +480,11 @@ const kellyMultiple = r => (r.m === 'g' && r.e > 0) ? r.ced / r.e : null;
 const INFLATION = 3.0;
 const realReturn = (nominal, h) => Math.max(RUIN_FLOOR, ((1 + nominal/100) / Math.pow(1 + INFLATION/100, I_Y[h]) - 1) * 100);
 
+// A figure is due for re-checking when nobody has dated it, or the date is over a year old.
+// `now` is a parameter so check-spectrum.ts can pin the clock.
+const STALE_DAYS = 365;
+const isStale = (r, now) => !r.asOf || (now - Date.parse(r.asOf)) / 864e5 > STALE_DAYS;
+
 const HZ = ['1du','1day','1wk','1mo','1yr','5yr','10yr'];
 const HZ_LBL = {'1du':'SINGLE EVENT','1day':'1 DAY','1wk':'1 WEEK','1mo':'1 MONTH','1yr':'1 YEAR','5yr':'5 YEARS','10yr':'10 YEARS'};
 const HZ_DAYS = {'1du':0,'1day':1,'1wk':7,'1mo':30,'1yr':365,'5yr':1825,'10yr':3650};
@@ -514,7 +519,7 @@ const RAW = [
   {n:"S&P MidCap 400 (MDY)",cat:"Stock Market",g:"Stock Market",m:"i",a:11.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Dividend Aristocrats (NOBL)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Total US Stock Market (VTI)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 Index (SPY/VOO)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 Index (SPY/VOO)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"Compound annual growth of the S&P 500 with dividends reinvested: 10.02% across 98 years. Index-fund fees are the separate fee rows."},
   {n:"S&P 500 Equal Weight (RSP)",cat:"Stock Market",g:"Stock Market",m:"i",a:10.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Dow Jones Industrial (DIA)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"S&P 500 Value (IVE)",cat:"Stock Market",g:"Stock Market",m:"i",a:9.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -529,21 +534,21 @@ const RAW = [
   {n:"Commodity Index (DJP)",cat:"Stock Market",g:"Stock Market",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Individual Stock Picking (Retail)",cat:"Stock Market",g:"Stock Market",m:"i",a:-2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Penny Stocks (Retail Avg)",cat:"Stock Market",g:"Stock Market",m:"i",a:-30.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 0.03% Index Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.97,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 0.35% Robo-Advisor",cat:"Stock Market",g:"Stock Market",m:"i",a:9.65,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 0.60% Target-Date Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:9.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 1% Advisory Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 1.5% Active Mutual Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 2-and-20 Hedge Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:6.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After 0.03% Index Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.97,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 0.03% index-fund expense ratio."},
+  {n:"S&P 500 After 0.35% Robo-Advisor",cat:"Stock Market",g:"Stock Market",m:"i",a:9.65,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 0.35% robo-advisor fee."},
+  {n:"S&P 500 After 0.60% Target-Date Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:9.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 0.60% target-date fund expense ratio."},
+  {n:"S&P 500 After 1% Advisory Fee",cat:"Stock Market",g:"Stock Market",m:"i",a:9.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 1% assets-under-management advisory fee."},
+  {n:"S&P 500 After 1.5% Active Mutual Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:8.5,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 1.5% active-fund expense ratio, assuming the fund matches the index before fees."},
+  {n:"S&P 500 After 2-and-20 Hedge Fund",cat:"Stock Market",g:"Stock Market",m:"i",a:6.4,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) less a 2% management fee, then 20% of the remaining 8% as performance fee."},
   {n:"S&P 500 After 2-and-20 (Underperforming)",cat:"Stock Market",g:"Stock Market",m:"i",a:4.0,ly:"fee",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After LTCG Tax (20%)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After STCG Tax (37%)",cat:"Stock Market",g:"Stock Market",m:"i",a:6.3,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"S&P 500 After 1% Fee + LTCG Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:7.2,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"S&P 500 After LTCG Tax (20%)",cat:"Stock Market",g:"Stock Market",m:"i",a:8.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) with 20% of each year's return taxed away. A simplification: real long-term gains are taxed only on sale, so a buy-and-hold investor does better."},
+  {n:"S&P 500 After STCG Tax (37%)",cat:"Stock Market",g:"Stock Market",m:"i",a:6.3,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row (10.0%) with 37% of each year's return taxed as short-term gains, as for a position turned over inside a year."},
+  {n:"S&P 500 After 1% Fee + LTCG Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:7.2,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, S&P 500 including dividends",asOf:"2026-10-19",win:"1928-2025",how:"The S&P 500 row less a 1% advisory fee (9.0%), then 20% of that taxed."},
   {n:"Qualified Dividends (SPYD) After 15% Tax",cat:"Stock Market",g:"Stock Market",m:"i",a:6.8,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
 
   // --- CASH & SAVINGS (Compound) ---
-  {n:"Money Market Fund (SPAXX/VMFXX)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"High-Yield Savings Account (Online)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Money Market Fund (SPAXX/VMFXX)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.7,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Crane Data, Crane 100 Money Fund Index (annualized 7-day current yield, 3.71% as of 2026-10-19)",asOf:"2026-10-19",how:"The average yield of the 100 largest taxable money market funds, which the big brokerage sweep funds track closely. Moves with the Fed funds rate."},
+  {n:"High-Yield Savings Account (Online)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.2,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Bankrate, Best high-yield savings accounts (editorial picks dated 2026-10-13 to 2026-10-20)",asOf:"2026-10-19",how:"A top online savings rate: Bankrate's picks ranged 3.75% to 4.27%, with several banks at 4.20%. Promotional and balance-capped rates excluded. Variable; moves with the Fed funds rate."},
   {n:"1-Year CD (Top Rate)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"6-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"High-Yield Money Market Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.3,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -552,13 +557,13 @@ const RAW = [
   {n:"3-Month CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:4.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"2-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.8,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"5-Year CD",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"Bank Money Market (Traditional)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"Credit Union Savings",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"National Average Savings Rate",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.45,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"Big Bank Savings (Chase/BofA)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Bank Money Market (Traditional)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.63,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"FDIC National Rates and Rate Caps (national deposit rates published 2026-10-19)",asOf:"2026-10-19",how:"FDIC national average money market deposit rate."},
+  {n:"Credit Union Savings",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.19,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"NCUA, Comparison of Average Savings, Deposits and Loan Rates at Credit Unions and Banks (Q4 2025)",asOf:"2026-10-19",win:"2025-12-26",how:"National average credit union rate on a regular savings account with a $2,500 balance; NCUA's latest quarterly table."},
+  {n:"National Average Savings Rate",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.38,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"FDIC National Rates and Rate Caps (national deposit rates published 2026-10-19)",asOf:"2026-10-19",how:"FDIC national average savings deposit rate."},
+  {n:"Big Bank Savings (Chase/BofA)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Bankrate big-bank comparison (Chase Savings 0.01%, Bank of America Savings 0.04%, as of 2026-10-20)",asOf:"2026-10-19",how:"Standard savings rate at the largest US banks; relationship tiers can add a few basis points."},
   {n:"Regular Checking Account",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:0.01,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"HYSA After Income Tax (24%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.42,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"HYSA After Income Tax (37%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:2.84,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"HYSA After Income Tax (24%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:3.19,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Bankrate, Best high-yield savings accounts (editorial picks dated 2026-10-13 to 2026-10-20)",asOf:"2026-10-19",how:"The high-yield savings row (4.2%) with interest taxed as ordinary income at 24%."},
+  {n:"HYSA After Income Tax (37%)",cat:"Cash & Savings",g:"Cash & Savings",m:"i",a:2.65,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Bankrate, Best high-yield savings accounts (editorial picks dated 2026-10-13 to 2026-10-20)",asOf:"2026-10-19",how:"The high-yield savings row (4.2%) with interest taxed as ordinary income at 37%."},
 
   // --- BONDS (Compound) ---
   {n:"High-Yield Corporate (HYG/JNK)",cat:"Bonds",g:"Bonds",m:"i",a:5.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -621,7 +626,7 @@ const RAW = [
   {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",g:"Collectibles",m:"i",a:4.32,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
 
   // --- PRECIOUS METALS (Compound) ---
-  {n:"Gold Bullion (Physical / GLD)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:7.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold Bullion (Physical / GLD)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:7.1,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, gold column",asOf:"2026-10-19",win:"1976-2025",how:"Compound annual growth of the gold price over the last 50 years: 7.11%. The series runs from 1928, but gold's price was fixed until 1971, so the full span understates a free market. Physical or GLD holding costs come off this."},
   {n:"Rhodium (Physical)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:6.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Gold Mining Stocks (GDX)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Silver Bullion (Physical / SLV)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
@@ -631,7 +636,7 @@ const RAW = [
   {n:"Platinum Bullion (PPLT)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:2.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Precious Coins (Numismatic)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.5,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
   {n:"Junior Mining Stocks (GDXJ)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:1.0,ly:"raw",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
-  {n:"Gold After Collectibles Tax (28%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.4,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
+  {n:"Gold After Collectibles Tax (28%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:5.11,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, gold column",asOf:"2026-10-19",win:"1976-2025",how:"The gold row (7.1%) with 28% of each year's return taxed at the US collectibles rate."},
   {n:"Gold Mining After LTCG Tax (20%)",cat:"Precious Metals",g:"Precious Metals",m:"i",a:4.0,ly:"tax",type:"Asset",vol:"Varies",wp:"Market Rate",sk:"Passive"},
 
   // --- INSURANCE & ANNUITIES (Compound) ---
@@ -1207,6 +1212,7 @@ function renderItem(item, pinned) {
                     <span class="badge c" style="--c:${ink(catColor(item.cat))}">${esc(item.cat)}</span>
                     <span class="badge">${item.type}</span>
                     ${item.ly !== 'raw' ? `<span class="badge">${LAYER_LBL[item.ly]}</span>` : ''}
+                    ${!item.you && isStale(item, Date.now()) ? `<span class="badge c" style="--c:${ink('#f59e0b')}" title="${item.asOf ? 'Last verified ' + esc(item.asOf) + ', over a year ago' : 'Never verified against a source'}; see Provenance below">verify</span>` : ''}
                 </div>
             </div>
             <div style="display:flex;gap:6px;flex:none">${item.you ? `<button type="button" class="pin-btn" id="youEdit">Edit</button><button type="button" class="pin-btn" id="youRemove">Remove</button>` : ''}${pinned ? `<button type="button" class="pin-btn" id="cmpBtn"${!S.cmp.includes(item.n) && S.cmp.length >= CMP_MAX ? ` disabled title="Compare holds ${CMP_MAX}; remove one first"` : ''}>${S.cmp.includes(item.n) ? 'Compared ✓' : 'Compare +'}</button>` : ''}<button type="button" class="pin-btn" id="pinBtn">${pinned ? 'Unpin ✕' : 'Pin'}</button></div>

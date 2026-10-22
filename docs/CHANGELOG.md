@@ -38,7 +38,7 @@
   (−11.11%), both from the Wizard of Odds craps house-edge table, and **Three Card Poker Pair Plus**
   (−7.28%, pay table 1) from the Wizard of Odds Three Card Poker page. They fill the gaps between the
   Pass Line and the one-roll proposition bets already in the set. Each carries source and as-of date;
-  the provenance baseline moves to 231 records, 21 cited.
+  the provenance baseline moves to 231 records, 41 cited (the 38 from the October 19 sourcing pass plus these three).
 
 ---
 
@@ -58,6 +58,24 @@
   of its own, `24678` by default. my-prompt-library does the same, so whichever started second lost
   HMR (`WebSocket server error: Port 24678 is already in use`). `site/vite.config.ts` now pins it to
   `24679`; `DISABLE_HMR=true` still turns it off. The app's own port is unchanged.
+
+---
+
+## October 19, 2026 — Sources on the headline figures, and a "verify" badge
+
+- **Cited** 20 rows: the S&P 500 and nine fee/tax rows built on it, gold and its collectibles-tax
+  row, and the money-market, savings and deposit-average rows. Coverage is 38 of 228 (was 18) and
+  the `check:edges` ratchet now holds at 38.
+- **Corrected while checking** money market fund 4.8% → 3.7% (Crane 100 Money Fund Index, 3.71% on
+  2026-10-19), online HYSA 4.5% → 4.2% (Bankrate's picks top out at 4.27%; the 24% / 37% tax rows
+  are now 3.19% / 2.65%), traditional bank money market 1.5% → 0.63% and national average savings
+  0.45% → 0.38% (FDIC national rates, 2026-10-19), credit-union savings 0.5% → 0.19% (NCUA, Q4
+  2025), gold 7.5% → 7.1% (Damodaran, 1976–2025; the collectibles-tax row is now 5.11%). The S&P
+  500's 10.0% held: Damodaran's 1928–2025 compound return is 10.02%.
+- **Verify badge** the Spectrum inspector shows an amber **verify** badge on any row whose `asOf` is
+  missing or over a year old (167 rows today, including Bitcoin, Ethereum and the CD rows). The
+  rule is `isStale` in the page's math block, held by `check:spectrum` and
+  `check:spectrum-browser` with a pinned clock so an ageing citation never fails CI.
 
 ---
 
