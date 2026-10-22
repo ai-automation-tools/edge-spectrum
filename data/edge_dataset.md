@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 228 · **Categories:** 15 · **Layers:** 200 raw · 9 fee · 19 tax
+**Records:** 231 · **Categories:** 15 · **Layers:** 203 raw · 9 fee · 19 tax
 
 ## What is here, and what is deliberately not
 
@@ -301,7 +301,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 12. Casino Gambling
 
-**Records:** 32
+**Records:** 35
 
 ### Games — linear model
 
@@ -311,34 +311,37 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 2 | Spanish 21 (Dealer Stands Soft 17) | -0.4% | 60 | 2% | raw |
 | 3 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw |
 | 4 | Blackjack 3:2 Basic Strategy | -0.5% | 60 | 2% | raw |
-| 5 | Baccarat Banker | -1.06% | 50 | 3% | raw |
-| 6 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw |
-| 7 | Baccarat Player | -1.24% | 50 | 3% | raw |
-| 8 | Roulette Single Zero La Partage | -1.35% | 40 | 3% | raw |
-| 9 | Craps Hard 6 / Hard 8 | -2.78% | 40 | 1% | raw |
-| 10 | Roulette Five-Number Bet (0-00-1-2-3) | -7.89% | 40 | 3% | raw |
-| 11 | Craps Don't Pass | -1.36% | 40 | 2% | raw |
-| 12 | Craps Pass Line | -1.41% | 40 | 2% | raw |
-| 13 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
-| 14 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw |
-| 15 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
-| 16 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
-| 17 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
-| 18 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
-| 19 | Casino War | -2.88% | 50 | 2% | raw |
-| 20 | Three Card Poker | -3.4% | 40 | 3% | raw |
-| 21 | Let It Ride | -3.5% | 30 | 3% | raw |
-| 22 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
-| 23 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
-| 24 | Caribbean Stud | -5.2% | 30 | 3% | raw |
-| 25 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
-| 26 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
-| 27 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
-| 28 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
-| 29 | Big Six Wheel | -16.0% | 20 | 2% | raw |
-| 30 | Craps Any Seven | -16.67% | 40 | 2% | raw |
-| 31 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
-| 32 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+| 5 | Craps Place 6 / Place 8 | -0.46% | 40 | 2% | raw |
+| 6 | Baccarat Banker | -1.06% | 50 | 3% | raw |
+| 7 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw |
+| 8 | Baccarat Player | -1.24% | 50 | 3% | raw |
+| 9 | Roulette Single Zero La Partage | -1.35% | 40 | 3% | raw |
+| 10 | Craps Hard 6 / Hard 8 | -2.78% | 40 | 1% | raw |
+| 11 | Three Card Poker Pair Plus | -7.28% | 40 | 3% | raw |
+| 12 | Craps Any Craps | -11.11% | 40 | 1% | raw |
+| 13 | Roulette Five-Number Bet (0-00-1-2-3) | -7.89% | 40 | 3% | raw |
+| 14 | Craps Don't Pass | -1.36% | 40 | 2% | raw |
+| 15 | Craps Pass Line | -1.41% | 40 | 2% | raw |
+| 16 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
+| 17 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw |
+| 18 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
+| 19 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
+| 20 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
+| 21 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
+| 22 | Casino War | -2.88% | 50 | 2% | raw |
+| 23 | Three Card Poker | -3.4% | 40 | 3% | raw |
+| 24 | Let It Ride | -3.5% | 30 | 3% | raw |
+| 25 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
+| 26 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
+| 27 | Caribbean Stud | -5.2% | 30 | 3% | raw |
+| 28 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
+| 29 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
+| 30 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
+| 31 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
+| 32 | Big Six Wheel | -16.0% | 20 | 2% | raw |
+| 33 | Craps Any Seven | -16.67% | 40 | 2% | raw |
+| 34 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
+| 35 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
 
 ## 13. Poker & Skill-Based
 
