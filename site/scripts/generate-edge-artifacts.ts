@@ -4,7 +4,7 @@
  *
  * Roadmap Action 2.2. Before this script there were three hand-maintained
  * copies of the same rows — the inlined `RAW` array in the Spectrum page, the
- * `RAW` list in the Streamlit port, and the tables under `Data/` — and they
+ * `RAW` list in the Streamlit port (since removed), and the tables under `data/` — and they
  * had drifted: the markdown was 21 records behind, missing the whole Precious
  * Metals and Insurance & Annuities categories, and still carried a
  * "Gold / Precious Metals (GLD)" row the canonical set had renamed and moved.
@@ -58,23 +58,6 @@ function spectrumBlock(): string {
   return out + '];\n';
 }
 
-// ── The Streamlit port's RAW list ────────────────────────────────────────────
-function streamlitBlock(): string {
-  let out = 'RAW = [\n';
-  let prev: string | null = null;
-  for (const r of EDGES) {
-    if (r.cat !== prev) {
-      if (prev !== null) out += '\n';
-      out += `    ${banner(r, '#')}\n`;
-      prev = r.cat;
-    }
-    const args = r.m === 'i' ? [pct(r.a)] : [pct(r.e), String(r.du), String(r.ced)];
-    if (r.ly !== 'raw') args.push(JSON.stringify(r.ly));
-    out += `    _${r.m === 'i' ? 'inv' : 'gam'}(${JSON.stringify(r.n)}, ${JSON.stringify(r.cat)}, ${args.join(', ')}),\n`;
-  }
-  return out + ']\n';
-}
-
 /**
  * Read a file with its line endings normalised to LF. `core.autocrlf` is on in this
  * repo, so the working tree is CRLF on Windows and LF on CI — comparing raw bytes
@@ -96,7 +79,7 @@ function edgesJson(): string {
   return `[\n${EDGES.map((r) => `  ${JSON.stringify(toSpectrumRow(r))}`).join(',\n')}\n]\n`;
 }
 
-// ── The human-readable tables under Data/ ────────────────────────────────────
+// ── The human-readable tables under data/ ────────────────────────────────────
 function datasetMarkdown(): string {
   const layers = { raw: 0, fee: 0, tax: 0 };
   for (const r of EDGES) layers[r.ly]++;
@@ -157,7 +140,7 @@ function datasetMarkdown(): string {
     '| `g` — linear | Games | `returnOnCapital` accrues the flat-stake loss and **stops at −100%**; `expectedTurnoverCost` is the same loss left unbounded. |',
     '',
     'See [`../docs/methodology.md`](../docs/methodology.md) for the DU/CED framework and the ruin',
-    'formulas, and [`../docs/Ideas/hub_improvement_plan.md`](../docs/Ideas/hub_improvement_plan.md)',
+    'formulas, and [`../docs/ideas/hub_improvement_plan.md`](../docs/ideas/hub_improvement_plan.md)',
     'section 8 for why the two measures are no longer plotted on one axis.',
     '',
     '---',
@@ -178,9 +161,8 @@ const artifacts: Array<[string, string]> = [
     'site/public/spectrum/index.html',
     splice('site/public/spectrum/index.html', 'const RAW = [', '\nconst AR_DEFAULT', spectrumBlock()),
   ],
-  ['Versions/Streamlit/data.py', splice('Versions/Streamlit/data.py', 'RAW = [\n', null, streamlitBlock())],
   ['site/public/spectrum/edges.json', edgesJson()],
-  ['Data/edge_dataset.md', datasetMarkdown()],
+  ['data/edge_dataset.md', datasetMarkdown()],
 ];
 
 const check = process.argv.includes('--check');
