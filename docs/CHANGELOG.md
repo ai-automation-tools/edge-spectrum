@@ -2,6 +2,24 @@
 
 ---
 
+## October 22, 2026 — Org folder layout: `AGENTS.md`, lowercase folders, `Versions/` dropped
+
+- **Docs** `CLAUDE.md` is now `AGENTS.md`, the file every coding agent reads. The new `CLAUDE.md`
+  imports it with `@AGENTS.md` and keeps only the Claude Code note on installing the project skills
+  into `.claude/skills/`.
+- **Docs** `Data/` → `data/`, `Images/` → `images/`, `docs/Ideas/` → `docs/ideas/`, per the org layout
+  standard (lowercase-kebab folders; GitHub paths are case-sensitive). The README banner image, the
+  README and AGENTS.md layout trees, the docs hub and roadmap links, `docs/data-architecture.md`, the
+  comment in `site/src/server/auth.ts` and the generated `data/edge_dataset.md` footer all point at the
+  new names.
+- **Data** `Versions/` (17 old copies, including the Streamlit port) is no longer tracked; git
+  history is the archive. `npm run gen:edges` now writes three artifacts instead of four (the
+  Streamlit `data.py` target is gone), and `check:spectrum` checks the category colour and risk maps
+  on the Spectrum page only, since the Streamlit copies it also compared went with the folder.
+  Older entries below still say `Data/`, `Images/`, `Versions/` and `Ideas/`, as they were written.
+
+---
+
 ## October 22, 2026 — `Docs/` renamed to `docs/`
 
 - **Docs** the top-level docs folder is now lowercase `docs/`, the org's layout standard. GitHub
@@ -289,7 +307,7 @@ simulator; both sit on one pure math module, `site/src/odds.ts`, guarded by `npm
 ## V20 — August 31, 2026
 
 Roadmap [Action 2.1](ROADMAP.md) — metric semantics and dual-axis correction. Evidence and
-measurements in [§8 of hub_improvement_plan.md](Ideas/hub_improvement_plan.md).
+measurements in [§8 of hub_improvement_plan.md](ideas/hub_improvement_plan.md).
 
 > **Log gap:** V18 and V19 were never recorded here. V18 shipped the Ruin Calculator (idea #4);
 > V19 was a layout and tooltip rewrite that silently dropped both it and the V11 Dollar Cost

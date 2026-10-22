@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://edge-spectrum.ai-automation-tools.dev">
-    <img src="Images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
+    <img src="images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
   </a>
 </p>
 
@@ -108,9 +108,8 @@ edge-spectrum/
 ├── docs/                  # In-depth logs, standardized analysis, and future ideas
 │   └── diagrams/          # Code-pinned Archify diagram of the hub (shown on the homepage)
 ├── scripts/               # build-diagram.mjs: builds and drift-checks docs/diagrams/ (docs tooling, not shipped)
-├── Data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
-├── Images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
-└── Versions/              # Legacy and alternate versions (Streamlit port, original themes)
+├── data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
+└── images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
 ```
 
 > **Note:** everything the site needs lives under `site/`; the repo root holds only docs, archives and
