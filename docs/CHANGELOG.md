@@ -2,6 +2,15 @@
 
 ---
 
+## October 24, 2026 — Hub data-flow diagram re-read against the code
+
+- **Docs** `docs/diagrams/hub-data-flow.json` re-pinned to the current commit: the dataset node says
+  231 records, the line ranges for `generate-edge-artifacts.ts` and the Spectrum page moved with the
+  code, and the dataset card no longer lists the removed Streamlit `data.py` (`gen:edges` writes three
+  artifacts). Generated HTML/PNG and the homepage copies rebuilt.
+
+---
+
 ## October 22, 2026 — Org folder layout: `AGENTS.md`, lowercase folders, `Versions/` dropped
 
 - **Docs** `CLAUDE.md` is now `AGENTS.md`, the file every coding agent reads. The new `CLAUDE.md`
