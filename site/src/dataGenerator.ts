@@ -1,5 +1,5 @@
-import { Game, SportType, Strategy, BacktestResponse, SimulatedBetGame, ProfitHistoryPoint, BacktestSummary, BetType, SideSelectionType } from './types';
-import { breakevenRate, wilsonInterval, binomialUpperTail } from './stats';
+import { Game, SportType, Strategy, BacktestResponse, SimulatedBetGame, ProfitHistoryPoint, BacktestSummary, BetType, SideSelectionType } from './types.js';
+import { breakevenRate, wilsonInterval, binomialUpperTail } from './stats.js';
 
 // Deterministic seedable random number generator (LCG or Jenkins-style)
 // This guarantees that backtests are identical and stable across runs

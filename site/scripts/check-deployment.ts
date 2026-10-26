@@ -69,3 +69,27 @@ try {
   }
   globalThis.fetch = originalFetch;
 }
+
+// Vercel runs api/*.ts as unbundled Node ESM, where a relative import with no
+// extension fails at load (FUNCTION_INVOCATION_FAILED on every call). tsx and
+// Vite resolve it fine, so only a scan of the api/ import graph catches it.
+// Found 2026-10-26: src/dataGenerator.ts imported './stats', and /api/backtest 500ed.
+{
+  const { readFileSync, readdirSync, existsSync } = await import('node:fs');
+  const { dirname, join, normalize } = await import('node:path');
+  const root = join(import.meta.dirname, '..');
+  const queue = readdirSync(join(root, 'api')).filter(f => f.endsWith('.ts')).map(f => join(root, 'api', f));
+  const seen = new Set<string>();
+  const bad: string[] = [];
+  for (const file of queue) {
+    if (seen.has(file)) continue;
+    seen.add(file);
+    for (const [, spec] of readFileSync(file, 'utf8').matchAll(/^import (?!type )[^;]*?from '(\.{1,2}\/[^']+)'/gm)) {
+      if (!spec.endsWith('.js')) { bad.push(`${file.slice(root.length + 1)} -> '${spec}'`); continue; }
+      const ts = normalize(join(dirname(file), spec.replace(/\.js$/, '.ts')));
+      if (existsSync(ts)) queue.push(ts);
+    }
+  }
+  assert.deepEqual(bad, [], 'relative imports reachable from api/ must end in .js');
+  console.log(`API import graph: ${seen.size} files, every relative import ends in .js.`);
+}

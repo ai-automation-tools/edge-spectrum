@@ -2,6 +2,15 @@
 
 ---
 
+## October 26, 2026 — `/api/backtest` loads on Vercel again
+
+- **Fix** `site/src/dataGenerator.ts` imported `./stats` and `./types` with no extension. Vercel runs `api/*.ts` as
+  unbundled Node ESM, which can't resolve that, so every backtest since September 28 returned 500
+  `FUNCTION_INVOCATION_FAILED` (site checks, 2026-10-26). Both imports now end in `.js`, like the rest of the API graph.
+- **Check** `npm run check:deployment` walks every file reachable from `api/` and fails on a relative import without `.js`.
+
+---
+
 ## October 26, 2026 — Canonical URL on the homepage
 
 - **Site** `site/index.html` declares `<link rel="canonical" href="https://edge-spectrum.ai-automation-tools.dev/">`,
