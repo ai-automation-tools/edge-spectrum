@@ -2,6 +2,13 @@
 
 ---
 
+## October 26, 2026 — Canonical URL on the homepage
+
+- **Site** `site/index.html` declares `<link rel="canonical" href="https://edge-spectrum.ai-automation-tools.dev/">`,
+  so preview and alias URLs on Vercel don't compete with the homepage in search. Flagged by Org Upkeep.
+
+---
+
 ## October 22, 2026 — Org folder layout: `AGENTS.md`, lowercase folders, `Versions/` dropped
 
 - **Docs** `CLAUDE.md` is now `AGENTS.md`, the file every coding agent reads. The new `CLAUDE.md`
