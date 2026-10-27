@@ -2,6 +2,13 @@
 
 ---
 
+## October 27, 2026 — Security sweep: the refreshed diagram lock
+
+- **`.gitleaksignore`** suppresses the same false positive at the diagram lock's new commit (`56ea039`): the
+  lock holds git blob hashes, which trip the generic API-key rule each time the diagram is refreshed.
+
+---
+
 ## October 26, 2026 — Security sweep: headers and API input limits
 
 - **Headers** `site/vercel.json` now sends `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
