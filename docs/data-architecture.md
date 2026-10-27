@@ -31,7 +31,7 @@ drifted from the source. It runs in CI on every pull request, so an artifact edi
 the build instead of silently becoming a fourth version of the truth.
 
 The Spectrum page keeps its data **inlined** rather than fetching `edges.json` — it is
-self-contained by design (Plotly and fonts by CDN, no build step), and inlining is what lets
+self-contained by design (Plotly self-hosted beside it, fonts by CDN, no build step), and inlining is what lets
 `npm run check:spectrum` lift the page's own `RAW` and math out of the HTML and test the file that
 actually deploys. The generator owns that block; the page still ships it.
 

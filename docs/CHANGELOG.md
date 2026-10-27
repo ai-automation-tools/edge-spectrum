@@ -9,6 +9,15 @@
 
 ---
 
+## October 26, 2026 — Plotly served from the site, not its CDN
+
+- **Spectrum** `site/public/spectrum/index.html` loads `plotly-basic-2.32.0.min.js` from its own folder instead of
+  `cdn.plot.ly/plotly-2.32.0.min.js`, so a Plotly CDN outage no longer takes the page down. The basic build (bar,
+  scatter, pie) is everything the page draws: 1.0 MB instead of 3.6 MB. Same version, same chart (roadmap Action 2.11).
+- **Check** `npm run check:spectrum-browser` fails if the page requests anything from `plot.ly`.
+
+---
+
 ## October 26, 2026 — Security sweep: headers and API input limits
 
 - **Headers** `site/vercel.json` now sends `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
