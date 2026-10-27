@@ -2,6 +2,13 @@
 
 ---
 
+## October 27, 2026 — Security sweep: the refreshed diagram lock
+
+- **`.gitleaksignore`** suppresses the same false positive at the diagram lock's new commit (`56ea039`): the
+  lock holds git blob hashes, which trip the generic API-key rule each time the diagram is refreshed.
+
+---
+
 ## October 26, 2026 — Plotly served from the site, not its CDN
 
 - **Spectrum** `site/public/spectrum/index.html` loads `plotly-basic-2.32.0.min.js` from its own folder instead of
