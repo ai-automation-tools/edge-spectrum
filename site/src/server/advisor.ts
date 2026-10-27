@@ -51,15 +51,20 @@ export async function generateAdvice(
   if (deploymentMode() !== 'full') {
     throw new Error('Live AI is disabled in demo mode.');
   }
+  // currentStrategy comes straight from the request body: clip every field so
+  // it can't carry text past the prompt's 1000-character cap.
+  const s = (v: unknown, d: string) => String(v || d).slice(0, 20);
+  const n = (v: unknown, d: number) => Number(v) || d;
+  const cs = currentStrategy ?? {};
   const modelPrompt = `
 User Query: "${prompt}"
 
 Their currently selected backtest setup is:
-Sport: ${currentStrategy?.sport || 'NFL'}
-Years: ${currentStrategy?.startYear || 2020} - ${currentStrategy?.endYear || 2024}
-Bet Type: ${currentStrategy?.betType || 'moneyline'}
-Side: ${currentStrategy?.sideSelection || 'favorites'}
-Unit: $${currentStrategy?.unitSize || 100}
+Sport: ${s(cs.sport, 'NFL')}
+Years: ${n(cs.startYear, 2020)} - ${n(cs.endYear, 2024)}
+Bet Type: ${s(cs.betType, 'moneyline')}
+Side: ${s(cs.sideSelection, 'favorites')}
+Unit: $${n(cs.unitSize, 100)}
 
 Please provide your analysis and suggest 1-2 profitable alternative strategies or variations to backtest.`;
 

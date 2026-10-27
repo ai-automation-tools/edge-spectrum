@@ -3,6 +3,7 @@ import {
   attemptUnlock, guardAdvisorRequest, issueToken, sessionStatus, SESSION_COOKIE,
 } from '../src/server/auth';
 import { generateAdvice } from '../src/server/advisor';
+import { fetchEspnScoreboard } from '../src/server/espn';
 import advisorHandler from '../api/strategy-advisor';
 import authHandler from '../api/advisor-auth';
 import type { ApiRequest, ApiResponse } from '../src/server/httpTypes';
@@ -38,6 +39,8 @@ try {
   assert.equal(guardAdvisorRequest(cookie, '').status, 400);
   assert.equal(guardAdvisorRequest(cookie, 'x'.repeat(1001)).status, 400);
   assert.equal(sessionStatus(`${SESSION_COOKIE}=%ZZ`).body.authed, false);
+  // A date that isn't YYYYMMDD[-YYYYMMDD] is refused before any fetch.
+  await assert.rejects(fetchEspnScoreboard('NFL', '20240101&limit=1'), /Invalid date/);
 
   for (const mode of [undefined, 'demo', 'FULL', 'typo']) {
     if (mode === undefined) delete process.env.EDGE_SPECTRUM_MODE;
