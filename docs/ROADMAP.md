@@ -103,7 +103,7 @@ Phase 7: Public Launch ⚪
      - Implement a hard daily spend ceiling with a fallback 503 response.
 
 - [ ] 🔵 **Action 2.8 — Move the Spectrum page off Plotly 2.32.0 (upstream check, 2026-10-07)** *(V21 redesign of 2026-10-12 kept the pin; the page now uses `Plotly.react`, `hovertext`, `marker.opacity` arrays and category-axis shapes, so test those under 4.x.)*
-   - **What:** Bump the pinned `cdn.plot.ly/plotly-2.32.0.min.js` in `site/public/spectrum/index.html` to a current release and fix whatever the 4.0 breaking changes touch in the page's traces and layout (4.0 switched colour parsing from TinyColor to culori and changed some subplot defaults).
+   - **What:** Replace the self-hosted `site/public/spectrum/plotly-basic-2.32.0.min.js` (Action 2.11) with the current `plotly.js-basic-dist-min` release, renaming the file and the script tag in `site/public/spectrum/index.html` to the new version, and fix whatever the 4.0 breaking changes touch in the page's traces and layout (4.0 switched colour parsing from TinyColor to culori and changed some subplot defaults).
    - **Why:** plotly.js is at 4.1.2 (4.0.0 shipped 2026-08-24); the pin is two majors behind. Source: https://github.com/plotly/plotly.js/releases. No advisory affects the 2.32.0 pin as read; this is drift, not an emergency.
    - **Where:** `site/public/spectrum/index.html` (script tag and the theme-aware layout colours); not the `RAW` block.
    - **Done when:** the page renders in both themes, `npm run check:spectrum` and `npm run build` pass, and the three measures plot as before.
@@ -118,7 +118,7 @@ Phase 7: Public Launch ⚪
    - **Implementation:** Add `source` / `asOf` / `window` to the top twenty rows by visibility (every `raw` Cash & Savings row, the index ETFs, Bitcoin, Ethereum, gold); have the Spectrum inspector flag any figure whose `asOf` is older than twelve months or missing. The ratchet in `check:edges` already holds the count.
    - **Done when:** coverage is above 35 and the inspector shows a "verify" badge on stale rows.
 
-- [ ] 🟡 **Action 2.11 — Self-Host Plotly**
+- [x] 🟡 **Action 2.11 — Self-Host Plotly** — done 2026-10-26: the page loaded the full 3.6 MB `cdn.plot.ly/plotly-2.32.0.min.js` on every visit, so a Plotly CDN outage took the whole tool down. It now loads `site/public/spectrum/plotly-basic-2.32.0.min.js` (1.0 MB, the `plotly.js-basic-dist-min@2.32.0` npm build: bar, scatter, pie and the core, which covers every trace, shape and `downloadImage` call the page makes). Same version, so nothing in the chart changed; the bump stays Action 2.8. `check:spectrum-browser` passes on it and now also fails if the page requests anything from `plot.ly`, verified by putting the CDN tag back into `dist/`. Google Fonts are still a CDN request.
    - **Problem:** `cdn.plot.ly` is a single point of failure for the whole tool and a third-party request on every visit.
    - **Implementation:** Ship `plotly.js-basic-dist-min` (bar + scatter is all the page uses; roughly a third of the full bundle) from `site/public/spectrum/`, with the version in the filename so the upstream check in `docs/UPSTREAMS.md` still has something to compare. Fold into Action 2.8.
 
