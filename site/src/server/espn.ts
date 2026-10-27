@@ -33,6 +33,11 @@ export async function fetchEspnScoreboard(
 
   let url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/${espnLeague}/scoreboard?limit=100`;
   if (dateInput) {
+    // Only YYYYMMDD or YYYYMMDD-YYYYMMDD reaches ESPN: anything else could add
+    // its own query parameters and mint unlimited cache-key variants.
+    if (!/^\d{8}(-\d{8})?$/.test(dateInput)) {
+      throw new Error('Invalid date: expected YYYYMMDD or YYYYMMDD-YYYYMMDD');
+    }
     url += `&dates=${dateInput}`;
   }
 
