@@ -4,7 +4,8 @@
  * `check:spectrum` tests the page's math; this tests the page. It serves the built
  * `dist/` with `vite preview` — the files Vercel deploys — and drives the page in
  * headless Chromium through the interactions that broke by hand during the V21 rebuild.
- * Run after `npm run build`. Needs the Plotly CDN, as the deployed page does.
+ * Run after `npm run build`. Plotly is served from `dist/spectrum/` (Action 2.11); the fonts
+ * still come from Google's CDN.
  */
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +46,9 @@ try {
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(e.message));
+  // Plotly is self-hosted (Action 2.11); a request to its CDN means the script tag regressed.
+  const plotlyCdn: string[] = [];
+  page.on('request', (r) => { if (new URL(r.url()).hostname.endsWith('plot.ly')) plotlyCdn.push(r.url()); });
 
   // ── 1. Loads with every record and no errors ───────────────────────────────
   // l=all: the default Gross layer hides the fee and tax rows.
@@ -120,6 +124,7 @@ try {
   check(await page.locator('.embed-cap').isVisible(), 'embed mode has no caption (helpline, full-tool link)');
 
   check(errors.length === 0, `console errors: ${errors.slice(0, 3).join(' | ')}`);
+  check(plotlyCdn.length === 0, `the page still fetches Plotly from its CDN: ${plotlyCdn[0]}`);
   await page.close();
 
   // ── 8. Touch screens scroll past the chart instead of zooming it ───────────

@@ -22,7 +22,7 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Plotly.js** | `cdn.plot.ly/plotly-2.32.0.min.js`, version pinned in the URL | `site/public/spectrum/index.html` | github.com/plotly/plotly.js/releases (pinned 2.32.0; 4.x is current, see roadmap Action 2.8) | 2026-10-21 |
+| **Plotly.js** | Self-hosted `plotly-basic-2.32.0.min.js` (npm `plotly.js-basic-dist-min@2.32.0`), version in the filename | `site/public/spectrum/index.html`, `site/public/spectrum/plotly-basic-2.32.0.min.js` | github.com/plotly/plotly.js/releases (pinned 2.32.0; 4.x is current, see roadmap Action 2.8) | 2026-10-21 |
 | **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | 2026-10-21 |
 
 ## Hosting and runtime
