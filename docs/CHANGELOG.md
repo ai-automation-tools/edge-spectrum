@@ -11,6 +11,17 @@
 
 ---
 
+## October 26, 2026 — Security sweep: headers and API input limits
+
+- **Headers** `site/vercel.json` now sends `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
+  `frame-ancestors 'self'` and a `Referrer-Policy` on every path. The home page's own diagram iframe still loads.
+- **Advisor** `generateAdvice` clips each `currentStrategy` field, so the request body can't carry text past the
+  prompt's 1000-character cap into the Gemini call.
+- **Scoreboard** `fetchEspnScoreboard` refuses a `date` that isn't `YYYYMMDD[-YYYYMMDD]`. `check:deployment` covers it.
+- **`.gitleaksignore`** suppresses one false positive (git blob hashes in the diagram's source lock).
+
+---
+
 ## October 26, 2026 — `/api/backtest` loads on Vercel again
 
 - **Fix** `site/src/dataGenerator.ts` imported `./stats` and `./types` with no extension. Vercel runs `api/*.ts` as

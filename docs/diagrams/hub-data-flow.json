@@ -8,7 +8,7 @@
     "output": "hub-data-flow.html",
     "repository": {
       "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
-      "revision": "f3c0fe38347fe04b38b900a8ee296abd421475ef"
+      "revision": "4a339619706fdc9983e3728bc2e547aae749c697"
     }
   },
   "stages": [
@@ -33,7 +33,7 @@
       "id": "edges",
       "type": "database",
       "label": "edges.ts",
-      "sublabel": "228 edge records",
+      "sublabel": "231 edge records",
       "stage": 0,
       "row": 0,
       "sources": [
@@ -69,8 +69,8 @@
       "sources": [
         {
           "path": "site/scripts/generate-edge-artifacts.ts",
-          "line": 175,
-          "end_line": 217
+          "line": 158,
+          "end_line": 199
         }
       ]
     },
@@ -104,13 +104,13 @@
       "sources": [
         {
           "path": "site/public/spectrum/index.html",
-          "line": 509,
-          "end_line": 510
+          "line": 514,
+          "end_line": 515
         },
         {
           "path": "site/public/spectrum/index.html",
-          "line": 1157,
-          "end_line": 1167
+          "line": 1165,
+          "end_line": 1175
         }
       ]
     },
@@ -332,7 +332,7 @@
       "dot": "cyan",
       "title": "One dataset, generated copies",
       "items": [
-        "site/src/data/edges.ts is the only place the edge records are authored. npm run gen:edges rewrites the Spectrum page's inlined RAW block, site/public/spectrum/edges.json, the Streamlit port's data.py and Data/edge_dataset.md from it.",
+        "site/src/data/edges.ts is the only place the edge records are authored. npm run gen:edges rewrites the Spectrum page's inlined RAW block, site/public/spectrum/edges.json and data/edge_dataset.md from it.",
         "CI runs gen:edges --check and fails on any artifact that drifted. The page keeps its data inlined so check:spectrum tests the file that actually deploys."
       ]
     },
