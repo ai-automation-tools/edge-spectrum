@@ -2,6 +2,13 @@
 
 ---
 
+## October 28, 2026 — Three more craps bets
+
+- **Dataset** `Craps Place 5 / Place 9` (−1.11%), `Craps Place 4 / Place 10` (−1.67%) and `Craps Big 6 / Big 8`
+  (−2.78%), cited to the Wizard of Odds craps house-edge table. Dataset is now 234 records, 44 cited.
+
+---
+
 ## October 27, 2026 — Security sweep: the refreshed diagram lock
 
 - **`.gitleaksignore`** suppresses the same false positive at the diagram lock's new commit (`56ea039`): the

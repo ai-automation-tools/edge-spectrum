@@ -64,7 +64,7 @@ const failures: string[] = [];
 const fail = (msg: string) => failures.push(msg);
 
 // ── 1. The page still carries the dataset the docs describe ──────────────────
-const EXPECTED_RECORDS = 231;
+const EXPECTED_RECORDS = 234;
 if (RAW.length !== EXPECTED_RECORDS) {
   fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (update docs/ROADMAP.md if intentional)`);
 }
