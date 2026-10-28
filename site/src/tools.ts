@@ -39,7 +39,7 @@ export const TOOLS: Tool[] = [
     slug: 'spectrum',
     title: 'The Edge Spectrum',
     blurb:
-      'Interactive comparison of expected returns across 225 financial & betting activities in 15 categories over 7 time horizons.',
+      'Interactive comparison of expected returns across 234 financial & betting activities in 15 categories over 7 time horizons.',
     icon: Activity,
     // Explicit index.html so the static page resolves identically in Vite dev
     // (which doesn't auto-serve a public/ directory index) and on Vercel.
