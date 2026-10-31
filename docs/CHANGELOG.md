@@ -2,6 +2,12 @@
 
 ---
 
+## October 31, 2026 — Roadmap sweep: Zod noted
+
+- **Roadmap** Action 2.14 records that Zod 3 → 4 already landed on 2026-10-27 (Dependabot #63, `site` on `zod ^4.6.6`, CI green). The item stays open for Vite, TypeScript, Express, motion, dotenv and lucide-react.
+
+---
+
 ## October 27, 2026 — Security sweep: the refreshed diagram lock
 
 - **`.gitleaksignore`** suppresses the same false positive at the diagram lock's new commit (`56ea039`): the
