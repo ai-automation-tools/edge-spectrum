@@ -5,6 +5,9 @@
 ## October 31, 2026 — Roadmap sweep: Zod noted
 
 - **Roadmap** Action 2.14 records that Zod 3 → 4 already landed on 2026-10-27 (Dependabot #63, `site` on `zod ^4.6.6`, CI green). The item stays open for Vite, TypeScript, Express, motion, dotenv and lucide-react.
+## October 31, 2026 — Hub data-flow diagram re-pinned
+
+- **Diagram** `docs/diagrams/hub-data-flow.json` re-read against `espn.ts` (date check), `advisor.ts` (clipped strategy fields) and the Spectrum page (local Plotly); ranges and the server and advisor cards updated, re-pinned to HEAD.
 
 ---
 

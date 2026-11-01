@@ -8,7 +8,7 @@
     "output": "hub-data-flow.html",
     "repository": {
       "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
-      "revision": "4a339619706fdc9983e3728bc2e547aae749c697"
+      "revision": "03f67ad361077b6f1548db80432babd05e36af4e"
     }
   },
   "stages": [
@@ -200,7 +200,7 @@
         {
           "path": "site/src/server/espn.ts",
           "line": 27,
-          "end_line": 43
+          "end_line": 48
         }
       ]
     },
@@ -239,8 +239,8 @@
       "sources": [
         {
           "path": "site/src/server/espn.ts",
-          "line": 27,
-          "end_line": 43
+          "line": 34,
+          "end_line": 44
         }
       ]
     },
@@ -255,7 +255,7 @@
         {
           "path": "site/src/server/advisor.ts",
           "line": 47,
-          "end_line": 69
+          "end_line": 76
         }
       ]
     }
@@ -350,7 +350,7 @@
       "items": [
         "On Vercel, site/api/* run as serverless functions; locally server.ts mirrors the same routes. Both call the shared modules in site/src/server/.",
         "/api/backtest validates the strategy with Zod, rejecting out-of-bounds input with a 400, then runs the engine over synthetic seasons. The lines are priced off the same distribution the scores come from, so the book's hold is the only edge.",
-        "/api/espn-scoreboard proxies ESPN's public scoreboard to get around browser CORS."
+        "/api/espn-scoreboard proxies ESPN's public scoreboard to get around browser CORS, and only forwards a YYYYMMDD or YYYYMMDD-YYYYMMDD date."
       ]
     },
     {
@@ -358,7 +358,7 @@
       "title": "The advisor fails closed",
       "items": [
         "EDGE_SPECTRUM_MODE defaults to demo, which answers 403; only the exact value full enables live AI. The public demo stays in demo mode and holds no Gemini key.",
-        "In full mode the endpoint needs ADVISOR_PASSCODE set (otherwise 503) and a valid session cookie (otherwise 401) before it calls Gemini with the server-side GEMINI_API_KEY."
+        "In full mode the endpoint needs ADVISOR_PASSCODE set (otherwise 503) and a valid session cookie (otherwise 401) before it calls Gemini with the server-side GEMINI_API_KEY. The current-strategy fields in the prompt are clipped to 20 characters each."
       ]
     }
   ]
