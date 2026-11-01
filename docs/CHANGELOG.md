@@ -2,6 +2,12 @@
 
 ---
 
+## October 31, 2026 — Hub data-flow diagram re-pinned
+
+- **Diagram** `docs/diagrams/hub-data-flow.json` re-read against `espn.ts` (date check), `advisor.ts` (clipped strategy fields) and the Spectrum page (local Plotly); ranges and the server and advisor cards updated, re-pinned to HEAD.
+
+---
+
 ## October 27, 2026 — Security sweep: the refreshed diagram lock
 
 - **`.gitleaksignore`** suppresses the same false positive at the diagram lock's new commit (`56ea039`): the
