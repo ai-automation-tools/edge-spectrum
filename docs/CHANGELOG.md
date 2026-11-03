@@ -2,6 +2,16 @@
 
 ---
 
+## November 2, 2026 — Spectrum page on Plotly 4.2.0
+
+- **Spectrum** `site/public/spectrum/index.html` loads `plotly-basic-4.2.0.min.js` (npm `plotly.js-basic-dist-min@4.2.0`)
+  instead of the 2.32.0 build, two majors behind. No page code changed: the 3.0 and 4.0 breaking changes (colour
+  parsing, string titles, Chart Studio config, the modebar's new cloud button) touch nothing the page uses (roadmap Action 2.8).
+- **Verified** by rendering both builds in both themes across both measures, category colouring, real returns and
+  the compare chart: same bars, ticks and fills, no console errors, and a pixel diff that only moves dark-mode text by 1–3 px.
+
+---
+
 ## October 31, 2026 — Hub data-flow diagram re-pinned
 
 - **Diagram** `docs/diagrams/hub-data-flow.json` re-read against `espn.ts` (date check), `advisor.ts` (clipped strategy fields) and the Spectrum page (local Plotly); ranges and the server and advisor cards updated, re-pinned to HEAD.
