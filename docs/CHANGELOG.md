@@ -20,6 +20,11 @@
 
 - **Diagram** `docs/diagrams/hub-data-flow.json` re-read against `espn.ts` (date check), `advisor.ts` (clipped strategy fields) and the Spectrum page (local Plotly); ranges and the server and advisor cards updated, re-pinned to HEAD.
 
+## October 28, 2026 — Three more craps bets
+
+- **Dataset** `Craps Place 5 / Place 9` (−1.11%), `Craps Place 4 / Place 10` (−1.67%) and `Craps Big 6 / Big 8`
+  (−2.78%), cited to the Wizard of Odds craps house-edge table. Dataset is now 234 records, 44 cited.
+
 ---
 
 ## October 27, 2026 — Security sweep: the refreshed diagram lock
