@@ -2,6 +2,10 @@
 
 ---
 
+## October 31, 2026 — Roadmap sweep: Zod noted
+
+- **Roadmap** Action 2.14 records that Zod 3 → 4 already landed on 2026-10-27 (Dependabot #63, `site` on `zod ^4.6.6`, CI green). The item stays open for Vite, TypeScript, Express, motion, dotenv and lucide-react.
+
 ## November 2, 2026 — Spectrum page on Plotly 4.2.0
 
 - **Spectrum** `site/public/spectrum/index.html` loads `plotly-basic-4.2.0.min.js` (npm `plotly.js-basic-dist-min@4.2.0`)
