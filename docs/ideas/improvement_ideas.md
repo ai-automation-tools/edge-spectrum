@@ -12,7 +12,7 @@
 Green (player edge) → Yellow (break-even) → Red (house edge) gradient applied to all bars. Category-colored outlines added in later versions. Gradient legend shown in the header bar.
 
 ### 2. ✅ Interactive Version — *Implemented in V1, enhanced through V7*
-Built as a standalone HTML app using Plotly.js 2.32.0. Rich hover tooltips show: activity name, return badge, category, edge per event, type, volatility, win probability, skill factor, all-horizon breakdown, and grouped peer comparison within subcategories. Dark theme with full-viewport flex layout.
+Built as a standalone HTML app using Plotly.js 2.32.0 (self-hosted basic build since 2026-10-26, moved to 4.2.0 on 2026-11-02). Rich hover tooltips show: activity name, return badge, category, edge per event, type, volatility, win probability, skill factor, all-horizon breakdown, and grouped peer comparison within subcategories. Dark theme with full-viewport flex layout.
 
 ### 3. 🔶 Risk-Adjusted Overlay (Dual Axis) — *Partially implemented*
 Volatility data is included in the tooltip for each activity but not yet shown as a visual overlay or second axis on the chart. The grouped peer comparison in tooltips (V6+) provides some relative context. A true dual-axis variance overlay or scatter plot view remains unbuilt.
