@@ -311,15 +311,15 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 2 | Spanish 21 (Dealer Stands Soft 17) | -0.4% | 60 | 2% | raw |
 | 3 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw |
 | 4 | Blackjack 3:2 Basic Strategy | -0.5% | 60 | 2% | raw |
-| 5 | Craps Place 6 / Place 8 | -0.46% | 40 | 2% | raw |
-| 6 | Craps Place 5 / Place 9 | -1.11% | 40 | 2% | raw |
-| 7 | Craps Place 4 / Place 10 | -1.67% | 40 | 2% | raw |
+| 5 | Craps Place 6 / Place 8 | -1.52% | 40 | 2% | raw |
+| 6 | Craps Place 5 / Place 9 | -4.0% | 40 | 2% | raw |
+| 7 | Craps Place 4 / Place 10 | -6.67% | 40 | 2% | raw |
 | 8 | Baccarat Banker | -1.06% | 50 | 3% | raw |
 | 9 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw |
 | 10 | Baccarat Player | -1.24% | 50 | 3% | raw |
 | 11 | Roulette Single Zero La Partage | -1.35% | 40 | 3% | raw |
-| 12 | Craps Big 6 / Big 8 | -2.78% | 40 | 1% | raw |
-| 13 | Craps Hard 6 / Hard 8 | -2.78% | 40 | 1% | raw |
+| 12 | Craps Big 6 / Big 8 | -9.09% | 40 | 1% | raw |
+| 13 | Craps Hard 6 / Hard 8 | -9.09% | 40 | 1% | raw |
 | 14 | Three Card Poker Pair Plus | -7.28% | 40 | 3% | raw |
 | 15 | Craps Any Craps | -11.11% | 40 | 1% | raw |
 | 16 | Roulette Five-Number Bet (0-00-1-2-3) | -7.89% | 40 | 3% | raw |
