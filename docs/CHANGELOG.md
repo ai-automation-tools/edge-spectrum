@@ -2,6 +2,14 @@
 
 ---
 
+## November 4, 2026 — Three more casino table games
+
+- **Dataset** `Four Card Poker Ante` (−2.79%), `Four Card Poker Aces Up` (−3.89%) and `Mississippi Stud` (−4.91%),
+  cited to the Wizard of Odds game pages; all figures are house edge on the Ante (or the side bet) under optimal
+  strategy. Dataset is now 237 records, 47 cited.
+
+---
+
 ## November 3, 2026 — Craps rows on one convention: house edge per bet made
 
 - **Data** Five multi-roll craps bets carried Wizard of Odds **per-roll** figures under a "house edge per bet made" methodology, so Place 5/9 (−1.11%) read better than Pass Line (−1.41%). They now use the per-bet-made figures, like Pass Line and Don't Pass: Place 6/8 −0.46% → **−1.52%**, Place 5/9 −1.11% → **−4.00%**, Place 4/10 −1.67% → **−6.67%**, Big 6/8 −2.78% → **−9.09%**, Hard 6/8 −2.78% → **−9.09%**. Field, Any Craps and Any Seven settle in one roll, so per roll and per bet are the same and they are unchanged. Regenerated `edges.json`, the Spectrum page and `data/edge_dataset.md` with `npm run gen:edges`. Flagged by the org PR sweep on #67.
