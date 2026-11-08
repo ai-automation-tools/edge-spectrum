@@ -8,7 +8,7 @@
     "output": "hub-data-flow.html",
     "repository": {
       "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
-      "revision": "03f67ad361077b6f1548db80432babd05e36af4e"
+      "revision": "922bc61a2f8d7d6421f897433dd3295c40397162"
     }
   },
   "stages": [
@@ -33,7 +33,7 @@
       "id": "edges",
       "type": "database",
       "label": "edges.ts",
-      "sublabel": "231 edge records",
+      "sublabel": "234 edge records",
       "stage": 0,
       "row": 0,
       "sources": [
@@ -109,8 +109,8 @@
         },
         {
           "path": "site/public/spectrum/index.html",
-          "line": 1165,
-          "end_line": 1175
+          "line": 1168,
+          "end_line": 1179
         }
       ]
     },
