@@ -2,6 +2,13 @@
 
 ---
 
+## November 4, 2026 — Three more casino table games
+
+- **Dataset** `Four Card Poker Ante` (−2.79%), `Four Card Poker Aces Up` (−3.89%) and `Mississippi Stud` (−4.91%),
+  cited to the Wizard of Odds game pages; all figures are house edge on the Ante (or the side bet) under optimal
+  strategy. Dataset is now 237 records, 47 cited.
+
+---
 ## November 7, 2026 — Hub data-flow diagram re-pinned
 
 - **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the craps and Plotly changes. The `edges.ts` node now says 234 edge records (was 231), the Spectrum page node's related-tools range moved to lines 1168-1179, and the diagram is rebuilt with `--pin-head` (org upkeep).

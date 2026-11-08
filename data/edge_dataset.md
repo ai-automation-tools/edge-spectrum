@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 234 · **Categories:** 15 · **Layers:** 206 raw · 9 fee · 19 tax
+**Records:** 237 · **Categories:** 15 · **Layers:** 209 raw · 9 fee · 19 tax
 
 ## What is here, and what is deliberately not
 
@@ -301,7 +301,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 12. Casino Gambling
 
-**Records:** 38
+**Records:** 41
 
 ### Games — linear model
 
@@ -331,20 +331,23 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 22 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
 | 23 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
 | 24 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
-| 25 | Casino War | -2.88% | 50 | 2% | raw |
-| 26 | Three Card Poker | -3.4% | 40 | 3% | raw |
-| 27 | Let It Ride | -3.5% | 30 | 3% | raw |
-| 28 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
-| 29 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
-| 30 | Caribbean Stud | -5.2% | 30 | 3% | raw |
-| 31 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
-| 32 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
-| 33 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
-| 34 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
-| 35 | Big Six Wheel | -16.0% | 20 | 2% | raw |
-| 36 | Craps Any Seven | -16.67% | 40 | 2% | raw |
-| 37 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
-| 38 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+| 25 | Four Card Poker Ante | -2.79% | 30 | 3% | raw |
+| 26 | Casino War | -2.88% | 50 | 2% | raw |
+| 27 | Three Card Poker | -3.4% | 40 | 3% | raw |
+| 28 | Let It Ride | -3.5% | 30 | 3% | raw |
+| 29 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw |
+| 30 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
+| 31 | Mississippi Stud | -4.91% | 30 | 3% | raw |
+| 32 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
+| 33 | Caribbean Stud | -5.2% | 30 | 3% | raw |
+| 34 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
+| 35 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
+| 36 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
+| 37 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
+| 38 | Big Six Wheel | -16.0% | 20 | 2% | raw |
+| 39 | Craps Any Seven | -16.67% | 40 | 2% | raw |
+| 40 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
+| 41 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
 
 ## 13. Poker & Skill-Based
 
