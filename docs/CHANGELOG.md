@@ -9,6 +9,9 @@
   strategy. Dataset is now 237 records, 47 cited.
 
 ---
+## November 7, 2026 — Hub data-flow diagram re-pinned
+
+- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the craps and Plotly changes. The `edges.ts` node now says 234 edge records (was 231), the Spectrum page node's related-tools range moved to lines 1168-1179, and the diagram is rebuilt with `--pin-head` (org upkeep).
 
 ## November 3, 2026 — Craps rows on one convention: house edge per bet made
 
