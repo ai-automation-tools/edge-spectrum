@@ -2,6 +2,25 @@
 
 ---
 
+## November 10, 2026 — ESPN line capture, schedulable from Cronsole
+
+- **Collector** `site/scripts/capture-lines.ts` (`npm run capture:lines -- --out <folder>`) snapshots ESPN's
+  public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game to
+  `<folder>/<SPORT>/<day>.jsonl`: spread and its prices, total, moneyline, scores, and a `linePhase` of
+  `open`, `midday` or `close` (`null` once a game has started). Append-only, no keys. Roadmap Actions
+  5.1 (local JSONL as the store) and 5.2.
+- **ESPN parser** `parseEspnScoreboard` is split out of `fetchEspnScoreboard` so the collector reads ESPN
+  the same way the live feed does, and the feed's games now also carry `state`, the bookmaker, both
+  moneylines and both spread prices. A pick'em spread now reads `0` instead of `null`.
+- **Cronsole catalog** `npm run build:registry` generates a Registry v1 template
+  (`edge-spectrum-line-capture`, every 3 hours) and pack (`edge-spectrum`) into `site/public/registry/`,
+  served at `/registry/` with `Access-Control-Allow-Origin: *` so the
+  [Cronsole gallery](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture) can list it.
+  CI runs `check:lines` and `build:registry -- --check`; a daily *Registry drift* workflow checks the
+  served copy against `main`.
+
+---
+
 ## November 4, 2026 — Three more casino table games
 
 - **Dataset** `Four Card Poker Ante` (−2.79%), `Four Card Poker Aces Up` (−3.89%) and `Mississippi Stud` (−4.91%),
