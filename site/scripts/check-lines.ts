@@ -8,7 +8,8 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseEspnScoreboard } from '../src/server/espn';
-import { appendRecords, seenIds, toRecords } from './capture-lines';
+import { appendRecords, seenIds, toRecords, type LineRecord } from './capture-lines';
+import { digestGames, renderDigest, spreadMove } from './digest-lines';
 
 const team = (homeAway: string, abbreviation: string, displayName: string, score: string) =>
   ({ homeAway, score, team: { abbreviation, displayName } });
@@ -76,4 +77,35 @@ try {
   rmSync(dir, { recursive: true, force: true });
 }
 
-console.log('check:lines OK: parser fields, linePhase rule, append-only file');
+// ── The daily digest (scripts/digest-lines.ts) over a hand-built day ──
+const rec = (eventId: string, phase: LineRecord['linePhase'], state: string, minutesToStart: number,
+  spread: number | null, total: number | null = 220, homeMl: number | null = -150, score: [number, number] = [0, 0]): LineRecord => ({
+  eventId, sport: 'NBA', eventDate: '2026-11-11T00:30Z', capturedAt: '2026-11-10T10:00Z', state, linePhase: phase,
+  minutesToStart, homeTeam: `Home ${eventId}`, awayTeam: `Away ${eventId}`, homeScore: score[0], awayScore: score[1],
+  provider: 'Draft Kings', spread, spreadOdds: { home: -110, away: -110 }, overUnder: total, moneyline: { home: homeMl, away: 130 },
+});
+const day = digestGames('NBA', [
+  rec('A', 'open', 'pre', 600, -3.5, 220),
+  rec('A', 'close', 'pre', 170, -4.5, 222.5, -190),
+  rec('A', 'close', 'pre', 50, -5, 223, -200), // job ran early: the nearer close wins
+  rec('A', null, 'post', -200, -5, 223, -200, [110, 101]),
+  rec('B', 'open', 'pre', 900, 2, 230, 120),
+  rec('B', 'midday', 'pre', 400, 1.5, 229, 110), // no close capture
+  rec('C', null, 'post', -100, null, null, null, [90, 95]), // first seen after it started
+]);
+assert.deepEqual(day.map(g => g.eventId), ['A', 'B', 'C']);
+assert.equal(day[0].close?.minutesToStart, 50);
+assert.equal(spreadMove(day[0]), -1.5);
+assert.deepEqual(day[0].gaps, []);
+assert.deepEqual(day[1].gaps, ['no close capture', 'no final yet']);
+assert.equal(spreadMove(day[1]), null, 'no close capture is never reported as a move');
+assert.deepEqual(day[2].gaps, ['no pre-game capture']);
+const md = renderDigest('2026-11-10', '/lines', day);
+assert.match(md, /Opening and closing line both captured for 1 of 3/);
+assert.match(md, /\| NBA \| Away A @ Home A \| -3\.5 \| -5 \| -1\.5 \|/);
+assert.match(md, /\| Away A @ Home A \| -3\.5 → -5 \(-1\.5\) \| 220 → 223 \(\+3\) \| -150 → -200 \(-50\) \| 101–110 \| — \|/);
+assert.match(md, /\| Away B @ Home B \| \+2 → \+1\.5 \(-0\.5\)\* \|/, 'the last pre-game line is marked, not called a close');
+assert.match(md, /\| Away C @ Home C \| — \| — \| — \| 95–90 \| no pre-game capture \|/);
+assert.match(renderDigest('2026-11-10', '/lines', []), /hold no games/);
+
+console.log('check:lines OK: parser fields, linePhase rule, append-only file, daily digest');

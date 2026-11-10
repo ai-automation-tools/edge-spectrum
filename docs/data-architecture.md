@@ -168,6 +168,13 @@ To transition from synthetic simulations to observed historical tracking, forwar
   `minutesToStart`. A final game is logged once.
 - **Held by:** `npm run check:lines` (in CI), which runs a recorded ESPN response through the real
   parser and asserts the fields, the phase rule and that a second run only appends.
+- **Daily digest:** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder>`),
+  scheduled daily at 12:30 UTC as the Cronsole template
+  [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest).
+  Read-only over the archive; writes `<archive>/digests/<day>.md`. Opening is a game's `open`
+  capture, closing its `close` capture with the smallest `minutesToStart`; a game with no `close`
+  shows its last pre-game line marked `*` and is listed as a gap, never reported as a move. A day
+  with no capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`). Held by `npm run check:lines`.
 - **Application:** Builds a historical closing-line archive used to calculate user **Closing Line Value (CLV)** without recurring commercial data feed costs.
 
 ### B. Financial Instrument As-Of Updates

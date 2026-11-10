@@ -24,18 +24,43 @@
       ],
       "path": "templates/edge-spectrum-line-capture.json",
       "sha256": "059053e8e8b63c50de5a8d7bd15bdf40a149a3d01bcc242cd419e8b2117a0b7b"
+    },
+    {
+      "id": "edge-spectrum-line-digest",
+      "name": "Edge Spectrum: Daily Line Movement Digest",
+      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 18+ and a clone of edge-spectrum with `npm ci` run in site/.",
+      "category": "monitoring",
+      "tags": [
+        "edge-spectrum",
+        "sports",
+        "odds",
+        "clv",
+        "report",
+        "line-movement"
+      ],
+      "runtime": "node",
+      "os": "cross-platform",
+      "compatibleTargets": [
+        "windows",
+        "cronsole-native",
+        "linux",
+        "macos"
+      ],
+      "path": "templates/edge-spectrum-line-digest.json",
+      "sha256": "d2b3183d45c435cb39265926a678ce8097a0855a178fd8a46d6978db38e253b8"
     }
   ],
   "packs": [
     {
       "id": "edge-spectrum",
-      "name": "Edge Spectrum: Line Capture",
-      "description": "Forward capture of public ESPN lines into an append-only archive, for closing-line-value analysis.",
+      "name": "Edge Spectrum: Line Archive",
+      "description": "Forward capture of public ESPN lines into an append-only archive, for closing-line-value analysis, and a daily digest of how each line moved.",
       "templateIds": [
-        "edge-spectrum-line-capture"
+        "edge-spectrum-line-capture",
+        "edge-spectrum-line-digest"
       ],
       "path": "packs/edge-spectrum.json",
-      "sha256": "e463e271cef0a8865727861b8fb150b1651c6d7e541fd920d83ca3a13a12af44"
+      "sha256": "17ff2c77235d7912674f87314a005306a464f7bbc56d759e33088c6889c5a7cd"
     }
   ]
 }
