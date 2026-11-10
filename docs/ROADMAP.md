@@ -220,6 +220,8 @@ which of them may ship before Phase 2 closes.
    - **Record Structure:** Append-only log storing `eventId`, `sport`, `eventDate`, `capturedAt`, `teams`, `spread`, `total`, `moneyline`, and `linePhase: 'open' | 'midday' | 'close'`.
    - **Framing:** Documented strictly as public scoreboard captures for educational CLV analysis.
 
+- [x] 🟢 **Action 5.2a — Daily Line-Movement Digest** — done 2026-11-10: `site/scripts/digest-lines.ts` (`npm run digest:lines`) writes `<archive>/digests/<day>.md` with each game's open → close spread, total and moneyline, the biggest moves and every capture gap; scheduled daily by the Cronsole template [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest). Held by `npm run check:lines`. Its archive reader is what Action 5.4 builds on.
+
 - [ ] 🟡 **Action 5.3 — Market-Close Ingestion for Named Tickers (Audit C2 · Track C)**
    - **Feature:** Ingest trailing adjusted closes for stable investment instruments (`SPY`, `QQQ`, `GLD`, `HYG`) from keyless market data sources to supply timestamped as-of returns for investing rows.
 

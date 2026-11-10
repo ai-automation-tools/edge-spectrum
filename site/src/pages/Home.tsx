@@ -200,7 +200,7 @@ export default function Home() {
         {/* ── Schedule it (Cronsole templates) ── */}
         <section id="schedule" className="scroll-mt-[72px] border-t border-zinc-800/60 py-14">
           <Reveal>
-            <SectionHead eyebrow="Schedule it" title="Build your own line archive, on a timer." sub="The line capture snapshots ESPN's public scoreboard into an append-only archive for closing-line-value analysis. It is published as a template for Cronsole: import it, point it at your clone, and it runs on your own schedule with no keys." />
+            <SectionHead eyebrow="Schedule it" title="Build your own line archive, on a timer." sub="The line capture snapshots ESPN's public scoreboard into an append-only archive for closing-line-value analysis, and a daily digest reports how each line moved. Both are templates for Cronsole: import one, point it at your clone, and it runs on your own schedule with no keys." />
           </Reveal>
           <CronsoleTemplates />
         </section>
