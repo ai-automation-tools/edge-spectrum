@@ -1,0 +1,26 @@
+name: Registry drift
+
+# Daily: is the Cronsole catalog the site serves (edge-spectrum.ai-automation-tools.dev/registry/) the
+# one on main, with the CORS header the Cronsole gallery needs? A deploy that failed or never ran leaves
+# site/public/registry/ correct and the public copy stale, and nothing inside the repo can see that.
+# A failure here means redeploy main on Vercel.
+on:
+  schedule:
+    - cron: '41 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Hosted catalog matches site/public/registry/
+        run: node site/scripts/check-registry-published.mjs

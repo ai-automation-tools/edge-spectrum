@@ -7,7 +7,7 @@
 interface EspnScoreboardResult {
   sport: string;
   date: string;
-  games: unknown[];
+  games: any[];
 }
 
 /** Map our sport code to ESPN's {sport, league} path segments. */
@@ -45,8 +45,25 @@ export async function fetchEspnScoreboard(
   if (!response.ok) {
     throw new Error(`ESPN API returned status ${response.status}`);
   }
-  const data = (await response.json()) as any;
+  return parseEspnScoreboard(await response.json(), sport, dateInput);
+}
 
+/** A number from ESPN's odds strings ("-110", "+670", "o222.5", "EVEN"), or null. */
+function num(v: unknown): number | null {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (typeof v !== 'string') return null;
+  if (v.toUpperCase() === 'EVEN') return 100;
+  const n = parseFloat(v.replace(/^[ou]/i, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Parses one scoreboard response. Split from the fetch so the line collector
+ * (scripts/capture-lines.ts) and its offline check read ESPN the same way the
+ * page does. ESPN's `close` odds are the book's current number until the game
+ * starts; `open` is the book's opener.
+ */
+export function parseEspnScoreboard(data: any, sport: string, dateInput = ''): EspnScoreboardResult {
   const games = (data.events || []).map((event: any) => {
     const comp = event.competitions?.[0] || {};
     const competitors = comp.competitors || [];
@@ -77,10 +94,20 @@ export async function fetchEspnScoreboard(
         score: parseInt(awayTeam?.score || '0'),
         winner: awayTeam?.winner || false,
       },
+      state: event.status?.type?.state, // "pre" | "in" | "post"
       odds: {
         details: oddsObj.details || 'N/A', // e.g. "KC -2.5" or "EVEN"
         overUnder: oddsObj.overUnder || null, // e.g. 45.5
-        spread: oddsObj.spread || null,
+        spread: num(oddsObj.spread), // the home team's spread; 0 is a pick'em, not missing
+        provider: oddsObj.provider?.name || null,
+        spreadOdds: {
+          home: num(oddsObj.pointSpread?.home?.close?.odds),
+          away: num(oddsObj.pointSpread?.away?.close?.odds),
+        },
+        moneyline: {
+          home: num(oddsObj.moneyline?.home?.close?.odds),
+          away: num(oddsObj.moneyline?.away?.close?.odds),
+        },
       },
     };
   });

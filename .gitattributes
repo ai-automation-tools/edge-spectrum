@@ -4,3 +4,5 @@ docs/diagrams/*.json text eol=lf
 docs/diagrams/*.html text eol=lf
 site/public/diagram/*.html text eol=lf
 *.png binary
+# Cronsole verifies the catalog by sha256 over exact bytes; a CRLF checkout would break every import.
+site/public/registry/** text eol=lf

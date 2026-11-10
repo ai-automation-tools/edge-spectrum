@@ -38,6 +38,8 @@ jobs:
       - run: npm run check:stats
       - run: npm run check:strategy-url
       - run: npm run check:calc-url
+      - run: npm run check:lines
+      - run: npm run build:registry -- --check
       - run: npm run check:deployment
       - run: npm run build
       # Browser smoke test of the built Spectrum page (Action 2.9); needs dist/ from build.
