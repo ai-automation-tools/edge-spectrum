@@ -1,0 +1,69 @@
+{
+  "cronsoleCatalogVersion": "1.0",
+  "pack": {
+    "id": "edge-spectrum",
+    "name": "Edge Spectrum: Line Capture",
+    "description": "Forward capture of public ESPN lines into an append-only archive, for closing-line-value analysis."
+  },
+  "templates": [
+    {
+      "schemaVersion": "1.0",
+      "id": "edge-spectrum-line-capture",
+      "name": "Edge Spectrum: ESPN Line Capture",
+      "description": "Snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game (spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 18+ and a clone of edge-spectrum with `npm ci` run in site/.",
+      "runtime": "node",
+      "os": "cross-platform",
+      "category": "data-sync",
+      "tags": [
+        "edge-spectrum",
+        "sports",
+        "odds",
+        "espn",
+        "clv",
+        "data-capture"
+      ],
+      "icon": "LineChart",
+      "trigger": {
+        "kind": "schedule",
+        "cron": "0 */3 * * *"
+      },
+      "commandTemplate": "node \"{{repoPath}}/site/node_modules/tsx/dist/cli.mjs\" \"{{repoPath}}/site/scripts/capture-lines.ts\" --out \"{{outputDir}}\" --interval-hours {{intervalHours}}",
+      "parameters": [
+        {
+          "key": "repoPath",
+          "label": "edge-spectrum clone",
+          "type": "path",
+          "required": true,
+          "help": "Absolute path to your clone of ai-automation-tools/edge-spectrum, with `npm ci` run in its site/ folder."
+        },
+        {
+          "key": "outputDir",
+          "label": "Line archive folder",
+          "type": "path",
+          "required": true,
+          "help": "Where the JSONL files go. Files are only ever appended to."
+        },
+        {
+          "key": "intervalHours",
+          "label": "Hours between runs",
+          "type": "text",
+          "default": "3",
+          "required": true,
+          "help": "Match it to the schedule: a capture within this many hours of the start is labelled close."
+        }
+      ],
+      "compatibleTargets": [
+        "windows",
+        "cronsole-native",
+        "linux",
+        "macos"
+      ],
+      "execution": {
+        "timeoutSec": 300,
+        "retries": 0
+      },
+      "author": "ai-automation-tools",
+      "version": "0.1.0"
+    }
+  ]
+}
