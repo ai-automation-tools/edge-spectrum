@@ -98,6 +98,16 @@ Schedule it with [Cronsole](https://cronsole.ai-automation-tools.dev/): download
 import it under **Templates → Import**. It runs every 3 hours by default. How `linePhase` is decided
 is in [data-architecture.md](docs/data-architecture.md#a-append-only-scoreboard-line-snapshots).
 
+**Daily digest.** Once captures are running, the
+[Daily Line Movement Digest template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest)
+reads yesterday's files and writes `<folder>/digests/<day>.md`: each game's opening and closing spread,
+total and home moneyline, the final score, the biggest spread moves, and every game missing an opening or
+closing capture. It runs daily at 12:30 UTC and fails if the day has no capture file at all.
+
+```bash
+cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
+```
+
 ---
 
 ## 🏗️ Repository Architecture

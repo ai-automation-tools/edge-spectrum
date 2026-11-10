@@ -2,6 +2,22 @@
 
 ---
 
+## November 10, 2026 — Daily line-movement digest
+
+- **Digest** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder> [--date <day>]`)
+  reads one day of the line archive and writes `<archive>/digests/<day>.md`: per game, the opening and
+  closing spread, total and home moneyline, the final score, and the gaps (no opening, no close, no
+  pre-game capture, no final yet, no odds posted), plus the five biggest spread moves. A game with no
+  `close` capture shows its last pre-game line marked `*` and is never counted as a move. A day with no
+  capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`): the capture did not run.
+- **Cronsole catalog** New template `edge-spectrum-line-digest` (daily, 12:30 UTC). The pack is renamed
+  *Edge Spectrum: Line Archive* and holds both templates; the home page's *Schedule it* section lists the
+  new one automatically.
+- **Checks** `npm run check:lines` also checks the digest on a hand-built day: the nearer of two closes
+  wins, a missing close is a gap and not a move, and each gap is named.
+
+---
+
 ## November 10, 2026 — ESPN line capture, schedulable from Cronsole
 
 - **Collector** `site/scripts/capture-lines.ts` (`npm run capture:lines -- --out <folder>`) snapshots ESPN's
