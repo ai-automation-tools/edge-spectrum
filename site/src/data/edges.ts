@@ -75,6 +75,12 @@ export type GameEdge = Provenance & {
   du: number;
   /** Capital exposed per decision, percent of bankroll. */
   ced: number;
+  /**
+   * Average net win per unit staked on a winning decision (a 5.7 means a cash returns the
+   * stake plus 5.7×). Absent = even money. Only the positive-edge risk figures read it:
+   * the win rate follows from `e` and this, so it is not stored separately.
+   */
+  payout?: number;
 };
 
 export type EdgeRecord = InvestmentEdge | GameEdge;
@@ -93,7 +99,7 @@ export function toSpectrumRow(r: EdgeRecord) {
   };
   return r.m === 'i'
     ? { n: r.n, cat: r.cat, g: r.cat, m: r.m, a: r.a, ly: r.ly, type: 'Asset', vol: 'Varies', wp: 'Market Rate', sk: 'Passive', ...cite }
-    : { n: r.n, cat: r.cat, g: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ly: r.ly, type: 'Game', vol: 'Varies', wp: 'EV Calculated', sk: 'Varies', ...cite };
+    : { n: r.n, cat: r.cat, g: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ...(r.payout ? { pay: r.payout } : {}), ly: r.ly, type: 'Game', vol: 'Varies', wp: 'EV Calculated', sk: 'Varies', ...cite };
 }
 
 export const EDGES: readonly EdgeRecord[] = [
@@ -330,7 +336,7 @@ export const EDGES: readonly EdgeRecord[] = [
 
   // --- POKER & SKILL-BASED (Linear) ---
   { n: "DFS Top 5%", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: 5.0, du: 5, ced: 5 },
-  { n: "Poker Skilled Tournaments", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: 2.0, du: 5, ced: 10 },
+  { n: "Poker Skilled Tournaments", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: 2.0, du: 5, ced: 10, payout: 5.7, methodology: "Payoff shape only: a tournament pays roughly the top 15% of the field (2023 WSOP Main Event: 1,507 of 10,043 entries), so a cash averages about 6.7x the buy-in, 5.7x net. The 2% ROI itself is uncited." },
   { n: "Poker Mid-Stakes Reg", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: 1.5, du: 40, ced: 2 },
   { n: "Poker Average Live Cash", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: -5.0, du: 25, ced: 3 },
   { n: "Poker Average Online", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', e: -8.0, du: 40, ced: 2 },

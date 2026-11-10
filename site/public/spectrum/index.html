@@ -467,13 +467,27 @@ const ruinDecisions = r => (r.m === 'g' && r.e < 0) ? 100 / ((r.ced / 100) * Mat
 // to lose 90% instead, which is the honest analogue.
 const decayYears90 = r => (r.m === 'i' && r.a < 0) ? Math.log(0.1) / Math.log(1 + r.a/100) : null;
 
-// A positive edge has no EXPECTED ruin, but flat stakes still risk it. This is the classic
-// gambler's-ruin probability for an even-money game staked at 1/units of the bankroll:
-// ((1-e)/(1+e))^units. The even-money payoff is an approximation for every row.
-const ruinRisk = r => (r.m === 'g' && r.e > 0 && r.e < 100) ? Math.pow((1 - r.e/100) / (1 + r.e/100), 100 / r.ced) : null;
-// Kelly's growth-optimal stake on an even-money edge is the edge itself. This is how many
-// times that the row actually stakes; above 2x the bankroll is expected to shrink anyway.
-const kellyMultiple = r => (r.m === 'g' && r.e > 0) ? r.ced / r.e : null;
+// Net win per unit staked on a winning decision. Rows without `pay` are treated as even
+// money; tournaments and DFS pay top-heavy, which is what `pay` is for.
+const payoutOf = r => r.pay || 1;
+// A positive edge has no EXPECTED ruin, but flat stakes still risk it. Each decision moves
+// the bankroll +b units (win, probability p = (1+e)/(1+b)) or -1 unit, so ruin from `units`
+// up is exactly z^units, where z is the root in (0,1) of p·z^(b+1) - z + q = 0. At even
+// money that root is (1-e)/(1+e), the classic gambler's-ruin formula. `pay` is an average
+// win, not the real spread of prizes, so a top-heavy row's true risk is higher still.
+const ruinRisk = r => {
+    const b = payoutOf(r), e = r.e / 100;
+    if (r.m !== 'g' || !(e > 0 && e < b)) return null;
+    const p = (1 + e) / (1 + b), q = 1 - p, f = z => p * Math.pow(z, b + 1) - z + q;
+    // f falls from q at 0 to a negative minimum at hi, then climbs back to 0 at 1.
+    let lo = 0, hi = Math.pow(1 / (1 + e), 1 / b);
+    for (let i = 0; i < 100; i++) { const mid = (lo + hi) / 2; if (f(mid) > 0) lo = mid; else hi = mid; }
+    return Math.pow((lo + hi) / 2, 100 / r.ced);
+};
+// Kelly's growth-optimal stake is e/b: the edge itself at even money, smaller on a long
+// payoff. This is how many times that the row actually stakes; above about 2x the
+// bankroll is expected to shrink anyway.
+const kellyMultiple = r => (r.m === 'g' && r.e > 0) ? r.ced * payoutOf(r) / r.e : null;
 
 // Real terms: the nominal return deflated by a flat CPI assumption over the horizon's
 // calendar time. The floor survives the deflation, so the ruin story does not change.
@@ -741,7 +755,7 @@ const RAW = [
 
   // --- POKER & SKILL-BASED (Linear) ---
   {n:"DFS Top 5%",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:5.0,du:5,ced:5,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
-  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:2.0,du:5,ced:10,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
+  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:2.0,du:5,ced:10,pay:5.7,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies",how:"Payoff shape only: a tournament pays roughly the top 15% of the field (2023 WSOP Main Event: 1,507 of 10,043 entries), so a cash averages about 6.7x the buy-in, 5.7x net. The 2% ROI itself is uncited."},
   {n:"Poker Mid-Stakes Reg",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:1.5,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Poker Average Live Cash",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-5.0,du:25,ced:3,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
   {n:"Poker Average Online",cat:"Poker & Skill-Based",g:"Poker & Skill-Based",m:"g",e:-8.0,du:40,ced:2,ly:"raw",type:"Game",vol:"Varies",wp:"EV Calculated",sk:"Varies"},
@@ -1140,8 +1154,9 @@ function ruinBox(item) {
             : 'At or under the growth-optimal stake.';
         return `<div class="ruin-box ${km > 2 ? '' : 'ok'}"><div class="ruin-val">No expected ruin</div>
             <div class="row"><span class="row-label">Chance of going broke at flat stakes</span><span class="row-val" style="color:${item.rr > 0.25 ? 'var(--danger)' : 'var(--warning)'}">${(item.rr * 100).toFixed(1)}%</span></div>
-            <div class="row"><span class="row-label">Stake vs Kelly optimum (${fmtNum(item.e)}%)</span><span class="row-val">${fmtNum(km)}&times;</span></div>
+            <div class="row"><span class="row-label">Stake vs Kelly optimum (${fmtNum(item.e / payoutOf(item))}%)</span><span class="row-val">${fmtNum(km)}&times;</span></div>
             <div class="fine" style="margin-top:6px">${verdict}</div>
+            <div class="fine" style="margin-top:6px">${item.pay ? `Modelled as a win paying ${fmtNum(item.pay)}&times; the stake (the average cash). Real prizes are spread wider than that, so the true risk is higher still.` : 'Modelled as an even-money payoff. A top-heavy payout would mean a smaller Kelly stake and a higher risk of going broke.'}</div>
             <div class="fine" style="margin-top:6px">The return above is a linear expectation at flat stakes and assumes unlimited action. Bet caps, contest sizes and edge decay bind long before the long-horizon figure.</div></div>`;
     }
     return `<div class="ruin-box ok"><div class="ruin-val">No ruin point</div><div class="fine">Positive expectation &mdash; capital is not being drained.</div></div>`;

@@ -2,6 +2,13 @@
 
 ---
 
+## November 9, 2026 — Payoff shape for positive-edge rows (Action 2.13)
+
+- **Data** `GameEdge` gains an optional `payout`, the average net win per unit staked (`pay` on the page). **Poker Skilled Tournaments** takes `5.7`: tournaments pay about the top 15% of the field (2023 WSOP Main Event, 1,507 of 10,043), so a cash averages about 6.7× the buy-in. Every other row stays at even money.
+- **Math** `ruinRisk` solves the general flat-stake ruin equation `p·z^(b+1) − z + q = 0` instead of assuming even money, and `kellyMultiple` is `ced·b/e`. The tournament row's chance of going broke moves from 67.0% to **93.3%** and its stake from 5× to **28.5×** Kelly; the even-money rows are unchanged.
+- **Inspector** The ruin box shows the Kelly stake as `e/b` and says which payoff it assumed, and that an average cash understates the real spread of prizes.
+- **Checks** `check:spectrum` asserts the ruin root solves the payoff equation, `b = 1` reproduces the closed form, and a longer payoff carries more risk; `check:edges` asserts the implied win rate is a probability. Formulas in `docs/methodology.md` Metric D.
+
 ## November 4, 2026 — Three more casino table games
 
 - **Dataset** `Four Card Poker Ante` (−2.79%), `Four Card Poker Aces Up` (−3.89%) and `Mississippi Stud` (−4.91%),
