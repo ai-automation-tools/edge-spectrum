@@ -61,11 +61,13 @@ The right-hand form is what the visualizer evaluates, expressing bankroll and st
 
 ### Metric D: Ruin Risk and Kelly Multiple (positive edges only)
 
-A positive edge has no *expected* ruin, but a flat-staking player can still go broke on variance. The visualizer reports the classic gambler's-ruin probability for an even-money game staked at $u = 100 / \text{CED}$ units of the bankroll:
+A positive edge has no *expected* ruin, but a flat-staking player can still go broke on variance. Each decision stakes one of $u = 100 / \text{CED}$ units and either wins $b$ units (the row's optional `payout`, average net win per unit staked; even money, $b = 1$, when absent) with probability $p = (1 + E)/(1 + b)$, or loses the unit. Because every loss is exactly one unit, the ruin probability is exact:
 
-$$P_{\text{ruin}} = \left(\frac{1 - E}{1 + E}\right)^{u}$$
+$$P_{\text{ruin}} = z^{u}, \qquad z \in (0, 1) \text{ solving } p\,z^{b+1} - z + (1 - p) = 0$$
 
-and the stake as a multiple of Kelly's growth-optimal fraction, which for an even-money edge is the edge itself: $k = \text{CED} / E$. Above $k = 2$ the bankroll is expected to shrink despite the edge. Both are shown in the ruin box for every winning game (shipped V21, 2026-10-12; `check:spectrum` asserts $0 < P_{\text{ruin}} < 1$ for every positive-edge row). The even-money payoff is an approximation for every row; the return itself stays a linear flat-stake expectation and assumes unlimited action, which the inspector says in as many words.
+which the page finds by bisection. At even money the root is $z = (1 - E)/(1 + E)$, the classic gambler's-ruin formula. The stake is also shown as a multiple of Kelly's growth-optimal fraction $f^* = (p b - q)/b = E / b$: $k = \text{CED} \cdot b / E$. Above about $k = 2$ the bankroll is expected to shrink despite the edge. Both are shown in the ruin box for every winning game (shipped V21, 2026-10-12; payoff shape added 2026-11-09 by Action 2.13). `check:spectrum` asserts $0 < P_{\text{ruin}} < 1$ for every positive-edge row, that the root solves the equation, that $b = 1$ reproduces the closed form, and that a $b > 1$ row carries more risk than the same edge at even money.
+
+Only **Poker Skilled Tournaments** carries a payout today: $b = 5.7$, because a tournament pays roughly the top 15% of the field (2023 WSOP Main Event: 1,507 of 10,043 entries), so a cash averages about $6.7\times$ the buy-in. That moves its ruin risk from 67.0% to **93.3%** and its stake from $5\times$ to **$28.5\times$** Kelly. A single average cash still understates how spread out real prizes are, so for that row the figure is a floor, not an estimate. Every other row stays at the even-money approximation; the return itself stays a linear flat-stake expectation and assumes unlimited action, which the inspector says in as many words.
 
 ### Real terms
 

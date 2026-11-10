@@ -58,6 +58,8 @@ export type GameEdge = {
   e: number;              // Edge per decision, percent
   du: number;             // Decision Units per day (frequency)
   ced: number;            // Capital Exposure per Decision, percent of bankroll
+  payout?: number;        // Average net win per unit staked on a win; absent = even money.
+                          // Feeds only the positive-edge ruin risk and Kelly (Action 2.13)
 };
 
 export type EdgeRecord = InvestmentEdge | GameEdge;
@@ -66,7 +68,7 @@ export const EDGES: readonly EdgeRecord[];
 
 ### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-Every record may carry an optional citation. 44 of the 234 do: the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
+Every record may carry an optional citation. 47 of the 237 do: the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
 Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
 rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old.
