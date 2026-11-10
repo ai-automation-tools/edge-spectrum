@@ -2,8 +2,8 @@
   "cronsoleCatalogVersion": "1.0",
   "pack": {
     "id": "edge-spectrum",
-    "name": "Edge Spectrum: Line Capture",
-    "description": "Forward capture of public ESPN lines into an append-only archive, for closing-line-value analysis."
+    "name": "Edge Spectrum: Line Archive",
+    "description": "Forward capture of public ESPN lines into an append-only archive, for closing-line-value analysis, and a daily digest of how each line moved."
   },
   "templates": [
     {
@@ -61,6 +61,56 @@
       "execution": {
         "timeoutSec": 300,
         "retries": 0
+      },
+      "author": "ai-automation-tools",
+      "version": "0.1.0"
+    },
+    {
+      "schemaVersion": "1.0",
+      "id": "edge-spectrum-line-digest",
+      "name": "Edge Spectrum: Daily Line Movement Digest",
+      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 18+ and a clone of edge-spectrum with `npm ci` run in site/.",
+      "runtime": "node",
+      "os": "cross-platform",
+      "category": "monitoring",
+      "tags": [
+        "edge-spectrum",
+        "sports",
+        "odds",
+        "clv",
+        "report",
+        "line-movement"
+      ],
+      "icon": "FileText",
+      "trigger": {
+        "kind": "schedule",
+        "cron": "30 12 * * *"
+      },
+      "commandTemplate": "node \"{{repoPath}}/site/node_modules/tsx/dist/cli.mjs\" \"{{repoPath}}/site/scripts/digest-lines.ts\" --archive \"{{archiveDir}}\"",
+      "parameters": [
+        {
+          "key": "repoPath",
+          "label": "edge-spectrum clone",
+          "type": "path",
+          "required": true,
+          "help": "Absolute path to your clone of ai-automation-tools/edge-spectrum, with `npm ci` run in its site/ folder."
+        },
+        {
+          "key": "archiveDir",
+          "label": "Line archive folder",
+          "type": "path",
+          "required": true,
+          "help": "The ESPN Line Capture template's output folder. Digests go to its digests/ subfolder."
+        }
+      ],
+      "compatibleTargets": [
+        "windows",
+        "cronsole-native",
+        "linux",
+        "macos"
+      ],
+      "execution": {
+        "timeoutSec": 120
       },
       "author": "ai-automation-tools",
       "version": "0.1.0"
