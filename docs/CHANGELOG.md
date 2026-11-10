@@ -18,6 +18,9 @@
   [Cronsole gallery](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture) can list it.
   CI runs `check:lines` and `build:registry -- --check`; a daily *Registry drift* workflow checks the
   served copy against `main`.
+- **Home page** A *Schedule it* section lists the templates, read live from `/registry/index.json` so it
+  cannot drift from the gallery. Each card has *Get it for Cronsole* (the template in the gallery) and
+  *Template JSON*; the note links the whole `edge-spectrum` collection.
 
 ---
 
