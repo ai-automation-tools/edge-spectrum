@@ -17,6 +17,10 @@
     "check:strategy-url": "tsx scripts/check-strategy-url.ts",
     "check:calc-url": "tsx scripts/check-calc-url.ts",
     "check:edges": "tsx scripts/check-edges.ts",
+    "check:lines": "tsx scripts/check-lines.ts",
+    "capture:lines": "tsx scripts/capture-lines.ts",
+    "digest:lines": "tsx scripts/digest-lines.ts",
+    "build:registry": "node scripts/build-registry.mjs",
     "check:deployment": "tsx scripts/check-deployment.ts",
     "check:spectrum-browser": "tsx scripts/check-spectrum-browser.ts"
   },
