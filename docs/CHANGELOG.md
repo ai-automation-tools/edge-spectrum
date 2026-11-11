@@ -47,6 +47,10 @@
   strategy. Dataset is now 237 records, 47 cited.
 
 ---
+## November 10, 2026 — Hub data-flow diagram re-pinned
+
+- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the three casino table-game records. The `edges.ts` node now says 237 edge records (was 234), the Spectrum page node's related-tools range is 1168-1187, and the diagram is rebuilt with `--pin-head` (org upkeep).
+
 ## November 7, 2026 — Hub data-flow diagram re-pinned
 
 - **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the craps and Plotly changes. The `edges.ts` node now says 234 edge records (was 231), the Spectrum page node's related-tools range moved to lines 1168-1179, and the diagram is rebuilt with `--pin-head` (org upkeep).

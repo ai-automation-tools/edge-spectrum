@@ -1,17 +1,17 @@
 {
-  "revision": "922bc61a2f8d7d6421f897433dd3295c40397162",
+  "revision": "0b3c7583bff96ab1105de82d0331d77ad41e7214",
   "files": {
     "site/api/backtest.ts": "f895d922a2f67a0169540c4459bd033dfd747c2f",
     "site/api/espn-scoreboard.ts": "f165264ddcf7234b586f40130a0355ab700e3b84",
     "site/api/strategy-advisor.ts": "673431cd6fe70f20d948d524f756af60cc6ec4d8",
-    "site/public/spectrum/index.html": "6c437dbe3b514e21c068a23b2b46943b1104598a",
+    "site/public/spectrum/index.html": "ff987ffadd7198d398314ae29d4ad3f6af1c5cf0",
     "site/scripts/generate-edge-artifacts.ts": "b4b4fa0fb2c81338daa792528c2df22ed65cf481",
     "site/src/App.tsx": "9a0ec98c3185a7dfa4b08a8655d70faa41a04b36",
     "site/src/BacktesterApp.tsx": "f8bd11e4dbac9a6cd694f1eb47f606f4e3dc466e",
     "site/src/calcUrl.ts": "746a6002f7faf87df6dfbb17faddf407a463f1ec",
     "site/src/components/AiAdvisor.tsx": "aa37d87b75c4db597520c338daf4c87b124f860b",
     "site/src/components/EspnFeed.tsx": "6d92341f390b1b96e0d925feed4a32fe96800011",
-    "site/src/data/edges.ts": "a7d8c3fc1e8ef38bd7aa19d7eecc4df3c5e9a7e9",
+    "site/src/data/edges.ts": "80320443a4db152b841c47aaca657f990c47d33b",
     "site/src/odds.ts": "e8792215de6d459928d97d1bb690d3249a6010dc",
     "site/src/pages/Home.tsx": "1830c74dc6b89a55a751a506294f6474ad2ae362",
     "site/src/server/advisor.ts": "7fe957ae5a9b394d2897a9c22f271631a0926e53",
@@ -20,6 +20,6 @@
     "site/src/server/deployment.ts": "21862b5af537a7ffa08b99f1e9c0e18b9148dead",
     "site/src/server/espn.ts": "e40ed34b9b58ebbb9df03d9a67b8706d17c56ba9",
     "site/src/server/strategySchema.ts": "2ad6fa3a06dfe792dc49ae9a86f08027782b3faa",
-    "site/src/tools.ts": "d0ef54f7c270c2bae618b2cf607809293ada2d26"
+    "site/src/tools.ts": "8dfe092276486676537d4cb6609531b300a00536"
   }
 }
