@@ -2,6 +2,10 @@
 
 ---
 
+## November 11, 2026 — Three more casino rows (237 → 240 records)
+
+- **Data** Added **Craps Lay 4 / Lay 10 (Commission on Win)** (−1.67%), **Craps Hard 4 / Hard 10** (−11.11%) and **Pai Gow Poker Emperor's Challenge** (−4.17%), all in Casino Gambling. Sources: Wizard of Odds' craps house edge table (`/games/craps/appendix/2/`, per bet resolved) and its Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`), both read 2026-11-11. Record count and cited count in the baseline move to 240 and 50.
+
 ## November 11, 2026 — Roadmap rechecked against the org's 2026-11 requirements
 
 - **Roadmap** `docs/ROADMAP.md` rechecked against the org's 2026-11 requirements. The intro names the job that works it (`edge-spectrum-roadmap`) instead of a disabled task and its day. Action 2.7 is split: the code half stays (now also requiring `ADVISOR_SECRET`), and the Gemini quota and the Vercel secret are Action 2.7b (🔒 Needs owner). The CI action-pin step of 2.14 is its own owner line, 2.14b. Action 5.3's done-when names its Cronsole template. New *Site upkeep* group: a build stamp, ROADMAP in the Read on card, a full CSP, and trimming the topics (🔒).
