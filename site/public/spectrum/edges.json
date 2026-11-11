@@ -203,7 +203,7 @@
   {"n":"Keno 4-Spot","cat":"Casino Gambling","g":"Casino Gambling","m":"g","e":-28,"du":10,"ced":1,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
   {"n":"Keno 10-Spot","cat":"Casino Gambling","g":"Casino Gambling","m":"g","e":-35,"du":10,"ced":1,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
   {"n":"DFS Top 5%","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":5,"du":5,"ced":5,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
-  {"n":"Poker Skilled Tournaments","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":2,"du":5,"ced":10,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
+  {"n":"Poker Skilled Tournaments","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":2,"du":5,"ced":10,"pay":5.7,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies","how":"Payoff shape only: a tournament pays roughly the top 15% of the field (2023 WSOP Main Event: 1,507 of 10,043 entries), so a cash averages about 6.7x the buy-in, 5.7x net. The 2% ROI itself is uncited."},
   {"n":"Poker Mid-Stakes Reg","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":1.5,"du":40,"ced":2,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
   {"n":"Poker Average Live Cash","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":-5,"du":25,"ced":3,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
   {"n":"Poker Average Online","cat":"Poker & Skill-Based","g":"Poker & Skill-Based","m":"g","e":-8,"du":40,"ced":2,"ly":"raw","type":"Game","vol":"Varies","wp":"EV Calculated","sk":"Varies"},
