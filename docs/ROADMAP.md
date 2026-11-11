@@ -12,9 +12,9 @@
 
 ---
 
-The Edge-Spectrum Weekly Roadmap routine (Monday 23:00) works this file: it takes the first open item
-it can finish and verify, lower phase first and higher priority first within a phase, and opens a
-`roadmap/auto-<date>` PR that the org PR sweep reviews. It is the single sequenced backlog; the
+The Edge-Spectrum roadmap routine (job `edge-spectrum-roadmap`) works this file top to bottom, one
+item per run, as `roadmap/auto-` PRs that the org PR sweep reviews: it takes the first open item it
+can finish and verify, lower phase first and higher priority first within a phase. It is the single sequenced backlog; the
 findings from the codebase audits are synthesised here. **Every item above `## After public release`
 is a go-live gate.** Phase 2 is the project's own release gate (below), so its open items sit above
 the line even though the repo has been public since 2026-09-11. Ticking an item adds its line to the
@@ -96,11 +96,14 @@ Phase 7: Public Launch ⚪
 - [x] 🟡 **Action 2.6 — Debounce & Abort Backtest Race Conditions (Audit D7):**
    - **Implementation:** Added 300 ms debounce timer on the auto-rerun `useEffect` in `BacktesterApp.tsx` and an in-flight `AbortController` ref that aborts superseded runs. Repeated the abort check after `response.json()` to discard late-arriving responses, and suppressed error banners / spinner drops on aborts.
 
-- [ ] 🟠 **Action 2.7 — AI Advisor Rate Limiting & Spend Caps**
+- [ ] 🟠 **Action 2.7 — AI Advisor Rate Limiting & Spend Caps** *(Security; the code half, split 2026-11-11: the owner's steps are Action 2.7b)*
    - **Problem:** Passcode authentication protects against unauthenticated users but does not limit total requests or cost from authenticated sessions.
    - **Implementation:**
      - Add IP/session rate limiting (e.g. 10 requests per hour per session).
      - Implement a hard daily spend ceiling with a fallback 503 response.
+     - Require `ADVISOR_SECRET` in production: `site/src/server/auth.ts` falls back when it is unset (security sweep 2026-11-10, CodeQL #1).
+
+- [ ] 🟠 **Action 2.7b — Quota cap on the Gemini key, `ADVISOR_SECRET` set on Vercel** *(Security)* — a request quota on the key in Google Cloud and the secret in the Vercel project, so the code half has a ceiling behind it. 🔒 Needs owner
 
 - [x] 🔵 **Action 2.8 — Move the Spectrum page off Plotly 2.32.0 (upstream check, 2026-10-07)** — done 2026-11-02: `site/public/spectrum/plotly-basic-4.2.0.min.js` (npm `plotly.js-basic-dist-min@4.2.0`, 1.2 MB) replaces the 2.32.0 build. Nothing in the 3.0 or 4.0 breaking lists reaches the page: every colour it hands Plotly is a valid CSS hex or `rgba()`, no title is a bare string, and the modebar (where 4.0 added an "Upload to Cloud" button) is off on all three plots, so no page code changed. Rendered both builds side by side in headless Chromium, both themes: return on capital, turnover cost, category colouring at 10 years, real returns with all layers, and the compare chart give the same bar count (203 / 98), the same y-axis ticks and fills, and no console errors. A pixel diff of the charts is zero in light mode; in dark the only change is text placement, the floor's "RUIN" label sitting about 3 px further right and the category band labels about 1 px. `check:spectrum`, `check:spectrum-browser` and `build` pass. *(V21 redesign of 2026-10-12 kept the pin; the page now uses `Plotly.react`, `hovertext`, `marker.opacity` arrays and category-axis shapes, so test those under 4.x.)*
    - **What:** Replace the self-hosted `site/public/spectrum/plotly-basic-2.32.0.min.js` (Action 2.11) with the current `plotly.js-basic-dist-min` release, renaming the file and the script tag in `site/public/spectrum/index.html` to the new version, and fix whatever the 4.0 breaking changes touch in the page's traces and layout (4.0 switched colour parsing from TinyColor to culori and changed some subplot defaults).
@@ -133,8 +136,10 @@ Phase 7: Public Launch ⚪
 - [ ] 🔵 **Action 2.14 — Catch up on the framework majors Dependabot ignores (upstream check, 2026-10-21)** *(Zod 3 → 4 landed 2026-10-27 via Dependabot #63, `site` now on `zod ^4.6.6` with CI green; the rest of the list is still open.)*
     - **What:** Take the toolchain majors one at a time, each with the full CI order green: Vite 6 → 8 with `@vitejs/plugin-react` 5 → 6, TypeScript 5.9 → 7, Zod 3 → 4 (`site/src/server/strategySchema.ts` and anything reading `.issues` / error shapes), Express 4 → 5 (`site/server.ts`, dev only), motion 12 → 14, dotenv 17 → 18, lucide-react 0.x → 1.x. Skip any whose changelog shows nothing the repo uses.
     - **Why:** `.github/dependabot.yml` ignores every major, so nothing tracks them; the npm registry's `latest` on 2026-10-21 was vite 8.3.5, @vitejs/plugin-react 6.1.2, typescript 7.0.2, zod 4.6.7, express 5.3.0, motion 14.5.0, dotenv 18.0.8, lucide-react 1.61.0. Source: https://registry.npmjs.org/<package>/latest. This is drift, not a known break; read each package's release notes before bumping.
-    - **Where:** `site/package.json`, `site/package-lock.json`, and the call sites above. `.github/workflows/ci.yml` pins `actions/checkout@v4` / `actions/setup-node@v4` (latest tags v7.0.1 / v7.1.0 per api.github.com/repos/actions/*/releases/latest): a workflow edit, so it needs the owner.
+    - **Where:** `site/package.json`, `site/package-lock.json`, and the call sites above. `.github/workflows/ci.yml` pins `actions/checkout@v4` / `actions/setup-node@v4` (latest tags v7.0.1 / v7.1.0 per api.github.com/repos/actions/*/releases/latest): a workflow edit, split out as Action 2.14b.
     - **Done when:** `npm run lint`, every `check:*`, and `npm run build` pass on the new versions, and `docs/UPSTREAMS.md` lists the new declared versions.
+
+- [ ] 🔵 **Action 2.14b — Bump the CI workflow's action pins** — `.github/workflows/ci.yml` pins `actions/checkout@v4` and `actions/setup-node@v4`; take the current majors. A workflow edit. **Done when:** CI is green on the new pins. 🔒 Needs owner
 
 ## 🚦 Public release
 
@@ -145,6 +150,13 @@ Phase 7: Public Launch ⚪
 
 Nothing below blocks go-live. Phases 3 to 7 keep their numbers; the Phase 2 gate note above says
 which of them may ship before Phase 2 closes.
+
+### 🧰 Site upkeep (org requirements, 2026-11-11)
+
+- [ ] `small` 🟡 **Stamp the build** *(Site)* — `<meta name="build">` set from `VERCEL_GIT_COMMIT_SHA` at build time. **Done when:** `Get-SurfaceDrift.py` shows edge-spectrum `current`.
+- [ ] `small` 🟡 **ROADMAP in the home page's Read on card** *(Site)* — `site/src/pages/Home.tsx` lists Methodology, Data architecture, Change log and the repo; today the roadmap is only reachable from the ⌘K palette. **Done when:** the card links `docs/ROADMAP.md` and `check:spectrum-browser` still passes.
+- [ ] 🟡 **A full Content-Security-Policy** *(Security)* — today it is only `frame-ancestors 'self'`. Script, style, connect (`/registry/`, the ESPN proxy) and frame (`/diagram/`). **Done when:** `check:spectrum-browser` passes with no CSP violations in the console.
+- [ ] **Trim the GitHub topics to four or five** *(Metadata)* — the repo carries eight. 🔒 Needs owner
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*
@@ -224,6 +236,7 @@ which of them may ship before Phase 2 closes.
 
 - [ ] 🟡 **Action 5.3 — Market-Close Ingestion for Named Tickers (Audit C2 · Track C)**
    - **Feature:** Ingest trailing adjusted closes for stable investment instruments (`SPY`, `QQQ`, `GLD`, `HYG`) from keyless market data sources to supply timestamped as-of returns for investing rows.
+   - **Done when:** the collector runs on a schedule set by the Cronsole template `edge-spectrum-market-close`, in the catalog via `npm run build:registry`, like 5.2 and 5.2a.
 
 - [ ] 🟠 **Action 5.4 — Closing Line Value (CLV) Skill Grading Engine**
    - **Feature:** Allow users to log hypothetical or placed wagers, fetch the true closing line from captured data, and calculate CLV beat rate (the primary mathematical indicator of betting edge).
