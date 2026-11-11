@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Sparkles, FlaskConical, Scale, KeyRound, BookOpen } from 'lucide-react';
+import { ArrowUpRight, Sparkles, FlaskConical, Scale, KeyRound, BookOpen, CalendarClock } from 'lucide-react';
 import { TOOLS, type Tool, type ToolStatus } from '../tools';
 import { useTheme } from '../theme';
 import { EDGES } from '../data/edges';
@@ -36,6 +36,64 @@ function DiagramFrame() {
     <iframe id="diagram-frame" ref={ref} src="/diagram/hub-data-flow.html" loading="lazy" onLoad={sync}
       className="block h-[clamp(420px,62vw,860px)] w-full border-0 bg-(--bg)"
       title="Edge Spectrum hub data flow, interactive: edges.ts is generated into the Spectrum page; the tools registry drives the hub's tiles and routes; the Backtest Simulator calls the backtest, ESPN proxy and passcode-gated Gemini advisor functions" />
+  );
+}
+
+const GALLERY = 'https://cronsole.ai-automation-tools.dev/';
+type RegistryEntry = { id: string; name: string; description: string; runtime?: string; os?: string; path: string };
+
+/**
+ * The Cronsole templates this repo publishes. public/registry/index.json is served beside this page,
+ * so the cards are read from it at run time and never drift from what Cronsole's gallery lists.
+ */
+function CronsoleTemplates() {
+  const [list, setList] = useState<RegistryEntry[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    fetch('/registry/index.json')
+      .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then((d: { templates?: RegistryEntry[] }) => { if (!d.templates?.length) throw new Error('empty'); setList(d.templates); })
+      .catch(() => setFailed(true));
+  }, []);
+  const first = (t: string) => (t.match(/^.*?[.!?](\s|$)/)?.[0] ?? t).trim();
+  return (
+    <>
+      <div className="mt-6 grid grid-cols-1 gap-3.5 md:grid-cols-2">
+        {(list ?? []).map((t, i) => {
+          const name = t.name.replace(/^Edge Spectrum:\s*/, '');
+          return (
+            <Reveal key={t.id} delay={i * 0.06} className="h-full">
+              <Card accent="emerald" className="flex h-full flex-col">
+                <div className="flex flex-1 flex-col gap-2.5 p-5 pb-4">
+                  <div className="flex items-center justify-between gap-2.5">
+                    <span className="kind"><i />Cronsole template</span>
+                    <span className="glyph"><CalendarClock className="h-5 w-5" strokeWidth={1.6} /></span>
+                  </div>
+                  <h3 className="text-lg font-semibold tracking-[-0.015em] text-zinc-100">{name}</h3>
+                  <p className="text-sm leading-[1.55] text-zinc-400">{first(t.description)}</p>
+                  <div className="mt-0.5 flex flex-wrap gap-1.5">
+                    {[t.runtime, t.os].filter(Boolean).map((x) => <span key={x} className="tag">{x}</span>)}
+                  </div>
+                </div>
+                <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-zinc-800/60 px-5 py-3">
+                  <a href={`${GALLERY}#/t/${encodeURIComponent(t.id)}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-accent" aria-label={`Get ${name} for Cronsole`}>
+                    Get it for Cronsole <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                  <a href={`/registry/${t.path}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost">Template JSON</a>
+                </div>
+              </Card>
+            </Reveal>
+          );
+        })}
+      </div>
+      <p className="mt-4 text-[13px] text-zinc-500" aria-live="polite">
+        {failed
+          ? <>The templates couldn't be loaded here. Browse them in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
+          : list
+            ? <>Needs Node 18+ and a clone of this repo on the machine the task runs on. Every template is also in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
+            : 'Loading the templates…'}
+      </p>
+    </>
   );
 }
 
@@ -137,6 +195,14 @@ export default function Home() {
               </div>
             </Reveal>
           </div>
+        </section>
+
+        {/* ── Schedule it (Cronsole templates) ── */}
+        <section id="schedule" className="scroll-mt-[72px] border-t border-zinc-800/60 py-14">
+          <Reveal>
+            <SectionHead eyebrow="Schedule it" title="Build your own line archive, on a timer." sub="The line capture snapshots ESPN's public scoreboard into an append-only archive for closing-line-value analysis, and a daily digest reports how each line moved. Both are templates for Cronsole: import one, point it at your clone, and it runs on your own schedule with no keys." />
+          </Reveal>
+          <CronsoleTemplates />
         </section>
 
         {/* ── How it works (code-pinned diagram) ── */}

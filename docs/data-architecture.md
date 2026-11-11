@@ -143,13 +143,40 @@ asserts:
 To transition from synthetic simulations to observed historical tracking, forward collection operates via scheduled lightweight ingestion:
 
 ### A. Append-Only Scoreboard Line Snapshots
-- **Endpoint:** `/api/espn-scoreboard` (`site/src/server/espn.ts`)
-- **Schedule:** Automated cron executing every 2–4 hours during active game days.
-- **Payload Capture:**
-  - `eventId`, `sport`, `eventDate`, `capturedAt`
-  - `homeTeam`, `awayTeam`, `homeScore`, `awayScore`
-  - `spread`, `spreadOdds`, `overUnder`, `moneyline`
-  - `linePhase: 'open' | 'midday' | 'close'`
+
+**Built — roadmap Actions 5.1 and 5.2, 2026-11-10.**
+
+- **Store (5.1):** local append-only JSONL files, one per sport per scoreboard day:
+  `<out>/<SPORT>/<YYYY-MM-DD>.jsonl`. Chosen over a hosted database because it needs no account,
+  no cost and no secrets, and the collector runs on the reader's own machine. A hosted store can
+  ingest these files later, when the site itself needs the lines (Action 5.4, CLV grading).
+- **Collector (5.2):** `site/scripts/capture-lines.ts` (`npm run capture:lines -- --out <folder>`),
+  reading ESPN through the same `parseEspnScoreboard` (`site/src/server/espn.ts`) the live feed
+  uses, for NFL, NBA, MLB and NHL. A run never rewrites a line; a sport whose fetch fails is named
+  and the run exits 1; a sport with no games is a success.
+- **Schedule:** every 3 hours, as the Cronsole template
+  [`edge-spectrum-line-capture`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
+  (or any scheduler running the same command).
+- **Record:** `eventId`, `sport`, `eventDate`, `capturedAt`, `state` (`pre` / `in` / `post`),
+  `linePhase`, `minutesToStart`, `homeTeam`, `awayTeam`, `homeScore`, `awayScore`, `provider`,
+  `spread` (home), `spreadOdds` `{home, away}`, `overUnder`, `moneyline` `{home, away}`. A number
+  ESPN does not publish is `null`, never `0`; a pick'em spread is `0`.
+- **`linePhase`, decided at capture and never revised:** `open` is the first capture of a
+  not-yet-started game in its day file; `close` is a later capture within one collection interval
+  (`--interval-hours`, default 3) of the start, which on that schedule is the last look before the
+  game; `midday` is any other pre-game capture; `null` means the game has started, so the line is
+  no longer pre-game, though the score is kept for grading. If the job runs more often than the
+  interval says, two captures can both read `close`: take the one with the smallest
+  `minutesToStart`. A final game is logged once.
+- **Held by:** `npm run check:lines` (in CI), which runs a recorded ESPN response through the real
+  parser and asserts the fields, the phase rule and that a second run only appends.
+- **Daily digest:** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder>`),
+  scheduled daily at 12:30 UTC as the Cronsole template
+  [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest).
+  Read-only over the archive; writes `<archive>/digests/<day>.md`. Opening is a game's `open`
+  capture, closing its `close` capture with the smallest `minutesToStart`; a game with no `close`
+  shows its last pre-game line marked `*` and is listed as a gap, never reported as a move. A day
+  with no capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`). Held by `npm run check:lines`.
 - **Application:** Builds a historical closing-line archive used to calculate user **Closing Line Value (CLV)** without recurring commercial data feed costs.
 
 ### B. Financial Instrument As-Of Updates

@@ -54,6 +54,10 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
   scripts/            # not shipped: check-market.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
+                      #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
+                      #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
+                      #   templates there, never the output; --check in CI. check-registry-published.mjs
+                      #   is the daily drift check of the served copy
   api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
                       #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
@@ -114,7 +118,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
-  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
+  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
   `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page (`vite preview` on
   `dist/`), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level

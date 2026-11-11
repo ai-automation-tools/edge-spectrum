@@ -8,6 +8,43 @@
 - **Math** `ruinRisk` solves the general flat-stake ruin equation `p·z^(b+1) − z + q = 0` instead of assuming even money, and `kellyMultiple` is `ced·b/e`. The tournament row's chance of going broke moves from 67.0% to **93.3%** and its stake from 5× to **28.5×** Kelly; the even-money rows are unchanged.
 - **Inspector** The ruin box shows the Kelly stake as `e/b` and says which payoff it assumed, and that an average cash understates the real spread of prizes.
 - **Checks** `check:spectrum` asserts the ruin root solves the payoff equation, `b = 1` reproduces the closed form, and a longer payoff carries more risk; `check:edges` asserts the implied win rate is a probability. Formulas in `docs/methodology.md` Metric D.
+## November 10, 2026 — Daily line-movement digest
+
+- **Digest** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder> [--date <day>]`)
+  reads one day of the line archive and writes `<archive>/digests/<day>.md`: per game, the opening and
+  closing spread, total and home moneyline, the final score, and the gaps (no opening, no close, no
+  pre-game capture, no final yet, no odds posted), plus the five biggest spread moves. A game with no
+  `close` capture shows its last pre-game line marked `*` and is never counted as a move. A day with no
+  capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`): the capture did not run.
+- **Cronsole catalog** New template `edge-spectrum-line-digest` (daily, 12:30 UTC). The pack is renamed
+  *Edge Spectrum: Line Archive* and holds both templates; the home page's *Schedule it* section lists the
+  new one automatically.
+- **Checks** `npm run check:lines` also checks the digest on a hand-built day: the nearer of two closes
+  wins, a missing close is a gap and not a move, and each gap is named.
+
+---
+
+## November 10, 2026 — ESPN line capture, schedulable from Cronsole
+
+- **Collector** `site/scripts/capture-lines.ts` (`npm run capture:lines -- --out <folder>`) snapshots ESPN's
+  public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game to
+  `<folder>/<SPORT>/<day>.jsonl`: spread and its prices, total, moneyline, scores, and a `linePhase` of
+  `open`, `midday` or `close` (`null` once a game has started). Append-only, no keys. Roadmap Actions
+  5.1 (local JSONL as the store) and 5.2.
+- **ESPN parser** `parseEspnScoreboard` is split out of `fetchEspnScoreboard` so the collector reads ESPN
+  the same way the live feed does, and the feed's games now also carry `state`, the bookmaker, both
+  moneylines and both spread prices. A pick'em spread now reads `0` instead of `null`.
+- **Cronsole catalog** `npm run build:registry` generates a Registry v1 template
+  (`edge-spectrum-line-capture`, every 3 hours) and pack (`edge-spectrum`) into `site/public/registry/`,
+  served at `/registry/` with `Access-Control-Allow-Origin: *` so the
+  [Cronsole gallery](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture) can list it.
+  CI runs `check:lines` and `build:registry -- --check`; a daily *Registry drift* workflow checks the
+  served copy against `main`.
+- **Home page** A *Schedule it* section lists the templates, read live from `/registry/index.json` so it
+  cannot drift from the gallery. Each card has *Get it for Cronsole* (the template in the gallery) and
+  *Template JSON*; the note links the whole `edge-spectrum` collection.
+
+---
 
 ## November 4, 2026 — Three more casino table games
 

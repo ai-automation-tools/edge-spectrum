@@ -81,6 +81,33 @@ Served inside the SPA React shell at `/backtester`.
 - **Live Scoreboard integration:** Pulls real-time ESPN scoreboard updates.
 - **Gemini AI Strategy Advisor (your full instance):** Iterates on backtest results to suggest portfolio optimizations, staking alterations, or parameter tuning.
 
+### 3. ESPN Line Capture (scheduled, local)
+A collector that builds your own archive of real sportsbook lines for closing-line-value analysis
+(roadmap Actions 5.1 and 5.2). Each run snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL
+and appends one JSON line per game to `<folder>/<SPORT>/<day>.jsonl`: spread and its prices, total,
+moneyline, scores, and a `linePhase` of `open`, `midday` or `close`. Files are only ever appended to,
+there are no keys, and nothing leaves your machine.
+
+```bash
+cd site && npm run capture:lines -- --out ~/edge-lines
+```
+
+Schedule it with [Cronsole](https://cronsole.ai-automation-tools.dev/): download the
+[ESPN Line Capture template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
+(or the [Edge Spectrum pack](https://cronsole.ai-automation-tools.dev/#/collection/edge-spectrum)) and
+import it under **Templates → Import**. It runs every 3 hours by default. How `linePhase` is decided
+is in [data-architecture.md](docs/data-architecture.md#a-append-only-scoreboard-line-snapshots).
+
+**Daily digest.** Once captures are running, the
+[Daily Line Movement Digest template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest)
+reads yesterday's files and writes `<folder>/digests/<day>.md`: each game's opening and closing spread,
+total and home moneyline, the final score, the biggest spread moves, and every game missing an opening or
+closing capture. It runs daily at 12:30 UTC and fails if the day has no capture file at all.
+
+```bash
+cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
+```
+
 ---
 
 ## 🏗️ Repository Architecture
