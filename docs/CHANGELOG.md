@@ -2,6 +2,10 @@
 
 ---
 
+## November 11, 2026 — Three more casino rows (237 → 240 records)
+
+- **Data** Added **Craps Lay 4 / Lay 10 (Commission on Win)** (−1.67%), **Craps Hard 4 / Hard 10** (−11.11%) and **Pai Gow Poker Emperor's Challenge** (−4.17%), all in Casino Gambling. Sources: Wizard of Odds' craps house edge table (`/games/craps/appendix/2/`, per bet resolved) and its Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`), both read 2026-11-11. Record count and cited count in the baseline move to 240 and 50.
+
 ## November 9, 2026 — Payoff shape for positive-edge rows (Action 2.13)
 
 - **Data** `GameEdge` gains an optional `payout`, the average net win per unit staked (`pay` on the page). **Poker Skilled Tournaments** takes `5.7`: tournaments pay about the top 15% of the field (2023 WSOP Main Event, 1,507 of 10,043), so a cash averages about 6.7× the buy-in. Every other row stays at even money.

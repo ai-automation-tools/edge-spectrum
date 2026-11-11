@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 237 · **Categories:** 15 · **Layers:** 209 raw · 9 fee · 19 tax
+**Records:** 240 · **Categories:** 15 · **Layers:** 212 raw · 9 fee · 19 tax
 
 ## What is here, and what is deliberately not
 
@@ -301,7 +301,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 12. Casino Gambling
 
-**Records:** 41
+**Records:** 44
 
 ### Games — linear model
 
@@ -328,26 +328,29 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 19 | Blackjack 6:5 | -2.0% | 60 | 2% | raw |
 | 20 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw |
 | 21 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw |
-| 22 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
-| 23 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
-| 24 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
-| 25 | Four Card Poker Ante | -2.79% | 30 | 3% | raw |
-| 26 | Casino War | -2.88% | 50 | 2% | raw |
-| 27 | Three Card Poker | -3.4% | 40 | 3% | raw |
-| 28 | Let It Ride | -3.5% | 30 | 3% | raw |
-| 29 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw |
-| 30 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
-| 31 | Mississippi Stud | -4.91% | 30 | 3% | raw |
-| 32 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
-| 33 | Caribbean Stud | -5.2% | 30 | 3% | raw |
-| 34 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
-| 35 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
-| 36 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
-| 37 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
-| 38 | Big Six Wheel | -16.0% | 20 | 2% | raw |
-| 39 | Craps Any Seven | -16.67% | 40 | 2% | raw |
-| 40 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
-| 41 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
+| 22 | Craps Lay 4 / Lay 10 (Commission on Win) | -1.67% | 40 | 2% | raw |
+| 23 | Pai Gow Poker Emperor's Challenge | -4.17% | 30 | 1% | raw |
+| 24 | Craps Hard 4 / Hard 10 | -11.11% | 40 | 1% | raw |
+| 25 | Pai Gow Poker | -2.5% | 30 | 3% | raw |
+| 26 | Roulette Single Zero | -2.7% | 40 | 3% | raw |
+| 27 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw |
+| 28 | Four Card Poker Ante | -2.79% | 30 | 3% | raw |
+| 29 | Casino War | -2.88% | 50 | 2% | raw |
+| 30 | Three Card Poker | -3.4% | 40 | 3% | raw |
+| 31 | Let It Ride | -3.5% | 30 | 3% | raw |
+| 32 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw |
+| 33 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw |
+| 34 | Mississippi Stud | -4.91% | 30 | 3% | raw |
+| 35 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw |
+| 36 | Caribbean Stud | -5.2% | 30 | 3% | raw |
+| 37 | Roulette Double Zero | -5.26% | 40 | 3% | raw |
+| 38 | Slots Average 92% | -8.0% | 500 | 0.5% | raw |
+| 39 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw |
+| 40 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw |
+| 41 | Big Six Wheel | -16.0% | 20 | 2% | raw |
+| 42 | Craps Any Seven | -16.67% | 40 | 2% | raw |
+| 43 | Keno 4-Spot | -28.0% | 10 | 1% | raw |
+| 44 | Keno 10-Spot | -35.0% | 10 | 1% | raw |
 
 ## 13. Poker & Skill-Based
 
