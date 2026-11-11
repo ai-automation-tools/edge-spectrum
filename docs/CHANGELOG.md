@@ -2,6 +2,10 @@
 
 ---
 
+## November 11, 2026 — Roadmap rechecked against the org's 2026-11 requirements
+
+- **Roadmap** `docs/ROADMAP.md` rechecked against the org's 2026-11 requirements. The intro names the job that works it (`edge-spectrum-roadmap`) instead of a disabled task and its day. Action 2.7 is split: the code half stays (now also requiring `ADVISOR_SECRET`), and the Gemini quota and the Vercel secret are Action 2.7b (🔒 Needs owner). The CI action-pin step of 2.14 is its own owner line, 2.14b. Action 5.3's done-when names its Cronsole template. New *Site upkeep* group: a build stamp, ROADMAP in the Read on card, a full CSP, and trimming the topics (🔒).
+
 ## November 9, 2026 — Payoff shape for positive-edge rows (Action 2.13)
 
 - **Data** `GameEdge` gains an optional `payout`, the average net win per unit staked (`pay` on the page). **Poker Skilled Tournaments** takes `5.7`: tournaments pay about the top 15% of the field (2023 WSOP Main Event, 1,507 of 10,043), so a cash averages about 6.7× the buy-in. Every other row stays at even money.
