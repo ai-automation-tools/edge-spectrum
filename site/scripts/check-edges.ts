@@ -56,6 +56,10 @@ for (const r of EDGES) {
     assert.ok(Number.isFinite(r.e), `${r.n}: edge "e" must be finite`);
     assert.ok(r.du > 0, `${r.n}: decisions/day "du" must be positive`);
     assert.ok(r.ced > 0 && r.ced <= 100, `${r.n}: capital exposure "ced" must be in (0, 100]`);
+    if (r.payout !== undefined) {
+      // The win rate it implies, (1+e)/(1+payout), must be a probability.
+      assert.ok(r.payout > 0 && r.e / 100 < r.payout, `${r.n}: payout must be positive and above the edge`);
+    }
   }
 }
 

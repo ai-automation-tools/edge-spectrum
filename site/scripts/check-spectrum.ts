@@ -31,7 +31,7 @@ function section(from: string, to: string): string {
 
 type Row = {
   n: string; cat: string; m: 'i' | 'g';
-  a?: number; e?: number; du?: number; ced?: number; src?: string; asOf?: string;
+  a?: number; e?: number; du?: number; ced?: number; pay?: number; src?: string; asOf?: string;
 };
 type Page = {
   RAW: Row[];
@@ -150,6 +150,23 @@ for (const r of RAW.filter((x) => x.m === 'g' && x.e! > 0)) {
 }
 for (const r of RAW.filter((x) => x.m === 'g' && x.e! <= 0)) {
   if (ruinRisk(r) !== null) fail(`${r.n}: losing game should report expected ruin, not a ruin probability`);
+}
+
+// ── 6b'. The payoff shape is honoured (Action 2.13) ──────────────────────────
+// Even money must still give the closed form ((1-e)/(1+e))^units; a `pay` row must give
+// Kelly e/b, a ruin root that solves p·z^(b+1) - z + q = 0, and MORE risk than the same
+// edge at even money — a long payoff is a higher-variance way to earn the same edge.
+const payRows = RAW.filter((x) => x.m === 'g' && x.e! > 0 && x.pay !== undefined);
+if (payRows.length === 0) fail('no positive-edge row carries a payout; the top-heavy path is untested');
+for (const r of RAW.filter((x) => x.m === 'g' && x.e! > 0)) {
+  const e = r.e! / 100, units = 100 / r.ced!, b = r.pay ?? 1;
+  const rr = ruinRisk(r)!, km = kellyMultiple(r)!;
+  if (Math.abs(km - r.ced! / (r.e! / b)) > 1e-9) fail(`${r.n}: Kelly multiple ${km} is not ced / (e/b)`);
+  const z = Math.pow(rr, 1 / units), p = (1 + e) / (1 + b);
+  if (Math.abs(p * Math.pow(z, b + 1) - z + (1 - p)) > 1e-9) fail(`${r.n}: ruin root ${z} does not solve the payoff equation`);
+  const even = ruinRisk({ ...r, pay: undefined })!;
+  if (b === 1 && Math.abs(rr - Math.pow((1 - e) / (1 + e), units)) > 1e-12) fail(`${r.n}: even-money ruin risk drifted from the closed form`);
+  if (b > 1 && !(rr > even)) fail(`${r.n}: a ${b}x payoff should carry more ruin risk (${rr}) than even money (${even})`);
 }
 
 // ── 6c. Real returns sit below nominal and keep the floor ────────────────────
