@@ -46,6 +46,7 @@ Edge Spectrum operates as a multi-tool web application hosted on **Vercel** with
 - **`npm run check:deployment`** — Verifies demo mode rejects live AI and full-mode sessions, while full mode retains passcode authentication.
 
 - **`npm run check:engine`** — Replays every simulated season: games in date order, no negative rest days, each stored streak equal to the team's earlier results, and a busted bankroll stops the run with drawdown at or under 100%.
+- **`npm run check:bundle`** — After a build: no chunk over 500 kB, the home page's JS under 150 kB gzip, and the CSP in `vercel.json` still allows the inline theme script.
 - **`npm run check:market`** — Runs all 40 naive wagering strategies across 26 simulated seasons, verifying that realized ROI falls strictly within the realistic bookmaker hold band (−7.0% to −2.5%).
 - **`npm run check:spectrum`** — Evaluates the Spectrum visualizer's own math block and dataset directly out of `site/public/spectrum/index.html` and asserts its metric invariants: `returnOnCapital` never breaches its −100% floor, `expectedTurnoverCost` stays unfloored, the two agree on where ruin falls across all 240 records × 7 horizons, and the `1du` horizon never labels a wager and a trading day identically.
 - **`npm run gen:edges -- --check`** — Regenerates every downstream copy of the dataset from `site/src/data/edges.ts` and fails if any has drifted: the Spectrum page's inlined `RAW`, `site/public/spectrum/edges.json`, and `data/edge_dataset.md`. Drop the `-- --check` to write them.
