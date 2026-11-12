@@ -259,7 +259,9 @@
             background: var(--bg); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px 16px;
         }
-        .footer-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .footer-rg { color: var(--text-muted); font-size: 0.75rem; }
+        .footer-rg a, .hdr-rg a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .hdr .hdr-rg { margin-top: 8px; }
 
         .toast {
             position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
@@ -320,6 +322,7 @@
         <div class="hdr-meta" id="hdrMeta">Loading…</div>
         <h1>The Edge <span>Spectrum</span></h1>
         <p>Every held asset and repeated wager on one floored axis. Pick a horizon, hover a bar to read it, click to pin it, and switch measures to see the cost of turnover that the capital axis cannot show.</p>
+        <p class="hdr-rg">18+ (21+ where you live). Gambling problem? Free, confidential help: <a href="tel:1-800-426-2537">US 1-800-GAMBLER</a> &middot; <a href="https://www.gamblingtherapy.org/" target="_blank" rel="noopener noreferrer">Worldwide: GamblingTherapy.org</a></p>
     </div>
     <div class="hdr-actions">
         <select class="abtn" id="presets" aria-label="Preset views"><option value="">Preset views…</option></select>
@@ -411,7 +414,7 @@
                 </div>
                 <div style="text-align:right"><div class="key" id="key"></div><div class="chart-hint">drag to zoom · double-click to reset</div></div>
             </div>
-            <div id="chart"></div>
+            <div id="chart" role="img" aria-label="Chart loading"></div>
             <div class="empty">Nothing matches. Turn a category back on or clear the filter.</div>
         </div>
         <aside class="insp" id="insp" aria-live="polite"></aside>
@@ -1128,6 +1131,14 @@ function renderChart(data) {
     };
     Plotly.react(chartEl, traces, layout, { displayModeBar: false, responsive: true, doubleClick: 'reset', scrollZoom: false });
     if (grew) Plotly.Plots.resize(chartEl);
+    // To assistive tech the chart is one picture: name what it shows, and point at the
+    // numbers behind it (audit UX-13).
+    const ranked = data.filter(d => { const v = val(d); return v !== null && isFinite(v); }).sort((a, b) => val(a) - val(b));
+    const lowest = ranked[0], highest = ranked[ranked.length - 1];
+    chartEl.setAttribute('aria-label', !ranked.length ? 'Empty chart: nothing matches the filters.'
+        : `${METRICS[S.m].title}, ${HZ_LBL[S.h].toLowerCase()}: ${ranked.length} activities, from ${lowest.n} at ${formatValue(val(lowest))} `
+        + `to ${highest.n} at ${formatValue(val(highest))}; ${ranked.filter(d => val(d) < 0).length} below zero. `
+        + 'The panel beside it lists the leaders and laggards, the search box finds any one, and the CSV button downloads every value.');
 }
 
 // ══════════════════════════
@@ -1319,7 +1330,7 @@ function renderCompare() {
             <div class="insp-meta"><span class="badge">${S.real ? 'Real return' : 'Return on capital'}</span><span class="badge">${rows.length} of ${CMP_MAX}</span></div></div>
             <button type="button" class="pin-btn" id="cmpClear">Clear</button></div>
         <div class="insp-body">
-            <div class="insp-sec"><div class="sec-label">By horizon</div><div id="cmpChart" style="height:240px"></div></div>
+            <div class="insp-sec"><div class="sec-label">By horizon</div><div id="cmpChart" style="height:240px" role="img" aria-label="${esc(`${S.real ? 'Real return' : 'Return on capital'} by horizon for ${rows.map(d => d.n).join(', ')}. The list below gives each value at ${HZ_LBL[S.h].toLowerCase()}.`)}"></div></div>
             <div class="insp-sec"><div class="sec-label">At ${HZ_LBL[S.h].toLowerCase()}</div><div class="list">${rows.map(d => `
                 <div style="display:flex;align-items:center;gap:6px">
                     <button type="button" class="li" style="width:auto;flex:1;margin-right:0" data-pin="${esc(d.n)}"><span class="dot" style="background:${cmpColor(d.n)}"></span><span class="nm">${esc(d.n)}</span><span class="v" style="color:${signColor(roc(d, S.h))}">${formatValue(roc(d, S.h))}</span></button>

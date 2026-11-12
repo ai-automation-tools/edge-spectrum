@@ -116,11 +116,12 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       </div>
 
       {/* Internal Sub-Nav for Sports */}
-      <div className="flex flex-wrap items-center gap-2 bg-zinc-950/40 p-1.5 rounded-xl border border-zinc-850">
+      <div role="group" aria-label="Sport" className="flex flex-wrap items-center gap-2 bg-zinc-950/40 p-1.5 rounded-xl border border-zinc-850">
         {(['NFL', 'NBA', 'MLB', 'NHL'] as SportType[]).map((s) => (
           <button
             key={s}
             onClick={() => setSport(s)}
+            aria-pressed={sport === s}
             className={`px-3 py-1 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${
               sport === s
                 ? 'bg-sky-500/10 border border-sky-500/20 text-sky-400'
@@ -138,7 +139,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
 
       {/* Grid or States */}
       {isLoading ? (
-        <div className="py-16 text-center flex flex-col items-center justify-center gap-3">
+        <div role="status" className="py-16 text-center flex flex-col items-center justify-center gap-3">
           <RefreshCw className="w-5 h-5 text-sky-400 animate-spin" />
           <p className="text-xs font-mono text-zinc-400 animate-pulse">
             Querying ESPN public scoreboards...
@@ -147,7 +148,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       ) : error ? (
         <div className="py-12 px-6 text-center text-xs text-rose-400 bg-rose-500/5 border border-rose-500/10 rounded-xl leading-relaxed flex flex-col items-center gap-2">
           <Info className="w-5 h-5" />
-          <span>{error}</span>
+          <span role="alert">{error}</span>
           <button 
             onClick={() => setAttempt((n) => n + 1)}
             className="mt-1 px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-md font-sans text-[11px] font-semibold tracking-wide cursor-pointer"

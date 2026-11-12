@@ -277,3 +277,6 @@ kbd.key { font-family: var(--font-mono); font-size: 10.5px; padding: 2px 5px; bo
 
 /* A heading focused by the router after a navigation is a landing point, not a control. */
 h1[tabindex="-1"]:focus { outline: none; }
+
+/* The page behind an open modal dialog (the ⌘K palette) stays put. */
+html:has(dialog:modal) { overflow: hidden; }

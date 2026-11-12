@@ -3,6 +3,7 @@ import { Shield, TrendingUp, FlaskConical } from 'lucide-react';
 import { MARKET_OVERROUND } from '../dataGenerator';
 import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
 import { Eyebrow, Reveal } from './ui';
+import { RgLine } from './SiteFooter';
 
 /** The book's hold, read straight off the model rather than asserted. */
 const HOLD_PERCENT = ((MARKET_OVERROUND - 1) / MARKET_OVERROUND) * 100;
@@ -21,6 +22,7 @@ export default function Header() {
             Strategy emulator over {MAX_SEASON - MIN_SEASON + 1} simulated seasons of MLB, NFL, NHL &amp; NBA. Every line is priced
             from the distribution the scores are drawn from, so the hold is the only edge in the data.
           </p>
+          <RgLine />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="pill border-zinc-800/80 bg-zinc-900/40" title="Read from MARKET_OVERROUND in the generator">

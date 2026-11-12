@@ -2,6 +2,33 @@
 
 ---
 
+## November 12, 2026 — Accessibility: the palette, the game log, states, charts, calculator errors and the help-line notice
+
+From the 2026-11-11 project audit (UX-05, UX-06, UX-11, UX-12, UX-13, UX-16, UX-19).
+
+- **Command palette (UX-05).** A native modal `<dialog>`: Tab stays inside, Escape or a click
+  outside closes it, focus goes back to whatever opened it, and the page behind does not scroll.
+  The search box is a combobox over a listbox, so arrowing announces the option.
+- **Game log (UX-06).** 25 rows a page with Previous and Next, newest first. Date, Net Return and
+  Status sort and say so with `aria-sort`. On a phone the advisor now comes before the chart and
+  the log instead of 17,000px down.
+- **States (UX-11).** The game-log filter and the scoreboard's sport buttons are pressed buttons;
+  the workspace tabs follow the tab pattern (arrow keys, a labelled panel); the topbar marks the
+  current page.
+- **Announcements (UX-12).** A finished backtest is read out in one sentence; the scoreboard's
+  loading state is a status and its error an alert.
+- **Charts (UX-13).** The equity curve has a written summary under it (where it ends, its low and
+  high). The hero strip and both Spectrum charts are named images that describe the current view
+  and point to the list, search and CSV that carry the numbers.
+- **Calculators (UX-16).** A bad price says why under its field, tied with `aria-describedby`, and
+  a line says why the results are missing. A typographic minus (−110) is a minus, and prices past
+  +1,000,000 are refused, which stops a typo setting a −124,999,999,912% parlay hold.
+- **Help-line notice (UX-19).** "18+ (21+ where you live)" and two help lines sit under the
+  heading of the backtester, both calculators and the Spectrum page. Help-line links are
+  underlined everywhere, and the footer notice is larger and brighter.
+- **Checks.** `check:spectrum-browser` section 10 drives each of these; `check:odds` holds the
+  minus, the cap and the messages.
+
 ## November 12, 2026 — Roadmap: Spectrum form fixes recorded, next item named
 
 Docs only.

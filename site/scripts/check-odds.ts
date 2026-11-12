@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import {
   americanToDecimal, decimalToAmerican, decimalToFractional,
-  parseOdds, formatOdds, devig,
+  parseOdds, formatOdds, devig, oddsError, FORMAT_HINT, MAX_DECIMAL,
 } from '../src/odds';
 
 const near = (a: number, b: number, eps = 1e-6) =>
@@ -42,6 +42,15 @@ for (const [text, format] of [
   ['++150', 'american'], ['-110%', 'american'], ['1.9.1', 'decimal'], ['50%%', 'implied'], ['-', 'american'],
 ] as const) assert.equal(parseOdds(text, format), null, `${text} is not ${format} odds`);
 assert.equal(parseOdds(' +150 ', 'american'), 2.5);
+// Audit UX-16: a copied typographic minus is a minus; a price past +1,000,000 is a typo.
+assert.equal(parseOdds('−110', 'american'), americanToDecimal(-110));
+assert.equal(parseOdds('+1000000', 'american'), MAX_DECIMAL);
+for (const [text, format] of [
+  ['+1000001', 'american'], ['1000000000000', 'american'], ['10002', 'decimal'], ['10001/1', 'fractional'], ['0.00009', 'implied'],
+] as const) assert.equal(parseOdds(text, format), null, `${text} is past the ${format} cap`);
+assert.equal(oddsError('-110', 'american'), null);
+assert.equal(oddsError(' ', 'american'), 'Enter a price.');
+assert.equal(oddsError('abc', 'decimal'), FORMAT_HINT.decimal);
 assert.equal(parseOdds('+5/2', 'fractional'), 3.5);
 assert.equal(parseOdds('.5', 'implied'), 2);
 near(parseOdds('52.38 %', 'implied')!, 100 / 52.38);

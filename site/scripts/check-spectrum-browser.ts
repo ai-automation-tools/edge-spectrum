@@ -209,6 +209,96 @@ try {
   await bt.getByRole('button', { name: 'totals', exact: true }).click();
   check((await bt.locator('#sb-streak').count()) === 0, 'the streak filter is still offered on a totals bet');
   await bt.close();
+
+  // ── 10. Accessibility depth (audit UX-05, -06, -11, -12, -13, -16, -19) ────────────────
+  const a11y = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  await a11y.route('**/api/backtest', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: run }));
+  await a11y.route('**/api/espn-scoreboard**', (route) => route.fulfill({ status: 502, contentType: 'application/json', body: '{"error":"ESPN is down"}' }));
+  await a11y.goto(`http://127.0.0.1:${PORT}/backtester`);
+  await a11y.getByText('Net profit (P/L)').waitFor({ timeout: 15_000 });
+  // UX-12: the finished run is announced in one sentence.
+  check(/^Backtest done: [\d,]+ bets/.test(await a11y.getByRole('status').filter({ hasText: 'Backtest done' }).innerText().catch(() => '')), 'a finished backtest is not announced');
+  // UX-06: 25 rows a page, newest first, and the sortable headers say how they are sorted.
+  const rows = a11y.locator('table tbody tr');
+  check((await rows.count()) === 25, `the game log shows ${await rows.count()} rows, not 25`);
+  const dateTh = a11y.locator('th[aria-sort]').filter({ hasText: 'Date' });
+  check((await dateTh.getAttribute('aria-sort')) === 'descending', 'the game log is not sorted newest first');
+  await a11y.locator('th').filter({ hasText: 'Net Return' }).getByRole('button').click();
+  const nets = await rows.evaluateAll((trs) => trs.map((tr) => Number(tr.children[6].textContent!.replace(/[^\d.-]/g, ''))));
+  check(nets.every((v, i) => i === 0 || nets[i - 1] >= v), 'sorting by net return does not order the rows');
+  check((await dateTh.getAttribute('aria-sort')) === 'none', 'the date header still claims the sort');
+  await a11y.getByRole('button', { name: 'Next' }).click();
+  check((await a11y.getByText(/^Rows 26–50 of/).count()) === 1, 'the game log does not page');
+  // UX-11: toggles and the current page expose their state.
+  check((await a11y.getByRole('button', { name: 'win', exact: true }).getAttribute('aria-pressed')) === 'false', 'the game-log filter has no pressed state');
+  check((await a11y.locator('nav[aria-label="Tools"] a[aria-current="page"]').getAttribute('href')) === '/backtester', 'the topbar does not mark the current page');
+  // UX-13: the equity curve has a name and a text summary tied to it.
+  const curve = a11y.getByRole('img', { name: 'Equity curve' });
+  const described = await curve.evaluate((el) => document.getElementById(el.getAttribute('aria-describedby')!)?.textContent ?? '');
+  check(/cumulative profit ends at/.test(described), 'the equity curve has no text summary');
+  // UX-11 and UX-12: the tabs follow the tab pattern, and a scoreboard error is announced.
+  await a11y.getByRole('tab', { name: /Backtest analytics/ }).focus();
+  await a11y.keyboard.press('ArrowRight');
+  const espnTab = a11y.getByRole('tab', { name: /Live ESPN scoreboard/ });
+  check((await espnTab.getAttribute('aria-selected')) === 'true' && await espnTab.evaluate((el) => el === document.activeElement), 'an arrow key does not move to the next tab');
+  check((await a11y.getByRole('tabpanel').getAttribute('aria-labelledby')) === 'tab-espn', 'the tab panel is not labelled by its tab');
+  await a11y.getByRole('alert').filter({ hasText: 'ESPN is down' }).waitFor({ timeout: 5_000 }).catch(() => check(false, 'a scoreboard error is not announced'));
+  // UX-05: the palette is a modal dialog that keeps focus and gives it back.
+  const opener = a11y.getByRole('button', { name: 'Open command palette' });
+  await opener.click();
+  const input = a11y.getByRole('combobox', { name: /Jump to/ });
+  await input.waitFor();
+  for (let i = 0; i < 3; i++) await a11y.keyboard.press('Tab');
+  check(await a11y.evaluate(() => !!document.activeElement?.closest('dialog[open]')), 'Tab leaves the open palette');
+  await input.focus();
+  await a11y.keyboard.press('ArrowDown');
+  const active = await input.getAttribute('aria-activedescendant');
+  check(active === 'pal-opt-1' && (await a11y.locator(`#${active}`).getAttribute('aria-selected')) === 'true', 'arrowing does not move the selected option');
+  await a11y.keyboard.press('Escape');
+  check(await a11y.evaluate(() => !document.querySelector('dialog[open]')), 'Escape does not close the palette');
+  check(await opener.evaluate((el) => el === document.activeElement), 'closing the palette does not return focus to its opener');
+  await a11y.close();
+
+  // UX-16 and UX-19 on the calculators, at phone width: a bad price says why, and the age and
+  // help-line line sits under the heading, before the tool.
+  const calc = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
+  await calc.route('**/api/backtest', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: run }));
+  // UX-06: on a phone the advisor comes within three screens of the results, not 17,000px down.
+  await calc.goto(`http://127.0.0.1:${PORT}/backtester`);
+  await calc.getByText('Net profit (P/L)').waitFor({ timeout: 15_000 });
+  const y = (t: string) => calc.getByText(t, { exact: true }).first().evaluate((el) => el.getBoundingClientRect().top + scrollY);
+  const gap = (await y('Gemini Quant Advisor')) - (await y('Net profit (P/L)'));
+  check(gap < 3 * 844, `on a phone the advisor starts ${Math.round(gap)}px below the results`);
+  for (const path of ['/backtester', '/odds', '/parlay']) {
+    await calc.goto(`http://127.0.0.1:${PORT}${path}`);
+    const rg = calc.locator('main p, header p').filter({ hasText: '18+ (21+ where you live)' }).first();
+    await rg.waitFor({ timeout: 15_000 });
+    const box = await rg.boundingBox();
+    check(box && box.y + box.height < 844 * 1.5, `${path}: the age and help-line notice starts at ${box?.y}px, not near the top`);
+    check((await rg.locator('a').first().evaluate((a) => getComputedStyle(a).textDecorationLine)) === 'underline', `${path}: help-line links are not underlined`);
+  }
+  // On /parlay now. An absurd quoted price and an empty leg each say what is wrong.
+  const quoted = calc.locator('#parlay-quoted');
+  await quoted.fill('1000000000000');
+  const why = async (el: typeof quoted) => el.evaluate((e) => document.getElementById(e.getAttribute('aria-describedby') ?? '')?.textContent ?? '');
+  check((await quoted.getAttribute('aria-invalid')) === 'true' && /±1,000,000/.test(await why(quoted)), 'an absurd quoted price is not rejected with a message');
+  const leg = calc.getByRole('textbox', { name: 'Leg 1 price', exact: true });
+  await leg.fill('');
+  check((await why(leg)) === 'Enter a price.', 'an empty leg gives no message');
+  check((await calc.getByRole('status').filter({ hasText: 'Fix the prices marked above' }).count()) === 1, 'the missing parlay result is not explained');
+  await leg.fill('−110');
+  check((await leg.getAttribute('aria-invalid')) === 'false', 'a typographic minus is not read as a minus');
+  await calc.close();
+
+  // UX-13 on the hero strip and the Spectrum chart.
+  const home = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  await home.goto(`http://127.0.0.1:${PORT}/`);
+  check(await home.getByRole('img', { name: /^All \d+ records on two lanes/ }).count() === 1, 'the hero strip has no text alternative');
+  await home.goto(PAGE_URL);
+  await home.waitForFunction(() => /activities, from/.test(document.getElementById('chart')?.getAttribute('aria-label') ?? ''), null, { timeout: 30_000 })
+    .catch(() => check(false, 'the Spectrum chart has no generated label'));
+  check(await home.locator('.hdr-rg').isVisible(), 'the Spectrum page has no age and help-line line under its heading');
+  await home.close();
 } finally {
   await browser.close();
   server.kill();
@@ -219,4 +309,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
