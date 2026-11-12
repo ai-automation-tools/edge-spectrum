@@ -17,7 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  # Not `check`: that is the CI job's name, and a skipped job here must never stand in for it.
+  live:
     # Only this repo's own site, and for deploys only a finished production one.
     if: >-
       github.repository == 'ai-automation-tools/edge-spectrum' &&

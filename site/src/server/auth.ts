@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual, randomUUID } from 'node:crypto';
+import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import { deploymentMode, demoRestriction } from './deployment.js';
 
@@ -59,15 +59,20 @@ const NOT_CONFIGURED: GateResult = {
 };
 
 /**
- * Constant-time string compare that doesn't leak length via early return. Both
- * sides go through an HMAC under a key that exists only in this process, so
- * the digests are equal-length and say nothing about the inputs: this is a
- * comparison, not a stored password hash.
+ * Constant-time string compare. Both sides are copied into buffers of one fixed
+ * size, so the time taken depends on neither value nor on how long the secret
+ * is. No hashing: this compares, it does not store.
  */
-const COMPARE_KEY = randomBytes(32);
+const COMPARE_BYTES = 1024;
 function safeEqual(a: string, b: string): boolean {
-  const digest = (v: string) => createHmac('sha256', COMPARE_KEY).update(v).digest();
-  return timingSafeEqual(digest(a), digest(b));
+  const left = Buffer.from(a, 'utf8');
+  const right = Buffer.from(b, 'utf8');
+  if (left.length > COMPARE_BYTES || right.length > COMPARE_BYTES) return false;
+  const paddedLeft = Buffer.alloc(COMPARE_BYTES);
+  const paddedRight = Buffer.alloc(COMPARE_BYTES);
+  left.copy(paddedLeft);
+  right.copy(paddedRight);
+  return timingSafeEqual(paddedLeft, paddedRight) && left.length === right.length;
 }
 
 /** Check a user-supplied passcode against the configured one. */

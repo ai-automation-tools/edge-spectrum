@@ -42,6 +42,8 @@ try {
   assert.equal(guardAdvisorRequest(cookie, '').status, 400);
   assert.equal(guardAdvisorRequest(cookie, 'x'.repeat(1001)).status, 400);
   assert.equal(sessionStatus(`${SESSION_COOKIE}=%ZZ`).body.authed, false);
+  assert.equal(attemptUnlock('test-only-passcode ', 'len-client').status, 401, 'a passcode with a trailing space');
+  assert.equal(attemptUnlock('x'.repeat(5000), 'len-client').status, 401, 'an oversized passcode');
   // A date that isn't YYYYMMDD[-YYYYMMDD] is refused before any fetch.
   await assert.rejects(fetchEspnScoreboard('NFL', '20240101&limit=1'), /Invalid date/);
 
