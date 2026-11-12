@@ -17,7 +17,7 @@ import type { BetType, SideSelectionType, SportType, Strategy } from '../types.j
 import {
   BET_TYPES, MAX_AMERICAN_ODDS, MAX_SEASON, MAX_SPREAD_POINTS, MAX_STARTING_BANKROLL,
   MAX_TOTAL_POINTS, MAX_UNIT_SIZE, MIN_SEASON, SIDE_SELECTIONS, SPORTS, STREAK_FILTERS,
-  TOTALS_SIDES,
+  TOTALS_SIDES, rangeIssues,
 } from '../strategyBounds.js';
 
 // Re-exported so server-side callers have a single import for the schema and
@@ -43,23 +43,6 @@ const season = z.number().int().min(MIN_SEASON).max(MAX_SEASON);
 const americanOdds = z.number().finite().min(-MAX_AMERICAN_ODDS).max(MAX_AMERICAN_ODDS);
 const points = (max: number) => z.number().finite().min(0).max(max);
 const money = (max: number) => z.number().finite().positive().max(max);
-
-/** A min/max pair is only a filter if the min is not above the max. */
-function requireOrdered(
-  ctx: z.RefinementCtx,
-  min: number | undefined,
-  max: number | undefined,
-  maxField: string,
-  label: string,
-) {
-  if (min !== undefined && max !== undefined && min > max) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: [maxField],
-      message: `${label} maximum must be greater than or equal to the minimum`,
-    });
-  }
-}
 
 // Unknown keys are stripped rather than rejected (Zod's default), so what
 // reaches the engine is exactly the shape below and nothing a caller appended.
@@ -111,9 +94,20 @@ export const strategySchema = z
       });
     }
 
-    requireOrdered(ctx, s.oddsMin, s.oddsMax, 'oddsMax', 'Odds');
-    requireOrdered(ctx, s.spreadMin, s.spreadMax, 'spreadMax', 'Spread');
-    requireOrdered(ctx, s.totalMin, s.totalMax, 'totalMax', 'Total');
+    // A total backs no team, so a streak filter has nothing to read. The engine used to
+    // ignore it and return the unfiltered run under a filtered label (audit BUG-06).
+    if (s.betType === 'totals' && s.streakFilter !== 'any') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['streakFilter'],
+        message: "totals bets take no streak filter: use 'any'",
+      });
+    }
+
+    // A min/max pair is only a filter if the min is not above the max.
+    for (const { field, message } of rangeIssues(s)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message });
+    }
   });
 
 /**

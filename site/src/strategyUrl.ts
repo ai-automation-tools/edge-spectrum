@@ -105,7 +105,8 @@ export function strategyFromQuery(search: string | URLSearchParams): Strategy {
   return {
     sport: pick(get('sport'), SPORTS) ?? d.sport,
     startYear, endYear, betType, sideSelection,
-    streakFilter: pick(get('streakFilter'), STREAK_FILTERS) ?? d.streakFilter,
+    // The schema rejects a streak filter on a total.
+    streakFilter: (betType === 'totals' ? undefined : pick(get('streakFilter'), STREAK_FILTERS)) ?? d.streakFilter,
     unitSize, startingBankroll,
     oddsMin, oddsMax, spreadMin, spreadMax, totalMin, totalMax,
   };

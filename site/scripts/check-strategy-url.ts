@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import { DEFAULT_STRATEGY, strategyFromQuery, strategyToQuery } from '../src/strategyUrl';
 import { validateStrategy } from '../src/server/strategySchema';
+import { rangeIssues } from '../src/strategyBounds';
 import type { Strategy } from '../src/types';
 
 const accepted = (s: Strategy, label: string) => {
@@ -45,6 +46,22 @@ assert.equal(s2.endYear, 2024);                        // clamped up to startYea
 assert.equal(s2.oddsMin, undefined);                   // inverted pair dropped
 assert.equal(s2.oddsMax, undefined);
 assert.equal(s2.spreadMin, 3);                         // one-sided filter kept
+
+// A total backs no team, so it takes no streak filter (audit BUG-06): the schema says so
+// instead of running the unfiltered bets under a filtered label, and a link degrades to 'any'.
+const totals: Strategy = { ...DEFAULT_STRATEGY, betType: 'totals', sideSelection: 'over' };
+accepted(totals, 'totals, no streak filter');
+assert.deepEqual(validateStrategy({ ...totals, streakFilter: 'hot_streak_3plus' }).errors,
+  ["streakFilter: totals bets take no streak filter: use 'any'"]);
+assert.equal(strategyFromQuery('betType=totals&side=over&streak=hot_streak_3plus').streakFilter, 'any');
+assert.equal(strategyFromQuery('betType=spread&streak=hot_streak_3plus').streakFilter, 'hot_streak_3plus');
+
+// The form and the schema share one rule for a min above its max (audit BUG-16): what the
+// form blocks is exactly what the endpoint would reject, in the same words.
+const inverted = { ...DEFAULT_STRATEGY, oddsMin: 200, oddsMax: 100, totalMin: 9, totalMax: 5 };
+assert.deepEqual(rangeIssues(inverted).map((i) => i.field), ['oddsMax', 'totalMax']);
+assert.deepEqual(validateStrategy(inverted).errors, rangeIssues(inverted).map((i) => `${i.field}: ${i.message}`));
+assert.deepEqual(rangeIssues({ ...DEFAULT_STRATEGY, oddsMin: 100, oddsMax: 100, spreadMin: 3 }), []);
 
 assert.equal(strategyFromQuery('from=2015.5').startYear, DEFAULT_STRATEGY.startYear);
 assert.equal(strategyFromQuery('unit=0').unitSize, DEFAULT_STRATEGY.unitSize);
