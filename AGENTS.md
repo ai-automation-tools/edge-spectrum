@@ -92,8 +92,12 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 - `ADVISOR_PASSCODE` — **required for the AI advisor to work.** The advisor spends a metered key, so
   `/api/strategy-advisor` sits behind a shared-passcode session gate (`site/src/server/auth.ts`). If the var
   is unset the endpoint **fails closed** with `503` and the advisor panel renders as unavailable; every other
-  tool is unaffected. Optional `ADVISOR_SECRET` signs session cookies — when unset it is derived from the
-  passcode, so rotating the passcode invalidates all sessions.
+  tool is unaffected. `ADVISOR_SECRET` signs session cookies and is **also required** (since 2026-11-12):
+  without it the gate counts as unconfigured and answers `503`.
+- Advisor limits live in `auth.ts`: 10 calls an hour per session and per address, and
+  `ADVISOR_DAILY_LIMIT` (default 200) across everyone. They are in process memory, so on serverless
+  they slow abuse rather than cap it; the quota on the Gemini key is the ceiling (roadmap 2.7b).
+  Caller addresses come from forwarding headers only on Vercel or with `TRUST_PROXY=1`.
 
 ## Conventions
 

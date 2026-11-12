@@ -141,7 +141,9 @@ What strategy concept would you like to build? You can outline rules in natural 
         body: JSON.stringify({
           prompt: text,
           currentStrategy
-        })
+        }),
+        // A little past the server's own model timeout, so its message arrives first.
+        signal: AbortSignal.timeout(30_000),
       });
 
       // The session can expire mid-conversation — drop back to the lock screen
@@ -160,11 +162,13 @@ What strategy concept would you like to build? You can outline rules in natural 
       }
 
       if (!response.ok) {
-        throw new Error('Advisor API request failed');
+        // The server says what went wrong (rate limit, timeout, unreadable reply): show that.
+        const body = await response.json().catch(() => null);
+        throw new Error(typeof body?.error === 'string' ? body.error : '');
       }
 
       const data = await response.json();
-      
+
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.analysis,
@@ -174,13 +178,10 @@ What strategy concept would you like to build? You can outline rules in natural 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: '⚠️ **System Error**: I am unable to reach the server-side Gemini node. Check that `GEMINI_API_KEY` is set in the deployment environment, then retry.'
-        }
-      ]);
+      const reason = (err as Error)?.name === 'TimeoutError'
+        ? 'The advisor did not answer in time. Try again.'
+        : (err as Error)?.message || 'The advisor could not be reached. Check your connection and try again.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: `⚠️ ${reason}` }]);
     } finally {
       setIsGenerating(false);
     }
