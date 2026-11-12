@@ -2,6 +2,19 @@
 
 ---
 
+## November 12, 2026 — Spectrum: the "Where do I sit?" form keeps its values, and a row name is text
+
+From the 2026-11-11 project audit (BUG-25, BUG-33).
+
+- **Form (BUG-25).** Hovering a bar, a Play tick, a search or a filter redrew the inspector and
+  rebuilt the open form, wiping what the reader had typed. An open form is now left alone until it
+  is submitted or cancelled. Arrow keys in its "Start from a game" list no longer step the horizon.
+- **Row name (BUG-33).** The name a reader gives their row, which a shared link carries, went into
+  the chart's bar label as Plotly markup, so `<a href=…>` made a link. It is escaped now and shows as
+  written. `esc` now writes a double quote as `&#34;`: Plotly decodes numeric entities but not `&quot;`.
+- **Check** `check:spectrum-browser` fills the form, hovers a bar, plays one tick and presses an
+  arrow in the list, then loads a link whose name is a link tag. All five cases failed on the old page.
+
 ## November 12, 2026 — Roadmap: audit follow-ups brought up to date
 
 Docs only.

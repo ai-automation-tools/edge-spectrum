@@ -966,7 +966,8 @@ function fmtDuration(days) {
     if (days < 730) return fmtNum(days / 30.44) + ' months';
     return fmtNum(days / 365) + ' years';
 }
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Numeric quotes, not &quot;: Plotly's chart text decodes only a few named entities, numeric ones all.
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&#34;',"'":'&#39;'}[c]));
 const signColor = v => v === null ? 'var(--text-dim)' : v >= 0 ? 'var(--success)' : 'var(--danger)';
 
 // Chart and inspector colours follow the theme switch in the nav. Plotly takes literal colours,
@@ -1057,7 +1058,7 @@ function renderChart(data) {
     const traces = [{
         type: 'bar', x: names, y: vals, customdata: data,
         marker: { color: colors, opacity, line: { color: lineC, width: lineW } },
-        text: data.map(d => d.you ? '▼ ' + d.n : showLabels && !(S.m === 'roc' && isRuined(d)) ? formatValue(val(d)) : ''),
+        text: data.map(d => d.you ? '▼ ' + esc(d.n) : showLabels && !(S.m === 'roc' && isRuined(d)) ? formatValue(val(d)) : ''),
         textposition: 'outside', cliponaxis: false, constraintext: 'none',
         textfont: { family: 'JetBrains Mono', size: 9, color: data.map(d => d.you ? P.pin : P.tick) },
         hovertext: hover, hoverinfo: 'text'
@@ -1350,7 +1351,8 @@ function renderCompare() {
     inspEl.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { S.pin = b.dataset.pin; update(); });
 }
 function renderInspector(data) {
-    if (S.form) return renderForm();
+    // An open form is never rebuilt: a hover, a Play tick or a filter would wipe what the reader typed.
+    if (S.form) { if (!document.getElementById('youForm')) renderForm(); return; }
     if (S.pin && findRow(S.pin)) return renderItem(findRow(S.pin), true);
     if (hovered) return renderItem(hovered, false);
     if (S.cmp.length) return renderCompare();
@@ -1558,7 +1560,7 @@ function init() {
     });
 
     document.addEventListener('keydown', e => {
-        const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+        const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
         if (e.key === 'Escape') { if (S.form) { S.form = false; update(); } else if (typing) { document.activeElement.blur(); } else if (S.pin) { S.pin = null; update(); } return; }
         if (typing) return;
         if (e.key === '/') { e.preventDefault(); document.getElementById('q').focus(); return; }
