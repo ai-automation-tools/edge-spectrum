@@ -4,7 +4,7 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/(backtester|odds|parlay|setup)/?", "destination": "/index.html" }
   ],
   "headers": [
     {
