@@ -2,6 +2,37 @@
 
 ---
 
+## November 12, 2026 — Audit fixes, second batch: speed, advisor limits, accessibility, hardening
+
+From the 2026-11-11 project audit (30-day items).
+
+- **Speed** The home page loads 138 kB gzip of JavaScript instead of 324 kB: each tool page and the
+  markdown parser are separate chunks and the fade-in uses the slim motion build. The largest backtest
+  response drops from 2.98 MB to about 250 kB: the equity curve ships at most 1,500 points, keeping
+  each slice's low and high. Fonts load from a `<link>`, not a CSS `@import`.
+- **Advisor** `ADVISOR_SECRET` is now **required** in full mode; without it the advisor answers 503
+  (self-hosters who set only a passcode must add it). 10 calls an hour per session and per address,
+  `ADVISOR_DAILY_LIMIT` (default 200) a day, a 20 s model timeout, an output cap and a 7-day session.
+  The model's reply is validated on the server: an unreadable reply is a 502 with a plain message, and
+  a suggested template the backtester would reject is dropped. Limits live in process memory.
+- **Lockout** Failed passcodes also count across all clients, and forwarding headers are trusted only on
+  Vercel or with `TRUST_PROXY=1`, so a new `X-Forwarded-For` per guess no longer dodges it.
+- **Accessibility** No text under 4.5:1 in either theme on any page (muted greys lightened, the primary
+  button and the Spectrum page's pressed buttons and footer fixed, an 11px floor on the Spectrum page).
+  Nothing scrolls sideways at 320 px. Each route has its own title and description and moves focus to
+  its heading. A render error shows a message instead of a blank page.
+- **Site** Unknown paths are a real 404 with a not-found page (they used to return the home page with
+  a 200). Added `robots.txt`, `sitemap.xml`, a share image and metadata for the Spectrum page.
+- **Hardening** `Permissions-Policy`, and a full Content-Security-Policy in **report-only** mode: zero
+  violations across every page and theme locally. Enforcing it is a later, one-line change.
+- **Operations** The daily workflow also runs after each production deploy and checks the live site:
+  routes, 404s, the dataset, a backtest, and that the public demo is still in demo mode. Rollback steps
+  are in `docs/self-hosting.md`; `AGENTS.md` names merge-to-main as the only deploy path.
+- **ESPN** README, both Cronsole templates and `UPSTREAMS.md` state that the ESPN endpoint is unofficial,
+  that the collector is for personal low-volume use, and that this project does not publish captured lines.
+- **Checks** New `check:bundle`; `check:engine` holds the response budget; `check:deployment` covers the
+  advisor limits, the lockout and reply validation through the real handler with a stubbed model.
+
 ## November 12, 2026 — Audit fixes, first batch: engine, form, API input, docs
 
 From the 2026-11-11 project audit (immediate and 7-day items).

@@ -55,7 +55,8 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
     data/edges.ts      # THE DATASET — the canonical 240 edge records. Everything else that
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
-  scripts/            # not shipped: check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
+  scripts/            # not shipped: check-bundle.mjs (after build), check-live.mjs (the deployed site, run by the
+                      #   Registry drift workflow daily and after each production deploy), check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
                       #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
                       #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
                       #   templates there, never the output; --check in CI. check-registry-published.mjs
@@ -113,6 +114,16 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `npm run check:engine` holds both; `check:market` only holds the ROI band.
 - Route input handling lives in `src/server/` (`backtestRoute`, `espnScoreboardRoute`), which return
   `{ status, body }`. `server.ts` and `api/*.ts` only pass the request through and send the result.
+- **Client routes are listed in four places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
+  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, and `site/public/sitemap.xml`. A
+  route missing from the rewrite is a 404 in production while working in dev. Tool pages are `lazy()`
+  chunks; `npm run check:bundle` (after `build`) holds the home page's JS under 150 kB gzip.
+- **Content-Security-Policy is report-only** (`site/vercel.json`, since 2026-11-12): a strict policy for
+  the app and a looser one for `/spectrum/` and `/diagram/`, whose scripts are inline. The app's inline
+  theme script is allowed by hash and `check:bundle` fails if the two drift. Enforcing it is a one-word
+  header rename once production shows no reports; a new third-party origin goes in the policy first.
+- Muted text uses `text-zinc-500` / `text-zinc-600`, which `index.css` lightens on dark so they clear
+  4.5:1. Do not reach for a dimmer colour for body-size text.
 - Untrusted request bodies get a Zod schema in `site/src/server/`, reached through the shared
   `src/server/` module both entry points already call — not re-checked in each route handler.
 - The static `site/public/spectrum/` page is self-contained for serving (Plotly self-hosted as
@@ -133,7 +144,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
-  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
+  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:bundle` → `check:spectrum-browser` on every PR.
   `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page (`vite preview` on
   `dist/`), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level
