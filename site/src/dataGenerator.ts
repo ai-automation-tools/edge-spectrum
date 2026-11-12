@@ -504,6 +504,35 @@ function poissonMarket(lambdaHome: number, lambdaAway: number): Market {
   return market;
 }
 
+/** The calendar date of the i-th scheduled slot. Not monotonic in i: sort before use. */
+function scheduleDate(sport: SportType, year: number, i: number, gameCount: number): string {
+  const iso = (y: number, m: number, d: number) =>
+    `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  if (sport === 'NFL') {
+    const week = Math.floor(i / 16) + 1;
+    const month = week < 5 ? 10 : week < 9 ? 11 : week < 14 ? 12 : 1;
+    return iso(month === 1 ? year + 1 : year, month, ((i * 3) % 28) + 1);
+  }
+  const day = ((i * 13) % 28) + 1;
+  if (sport === 'NBA' || sport === 'NHL') {
+    const months = [10, 11, 12, 1, 2, 3, 4, 5];
+    const month = months[Math.floor((i / gameCount) * months.length)] || 11;
+    return iso(month < 9 ? year + 1 : year, month, day);
+  }
+  const months = [4, 5, 6, 7, 8, 9, 10];
+  return iso(year, months[Math.floor((i / gameCount) * months.length)] || 5, day);
+}
+
+/**
+ * A team's streak after one more result: positive is consecutive wins,
+ * negative consecutive losses. A result against the run starts a new one at
+ * +1 or -1 rather than nudging the old count toward zero.
+ */
+export function nextStreak(streak: number, won: boolean): number {
+  if (won) return streak > 0 ? streak + 1 : 1;
+  return streak < 0 ? streak - 1 : -1;
+}
+
 // Generate complete schedule of games for a sport and season
 export function generateGamesDatabase(sport: SportType, year: number): Game[] {
   const teams = TEAMS[sport];
@@ -521,38 +550,29 @@ export function generateGamesDatabase(sport: SportType, year: number): Game[] {
     teamLastGameDate[t] = "";
   });
 
+  // The schedule's dates, sorted, so the loop below runs in date order. Rest
+  // days and streaks are carried from one game to the next, and prices are set
+  // from them, so generating out of date order made both describe games the
+  // team had not played yet (audit BUG-01). ISO dates sort as strings.
+  const dates = Array.from({ length: gameCount }, (_, i) => scheduleDate(sport, year, i, gameCount)).sort();
+
   for (let i = 0; i < gameCount; i++) {
-    const homeIdx = Math.floor(rng() * teams.length);
+    const dateStr = dates[i];
+    // A team plays at most once a day. A date carries a handful of games at
+    // most, so a free pair always exists and the redraw ends quickly.
+    let homeIdx = Math.floor(rng() * teams.length);
     let awayIdx = Math.floor(rng() * teams.length);
-    while (awayIdx === homeIdx) {
+    while (
+      awayIdx === homeIdx ||
+      teamLastGameDate[teams[homeIdx]] === dateStr ||
+      teamLastGameDate[teams[awayIdx]] === dateStr
+    ) {
+      homeIdx = Math.floor(rng() * teams.length);
       awayIdx = Math.floor(rng() * teams.length);
     }
 
     const homeTeam = teams[homeIdx];
     const awayTeam = teams[awayIdx];
-
-    let dateStr = "";
-    if (sport === 'NFL') {
-      const week = Math.floor(i / 16) + 1;
-      const monthIndex = week < 5 ? 10 : week < 9 ? 11 : week < 14 ? 12 : 1;
-      const yearOffset = monthIndex === 1 ? year + 1 : year;
-      const day = ((i * 3) % 28) + 1;
-      dateStr = `${yearOffset}-${String(monthIndex).padStart(2, '0')}-${String(day).padStart(2, '0')}`;     
-    } else {
-      let actualMonth = 1;
-      let actualYear = year;
-      if (sport === 'NBA' || sport === 'NHL') {
-        const months = [10, 11, 12, 1, 2, 3, 4, 5];
-        const m = months[Math.floor((i / gameCount) * months.length)] || 11;
-        actualMonth = m;
-        if (m < 9) actualYear = year + 1;
-      } else {
-        const months = [4, 5, 6, 7, 8, 9, 10];
-        actualMonth = months[Math.floor((i / gameCount) * months.length)] || 5;
-      }
-      const day = ((i * 13) % 28) + 1;
-      dateStr = `${actualYear}-${String(actualMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    }
 
     const homeLastDate = teamLastGameDate[homeTeam];
     const awayLastDate = teamLastGameDate[awayTeam];
@@ -640,18 +660,14 @@ export function generateGamesDatabase(sport: SportType, year: number): Game[] {
       awayRestDays
     });
 
-    if (homeScore > awayScore) {
-      teamWinStreaks[homeTeam] = (teamWinStreaks[homeTeam] || 0) + 1;
-      teamWinStreaks[awayTeam] = Math.min(0, (teamWinStreaks[awayTeam] || 0) - 1);
-    } else {
-      teamWinStreaks[awayTeam] = (teamWinStreaks[awayTeam] || 0) + 1;
-      teamWinStreaks[homeTeam] = Math.min(0, (teamWinStreaks[homeTeam] || 0) - 1);
-    }
+    const homeWon = homeScore > awayScore;
+    teamWinStreaks[homeTeam] = nextStreak(homeStreak, homeWon);
+    teamWinStreaks[awayTeam] = nextStreak(awayStreak, !homeWon);
     teamLastGameDate[homeTeam] = dateStr;
     teamLastGameDate[awayTeam] = dateStr;
   }
 
-  return games.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return games; // already in date order
 }
 
 // Convert American Odds to Decimal Multiplier
@@ -687,12 +703,16 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
   let currentBankroll = strategy.startingBankroll;
   let peakBankroll = strategy.startingBankroll;
   let maxDrawdown = 0;
+  let maxDrawdownPct = 0;
+  let bustedAtBet: number | undefined;
+  let bustedOn: string | undefined;
 
   const simulatedGames: SimulatedBetGame[] = [];
   const profitHistory: ProfitHistoryPoint[] = [];
   const decidedOdds: number[] = []; // unrounded decimal price of every win or loss — pushes carry no hit-rate information
 
   allGames.forEach((game) => {
+    if (bustedAtBet !== undefined) return;
     let shouldBet = false;
     let betPlacedText = '';
     let odds = 100;
@@ -881,6 +901,14 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
       }
     }
 
+    // A bankroll that cannot cover the stake is finished: no reloading, so the
+    // final bankroll never goes below zero and drawdown never passes 100%.
+    if (shouldBet && currentBankroll < strategy.unitSize) {
+      bustedAtBet = totalBets;
+      bustedOn = game.date;
+      return;
+    }
+
     if (shouldBet) {
       totalBets++;
       const decimalOdds = americanToDecimalOdds(odds);
@@ -899,6 +927,8 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
       if (currentBankroll > peakBankroll) peakBankroll = currentBankroll;
       const dd = peakBankroll - currentBankroll;
       if (dd > maxDrawdown) maxDrawdown = dd;
+      // Against the peak in force at the time, not whatever peak the run ends on.
+      if (peakBankroll > 0 && dd / peakBankroll > maxDrawdownPct) maxDrawdownPct = dd / peakBankroll;
       simulatedGames.push({
         id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), status: isWinOutcome
       });
@@ -925,9 +955,10 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
   const pct = (x: number) => parseFloat((x * 100).toFixed(2));
 
   const summary: BacktestSummary = {
-    sport: strategy.sport, startYear: strategy.startYear, endYear: strategy.endYear, totalBets, wonBets, lostBets, pushedBets, winRate: parseFloat(winRate.toFixed(2)), totalWagered: parseFloat(totalWagered.toFixed(2)), totalReturn: parseFloat(totalReturn.toFixed(2)), netProfit: parseFloat(netProfit.toFixed(2)), roi: parseFloat(roi.toFixed(2)), avgOdds: parseFloat(avgOdds.toFixed(3)), maxDrawdown: parseFloat(maxDrawdown.toFixed(2)), maxDrawdownPercent: parseFloat((peakBankroll > 0 ? (maxDrawdown / peakBankroll) * 100 : 0).toFixed(2)), kellyPercentage, finalBankroll: parseFloat(currentBankroll.toFixed(2)),
+    sport: strategy.sport, startYear: strategy.startYear, endYear: strategy.endYear, totalBets, wonBets, lostBets, pushedBets, winRate: parseFloat(winRate.toFixed(2)), totalWagered: parseFloat(totalWagered.toFixed(2)), totalReturn: parseFloat(totalReturn.toFixed(2)), netProfit: parseFloat(netProfit.toFixed(2)), roi: parseFloat(roi.toFixed(2)), avgOdds: parseFloat(avgOdds.toFixed(3)), maxDrawdown: parseFloat(maxDrawdown.toFixed(2)), maxDrawdownPercent: parseFloat((maxDrawdownPct * 100).toFixed(2)), kellyPercentage, finalBankroll: parseFloat(currentBankroll.toFixed(2)),
     breakevenWinRate: pct(breakeven), winRateLow: pct(ciLow), winRateHigh: pct(ciHigh),
     pValue: decided > 0 ? binomialUpperTail(wonBets, decided, breakeven) : 1,
+    ...(bustedAtBet !== undefined && { bustedAtBet, bustedOn }),
   };
 
   return {
@@ -982,7 +1013,7 @@ export function marketDiagnostics(startYear = 2000, endYear = 2025): MarketDiagn
         sideSelection: testCase.sideSelection,
         streakFilter: 'any',
         unitSize: 100,
-        startingBankroll: 10000,
+        startingBankroll: 1_000_000_000, // never busts: the check wants the whole sample
       });
       out.push({
         sport,
