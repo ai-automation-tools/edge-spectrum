@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 /*
@@ -272,3 +271,6 @@ kbd.key { font-family: var(--font-mono); font-size: 10.5px; padding: 2px 5px; bo
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* A heading focused by the router after a navigation is a landing point, not a control. */
+h1[tabindex="-1"]:focus { outline: none; }

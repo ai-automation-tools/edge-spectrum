@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Strategy, StrategyTemplate } from '../types';
 import { Send, Sparkles, HelpCircle, ArrowUpRight, BrainCircuit, Play, History, RotateCcw, Lock, LoaderCircle, KeyRound } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
 import { useDeployment } from '../deployment';
 import DemoAdvisor from './DemoAdvisor';
+
+// Only an unlocked advisor renders markdown, so the demo never downloads the parser.
+const ReactMarkdown = lazy(() => import('react-markdown'));
 
 interface Message {
   role: 'user' | 'assistant';
@@ -306,7 +308,7 @@ What strategy concept would you like to build? You can outline rules in natural 
                 }`}
               >
                 <div className="markdown-body">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                  <Suspense fallback={<p>{m.content}</p>}><ReactMarkdown>{m.content}</ReactMarkdown></Suspense>
                 </div>
 
                 {/* Templates rendering */}
