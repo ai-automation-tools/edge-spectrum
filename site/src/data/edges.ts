@@ -69,7 +69,7 @@ export type GameEdge = Provenance & {
   cat: EdgeCategory;
   m: 'g';
   ly: EdgeLayer;
-  /** Edge per decision, percent. Negative for every game in this dataset. */
+  /** Edge per decision, percent. Negative for most rows; a few skilled-play rows are positive on purpose. */
   e: number;
   /** Decisions per day at typical play. */
   du: number;

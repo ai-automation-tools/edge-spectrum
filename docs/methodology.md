@@ -46,7 +46,7 @@ For repeated wagering, linear multiplication calculates total expected loss as a
 
 $$C_{\text{turn}}(t) = \text{DU} \times \text{Days}(t) \times \left(\frac{\text{CED}}{100}\right) \times E$$
 
-- **Unbounded Nature:** Without an explicit bankroll floor, high-frequency negative-edge activities reach theoretical losses of $-1,000\%$ to $-136,875\%$ over multi-year horizons. (The worst case in the 187-record dataset is *Slots Tight 85%* at ten years.)
+- **Unbounded Nature:** Without an explicit bankroll floor, high-frequency negative-edge activities reach theoretical losses of $-1,000\%$ to $-136,875\%$ over multi-year horizons. (The worst case in the dataset is *Slots Tight 85%* at ten years.)
 - **The Physical Interpretation:** These values do not represent a rate of return; they measure **cumulative turnover friction**. A loss beyond $-100\%$ implies that the player replenished their bankroll multiple times after going broke.
 - **Defined only where there is turnover.** A held asset has none, so it carries no value for this metric rather than a fabricated one.
 
@@ -57,7 +57,7 @@ $$N_{\text{ruin}} \approx \frac{B_0}{\text{Bet Size} \times |E|} \;=\; \frac{100
 
 The right-hand form is what the visualizer evaluates, expressing bankroll and stake as percentages so no notional dollar amount has to be assumed. A losing **held** asset never literally reaches zero under geometric decay, so its analogue is the time to lose 90%: $t_{90} = \ln(0.1) / \ln(1 + r_{\text{ann}}/100)$.
 
-**These three are consistent by construction.** $C_{\text{turn}}$ passes $-100\%$ at exactly $N_{\text{ruin}}$ decisions, which is exactly where $R_{\text{cap}}$ reaches its floor — so the floored bar and the ruin marker are the same statement made twice. `npm run check:spectrum` asserts that agreement across all 228 records and 7 horizons.
+**These three are consistent by construction.** $C_{\text{turn}}$ passes $-100\%$ at exactly $N_{\text{ruin}}$ decisions, which is exactly where $R_{\text{cap}}$ reaches its floor — so the floored bar and the ruin marker are the same statement made twice. `npm run check:spectrum` asserts that agreement across every record and 7 horizons.
 
 ### Metric D: Ruin Risk and Kelly Multiple (positive edges only)
 

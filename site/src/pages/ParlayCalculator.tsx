@@ -112,13 +112,13 @@ export default function ParlayCalculator() {
                   return (
                     <tr key={leg.id} className="border-t border-zinc-800/60">
                       <td className="py-2 pr-3">
-                        <input value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
+                        <input aria-label={`Leg ${i + 1} name`} value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
                       </td>
                       <td className="py-2 pr-3">
-                        <input value={leg.side} onChange={(e) => update(leg.id, { side: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badSide ? 'border-rose-500/60' : ''}`} />
+                        <input aria-label={`${leg.label || `Leg ${i + 1}`} price`} aria-invalid={badSide} value={leg.side} onChange={(e) => update(leg.id, { side: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badSide ? 'border-rose-500/60' : ''}`} />
                       </td>
                       <td className="py-2 pr-3">
-                        <input value={leg.other} onChange={(e) => update(leg.id, { other: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badOther ? 'border-rose-500/60' : ''}`} />
+                        <input aria-label={`${leg.label || `Leg ${i + 1}`} other side price`} aria-invalid={badOther} value={leg.other} onChange={(e) => update(leg.id, { other: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badOther ? 'border-rose-500/60' : ''}`} />
                       </td>
                       <td className="py-2 pr-3 text-right text-zinc-400">{p ? pct(p.implied) : '—'}</td>
                       <td className="py-2 pr-3 text-right text-zinc-100">{p ? pct(p.fair) : '—'}</td>

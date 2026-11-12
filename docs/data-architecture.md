@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/records-234_canonical-8B5CF6?style=for-the-badge" alt="Records: 234">
+  <img src="https://img.shields.io/badge/dataset-one_canonical_source-8B5CF6?style=for-the-badge" alt="Dataset: one canonical source">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-Docs_Home-6B7280?style=for-the-badge" alt="Docs Home"></a>
 </p>
 
@@ -17,7 +17,7 @@
 typed TypeScript source; the three former hand-maintained copies are now generated artifacts:
 
 ```
-site/src/data/edges.ts (Typed canonical dataset: 234 records)  ← edit only this
+site/src/data/edges.ts (Typed canonical dataset)  ← edit only this
           │
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
@@ -39,7 +39,7 @@ actually deploys. The generator owns that block; the page still ships it.
 
 Only fields that carry information are stored. The visualizer's `g`, `type`, `vol`, `wp` and `sk`
 fields are pure functions of `cat` and `m`, so `toSpectrumRow()` re-expands them rather than the
-dataset holding 234 copies of the string `"Varies"`. Addiction risk is likewise per-category
+dataset holding one copy per record of the string `"Varies"`. Addiction risk is likewise per-category
 (`AR_DEFAULT`), not per-record.
 
 ```typescript
@@ -68,7 +68,7 @@ export const EDGES: readonly EdgeRecord[];
 
 ### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-Every record may carry an optional citation. 47 of the 237 do: the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
+Every record may carry an optional citation. A minority do (the `withSource` count in `site/src/data/provenance-baseline.json`): the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
 Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
 rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old.
@@ -86,27 +86,27 @@ export type Provenance = {
 
 ## 📊 2. The 15 Asset & Wagering Categories
 
-The canonical dataset spans 234 records across 15 categories. Category names below are the exact
-`cat` values in `edges.ts`; counts are generated into [`data/edge_dataset.md`](../data/edge_dataset.md)
+The canonical dataset spans 15 categories. Category names below are the exact
+`cat` values in `edges.ts`; record counts are not repeated here, they are generated into [`data/edge_dataset.md`](../data/edge_dataset.md)
 and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
-| Category | Model | Records | Representative Items |
-| :--- | :--- | ---: | :--- |
-| **📈 Stock Market** | `i` compound | 32 | NASDAQ 100 (QQQ), S&P 500 (SPY/VOO), Penny Stocks, and the fee/tax ladder on SPY |
-| **💵 Cash & Savings** | `i` compound | 17 | Money Market Fund (SPAXX/VMFXX), High-Yield Savings, T-Bills, Checking |
-| **🏛️ Bonds** | `i` compound | 17 | High-Yield Corporate (HYG/JNK), Private Credit / BDCs, Treasuries, Munis |
-| **🏢 Real Estate** | `i` compound | 12 | Multi-Unit Apartments (5+), Industrial / Warehouse, Single Family Rental, Timeshares |
-| **🪙 Cryptocurrency** | `i` compound | 13 | Bitcoin Spot and the IBIT fee layer, Staked Ethereum, Leveraged Perps, Meme Coins |
-| **🎨 Collectibles** | `i` compound | 10 | Vintage Sports Cards (PSA 10), Blue-Chip Fine Art, Watches, NFTs |
-| **🥇 Precious Metals** | `i` compound | 12 | Gold Bullion (GLD), Silver (SLV), Platinum (PPLT), Mining Equities (GDX/GDXJ) |
-| **🛡️ Insurance & Annuities** | `i` compound | 11 | Variable Annuity, Indexed Universal Life, Whole Life Cash Value, MYGA |
-| **📉 Trading & Derivatives** | mixed | 10 | Covered Call ETFs, Put Writing, Managed Futures, TQQQ / SQQQ held, Retail Day Trading, Forex / CFDs, 0DTE, Binary Options |
-| **🏈 Sports Betting** | `g` linear | 22 | Spread (−110), Reduced Juice (−105), Betting Exchange, Sharp Bettor (+2% CLV), Micro-Bets, up to 10-Team Parlay |
-| **🐎 Horse Racing & Pari-Mutuel** | `g` linear | 6 | Win/Place/Show, Exacta, Trifecta / Superfecta, Pick 4 / Pick 6, ADW Rebate, Greyhounds |
-| **🎰 Casino Gambling** | `g` linear | 38 | Card Counting (+1%), Spanish 21, 9/6 Video Poker, Ultimate Texas Hold'em, Sic Bo, Casino War, Online Slots, Crypto Dice, Keno |
-| **♠️ Poker & Skill-Based** | `g` linear | 9 | DFS Top 5%, Skilled Tournaments, Recreational Live, DFS Casual |
-| **🔮 Prediction Markets** | `g` linear | 12 | Polymarket Elections, Kalshi Economic, Metaculus, PredictIt |
-| **🎟️ Lottery** | `g` linear | 13 | Powerball / Mega Millions, EuroMillions, Scratch-Offs, Pull-Tabs, Bingo, 50/50 Raffle |
+| Category | Model | Representative Items |
+| :--- | :--- | :--- |
+| **📈 Stock Market** | `i` compound | NASDAQ 100 (QQQ), S&P 500 (SPY/VOO), Penny Stocks, and the fee/tax ladder on SPY |
+| **💵 Cash & Savings** | `i` compound | Money Market Fund (SPAXX/VMFXX), High-Yield Savings, T-Bills, Checking |
+| **🏛️ Bonds** | `i` compound | High-Yield Corporate (HYG/JNK), Private Credit / BDCs, Treasuries, Munis |
+| **🏢 Real Estate** | `i` compound | Multi-Unit Apartments (5+), Industrial / Warehouse, Single Family Rental, Timeshares |
+| **🪙 Cryptocurrency** | `i` compound | Bitcoin Spot and the IBIT fee layer, Staked Ethereum, Leveraged Perps, Meme Coins |
+| **🎨 Collectibles** | `i` compound | Vintage Sports Cards (PSA 10), Blue-Chip Fine Art, Watches, NFTs |
+| **🥇 Precious Metals** | `i` compound | Gold Bullion (GLD), Silver (SLV), Platinum (PPLT), Mining Equities (GDX/GDXJ) |
+| **🛡️ Insurance & Annuities** | `i` compound | Variable Annuity, Indexed Universal Life, Whole Life Cash Value, MYGA |
+| **📉 Trading & Derivatives** | mixed | Covered Call ETFs, Put Writing, Managed Futures, TQQQ / SQQQ held, Retail Day Trading, Forex / CFDs, 0DTE, Binary Options |
+| **🏈 Sports Betting** | `g` linear | Spread (−110), Reduced Juice (−105), Betting Exchange, Sharp Bettor (+2% CLV), Micro-Bets, up to 10-Team Parlay |
+| **🐎 Horse Racing & Pari-Mutuel** | `g` linear | Win/Place/Show, Exacta, Trifecta / Superfecta, Pick 4 / Pick 6, ADW Rebate, Greyhounds |
+| **🎰 Casino Gambling** | `g` linear | Card Counting (+1%), Spanish 21, 9/6 Video Poker, Ultimate Texas Hold'em, Sic Bo, Casino War, Online Slots, Crypto Dice, Keno |
+| **♠️ Poker & Skill-Based** | `g` linear | DFS Top 5%, Skilled Tournaments, Recreational Live, DFS Casual |
+| **🔮 Prediction Markets** | `g` linear | Polymarket Elections, Kalshi Economic, Metaculus, PredictIt |
+| **🎟️ Lottery** | `g` linear | Powerball / Mega Millions, EuroMillions, Scratch-Offs, Pull-Tabs, Bingo, 50/50 Raffle |
 
 > **Trading & Derivatives** returned on 2026-10-12. V11 had cut **Options & Derivatives** and
 > **Active Trading** as "outlier noise" because a −60%/yr row squashed the old single shared axis
@@ -122,15 +122,18 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 
 1. **`npm run gen:edges -- --check`** — regenerates all three artifacts from `edges.ts` and fails if
    any has drifted. This is what makes "single source of truth" enforceable rather than aspirational.
-2. **`npm run check:spectrum`** — asserts the record count (234), that every row is well-formed for
-   its model, and the mathematical invariants of the three measures over all 234 records × 7 horizons.
+2. **`npm run check:spectrum`** — asserts the record count, that every row is well-formed for
+   its model, and the mathematical invariants of the three measures over every record × 7 horizons.
 
 **Built — roadmap Action 2.3, 2026-09-07.** `site/scripts/check-edges.ts` (`npm run check:edges`, in CI)
 asserts:
 
-1. **Category Invariant:** every `cat` is one of the 15 declared categories, with per-category counts.
-2. **Mathematical Bounds:** no investing annualized return exceeds realistic bounds, and every
-   wagering record has a strictly negative expected value.
+1. **Count, categories and names:** the record count equals the committed baseline, every declared
+   category has at least one record, no record carries an undeclared category, and names are unique.
+2. **Numeric sanity:** an investing row's annual return is finite and above −100%/yr. A wagering row
+   has a finite edge, positive decisions per day, capital exposure in (0, 100], and, where a payout
+   is given, a positive payout above the edge. The sign of the edge is not asserted: a few
+   skilled-play rows (card counting, a sharp bettor) are positive on purpose.
 3. **The Provenance Ratchet:**
    - Provenance metadata (`source`, `asOf`) tracked against a committed baseline (`site/src/data/provenance-baseline.json`).
    - If a pull request adds or updates records, the total count of cited records cannot drop below the baseline.

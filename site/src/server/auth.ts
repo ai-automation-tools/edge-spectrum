@@ -1,4 +1,5 @@
-import { createHmac, createHash, timingSafeEqual, randomUUID } from 'node:crypto';
+import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
+import type { IncomingMessage } from 'node:http';
 import { deploymentMode, demoRestriction } from './deployment.js';
 
 /**
@@ -20,7 +21,7 @@ import { deploymentMode, demoRestriction } from './deployment.js';
 export const SESSION_COOKIE = 'es_advisor';
 
 /** How long an unlocked session stays valid. */
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 /** Hard cap on advisor prompt length — the same abuse vector as an open endpoint. */
 export const MAX_PROMPT_CHARS = 1000;
@@ -36,25 +37,42 @@ function passcode(): string | null {
  * *closed* (503) rather than open — an unset env var must never expose the key.
  */
 export function isAuthConfigured(): boolean {
-  return deploymentMode() === 'full' && passcode() !== null;
+  return deploymentMode() === 'full' && passcode() !== null && signingSecret() !== null;
 }
 
 /**
- * Secret used to sign session tokens. Prefers an explicit ADVISOR_SECRET; falls
- * back to a hash of the passcode, which conveniently means rotating the
- * passcode invalidates every session that was issued under the old one.
+ * Secret used to sign session tokens. Required: it used to fall back to a hash
+ * of the passcode, which let anyone holding a cookie test passcode guesses
+ * offline. Without it the gate counts as unconfigured and fails closed.
  */
-function signingSecret(): string {
-  const explicit = process.env.ADVISOR_SECRET;
-  if (explicit && explicit.length > 0) return explicit;
-  return createHash('sha256').update(`es-advisor:${passcode() ?? ''}`).digest('hex');
+function signingSecret(): string | null {
+  const value = process.env.ADVISOR_SECRET;
+  return value && value.length > 0 ? value : null;
 }
 
-/** Constant-time string compare that doesn't leak length via early return. */
+const NOT_CONFIGURED: GateResult = {
+  status: 503,
+  body: {
+    error:
+      'The AI advisor is not configured on this deployment. Set ADVISOR_PASSCODE and ADVISOR_SECRET to enable it.',
+  },
+};
+
+/**
+ * Constant-time string compare. Both sides are copied into buffers of one fixed
+ * size, so the time taken depends on neither value nor on how long the secret
+ * is. No hashing: this compares, it does not store.
+ */
+const COMPARE_BYTES = 1024;
 function safeEqual(a: string, b: string): boolean {
-  const aHash = createHash('sha256').update(a).digest();
-  const bHash = createHash('sha256').update(b).digest();
-  return timingSafeEqual(aHash, bHash);
+  const left = Buffer.from(a, 'utf8');
+  const right = Buffer.from(b, 'utf8');
+  if (left.length > COMPARE_BYTES || right.length > COMPARE_BYTES) return false;
+  const paddedLeft = Buffer.alloc(COMPARE_BYTES);
+  const paddedRight = Buffer.alloc(COMPARE_BYTES);
+  left.copy(paddedLeft);
+  right.copy(paddedRight);
+  return timingSafeEqual(paddedLeft, paddedRight) && left.length === right.length;
 }
 
 /** Check a user-supplied passcode against the configured one. */
@@ -66,7 +84,7 @@ export function verifyPasscode(input: unknown): boolean {
 }
 
 function sign(payload: string): string {
-  return createHmac('sha256', signingSecret()).update(payload).digest('hex');
+  return createHmac('sha256', signingSecret() ?? '').update(payload).digest('hex');
 }
 
 /** Mint a session token of the form `<expiry>.<nonce>.<hmac>`. */
@@ -135,49 +153,83 @@ export function buildClearCookie(): string {
 }
 
 /**
- * Best-effort brute-force damper, keyed by IP. Serverless instances are
- * short-lived so this is not a hard limit — it just makes online guessing
- * expensive enough to be pointless against a decent passcode. Durable
- * rate limiting (Upstash/Vercel KV) is tracked in docs/ideas/hub_improvement_plan.md.
+ * Fixed-window counters, in process memory.
+ *
+ * ponytail: per-instance memory. On serverless each warm instance counts on
+ * its own and a cold start forgets, so these slow abuse rather than cap it;
+ * the hard ceiling is the quota on the Gemini key (roadmap Action 2.7b). Swap
+ * the Map for a shared key-value store when one is chosen.
+ */
+class WindowCounter {
+  private entries = new Map<string, { count: number; first: number }>();
+  constructor(private windowMs: number) {}
+
+  /** Drop expired entries, so the map only ever holds live windows. */
+  private sweep(): void {
+    const cutoff = Date.now() - this.windowMs;
+    for (const [key, entry] of this.entries) if (entry.first <= cutoff) this.entries.delete(key);
+  }
+  count(key: string): number { this.sweep(); return this.entries.get(key)?.count ?? 0; }
+  total(): number { this.sweep(); let n = 0; for (const e of this.entries.values()) n += e.count; return n; }
+  add(key: string): void {
+    this.sweep();
+    const entry = this.entries.get(key);
+    if (entry) entry.count += 1;
+    else this.entries.set(key, { count: 1, first: Date.now() });
+  }
+  delete(key: string): void { this.entries.delete(key); }
+  get size(): number { this.sweep(); return this.entries.size; }
+  clear(): void { this.entries.clear(); }
+}
+
+/**
+ * Brute-force damper on the passcode: per client, and across all clients, so
+ * spreading guesses over many addresses hits the second limit. That ceiling
+ * also bounds the map, since nothing is recorded once it is reached.
  */
 const FAILURE_WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES = 8;
-const failures = new Map<string, { count: number; first: number }>();
+const MAX_FAILURES_ALL_CLIENTS = 40;
+const failures = new WindowCounter(FAILURE_WINDOW_MS);
 
 export function isLockedOut(ip: string): boolean {
-  const entry = failures.get(ip);
-  if (!entry) return false;
-  if (Date.now() - entry.first > FAILURE_WINDOW_MS) {
-    failures.delete(ip);
-    return false;
+  return failures.count(ip) >= MAX_FAILURES || failures.total() >= MAX_FAILURES_ALL_CLIENTS;
+}
+export function recordFailure(ip: string): void { failures.add(ip); }
+export function clearFailures(ip: string): void { failures.delete(ip); }
+
+/** Advisor spend controls (roadmap Action 2.7): each call below costs money. */
+const ADVISOR_WINDOW_MS = 60 * 60 * 1000;
+export const ADVISOR_REQUESTS_PER_HOUR = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const advisorCalls = new WindowCounter(ADVISOR_WINDOW_MS);
+const advisorDay = new WindowCounter(DAY_MS);
+/** Calls allowed per day across everyone; `ADVISOR_DAILY_LIMIT` overrides the default. */
+export function advisorDailyLimit(): number {
+  const n = Number(process.env.ADVISOR_DAILY_LIMIT);
+  return Number.isInteger(n) && n > 0 ? n : 200;
+}
+
+/** For the checks only: forget every counter. */
+export function resetLimiters(): void { failures.clear(); advisorCalls.clear(); advisorDay.clear(); }
+/** For the checks only: live entries in the failed-passcode map. */
+export const failureEntries = () => failures.size;
+
+/**
+ * The caller's address, for the counters above. Forwarding headers are only
+ * believed where a proxy we trust sets them: Vercel overwrites them on every
+ * request, and a self-hosted Express instance behind its own proxy opts in
+ * with TRUST_PROXY=1. Anywhere else a client could send a new
+ * `X-Forwarded-For` with each guess and never be locked out, so the socket
+ * address is used instead.
+ */
+export function clientIp(req: Pick<IncomingMessage, 'headers' | 'socket'>): string {
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  if (process.env.VERCEL || process.env.TRUST_PROXY === '1') {
+    const forwarded = one(req.headers['x-real-ip']) || one(req.headers['x-forwarded-for'])?.split(',')[0].trim();
+    if (forwarded) return forwarded;
   }
-  return entry.count >= MAX_FAILURES;
-}
-
-export function recordFailure(ip: string): void {
-  const entry = failures.get(ip);
-  if (!entry || Date.now() - entry.first > FAILURE_WINDOW_MS) {
-    failures.set(ip, { count: 1, first: Date.now() });
-    return;
-  }
-  entry.count += 1;
-}
-
-export function clearFailures(ip: string): void {
-  failures.delete(ip);
-}
-
-/** Pull a caller IP out of the usual proxy headers, for the damper above. */
-export function clientIp(
-  headers: Record<string, string | string[] | undefined>,
-  fallback = 'unknown',
-): string {
-  const forwarded = headers['x-forwarded-for'];
-  const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-  if (raw) return raw.split(',')[0].trim();
-  const real = headers['x-real-ip'];
-  const realRaw = Array.isArray(real) ? real[0] : real;
-  return realRaw || fallback;
+  return req.socket?.remoteAddress || 'unknown';
 }
 
 /* ------------------------------------------------------------------ *
@@ -207,15 +259,7 @@ export function sessionStatus(cookieHeader: string | undefined | null): GateResu
 /** POST /api/advisor-auth — exchange the passcode for a session cookie. */
 export function attemptUnlock(input: unknown, ip: string): GateResult {
   if (deploymentMode() === 'demo') return demoRestriction();
-  if (!isAuthConfigured()) {
-    return {
-      status: 503,
-      body: {
-        error:
-          'The AI advisor is not configured on this deployment. Set ADVISOR_PASSCODE to enable it.',
-      },
-    };
-  }
+  if (!isAuthConfigured()) return NOT_CONFIGURED;
 
   if (isLockedOut(ip)) {
     return {
@@ -250,17 +294,10 @@ export function logout(): GateResult {
 export function guardAdvisorRequest(
   cookieHeader: string | undefined | null,
   prompt: unknown,
+  ip = 'unknown',
 ): GateResult | null {
   if (deploymentMode() === 'demo') return demoRestriction();
-  if (!isAuthConfigured()) {
-    return {
-      status: 503,
-      body: {
-        error:
-          'The AI advisor is not configured on this deployment. Set ADVISOR_PASSCODE to enable it.',
-      },
-    };
-  }
+  if (!isAuthConfigured()) return NOT_CONFIGURED;
 
   if (!hasValidSession(cookieHeader)) {
     return { status: 401, body: { error: 'Advisor locked. Enter the passcode to continue.' } };
@@ -276,6 +313,20 @@ export function guardAdvisorRequest(
       body: { error: `Prompt is too long (max ${MAX_PROMPT_CHARS} characters).` },
     };
   }
+
+  // Counted last, so only a request that would reach the model spends allowance.
+  // Keyed by session and by address: a shared passcode means one session per
+  // visitor, and a visitor who re-unlocks for a fresh session keeps the address.
+  const session = parseCookies(cookieHeader)[SESSION_COOKIE];
+  if (advisorDay.total() >= advisorDailyLimit()) {
+    return { status: 503, body: { error: 'The advisor has reached its daily limit. Try again tomorrow.' } };
+  }
+  if (advisorCalls.count(session) >= ADVISOR_REQUESTS_PER_HOUR || advisorCalls.count(`ip:${ip}`) >= ADVISOR_REQUESTS_PER_HOUR) {
+    return { status: 429, body: { error: `Limit reached: ${ADVISOR_REQUESTS_PER_HOUR} advisor requests an hour. Try again later.` } };
+  }
+  advisorCalls.add(session);
+  advisorCalls.add(`ip:${ip}`);
+  advisorDay.add('all');
 
   return null;
 }

@@ -57,7 +57,7 @@
 ### 1. The Edge Spectrum Expected-Return Visualizer
 Served as a static page at `/spectrum/index.html` (internally routes to `public/spectrum/index.html`).
 
-- **13 Asset/Bet Categories:** Stocks, Bonds, Real Estate, Crypto, Precious Metals, Collectibles, Insurance/Annuities, Sports Betting, Casino, Poker, Prediction Markets, and Lottery.
+- **15 asset and bet categories**, from index funds to lottery tickets. The generated [`data/edge_dataset.md`](data/edge_dataset.md) lists every record by category.
 - **Universal DU/CED Framework:** Standardized expected returns via:
   $$\text{Expected Turnover Cost} = \text{Decision Units (DU)} \times \text{Capital Exposure per Decision (CED)} \times \text{Edge}$$
 - **Three named measures, never mixed on one axis:**
@@ -67,7 +67,7 @@ Served as a static page at `/spectrum/index.html` (internally routes to `public/
 - **Interactive Controls:** Toggle any combination of categories, switch measure (On Capital / Turnover Cost), adjust time horizons (Single Event to 10 Years), switch overlays (Raw Returns, Fee-Adjusted, After-Tax).
 - **Ruin Point Overlay** *(on by default)*: a dotted −100% floor line on the primary chart, an ✕ per activity whose bankroll is gone before the horizon ends, a **Ruined By Horizon** counter, and per-activity decisions-to-$0 and time-to-ruin in the tooltip.
 - **Addiction Risk Scoring:** Color-coded border alerts based on feedback loops and documentation of problem behavior.
-- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [CHANGELOG.md](docs/CHANGELOG.md))*: intended to translate percentages into dollar outcomes at $100/week.
+- **Where do I sit?** Enter your own activity and stake, and the page places it on the chart and states the expected outcome in dollars.
 
 ### 2. The Sports Wagering Backtester
 Served inside the SPA React shell at `/backtester`.
@@ -87,6 +87,12 @@ A collector that builds your own archive of real sportsbook lines for closing-li
 and appends one JSON line per game to `<folder>/<SPORT>/<day>.jsonl`: spread and its prices, total,
 moneyline, scores, and a `linePhase` of `open`, `midday` or `close`. Files are only ever appended to,
 there are no keys, and nothing leaves your machine.
+
+> [!NOTE]
+> The collector and the live scoreboard read an **unofficial, undocumented ESPN endpoint**. Edge Spectrum
+> is not affiliated with ESPN. If you run the collector you are responsible for following ESPN's terms of
+> use: keep it to personal, low-volume use (the default is one request per league every three hours) and do
+> not republish what you capture. This project does not publish captured lines.
 
 ```bash
 cd site && npm run capture:lines -- --out ~/edge-lines
@@ -115,7 +121,7 @@ cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
 ```
 edge-spectrum/
 ├── site/                  # ← THE WEB APP (Vercel Root Directory = site)
-│   ├── api/               # Vercel serverless functions (backtest, ESPN, Gemini advisor)
+│   ├── api/               # Vercel serverless functions (backtest, ESPN scoreboard, advisor, advisor auth)
 │   ├── public/
 │   │   ├── favicon.svg    # The served app icon
 │   │   └── spectrum/      # The Edge Spectrum static Plotly visualization page
@@ -128,7 +134,7 @@ edge-spectrum/
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
-│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
+│   ├── scripts/           # Guards & generators (check:market, check:engine, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
@@ -179,8 +185,8 @@ npm ci
 ```
 
 Copy `.env.example` to `.env`, then run `npm run dev` and open `http://localhost:3001`.
-The default demo needs no API key. For full mode, fill in the four variables documented
-in the [setup guide](docs/self-hosting.md). Never commit your `.env` file.
+The default demo needs no API key. For full mode, fill in the variables documented
+in the [setup guide](docs/self-hosting.md); the passcode and the signing secret are both required. Never commit your `.env` file.
 
 ```sh
 npm run lint
@@ -209,7 +215,7 @@ To add a new tool to the Edge Spectrum hub, follow the **three-step recipe**:
    }
    ```
 2. **Mount the Code:**
-   - **`route` kind:** Build the page component under `site/src/pages/MyNewTool.tsx` and add its `<Route>` path inside [App.tsx](site/src/App.tsx).
+   - **`route` kind:** Build the page component under `site/src/pages/MyNewTool.tsx` and add it to [App.tsx](site/src/App.tsx) as a `lazy()` import with its `<Route>`. A new route is also listed in three more places, or it is a 404 in production while it works in dev: the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
    - **`static` kind:** Put your HTML/CSS/JS folder inside `site/public/my-new-tool/` and link its `href` to `/my-new-tool/index.html`.
    - **`external` kind:** Set `href` to the external destination URL (it will open in a new tab).
 3. **Accent Setup:** Ensure the selected `accent` name exists inside the Tailwind literal mapping inside [Home.tsx](site/src/pages/Home.tsx) so the JIT compiler generates the appropriate borders and glows.
@@ -222,11 +228,10 @@ The public demo is hosted on **Vercel** (`edge-spectrum.ai-automation-tools.dev`
 
 - **Demo mode:** `EDGE_SPECTRUM_MODE=demo`; no Gemini credentials are needed.
 - **Production branch:** `main` (automatically deployed on push/merge).
-- **Local deployment check:** You can use the Vercel CLI (run from `site/`) to verify preview environments before merging:
-  ```bash
-  cd site
-  vercel deploy
-  ```
+- **One deploy path:** merging a pull request into `main`. Every pull request gets a Vercel preview to check first.
+- **After a deploy:** the *Registry drift* workflow smoke-checks the live site (routes, 404s, the dataset, a backtest, and that the demo is still in demo mode). It also runs daily. Run it yourself with `node site/scripts/check-live.mjs [url]`.
+- **Rolling back:** [three steps](docs/self-hosting.md#rolling-back).
+- **Unknown paths are a 404**, not the home page: only the app's own routes are rewritten to the SPA.
 
 ---
 

@@ -26,8 +26,11 @@ Hosting and AI usage are billed by your chosen providers.
 | --- | --- | --- |
 | `EDGE_SPECTRUM_MODE` | `demo` or unset | Exactly `full` |
 | `GEMINI_API_KEY` | Not needed | Your Gemini API key |
+| `GEMINI_MODEL` | Not needed | Optional. A Gemini model id, to move off the default when Google retires it |
 | `ADVISOR_PASSCODE` | Not needed | Strong, unique passcode for advisor access |
-| `ADVISOR_SECRET` | Not needed | Long random value for signing sessions |
+| `ADVISOR_SECRET` | Not needed | Required. Long random value for signing sessions; without it the advisor answers 503 |
+| `ADVISOR_DAILY_LIMIT` | Not needed | Optional. Advisor calls allowed per day across all visitors, default 200 |
+| `TRUST_PROXY` | Not needed | Optional, `1` only when you run the Node server behind your own reverse proxy |
 
 Generate a signing secret locally:
 
@@ -79,9 +82,23 @@ or reusing a session from full mode cannot enable Gemini calls. Only a server en
 change to `full` enables that path. Unknown mode values fall back to demo.
 
 The shared passcode is intended for a personal instance or small trusted group. It is
-not a multi-user account system. The login throttle is per process, not a durable
+not a multi-user account system. The login throttle and the advisor limits (10 calls an
+hour per visitor, `ADVISOR_DAILY_LIMIT` a day for everyone) are per process, not a durable
 usage quota; set provider usage limits appropriate to your account. If the passcode is
 shared accidentally, rotate it **and** `ADVISOR_SECRET` to invalidate existing sessions.
+
+## Rolling back
+
+When a deploy is bad:
+
+1. **Promote the previous deployment.** In Vercel, open the project's Deployments, pick the last good
+   production deployment and choose *Promote to Production* (or *Instant Rollback*). The site is back in
+   seconds and no code changes.
+2. **Open a revert PR** for the merge that broke it (`git revert -m 1 <merge commit>`), let CI run, and
+   merge it. Until it merges, `main` and the live site disagree.
+3. **Expect the daily *Registry drift* workflow to fail in between** if the bad merge touched the
+   Cronsole templates or the dataset: it compares the live site with `main`. It goes green once the
+   revert is merged and deployed.
 
 ## Customize and verify
 

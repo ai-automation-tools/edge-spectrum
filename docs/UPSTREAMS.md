@@ -16,7 +16,8 @@ source. `—` means never checked.
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
 | **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | 2026-10-21 |
-| **Gemini API via `@google/genai`** | `^2.28.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-2.5-flash` | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-10-21 |
+| **ESPN terms of use** | The endpoint above is unofficial and Disney's terms restrict automated collection. The project's position: server-side proxy for the live scoreboard, a collector users run themselves at low volume for personal use, a notice in the README and both Cronsole templates, and no captured lines published by this repo or its site (roadmap Action 5.4 grades locally). Not legal advice; the owner reads the terms at the source | `README.md`, `site/scripts/build-registry.mjs` | disneytermsofuse.com (Terms of Use, section 2) | 2026-11-11 (audit, summarised reading) |
+| **Gemini API via `@google/genai`** | `^2.32.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-3.5-flash-lite` by default, overridable with `GEMINI_MODEL` (no shutdown date announced; `gemini-2.5-flash`, used until 2026-11-12, is routed to it from 2026-12-01). The call sends no `temperature`, `top_p`, `top_k`, `candidate_count` or thinking budget, the parameters the 3.x migration guide changes | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-11-12 |
 
 ## Static page CDN assets
 
@@ -31,7 +32,7 @@ source. `—` means never checked.
 |:---|:---|:---|:---|:---|
 | **Vercel** | `framework: "vite"`, `outputDirectory: "dist"`, SPA rewrite `/((?!api/).*)`; four Node functions in `site/api/` on default runtime settings | `site/vercel.json`, `site/api/*.ts` | vercel.com/changelog; vercel.com/docs/functions/runtimes/node-js/node-js-versions (supports 24.x default and 22.x) | 2026-10-21 |
 | **Node.js** | `engines.node: ">=22 <25"` picks the Vercel runtime; CI pins 22 | `site/package.json`, `.github/workflows/ci.yml` | nodejs.org/en/about/previous-releases (EOL dates); raw.githubusercontent.com/nodejs/Release/main/schedule.json | 2026-10-21 |
-| **GitHub Actions** | `actions/checkout@v4`, `actions/setup-node@v4` | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | 2026-10-21 |
+| **GitHub Actions** | `actions/checkout` and `actions/setup-node`, both pinned to the v4.4.0 commit SHA; Dependabot raises new versions, majors included | `.github/workflows/ci.yml` | github.com/actions/setup-node/releases | 2026-10-21 |
 
 ## Framework majors
 
