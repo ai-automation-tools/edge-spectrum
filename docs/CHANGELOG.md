@@ -32,6 +32,11 @@ From the 2026-11-11 project audit (30-day items).
   that the collector is for personal low-volume use, and that this project does not publish captured lines.
 - **Checks** New `check:bundle`; `check:engine` holds the response budget; `check:deployment` covers the
   advisor limits, the lockout and reply validation through the real handler with a stubbed model.
+- **Code scanning** The four open alerts on `main` go away in code: the session-signing key is no
+  longer derived from the passcode, the passcode is compared in constant time without hashing it, and
+  the Node server reads the page shell once instead of on every request.
+- **Roadmap** Actions 2.7 and 4.5 are ticked, the CSP and SEO items carry what is left, and a new
+  *Audit follow-ups* group lists the audit's remaining work as checkable items.
 
 ## November 12, 2026 — Audit fixes, first batch: engine, form, API input, docs
 

@@ -185,8 +185,8 @@ npm ci
 ```
 
 Copy `.env.example` to `.env`, then run `npm run dev` and open `http://localhost:3001`.
-The default demo needs no API key. For full mode, fill in the four variables documented
-in the [setup guide](docs/self-hosting.md). Never commit your `.env` file.
+The default demo needs no API key. For full mode, fill in the variables documented
+in the [setup guide](docs/self-hosting.md); the passcode and the signing secret are both required. Never commit your `.env` file.
 
 ```sh
 npm run lint
@@ -215,7 +215,7 @@ To add a new tool to the Edge Spectrum hub, follow the **three-step recipe**:
    }
    ```
 2. **Mount the Code:**
-   - **`route` kind:** Build the page component under `site/src/pages/MyNewTool.tsx` and add its `<Route>` path inside [App.tsx](site/src/App.tsx).
+   - **`route` kind:** Build the page component under `site/src/pages/MyNewTool.tsx` and add it to [App.tsx](site/src/App.tsx) as a `lazy()` import with its `<Route>`. A new route is also listed in three more places, or it is a 404 in production while it works in dev: the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
    - **`static` kind:** Put your HTML/CSS/JS folder inside `site/public/my-new-tool/` and link its `href` to `/my-new-tool/index.html`.
    - **`external` kind:** Set `href` to the external destination URL (it will open in a new tab).
 3. **Accent Setup:** Ensure the selected `accent` name exists inside the Tailwind literal mapping inside [Home.tsx](site/src/pages/Home.tsx) so the JIT compiler generates the appropriate borders and glows.
@@ -228,11 +228,10 @@ The public demo is hosted on **Vercel** (`edge-spectrum.ai-automation-tools.dev`
 
 - **Demo mode:** `EDGE_SPECTRUM_MODE=demo`; no Gemini credentials are needed.
 - **Production branch:** `main` (automatically deployed on push/merge).
-- **Local deployment check:** You can use the Vercel CLI (run from `site/`) to verify preview environments before merging:
-  ```bash
-  cd site
-  vercel deploy
-  ```
+- **One deploy path:** merging a pull request into `main`. Every pull request gets a Vercel preview to check first.
+- **After a deploy:** the *Registry drift* workflow smoke-checks the live site (routes, 404s, the dataset, a backtest, and that the demo is still in demo mode). It also runs daily. Run it yourself with `node site/scripts/check-live.mjs [url]`.
+- **Rolling back:** [three steps](docs/self-hosting.md#rolling-back).
+- **Unknown paths are a 404**, not the home page: only the app's own routes are rewritten to the SPA.
 
 ---
 
