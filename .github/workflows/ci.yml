@@ -40,6 +40,7 @@ jobs:
       - run: npm run check:strategy-url
       - run: npm run check:calc-url
       - run: npm run check:lines
+      - run: npm run check:live-grading
       - run: npm run build:registry -- --check
       - run: npm run check:deployment
       - run: npm run build

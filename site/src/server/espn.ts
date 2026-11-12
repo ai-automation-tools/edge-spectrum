@@ -82,6 +82,12 @@ export async function espnScoreboardRoute(
   }
 }
 
+/** A final or running score. ESPN sends a string; anything unreadable is null, never NaN. */
+function score(v: unknown): number | null {
+  const n = typeof v === 'number' ? v : parseInt(String(v ?? ''), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** A number from ESPN's odds strings ("-110", "+670", "o222.5", "EVEN"), or null. */
 function num(v: unknown): number | null {
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
@@ -118,17 +124,19 @@ export function parseEspnScoreboard(data: any, sport: string, dateInput = ''): E
         name: homeTeam?.team?.displayName || 'Home Team',
         abbrev: homeTeam?.team?.abbreviation || 'HOME',
         logo: homeTeam?.team?.logo,
-        score: parseInt(homeTeam?.score || '0'),
+        score: score(homeTeam?.score),
         winner: homeTeam?.winner || false,
       },
       awayTeam: {
         name: awayTeam?.team?.displayName || 'Away Team',
         abbrev: awayTeam?.team?.abbreviation || 'AWAY',
         logo: awayTeam?.team?.logo,
-        score: parseInt(awayTeam?.score || '0'),
+        score: score(awayTeam?.score),
         winner: awayTeam?.winner || false,
       },
       state: event.status?.type?.state, // "pre" | "in" | "post"
+      // A postponed or cancelled game is "post" too; only this says a result exists.
+      completed: event.status?.type?.completed === true,
       odds: {
         details: oddsObj.details || 'N/A', // e.g. "KC -2.5" or "EVEN"
         overUnder: oddsObj.overUnder || null, // e.g. 45.5
