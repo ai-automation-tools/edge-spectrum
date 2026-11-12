@@ -1,0 +1,8 @@
+# Review from the owner on the paths a merge turns into running code elsewhere:
+# the Cronsole templates and their builder, CI, and the server side of the site.
+# Takes effect once the main ruleset requires code-owner review (audit SEC-02).
+/site/public/registry/            @michaelschecht
+/site/scripts/build-registry.mjs  @michaelschecht
+/.github/                         @michaelschecht
+/site/api/                        @michaelschecht
+/site/src/server/                 @michaelschecht

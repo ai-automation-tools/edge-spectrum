@@ -2,6 +2,36 @@
 
 ---
 
+## November 12, 2026 — Audit fixes, first batch: engine, form, API input, docs
+
+From the 2026-11-11 project audit (immediate and 7-day items).
+
+- **Engine** Seasons are generated in date order, so rest days are never negative and a team's streak
+  describes the games it has already played; a team plays at most once a day. A win after losses
+  starts a streak at +1 and a loss after wins at −1 (it used to drift toward zero). **Backtest
+  numbers change**: the rest and streak selections and the streak filter now test what they say.
+- **Engine** A run stops when the bankroll cannot cover the next stake. The summary carries
+  `bustedAtBet` and `bustedOn`, and the dashboard says so. Final bankroll is never negative and
+  drawdown never passes 100%; drawdown % is measured against the peak in force at the time.
+- **Form** Bankroll and unit size can be cleared and retyped (typing 250 no longer gives 1250), with a
+  hint when a value is out of range. Presets replace the strategy instead of merging onto the last
+  one. Every field on `/backtester`, `/odds` and `/parlay` has an accessible name. The spread and
+  totals note no longer claims flat −110 pricing.
+- **API** `/api/espn-scoreboard` answers 400 for a malformed date, a repeated parameter or an unknown
+  sport (which used to return NFL data under the caller's label) and 504 when ESPN stalls past 8 s.
+  `/api/backtest` answers 400 for malformed JSON. Both routes' input handling moved into
+  `src/server/` (`backtestRoute`, `espnScoreboardRoute`).
+- **Advisor** The model id is `GEMINI_MODEL`, defaulting to `gemini-3.5-flash-lite`: Google routes
+  `gemini-2.5-flash` there from 2026-12-01 (deprecations page read 2026-11-12). The five invented
+  progress lines are one neutral line, the prompts no longer ask for "profitable" strategies, and the
+  leftover `aistudio-build` User-Agent is gone. Not exercised against a live key.
+- **Checks** New `npm run check:engine` (in CI): date order, rest, streak replay, bust and drawdown.
+  `check:deployment` covers the 400s, the 405 and the ESPN timeout.
+- **CI** Actions are pinned to commit SHAs; Dependabot now raises Actions majors.
+- **Docs** 15 categories, 26 seasons, four functions, Node 22 or 24 (also in the Cronsole templates),
+  no hard-coded record counts in `data-architecture.md`, and its `check:edges` section lists what the
+  script asserts. The README's Dollar Cost bullet described a control the page does not have.
+
 ## November 11, 2026 — Three more casino rows (237 → 240 records)
 
 - **Data** Added **Craps Lay 4 / Lay 10 (Commission on Win)** (−1.67%), **Craps Hard 4 / Hard 10** (−11.11%) and **Pai Gow Poker Emperor's Challenge** (−4.17%), all in Casino Gambling. Sources: Wizard of Odds' craps house edge table (`/games/craps/appendix/2/`, per bet resolved) and its Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`), both read 2026-11-11. Record count and cited count in the baseline move to 240 and 50.

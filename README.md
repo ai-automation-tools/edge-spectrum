@@ -57,7 +57,7 @@
 ### 1. The Edge Spectrum Expected-Return Visualizer
 Served as a static page at `/spectrum/index.html` (internally routes to `public/spectrum/index.html`).
 
-- **13 Asset/Bet Categories:** Stocks, Bonds, Real Estate, Crypto, Precious Metals, Collectibles, Insurance/Annuities, Sports Betting, Casino, Poker, Prediction Markets, and Lottery.
+- **15 asset and bet categories**, from index funds to lottery tickets. The generated [`data/edge_dataset.md`](data/edge_dataset.md) lists every record by category.
 - **Universal DU/CED Framework:** Standardized expected returns via:
   $$\text{Expected Turnover Cost} = \text{Decision Units (DU)} \times \text{Capital Exposure per Decision (CED)} \times \text{Edge}$$
 - **Three named measures, never mixed on one axis:**
@@ -67,7 +67,7 @@ Served as a static page at `/spectrum/index.html` (internally routes to `public/
 - **Interactive Controls:** Toggle any combination of categories, switch measure (On Capital / Turnover Cost), adjust time horizons (Single Event to 10 Years), switch overlays (Raw Returns, Fee-Adjusted, After-Tax).
 - **Ruin Point Overlay** *(on by default)*: a dotted −100% floor line on the primary chart, an ✕ per activity whose bankroll is gone before the horizon ends, a **Ruined By Horizon** counter, and per-activity decisions-to-$0 and time-to-ruin in the tooltip.
 - **Addiction Risk Scoring:** Color-coded border alerts based on feedback loops and documentation of problem behavior.
-- **Dollar Cost Comparison** *(toggle present but non-functional — regressed in V19, see [CHANGELOG.md](docs/CHANGELOG.md))*: intended to translate percentages into dollar outcomes at $100/week.
+- **Where do I sit?** Enter your own activity and stake, and the page places it on the chart and states the expected outcome in dollars.
 
 ### 2. The Sports Wagering Backtester
 Served inside the SPA React shell at `/backtester`.
@@ -115,7 +115,7 @@ cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
 ```
 edge-spectrum/
 ├── site/                  # ← THE WEB APP (Vercel Root Directory = site)
-│   ├── api/               # Vercel serverless functions (backtest, ESPN, Gemini advisor)
+│   ├── api/               # Vercel serverless functions (backtest, ESPN scoreboard, advisor, advisor auth)
 │   ├── public/
 │   │   ├── favicon.svg    # The served app icon
 │   │   └── spectrum/      # The Edge Spectrum static Plotly visualization page
@@ -128,7 +128,7 @@ edge-spectrum/
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
-│   ├── scripts/           # Guards & generators (check:market, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
+│   ├── scripts/           # Guards & generators (check:market, check:engine, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)

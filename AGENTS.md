@@ -53,12 +53,12 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
     data/edges.ts      # THE DATASET — the canonical 240 edge records. Everything else that
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
-  scripts/            # not shipped: check-market.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
+  scripts/            # not shipped: check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
                       #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
                       #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
                       #   templates there, never the output; --check in CI. check-registry-published.mjs
                       #   is the daily drift check of the served copy
-  api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts
+  api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts, advisor-auth.ts
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
                       #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
   index.html, server.ts, package.json, vite.config.ts, vercel.json, tsconfig.json
@@ -83,6 +83,9 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 - `EDGE_SPECTRUM_MODE` defaults to `demo`. Only the exact value `full` enables live AI. The public
   demo must stay in demo mode and must not hold Gemini credentials. See `docs/self-hosting.md`.
+- `GEMINI_MODEL` (optional) overrides the advisor's model id; the default is `DEFAULT_GEMINI_MODEL`
+  in `site/src/server/advisor.ts`. When Google retires a model, change the default there and the
+  Gemini row in `docs/UPSTREAMS.md` together.
 - `GEMINI_API_KEY` (Gemini advisor). Loaded from `site/.env` locally (gitignored), and set
   in the Vercel project's env vars for production. **Never commit `.env`** — advisor stays server-side; do
   not move the key client-side.
@@ -98,6 +101,12 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   Note that `tsconfig.json` does **not** set `strict`/`strictNullChecks`, so some type-level
   idioms silently do not work — notably, narrowing a discriminated union on a boolean field
   (`if (r.ok) …`) does not narrow, and Zod infers every output field as optional.
+- **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
+  before it draws a game, because rest days, streaks and the prices set from them are carried from
+  one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
+  `npm run check:engine` holds both; `check:market` only holds the ROI band.
+- Route input handling lives in `src/server/` (`backtestRoute`, `espnScoreboardRoute`), which return
+  `{ status, body }`. `server.ts` and `api/*.ts` only pass the request through and send the result.
 - Untrusted request bodies get a Zod schema in `site/src/server/`, reached through the shared
   `src/server/` module both entry points already call — not re-checked in each route handler.
 - The static `site/public/spectrum/` page is self-contained for serving (Plotly self-hosted as
@@ -118,7 +127,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
-  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
+  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
   `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page (`vite preview` on
   `dist/`), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level

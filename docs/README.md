@@ -22,7 +22,7 @@
 | [**🗺️ Product Roadmap**](ROADMAP.md) | Sequenced action items, milestone tracking, release gates, and feature pipelines. | All Hub Tools |
 | [**📐 Mathematical Methodology**](methodology.md) | The DU/CED framework, metric semantics (return on capital vs. turnover cost vs. ruin), and Kelly sizing. | Core Analysis |
 | [**🧭 Diagrams**](diagrams/README.md) | The hub data-flow diagram the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow) shows: dataset → generated Spectrum page, registry → tiles and routes, simulator → serverless functions → ESPN and Gemini. Interactive, every node linked to its code, and drift-checked in CI. | All Hub Tools |
-| [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 13 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
+| [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 15 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
 | [**💡 Planning & Ideas**](ideas/README.md) | Over-engineering audits, hub improvement records, and visualizer feature backlogs. | Research & Audits |
 | [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
 
@@ -45,6 +45,7 @@ Edge Spectrum operates as a multi-tool web application hosted on **Vercel** with
 
 - **`npm run check:deployment`** — Verifies demo mode rejects live AI and full-mode sessions, while full mode retains passcode authentication.
 
+- **`npm run check:engine`** — Replays every simulated season: games in date order, no negative rest days, each stored streak equal to the team's earlier results, and a busted bankroll stops the run with drawdown at or under 100%.
 - **`npm run check:market`** — Runs all 40 naive wagering strategies across 26 simulated seasons, verifying that realized ROI falls strictly within the realistic bookmaker hold band (−7.0% to −2.5%).
 - **`npm run check:spectrum`** — Evaluates the Spectrum visualizer's own math block and dataset directly out of `site/public/spectrum/index.html` and asserts its metric invariants: `returnOnCapital` never breaches its −100% floor, `expectedTurnoverCost` stays unfloored, the two agree on where ruin falls across all 240 records × 7 horizons, and the `1du` horizon never labels a wager and a trading day identically.
 - **`npm run gen:edges -- --check`** — Regenerates every downstream copy of the dataset from `site/src/data/edges.ts` and fails if any has drifted: the Spectrum page's inlined `RAW`, `site/public/spectrum/edges.json`, and `data/edge_dataset.md`. Drop the `-- --check` to write them.

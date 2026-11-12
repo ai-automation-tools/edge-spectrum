@@ -90,7 +90,7 @@ function CronsoleTemplates() {
         {failed
           ? <>The templates couldn't be loaded here. Browse them in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
           : list
-            ? <>Needs Node 18+ and a clone of this repo on the machine the task runs on. Every template is also in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
+            ? <>Needs Node 22 or 24 and a clone of this repo on the machine the task runs on. Every template is also in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
             : 'Loading the templates…'}
       </p>
     </>
@@ -208,7 +208,7 @@ export default function Home() {
         {/* ── How it works (code-pinned diagram) ── */}
         <section id="sec-flow" className="scroll-mt-[72px] border-t border-zinc-800/60 py-14">
           <Reveal>
-            <SectionHead eyebrow="How it works" title="One dataset, one registry, three serverless functions." sub="The edge records are authored once and generated into the Spectrum page; the tools registry draws every tile and route; the simulator is the only tool that calls the server, and its AI advisor fails closed." />
+            <SectionHead eyebrow="How it works" title="One dataset, one registry, four serverless functions." sub="The edge records are authored once and generated into the Spectrum page; the tools registry draws every tile and route; the simulator is the only tool that calls the server, and its AI advisor fails closed." />
           </Reveal>
           <figure className="mt-6 overflow-hidden rounded-xl border border-zinc-800/60 bg-(--bg-2)">
             <DiagramFrame />
