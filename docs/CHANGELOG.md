@@ -2,6 +2,13 @@
 
 ---
 
+## November 12, 2026 — Roadmap: Spectrum form fixes recorded, next item named
+
+Docs only.
+
+- The *Audit follow-ups* section counts seven shipped items of the audit's 60-day list, now including
+  the Spectrum form and label fixes (#92), and names the next one: accessibility depth.
+
 ## November 12, 2026 — Spectrum: the "Where do I sit?" form keeps its values, and a row name is text
 
 From the 2026-11-11 project audit (BUG-25, BUG-33).
