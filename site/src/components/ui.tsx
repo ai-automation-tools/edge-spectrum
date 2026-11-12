@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import type { Accent } from '../tools';
 
 /**
@@ -57,7 +57,7 @@ export function Reveal({ delay = 0, className = '', children }: { delay?: number
   const reduced = useReducedMotion();
   if (reduced) return <div className={className}>{children}</div>;
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ export function Reveal({ delay = 0, className = '', children }: { delay?: number
       transition={{ duration: 0.55, ease: [0.2, 0.7, 0.2, 1], delay }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 

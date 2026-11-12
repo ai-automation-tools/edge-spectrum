@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Strategy, SportType, BetType, SideSelectionType } from '../types';
 import {
   MIN_SEASON, MAX_SEASON, MAX_UNIT_SIZE, MAX_STARTING_BANKROLL,
@@ -33,8 +33,11 @@ function Eyebrow({ icon: Icon, text }: { icon: React.ElementType; text: string }
 
 // Native select wrapped with a consistent custom chevron
 function Select({
-  value, onChange, children, disabled,
+  value, onChange, children, disabled, id, label,
 }: {
+  id?: string;
+  /** Accessible name, for a select with no visible label of its own. */
+  label?: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   children: React.ReactNode;
@@ -43,6 +46,8 @@ function Select({
   return (
     <div className="relative w-full">
       <select
+        id={id}
+        aria-label={label}
         value={value}
         onChange={onChange}
         disabled={disabled}
@@ -64,9 +69,62 @@ const clamp = (value: number, min: number, max: number) =>
 const boundedOptional = (raw: string, min: number, max: number, parse: (v: string) => number) =>
   raw === '' ? undefined : clamp(parse(raw) || 0, min, max);
 
-// Tiny field label
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="text-[11px] font-medium text-zinc-400">{children}</label>;
+// Tiny field label. `htmlFor` ties it to a control; `id` lets a button group
+// name itself with aria-labelledby.
+function FieldLabel({ children, htmlFor, id }: { children: React.ReactNode; htmlFor?: string; id?: string }) {
+  return <label htmlFor={htmlFor} id={id} className="text-[11px] font-medium text-zinc-400">{children}</label>;
+}
+
+/**
+ * Dollar field. Holds what was typed and only commits a value that is
+ * already in range, so the field can be emptied and retyped: clamping each
+ * keystroke turned "clear, type 250" into 1250 and ran a $1 backtest between.
+ * Anything else is settled on blur, with a hint saying what happened.
+ */
+function MoneyInput({ id, value, max, onCommit, className }: {
+  id: string; value: number; max: number; onCommit: (v: number) => void; className: string;
+}) {
+  const [text, setText] = useState(String(value));
+  const [adjusted, setAdjusted] = useState(false);
+  // A preset or a share link changed the value from outside.
+  useEffect(() => { setText((t) => (Number(t) === value ? t : String(value))); }, [value]);
+
+  const inRange = (raw: string) => {
+    const v = Number(raw);
+    return raw.trim() !== '' && v >= 1 && v <= max; // NaN fails both comparisons
+  };
+  const valid = inRange(text);
+  const hint = valid && !adjusted ? '' : `${adjusted ? 'Adjusted. ' : ''}Enter 1 to ${max.toLocaleString()}.`;
+
+  return (
+    <>
+      <input
+        id={id}
+        type="number"
+        inputMode="numeric"
+        min={1}
+        max={max}
+        value={text}
+        aria-invalid={!valid}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+        onChange={(e) => {
+          setText(e.target.value);
+          setAdjusted(false);
+          if (inRange(e.target.value)) onCommit(Number(e.target.value));
+        }}
+        onBlur={() => {
+          if (valid) return;
+          const n = Number(text);
+          const fixed = text.trim() !== '' && Number.isFinite(n) ? clamp(n, 1, max) : value;
+          setText(String(fixed));
+          setAdjusted(true);
+          onCommit(fixed);
+        }}
+        className={className}
+      />
+      {hint && <p id={`${id}-hint`} role="status" className="absolute left-0 top-full mt-0.5 text-[10px] text-amber-400">{hint}</p>}
+    </>
+  );
 }
 
 // Human-readable labels for the live strategy "recipe" line
@@ -173,10 +231,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
   };
 
   const handlePresetSelect = (preset: typeof PRESETS[0]) => {
-    onChange({
-      ...currentStrategy,
-      ...preset.strategy
-    });
+    // Replace, never merge: a preset that sets no odds filter must not inherit
+    // the last preset's, which left the next one with zero bets (audit BUG-05).
+    onChange({ ...preset.strategy });
   };
 
   // Keep year options clean — driven by the schema's season bounds
@@ -237,18 +294,19 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           <Eyebrow icon={Globe} text="Market" />
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Target Sport</FieldLabel>
-            <div className="grid grid-cols-4 gap-1 p-1 bg-(--bg-2) rounded-lg border border-zinc-800">
+            <FieldLabel id="sb-sport">Target Sport</FieldLabel>
+            <div role="group" aria-labelledby="sb-sport" className="grid grid-cols-4 gap-1 p-1 bg-(--bg-2) rounded-lg border border-zinc-800">
               {(['NFL', 'NBA', 'MLB', 'NHL'] as SportType[]).map((sport) => {
                 const active = currentStrategy.sport === sport;
                 return (
                   <button
                     key={sport}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => updateField('sport', sport)}
                     className={`py-1.5 text-[11px] font-bold rounded-md transition-all duration-200 ${
                       active
-                        ? 'bg-sky-500/20 text-sky-300 shadow-sm shadow-sky-500/10'
+                        ? 'bg-sky-500/20 text-sky-300 light:text-sky-200 shadow-sm shadow-sky-500/10'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
                     }`}
                   >
@@ -260,9 +318,10 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Season Range</FieldLabel>
-            <div className="flex items-center gap-2">
+            <FieldLabel id="sb-seasons">Season Range</FieldLabel>
+            <div role="group" aria-labelledby="sb-seasons" className="flex items-center gap-2">
               <Select
+                label="First season"
                 value={currentStrategy.startYear}
                 onChange={(e) => {
                   const yr = parseInt(e.target.value);
@@ -279,6 +338,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
               </Select>
               <ArrowRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
               <Select
+                label="Last season"
                 value={currentStrategy.endYear}
                 onChange={(e) => updateField('endYear', parseInt(e.target.value))}
               >
@@ -295,14 +355,15 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           <Eyebrow icon={Target} text="Wager" />
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Wager Target</FieldLabel>
-            <div className="grid grid-cols-3 gap-1 p-1 bg-(--bg-2) rounded-lg border border-zinc-800">
+            <FieldLabel id="sb-bet-type">Wager Target</FieldLabel>
+            <div role="group" aria-labelledby="sb-bet-type" className="grid grid-cols-3 gap-1 p-1 bg-(--bg-2) rounded-lg border border-zinc-800">
               {(['moneyline', 'spread', 'totals'] as BetType[]).map((type) => {
                 const active = currentStrategy.betType === type;
                 return (
                   <button
                     key={type}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => {
                       // Apply betType + sanitized sideSelection in a single update.
                       // Two separate updateField calls would each spread the same
@@ -314,7 +375,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                     }}
                     className={`py-1.5 text-[11px] font-semibold capitalize rounded-md transition-all duration-200 ${
                       active
-                        ? 'bg-sky-500/20 text-sky-300 shadow-sm shadow-sky-500/10'
+                        ? 'bg-sky-500/20 text-sky-300 light:text-sky-200 shadow-sm shadow-sky-500/10'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
                     }`}
                   >
@@ -326,8 +387,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Selection Choice</FieldLabel>
+            <FieldLabel htmlFor="sb-side">Selection Choice</FieldLabel>
             <Select
+              id="sb-side"
               value={currentStrategy.sideSelection}
               onChange={(e) => updateField('sideSelection', e.target.value as SideSelectionType)}
             >
@@ -364,7 +426,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
             {currentStrategy.betType !== 'moneyline' && (
               <p className="flex items-center gap-1 text-[10px] text-zinc-500 mt-0.5">
                 <AlertTriangle className="w-3 h-3 text-amber-500/70 shrink-0" />
-                Priced at standard −110 house lines.
+                Each side is priced from the simulated score distribution, not a flat −110.
               </p>
             )}
           </div>
@@ -375,30 +437,28 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           <Eyebrow icon={Wallet} text="Capital" />
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Starting Bankroll</FieldLabel>
+            <FieldLabel htmlFor="sb-bankroll">Starting Bankroll</FieldLabel>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-              <input
-                type="number"
-                min={1}
+              <MoneyInput
+                id="sb-bankroll"
                 max={MAX_STARTING_BANKROLL}
                 value={currentStrategy.startingBankroll}
-                onChange={(e) => updateField('startingBankroll', clamp(parseInt(e.target.value) || 0, 1, MAX_STARTING_BANKROLL))}
+                onCommit={(v) => updateField('startingBankroll', v)}
                 className="h-9 w-full pl-8 pr-3 bg-(--bg-2) border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-zinc-200 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel>Unit Size</FieldLabel>
+            <FieldLabel htmlFor="sb-unit">Unit Size</FieldLabel>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-400" />
-              <input
-                type="number"
-                min={1}
+              <MoneyInput
+                id="sb-unit"
                 max={MAX_UNIT_SIZE}
                 value={currentStrategy.unitSize}
-                onChange={(e) => updateField('unitSize', clamp(parseInt(e.target.value) || 0, 1, MAX_UNIT_SIZE))}
+                onCommit={(v) => updateField('unitSize', v)}
                 className="h-9 w-full pl-8 pr-3 bg-(--bg-2) border border-zinc-800 rounded-lg text-xs font-mono font-medium tabular-nums text-sky-300 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
               />
             </div>
@@ -411,6 +471,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
+          aria-expanded={showAdvanced}
           className="group flex items-center gap-1.5 max-sm:py-2 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-sky-400 hover:text-sky-300 transition-colors duration-150"
         >
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
@@ -421,8 +482,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-(--bg-2)/50 rounded-xl border border-zinc-800 transition-all duration-300 animate-fadeIn">
             {/* Streak Filtering */}
             <div className="flex flex-col gap-1.5">
-              <FieldLabel>Streak Preconditions</FieldLabel>
+              <FieldLabel htmlFor="sb-streak">Streak Preconditions</FieldLabel>
               <Select
+                id="sb-streak"
                 value={currentStrategy.streakFilter}
                 onChange={(e) => updateField('streakFilter', e.target.value)}
               >
@@ -437,8 +499,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
             {/* Decimal/American odds parameters */}
             <div className="col-span-1 md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-3 border-t border-zinc-800 pt-3 mt-1">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] uppercase font-semibold text-zinc-400">Min Odds (American)</label>
+                <label htmlFor="sb-oddsMin" className="text-[10px] uppercase font-semibold text-zinc-400">Min Odds (American)</label>
                 <input
+                  id="sb-oddsMin"
                   type="number"
                   placeholder="e.g. -150 or 110"
                   min={-MAX_AMERICAN_ODDS}
@@ -449,8 +512,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] uppercase font-semibold text-zinc-400">Max Odds (American)</label>
+                <label htmlFor="sb-oddsMax" className="text-[10px] uppercase font-semibold text-zinc-400">Max Odds (American)</label>
                 <input
+                  id="sb-oddsMax"
                   type="number"
                   placeholder="e.g. +250 or -110"
                   min={-MAX_AMERICAN_ODDS}
@@ -464,8 +528,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
               {currentStrategy.betType === 'spread' && (
                 <>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-semibold text-zinc-400">Min Spread Points</label>
+                    <label htmlFor="sb-spreadMin" className="text-[10px] uppercase font-semibold text-zinc-400">Min Spread Points</label>
                     <input
+                      id="sb-spreadMin"
                       type="number"
                       step="0.5"
                       placeholder="e.g. 3.0"
@@ -477,8 +542,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-semibold text-zinc-400">Max Spread Points</label>
+                    <label htmlFor="sb-spreadMax" className="text-[10px] uppercase font-semibold text-zinc-400">Max Spread Points</label>
                     <input
+                      id="sb-spreadMax"
                       type="number"
                       step="0.5"
                       placeholder="e.g. 7.5"
@@ -495,8 +561,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
               {currentStrategy.betType === 'totals' && (
                 <>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-semibold text-zinc-400">Min O/U Line Points</label>
+                    <label htmlFor="sb-totalMin" className="text-[10px] uppercase font-semibold text-zinc-400">Min O/U Line Points</label>
                     <input
+                      id="sb-totalMin"
                       type="number"
                       step="0.5"
                       placeholder="e.g. 42.5"
@@ -508,8 +575,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-semibold text-zinc-400">Max O/U Line Points</label>
+                    <label htmlFor="sb-totalMax" className="text-[10px] uppercase font-semibold text-zinc-400">Max O/U Line Points</label>
                     <input
+                      id="sb-totalMax"
                       type="number"
                       step="0.5"
                       placeholder="e.g. 54.5"
@@ -549,7 +617,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           type="button"
           disabled={isLoading}
           onClick={() => onRunBacktest(currentStrategy)}
-          className="group px-6 py-2.5 bg-sky-600 hover:bg-sky-500 disabled:bg-sky-800 text-zinc-100 light:text-white light:disabled:text-zinc-100 font-semibold rounded-xl shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 active:scale-95 text-xs flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none shrink-0"
+          className="group px-6 py-2.5 bg-sky-700 hover:bg-sky-600 disabled:bg-sky-800 text-white light:disabled:text-zinc-100 font-semibold rounded-xl shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 active:scale-95 text-xs flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none shrink-0"
         >
           {isLoading ? (
             <div className="w-4 h-4 border-2 border-zinc-300 border-t-transparent rounded-full animate-spin"></div>

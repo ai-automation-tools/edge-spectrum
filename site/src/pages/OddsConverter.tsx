@@ -118,10 +118,12 @@ function NoVig({ init }: { init: OddsPageQuery }) {
               return (
                 <tr key={leg.id} className="border-t border-zinc-800/60">
                   <td className="py-2 pr-3">
-                    <input value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
+                    <input aria-label={`Outcome ${i + 1} name`} value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
                   </td>
                   <td className="py-2 pr-3">
                     <input
+                      aria-label={`${leg.label || `Outcome ${i + 1}`} book price`}
+                      aria-invalid={bad}
                       value={leg.text}
                       onChange={(e) => update(leg.id, { text: e.target.value })}
                       inputMode="decimal"

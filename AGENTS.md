@@ -20,8 +20,10 @@ tool is roughly *one registry entry + one page*.
 - **Host: Vercel** (project `edge-spectrum`). The Vercel project's **Root Directory is set to `site`**
   (dashboard → Settings → Build & Deployment → Root Directory), so `vercel.json` and `api/` inside
   `site/` are picked up as-is. Working branch **`mike_desktop`**, deploy branch **`main`**.
-  Deploy via CLI: `vercel deploy --prod` **from `site/`** (the `.vercel/` link folder lives there).
-  (Git-connected; production branch may also be set to `main` in the dashboard for push-to-deploy.)
+  **A merge to `main` is the only deploy path**: the project is Git-connected with `main` as its
+  production branch (GitHub's deployment log shows every production deploy at a `main` merge commit),
+  and each PR gets a preview. Do not run `vercel deploy --prod` by hand; it would ship code that skipped
+  the PR and CI. Rolling back is in `docs/self-hosting.md`.
 - `site/server.ts` (Express + Vite middleware) is **local dev only**; on Vercel the SPA is served from
   `site/dist/` and `site/api/*` run as serverless functions. `vercel.json` has an SPA rewrite so client
   routes deep-link.
@@ -53,12 +55,13 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
     data/edges.ts      # THE DATASET — the canonical 240 edge records. Everything else that
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
-  scripts/            # not shipped: check-market.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
+  scripts/            # not shipped: check-bundle.mjs (after build), check-live.mjs (the deployed site, run by the
+                      #   Registry drift workflow daily and after each production deploy), check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
                       #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
                       #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
                       #   templates there, never the output; --check in CI. check-registry-published.mjs
                       #   is the daily drift check of the served copy
-  api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts
+  api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts, advisor-auth.ts
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
                       #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
   index.html, server.ts, package.json, vite.config.ts, vercel.json, tsconfig.json
@@ -73,7 +76,10 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 1. Add one entry to `TOOLS` in `site/src/tools.ts` (`slug`, `title`, `blurb`, `icon`, `href`, `kind`, `status`, `accent`).
 2. Then, by `kind`:
-   - `route` → build the page component and add its `<Route>` in `site/src/App.tsx`.
+   - `route` → build the page component and add it to `site/src/App.tsx` as a `lazy()` import with its `<Route>`.
+     A new route is also listed in three more places,
+     or it is a 404 in production while it works in dev: 
+     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
    - `static` → drop the page under `site/public/<slug>/` and point `href` at `/<slug>/index.html`
      (Vite dev does **not** auto-serve a `public/` directory index — always link the explicit file).
    - `external` → just the URL; opens in a new tab.
@@ -83,14 +89,21 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 - `EDGE_SPECTRUM_MODE` defaults to `demo`. Only the exact value `full` enables live AI. The public
   demo must stay in demo mode and must not hold Gemini credentials. See `docs/self-hosting.md`.
+- `GEMINI_MODEL` (optional) overrides the advisor's model id; the default is `DEFAULT_GEMINI_MODEL`
+  in `site/src/server/advisor.ts`. When Google retires a model, change the default there and the
+  Gemini row in `docs/UPSTREAMS.md` together.
 - `GEMINI_API_KEY` (Gemini advisor). Loaded from `site/.env` locally (gitignored), and set
   in the Vercel project's env vars for production. **Never commit `.env`** — advisor stays server-side; do
   not move the key client-side.
 - `ADVISOR_PASSCODE` — **required for the AI advisor to work.** The advisor spends a metered key, so
   `/api/strategy-advisor` sits behind a shared-passcode session gate (`site/src/server/auth.ts`). If the var
   is unset the endpoint **fails closed** with `503` and the advisor panel renders as unavailable; every other
-  tool is unaffected. Optional `ADVISOR_SECRET` signs session cookies — when unset it is derived from the
-  passcode, so rotating the passcode invalidates all sessions.
+  tool is unaffected. `ADVISOR_SECRET` signs session cookies and is **also required** (since 2026-11-12):
+  without it the gate counts as unconfigured and answers `503`.
+- Advisor limits live in `auth.ts`: 10 calls an hour per session and per address, and
+  `ADVISOR_DAILY_LIMIT` (default 200) across everyone. They are in process memory, so on serverless
+  they slow abuse rather than cap it; the quota on the Gemini key is the ceiling (roadmap 2.7b).
+  Caller addresses come from forwarding headers only on Vercel or with `TRUST_PROXY=1`.
 
 ## Conventions
 
@@ -98,6 +111,22 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   Note that `tsconfig.json` does **not** set `strict`/`strictNullChecks`, so some type-level
   idioms silently do not work — notably, narrowing a discriminated union on a boolean field
   (`if (r.ok) …`) does not narrow, and Zod infers every output field as optional.
+- **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
+  before it draws a game, because rest days, streaks and the prices set from them are carried from
+  one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
+  `npm run check:engine` holds both; `check:market` only holds the ROI band.
+- Route input handling lives in `src/server/` (`backtestRoute`, `espnScoreboardRoute`), which return
+  `{ status, body }`. `server.ts` and `api/*.ts` only pass the request through and send the result.
+- **Client routes are listed in four places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
+  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, and `site/public/sitemap.xml`. A
+  route missing from the rewrite is a 404 in production while working in dev. Tool pages are `lazy()`
+  chunks; `npm run check:bundle` (after `build`) holds the home page's JS under 150 kB gzip.
+- **Content-Security-Policy is report-only** (`site/vercel.json`, since 2026-11-12): a strict policy for
+  the app and a looser one for `/spectrum/` and `/diagram/`, whose scripts are inline. The app's inline
+  theme script is allowed by hash and `check:bundle` fails if the two drift. Enforcing it is a one-word
+  header rename once production shows no reports; a new third-party origin goes in the policy first.
+- Muted text uses `text-zinc-500` / `text-zinc-600`, which `index.css` lightens on dark so they clear
+  4.5:1. Do not reach for a dimmer colour for body-size text.
 - Untrusted request bodies get a Zod schema in `site/src/server/`, reached through the shared
   `src/server/` module both entry points already call — not re-checked in each route handler.
 - The static `site/public/spectrum/` page is self-contained for serving (Plotly self-hosted as
@@ -118,7 +147,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
-  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:spectrum-browser` on every PR.
+  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `build:registry --check` → `check:deployment` → `build` → `check:bundle` → `check:spectrum-browser` on every PR.
   `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page (`vite preview` on
   `dist/`), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level

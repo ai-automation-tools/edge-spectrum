@@ -8,6 +8,12 @@ export interface ApiRequest extends IncomingMessage {
   query: Record<string, string | string[] | undefined>;
 }
 
+/** What a framework-agnostic route function hands back to its Express or Vercel adapter. */
+export interface RouteResult {
+  status: number;
+  body: unknown;
+}
+
 export interface ApiResponse extends ServerResponse {
   status(code: number): ApiResponse;
   json(body: unknown): ApiResponse;

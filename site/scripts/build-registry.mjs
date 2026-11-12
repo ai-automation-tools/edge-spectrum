@@ -29,6 +29,9 @@ const REPO_PARAM = {
   help: 'Absolute path to your clone of ai-automation-tools/edge-spectrum, with `npm ci` run in its site/ folder.',
 };
 
+// Audit GOV-01. The same notice is in the README; change them together.
+const ESPN_NOTICE = "Uses an unofficial, undocumented ESPN endpoint: Edge Spectrum is not affiliated with ESPN, you are responsible for following ESPN's terms of use, and the capture is for personal, low-volume use, not for republishing.";
+
 const TEMPLATES = [
   {
     schemaVersion: '1.0',
@@ -37,8 +40,8 @@ const TEMPLATES = [
     description:
       'Snapshots ESPN\'s public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game '
       + '(spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture '
-      + 'open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 18+ and a clone '
-      + 'of edge-spectrum with `npm ci` run in site/.',
+      + 'open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone '
+      + 'of edge-spectrum with `npm ci` run in site/. ' + ESPN_NOTICE,
     runtime: 'node',
     os: 'cross-platform',
     category: 'data-sync',
@@ -74,8 +77,8 @@ const TEMPLATES = [
       + "<archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final "
       + 'score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the '
       + 'archive, no keys, no network. Fails when the day has no capture file at all, which means the capture '
-      + 'task did not run. Needs the line capture template running, Node 18+ and a clone of edge-spectrum with '
-      + '`npm ci` run in site/.',
+      + 'task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with '
+      + '`npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use.',
     runtime: 'node',
     os: 'cross-platform',
     category: 'monitoring',
@@ -111,6 +114,7 @@ const PACKS = [
 
 // Mirrors cronsole backend/src/catalog/schema.ts (Registry v1).
 const TARGETS = new Set(['windows', 'cronsole-native', 'macos', 'linux', 'claude-code', 'chatgpt', 'gemini']);
+const COMMAND_SHAPE = /^node "\{\{repoPath\}\}\/site\/node_modules\/tsx\/dist\/cli\.mjs" "\{\{repoPath\}\}\/site\/scripts\/[a-z-]+\.ts"( --[a-z-]+ ("\{\{\w+\}\}"|\{\{\w+\}\}))*$/;
 function validate(t) {
   const errs = [];
   const req = (ok, msg) => { if (!ok) errs.push(`${t.id}: ${msg}`); };
@@ -122,6 +126,9 @@ function validate(t) {
   const used = [...(t.commandTemplate || '').matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]);
   req(used.every(k => keys.has(k)), `placeholders without parameters: ${used.filter(k => !keys.has(k))}`);
   req((t.parameters || []).every(p => !('default' in p) || typeof p.default === 'string'), 'parameter defaults must be strings');
+  // These commands run on other people's machines. The only shape allowed is this repo's own tsx
+  // running a script under site/scripts/, with flags whose values are parameters (audit AI-01).
+  req(COMMAND_SHAPE.test(t.commandTemplate || ''), 'commandTemplate must be node, the tsx in the clone, a script under {{repoPath}}/site/scripts/, then --flag {{param}} pairs');
   return errs;
 }
 

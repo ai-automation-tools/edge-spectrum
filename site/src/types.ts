@@ -109,12 +109,14 @@ export interface BacktestSummary {
   winRateLow: number;       // %, 95% Wilson interval on winRate
   winRateHigh: number;
   pValue: number;           // one-tailed, H0: true win rate ≤ breakeven
+  /** Set when the bankroll could no longer cover a stake: wagers placed before the run stopped, and the date it stopped. */
+  bustedAtBet?: number;
+  bustedOn?: string;
 }
 
 export interface ProfitHistoryPoint {
-  index: number;
+  index: number; // the wager's number in the run; a long run ships a thinned curve, so these can skip
   date: string;
-  matchup: string;
   netProfit: number;
   cumulativeProfit: number;
   currentBankroll: number;
@@ -125,8 +127,9 @@ export interface BacktestResponse {
   profitHistory: ProfitHistoryPoint[];
   /**
    * The tail of the wager ledger, at most `previewLimit` entries. Named for
-   * what it is: the engine truncates this for payload size while `summary` and
-   * `profitHistory` are computed over all `totalGames` wagers. The full,
+   * what it is: the engine truncates this for payload size while `summary` is
+   * computed over all `totalGames` wagers and `profitHistory` spans them all,
+   * thinned to `PROFIT_HISTORY_LIMIT` points on a long run. The full,
    * unsliced ledger is the export bundle's job (roadmap Action 3.2).
    */
   gamesPreview: SimulatedBetGame[];

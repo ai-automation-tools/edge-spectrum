@@ -1,6 +1,13 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import type { Strategy } from '../types.js';
+import { z } from 'zod';
+import type { AdvisorResponse, Strategy } from '../types.js';
 import { deploymentMode } from './deployment.js';
+import { guardAdvisorRequest } from './auth.js';
+import type { RouteResult } from './httpTypes.js';
+import {
+  BET_TYPES, MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS, SIDE_SELECTIONS, SPORTS,
+  STREAK_FILTERS, TOTALS_SIDES,
+} from '../strategyBounds.js';
 
 /**
  * Gemini-powered strategy advisor. Shared by the local Express dev server
@@ -11,16 +18,18 @@ import { deploymentMode } from './deployment.js';
  */
 let client: GoogleGenAI | null = null;
 
+/**
+ * Model ids retire on Google's schedule, not ours, so a self-hoster can move
+ * with `GEMINI_MODEL` instead of waiting for a release. The default is the
+ * model `gemini-2.5-flash` requests are routed to from 2026-12-01; see
+ * docs/UPSTREAMS.md for when it was last checked.
+ */
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+export const geminiModel = () => process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+
 function getClient(): GoogleGenAI {
   if (!client) {
-    client = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    });
+    client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   }
   return client;
 }
@@ -37,17 +46,88 @@ Help the user parse their natural language ideas, critique their current backtes
 Warn them about standard traps (e.g., heavily favored moneylines have huge vig/juice; point spread favorites cover less than expected; betting over/under trends usually regress to the mean).
 
 ALWAYS formulate your output in JSON conforming exactly to the response schema:
-- 'analysis': A well-articulated expert review in Markdown. Include bullet points, historical truths (e.g. why 2007 Patriots, 2016 Warriors, or early 2010s Giants are great simulation testbeds), and suggestions of alternative profitable metrics.
+- 'analysis': A well-articulated expert review in Markdown. Include bullet points and suggestions of other angles worth testing.
 - 'suggestedTemplates': A list of 1 to 2 strategy configurations matching your expert recommendations, so the user can test them immediately. Use the following structured options for 'sideSelection': 'favorites'|'underdogs'|'home'|'away'|'home_favorites'|'away_favorites'|'home_underdogs'|'away_underdogs'|'over'|'under'`;
 
+/** How long the model gets, and how much it may write: both bound what one call can cost. */
+export const ADVISOR_TIMEOUT_MS = 20_000;
+const MAX_OUTPUT_TOKENS = 4096;
+
+/** The model's reply was empty, not JSON, or not the shape asked for: a 502, never forwarded. */
+export class AdviceFormatError extends Error {}
+
+const optional = (max: number, min = 0) => z.number().finite().min(min).max(max).optional().catch(undefined);
+const templateSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).catch(''),
+  sport: z.enum(SPORTS),
+  betType: z.enum(BET_TYPES),
+  sideSelection: z.enum(SIDE_SELECTIONS),
+  streakFilter: z.enum(STREAK_FILTERS).catch('any'),
+  oddsMin: optional(MAX_AMERICAN_ODDS, -MAX_AMERICAN_ODDS),
+  oddsMax: optional(MAX_AMERICAN_ODDS, -MAX_AMERICAN_ODDS),
+  spreadMin: optional(MAX_SPREAD_POINTS),
+  spreadMax: optional(MAX_SPREAD_POINTS),
+  totalMin: optional(MAX_TOTAL_POINTS),
+  totalMax: optional(MAX_TOTAL_POINTS),
+});
+
 /**
- * Generate strategy advice as a JSON string conforming to AdvisorResponse.
- * Returns the raw model text (already JSON) for the caller to forward verbatim.
+ * Check the model's text before it reaches a browser. The analysis must be
+ * there; a suggested template the backtest schema would reject (an unknown
+ * value, a totals bet on a team side, a min above its max) is dropped rather
+ * than failing the reply, so "Apply" can never put the form in a bad state.
  */
+export function parseAdvice(text: string): AdvisorResponse {
+  let raw: unknown;
+  try { raw = JSON.parse(text); } catch { throw new AdviceFormatError('reply is not JSON'); }
+  const analysis = (raw as { analysis?: unknown } | null)?.analysis;
+  if (typeof analysis !== 'string' || analysis.trim() === '') throw new AdviceFormatError('reply has no analysis');
+
+  const offered = (raw as { suggestedTemplates?: unknown }).suggestedTemplates;
+  const ordered = (min?: number, max?: number) => min === undefined || max === undefined || min <= max;
+  const suggestedTemplates = (Array.isArray(offered) ? offered : []).flatMap((item) => {
+    const parsed = templateSchema.safeParse(item);
+    if (!parsed.success) return [];
+    const t = parsed.data;
+    const totalsSide = (TOTALS_SIDES as readonly string[]).includes(t.sideSelection!);
+    if ((t.betType === 'totals') !== totalsSide) return [];
+    if (!ordered(t.oddsMin, t.oddsMax) || !ordered(t.spreadMin, t.spreadMax) || !ordered(t.totalMin, t.totalMax)) return [];
+    return [t as AdvisorResponse['suggestedTemplates'][number]];
+  }).slice(0, 2);
+
+  return { analysis, suggestedTemplates };
+}
+
+/**
+ * POST /api/strategy-advisor, minus the framework. The gate runs first: this
+ * endpoint spends real money on the Gemini key, so it is enforced here and
+ * not only in the UI.
+ */
+export async function advisorRoute(cookieHeader: string | undefined, body: unknown, ip: string): Promise<RouteResult> {
+  const { prompt, currentStrategy } = (body ?? {}) as { prompt?: unknown; currentStrategy?: Partial<Strategy> };
+  const denied = guardAdvisorRequest(cookieHeader, prompt, ip);
+  if (denied) return denied;
+  try {
+    return { status: 200, body: await generateAdvice(prompt as string, currentStrategy) };
+  } catch (error) {
+    const name = (error as Error)?.name;
+    if (name === 'TimeoutError' || name === 'AbortError') {
+      return { status: 504, body: { error: 'The model took too long to answer. Try again, or ask something shorter.' } };
+    }
+    console.error('Error in strategy advisor:', error);
+    if (error instanceof AdviceFormatError) {
+      return { status: 502, body: { error: 'The model returned an answer the advisor could not read. Try again.' } };
+    }
+    return { status: 500, body: { error: 'The advisor could not reach the model. Check the Gemini key and model on this deployment.' } };
+  }
+}
+
+/** Ask the model for advice and return it validated (see parseAdvice). */
 export async function generateAdvice(
   prompt: string,
   currentStrategy: Partial<Strategy> | undefined,
-): Promise<string> {
+): Promise<AdvisorResponse> {
   if (deploymentMode() !== 'full') {
     throw new Error('Live AI is disabled in demo mode.');
   }
@@ -66,13 +146,15 @@ Bet Type: ${s(cs.betType, 'moneyline')}
 Side: ${s(cs.sideSelection, 'favorites')}
 Unit: $${n(cs.unitSize, 100)}
 
-Please provide your analysis and suggest 1-2 profitable alternative strategies or variations to backtest.`;
+Please provide your analysis and suggest 1-2 alternative strategies or variations to backtest.`;
 
   const response = await getClient().models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: geminiModel(),
     contents: modelPrompt,
     config: {
       systemInstruction: SYSTEM_PROMPT,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      abortSignal: AbortSignal.timeout(ADVISOR_TIMEOUT_MS),
       responseMimeType: 'application/json',
       responseSchema: {
         type: Type.OBJECT,
@@ -113,5 +195,5 @@ Please provide your analysis and suggest 1-2 profitable alternative strategies o
     },
   });
 
-  return response.text ?? '';
+  return parseAdvice(response.text ?? '');
 }

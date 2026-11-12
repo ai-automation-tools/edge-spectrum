@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Strategy, StrategyTemplate } from '../types';
 import { Send, Sparkles, HelpCircle, ArrowUpRight, BrainCircuit, Play, History, RotateCcw, Lock, LoaderCircle, KeyRound } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
 import { useDeployment } from '../deployment';
 import DemoAdvisor from './DemoAdvisor';
+
+// Only an unlocked advisor renders markdown, so the demo never downloads the parser.
+const ReactMarkdown = lazy(() => import('react-markdown'));
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,10 +19,10 @@ interface AiAdvisorProps {
 }
 
 const COMMON_PROMPTS = [
-  "Does buying point-spread favorites in NBA historically cash?",
-  "Formulate an MLB underdog value betting strategy",
-  "Critique my NFL favorite moneyline model - is it EV+?",
-  "Suggest a high-win-rate NHL totals strategy"
+  "How do NBA point-spread favorites fare in this simulator, and why?",
+  "Walk me through testing an MLB underdog moneyline strategy",
+  "Critique my NFL favorite moneyline setup",
+  "What should I expect from an NHL totals strategy?"
 ];
 
 /**
@@ -70,7 +72,6 @@ What strategy concept would you like to build? You can outline rules in natural 
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
 
   // Passcode gate. The advisor spends a metered Gemini key, so it is locked by
   // default — the real check lives on the server (src/server/auth.ts); this is
@@ -125,14 +126,6 @@ What strategy concept would you like to build? You can outline rules in natural 
     updateAuth(false);
   };
 
-  const loadingSentences = [
-    'Scanning past 25 years of game database matrices...',
-    'Evaluating vig weights and moneyline arbitrage odds...',
-    'Performing regression analytics on player injury rosters...',
-    'Formulating Kelly Criterion decimal sizing vectors...',
-    'Isolating sport divisional performance indicators...'
-  ];
-
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isGenerating) return;
 
@@ -141,13 +134,6 @@ What strategy concept would you like to build? You can outline rules in natural 
     setInputValue('');
     setIsGenerating(true);
 
-    let loadIdx = 0;
-    setStatusMessage(loadingSentences[0]);
-    const loadInterval = setInterval(() => {
-      loadIdx = (loadIdx + 1) % loadingSentences.length;
-      setStatusMessage(loadingSentences[loadIdx]);
-    }, 1500);
-
     try {
       const response = await fetch('/api/strategy-advisor', {
         method: 'POST',
@@ -155,7 +141,9 @@ What strategy concept would you like to build? You can outline rules in natural 
         body: JSON.stringify({
           prompt: text,
           currentStrategy
-        })
+        }),
+        // A little past the server's own model timeout, so its message arrives first.
+        signal: AbortSignal.timeout(30_000),
       });
 
       // The session can expire mid-conversation — drop back to the lock screen
@@ -174,11 +162,13 @@ What strategy concept would you like to build? You can outline rules in natural 
       }
 
       if (!response.ok) {
-        throw new Error('Advisor API request failed');
+        // The server says what went wrong (rate limit, timeout, unreadable reply): show that.
+        const body = await response.json().catch(() => null);
+        throw new Error(typeof body?.error === 'string' ? body.error : '');
       }
 
       const data = await response.json();
-      
+
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.analysis,
@@ -188,15 +178,11 @@ What strategy concept would you like to build? You can outline rules in natural 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: '⚠️ **System Error**: I am unable to reach the server-side Gemini node. Check that `GEMINI_API_KEY` is set in the deployment environment, then retry.'
-        }
-      ]);
+      const reason = (err as Error)?.name === 'TimeoutError'
+        ? 'The advisor did not answer in time. Try again.'
+        : (err as Error)?.message || 'The advisor could not be reached. Check your connection and try again.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: `⚠️ ${reason}` }]);
     } finally {
-      clearInterval(loadInterval);
       setIsGenerating(false);
     }
   };
@@ -205,7 +191,7 @@ What strategy concept would you like to build? You can outline rules in natural 
     setMessages([
       {
         role: 'assistant',
-        content: `Aviation systems recalculated. **EdgeFinder console cleared.** How can I assist you with sports analytics now?`,
+        content: 'Chat cleared.',
       }
     ]);
   };
@@ -323,7 +309,7 @@ What strategy concept would you like to build? You can outline rules in natural 
                 }`}
               >
                 <div className="markdown-body">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                  <Suspense fallback={<p>{m.content}</p>}><ReactMarkdown>{m.content}</ReactMarkdown></Suspense>
                 </div>
 
                 {/* Templates rendering */}
@@ -369,7 +355,7 @@ What strategy concept would you like to build? You can outline rules in natural 
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
               </div>
-              <span className="text-[11px] font-mono text-zinc-400 animate-pulse">{statusMessage}</span>
+              <span className="text-[11px] font-mono text-zinc-400 animate-pulse">Waiting for the advisor…</span>
             </div>
           </div>
         )}

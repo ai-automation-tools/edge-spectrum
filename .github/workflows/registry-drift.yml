@@ -4,23 +4,36 @@ name: Registry drift
 # one on main, with the CORS header the Cronsole gallery needs? A deploy that failed or never ran leaves
 # site/public/registry/ correct and the public copy stale, and nothing inside the repo can see that.
 # A failure here means redeploy main on Vercel.
+# The same job smoke-checks the live site (routes answer, unknown paths are 404, the dataset is the
+# one on main, a backtest runs) and that the public demo is still in demo mode. It also runs after
+# each production deploy, so a bad deploy is reported within minutes, not the next morning.
 on:
   schedule:
     - cron: '41 6 * * *'
+  deployment_status:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  check:
+  # Not `check`: that is the CI job's name, and a skipped job here must never stand in for it.
+  live:
+    # Only this repo's own site, and for deploys only a finished production one.
+    if: >-
+      github.repository == 'ai-automation-tools/edge-spectrum' &&
+      (github.event_name != 'deployment_status' ||
+       (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: main
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Hosted catalog matches site/public/registry/
         run: node site/scripts/check-registry-published.mjs
+      - name: Live site answers and the demo is in demo mode
+        if: always()
+        run: node site/scripts/check-live.mjs
