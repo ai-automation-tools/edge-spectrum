@@ -9,6 +9,27 @@ const HELPLINES: { label: string; href: string }[] = [
   { label: 'Worldwide: GamblingTherapy.org', href: 'https://www.gamblingtherapy.org/' },
 ];
 
+const linkProps = (href: string) => (href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {});
+
+/**
+ * The age and help-line line under each betting tool's heading (audit UX-19), so the notice is
+ * seen before the tool, not only past it in the footer. The footer keeps the full notice.
+ */
+export function RgLine() {
+  const [us, , , world] = HELPLINES;
+  return (
+    <p className="mt-3 text-[13px] leading-relaxed text-zinc-400">
+      18+ (21+ where you live). Gambling problem? Free, confidential help:{' '}
+      {[us, world].map((h, i) => (
+        <React.Fragment key={h.href}>
+          {i > 0 && ' · '}
+          <a href={h.href} {...linkProps(h.href)} className="underline underline-offset-2 hover:text-zinc-200">{h.label}</a>
+        </React.Fragment>
+      ))}
+    </p>
+  );
+}
+
 /**
  * The shared footer: domain, the org links, the consent hooks every sibling site carries,
  * and the responsible-gambling / not-advice notice. Every route renders it, so a new tool
@@ -28,13 +49,13 @@ export default function SiteFooter({ note }: { note?: React.ReactNode }) {
           </div>
         </div>
         {note && <p className="mt-3.5 text-xs leading-relaxed text-zinc-600">{note}</p>}
-        <p className="mt-3.5 text-xs leading-relaxed text-zinc-500" aria-label="Responsible gambling">
+        <p className="mt-3.5 text-[13px] leading-relaxed text-zinc-400">
           For education only — not investment, financial or betting advice. Gambling is for adults (18+ or 21+ where you live)
           and most wagers here lose money over time. Gambling problem? Free, confidential help:{' '}
           {HELPLINES.map((h, i) => (
             <React.Fragment key={h.href}>
               {i > 0 && ' · '}
-              <a href={h.href} {...(h.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="text-zinc-400 underline-offset-2 transition-colors hover:text-zinc-200 hover:underline">{h.label}</a>
+              <a href={h.href} {...linkProps(h.href)} className="text-zinc-300 underline underline-offset-2 transition-colors hover:text-zinc-100">{h.label}</a>
             </React.Fragment>
           ))}
           .

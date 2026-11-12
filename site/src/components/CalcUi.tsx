@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Accent } from '../tools';
 import { Card } from './ui';
@@ -11,6 +11,28 @@ const SELECT_CLS =
   'peer h-10 w-full appearance-none rounded-lg border border-zinc-800 bg-(--bg-2) pl-3 pr-9 text-sm font-medium text-zinc-200 transition-all hover:border-zinc-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 cursor-pointer';
 
 export const pct = (p: number, dp = 2) => `${(p * 100).toFixed(dp)}%`;
+
+/** A price field with its error written under it and tied to it, not just a red border (audit UX-16). */
+export function PriceInput({ error, className = '', ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { error: string | null }) {
+  const id = useId();
+  return (
+    <>
+      <input
+        {...rest}
+        inputMode="decimal"
+        aria-invalid={!!error}
+        aria-describedby={error ? id : undefined}
+        className={`${INPUT_CLS} ${className} ${error ? 'border-rose-500/60' : ''}`}
+      />
+      {error && <p id={id} className="mt-1 max-w-[13rem] font-sans text-[11px] leading-snug text-rose-400">{error}</p>}
+    </>
+  );
+}
+
+/** Says why the results are missing, where the results would be. */
+export function FixPrices({ what }: { what: string }) {
+  return <p role="status" className="mt-5 text-sm text-rose-400">Fix the prices marked above to see {what}.</p>;
+}
 
 export function Select<T extends string>({
   value, onChange, options, labels,

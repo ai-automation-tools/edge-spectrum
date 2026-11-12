@@ -3,12 +3,12 @@ import { useLocation } from 'react-router-dom';
 import { Layers, Plus, X, Info, TrendingDown } from 'lucide-react';
 import {
   type OddsFormat, type DevigMethod, FORMAT_LABEL, METHOD_LABEL,
-  parseOdds, formatOdds, devig, parlay,
+  parseOdds, formatOdds, devig, parlay, oddsError,
 } from '../odds';
 import { parlayFromQuery } from '../calcUrl';
-import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
+import { INPUT_CLS, pct, Select, Panel, Stat, PriceInput, FixPrices } from '../components/CalcUi';
 import { PageHead, Accented } from '../components/ui';
-import SiteFooter from '../components/SiteFooter';
+import SiteFooter, { RgLine } from '../components/SiteFooter';
 
 const FORMATS = Object.keys(FORMAT_LABEL) as OddsFormat[];
 const METHODS = Object.keys(METHOD_LABEL) as DevigMethod[];
@@ -41,7 +41,8 @@ export default function ParlayCalculator() {
   });
   const complete = parsed.every((p) => p !== null);
   const quotedDecimal = parseOdds(quoted, format);
-  const quotedBad = quoted.trim() !== '' && quotedDecimal === null;
+  // Optional, so empty is fine; anything typed must be a price.
+  const quotedError = quoted.trim() ? oddsError(quoted, format) : null;
   const result = complete ? parlay(parsed as NonNullable<typeof parsed[number]>[], quotedDecimal ?? undefined) : null;
   // Running view: how the hold grows as legs are added (always at the naive product price).
   const ladder = complete
@@ -60,7 +61,9 @@ export default function ParlayCalculator() {
         accent="amber"
         title={<>Parlay &amp; <Accented accent="amber">SGP</Accented> Hold Calculator</>}
         lede="Enter both sides of each leg. Each leg is de-vigged to its fair probability, the legs are multiplied into a true joint probability, and that is compared with what the book pays. The gap is the parlay's hold, and it grows with every leg."
-      />
+      >
+        <RgLine />
+      </PageHead>
 
       <div className="flex flex-col gap-6">
         <Panel
@@ -78,16 +81,10 @@ export default function ParlayCalculator() {
               <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">De-vig method</span>
               <Select value={method} onChange={setMethod} options={METHODS} labels={METHOD_LABEL} />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Book's quoted parlay price</span>
-              <input
-                value={quoted}
-                onChange={(e) => setQuoted(e.target.value)}
-                placeholder="optional"
-                inputMode="decimal"
-                className={`${INPUT_CLS} ${quotedBad ? 'border-rose-500/60' : ''}`}
-              />
-            </label>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="parlay-quoted" className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Book's quoted parlay price</label>
+              <PriceInput id="parlay-quoted" error={quotedError} value={quoted} onChange={(e) => setQuoted(e.target.value)} placeholder="optional" />
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -107,18 +104,16 @@ export default function ParlayCalculator() {
               <tbody className="font-mono">
                 {legs.map((leg, i) => {
                   const p = parsed[i];
-                  const badSide = leg.side.trim() !== '' && parseOdds(leg.side, format) === null;
-                  const badOther = leg.other.trim() !== '' && parseOdds(leg.other, format) === null;
                   return (
                     <tr key={leg.id} className="border-t border-zinc-800/60">
                       <td className="py-2 pr-3">
                         <input aria-label={`Leg ${i + 1} name`} value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
                       </td>
-                      <td className="py-2 pr-3">
-                        <input aria-label={`${leg.label || `Leg ${i + 1}`} price`} aria-invalid={badSide} value={leg.side} onChange={(e) => update(leg.id, { side: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badSide ? 'border-rose-500/60' : ''}`} />
+                      <td className="py-2 pr-3 align-top">
+                        <PriceInput aria-label={`${leg.label || `Leg ${i + 1}`} price`} error={oddsError(leg.side, format)} value={leg.side} onChange={(e) => update(leg.id, { side: e.target.value })} className="h-9 w-24" />
                       </td>
-                      <td className="py-2 pr-3">
-                        <input aria-label={`${leg.label || `Leg ${i + 1}`} other side price`} aria-invalid={badOther} value={leg.other} onChange={(e) => update(leg.id, { other: e.target.value })} inputMode="decimal" className={`${INPUT_CLS} h-9 w-24 ${badOther ? 'border-rose-500/60' : ''}`} />
+                      <td className="py-2 pr-3 align-top">
+                        <PriceInput aria-label={`${leg.label || `Leg ${i + 1}`} other side price`} error={oddsError(leg.other, format)} value={leg.other} onChange={(e) => update(leg.id, { other: e.target.value })} className="h-9 w-24" />
                       </td>
                       <td className="py-2 pr-3 text-right text-zinc-400">{p ? pct(p.implied) : '—'}</td>
                       <td className="py-2 pr-3 text-right text-zinc-100">{p ? pct(p.fair) : '—'}</td>
@@ -146,6 +141,7 @@ export default function ParlayCalculator() {
           >
             <Plus className="h-3.5 w-3.5" /> Add leg
           </button>
+          {(!result || quotedError) && <FixPrices what={result ? 'the hold against the quoted price' : 'the parlay'} />}
         </Panel>
 
         {result && (

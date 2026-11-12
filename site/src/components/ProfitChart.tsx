@@ -15,6 +15,7 @@ interface ProfitChartProps {
 
 export default function ProfitChart({ data }: ProfitChartProps) {
   const gradientId = useId();
+  const summaryId = useId();
   const c = CHART[useTheme()];
 
   if (!data || data.length === 0) {
@@ -28,8 +29,16 @@ export default function ProfitChart({ data }: ProfitChartProps) {
   }
 
   // Check if profit is trending positive or negative
-  const isHealthy = data[data.length - 1]?.cumulativeProfit >= 0;
+  const last = data[data.length - 1];
+  const isHealthy = last.cumulativeProfit >= 0;
   const line = isHealthy ? c.up : c.down;
+  // The text alternative (audit UX-13): where the curve ends, and its low and high points.
+  const low = data.reduce((a, p) => (p.cumulativeProfit < a.cumulativeProfit ? p : a));
+  const high = data.reduce((a, p) => (p.cumulativeProfit > a.cumulativeProfit ? p : a));
+  const usd = (v: number) => `${v < 0 ? '−' : '+'}$${Math.abs(v).toLocaleString()}`;
+  const summary =
+    `Over ${last.index.toLocaleString()} bets, ${data[0].date} to ${last.date}, cumulative profit ends at ${usd(last.cumulativeProfit)}. ` +
+    `Lowest ${usd(low.cumulativeProfit)} at bet ${low.index.toLocaleString()}, highest ${usd(high.cumulativeProfit)} at bet ${high.index.toLocaleString()}.`;
 
   return (
     <div className="panel p-5">
@@ -46,9 +55,10 @@ export default function ProfitChart({ data }: ProfitChartProps) {
         </div>
       </div>
 
-      <div className="h-[300px] w-full">
+      <div className="h-[300px] w-full" role="img" aria-label="Equity curve" aria-describedby={summaryId}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
+            accessibilityLayer={false}
             data={data}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
@@ -119,6 +129,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      <p id={summaryId} className="mt-3 text-[11px] leading-relaxed text-zinc-400">{summary} The game log below lists the wagers.</p>
     </div>
   );
 }

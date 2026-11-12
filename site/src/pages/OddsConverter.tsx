@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Calculator, Scale, Plus, X, Info } from 'lucide-react';
-import { INPUT_CLS, pct, Select, Panel, Stat } from '../components/CalcUi';
+import { INPUT_CLS, pct, Select, Panel, Stat, PriceInput, FixPrices } from '../components/CalcUi';
 import { PageHead, Accented } from '../components/ui';
-import SiteFooter from '../components/SiteFooter';
+import SiteFooter, { RgLine } from '../components/SiteFooter';
 import {
   type OddsFormat, type DevigMethod, FORMAT_LABEL, METHOD_LABEL, METHOD_BLURB,
-  parseOdds, formatOdds, devig,
+  parseOdds, formatOdds, devig, oddsError,
 } from '../odds';
 import { oddsFromQuery, type OddsPageQuery } from '../calcUrl';
 
@@ -30,7 +30,7 @@ function Converter({ init }: { init: OddsPageQuery }) {
         {FORMATS.map((f) => {
           const active = f === src.format;
           const value = active ? src.text : decimal ? formatOdds(decimal, f) : '';
-          const bad = active && src.text.trim() !== '' && decimal === null;
+          const bad = active && decimal === null;
           return (
             <label key={f} className="flex flex-col gap-1.5">
               <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">{FORMAT_LABEL[f]}</span>
@@ -39,17 +39,17 @@ function Converter({ init }: { init: OddsPageQuery }) {
                 onChange={(e) => setSrc({ format: f, text: e.target.value })}
                 placeholder={{ american: '-110', decimal: '1.909', fractional: '10/11', implied: '52.38' }[f]}
                 inputMode="decimal"
+                aria-invalid={bad}
+                aria-describedby={bad ? 'conv-error' : undefined}
                 className={`${INPUT_CLS} ${bad ? 'border-rose-500/60' : ''} ${active ? '' : 'text-zinc-300'}`}
               />
             </label>
           );
         })}
       </div>
-      <p className="mt-4 font-mono text-xs text-zinc-500">
-        {decimal
-          ? <>$100 stake returns <span className="text-zinc-200">${(decimal * 100).toFixed(2)}</span> · profit <span className="text-zinc-200">${((decimal - 1) * 100).toFixed(2)}</span> · break-even win rate <span className="text-zinc-200">{pct(1 / decimal)}</span></>
-          : 'Enter a valid price (American |odds| ≥ 100, decimal > 1, fraction like 10/11, or a percentage).'}
-      </p>
+      {decimal
+        ? <p className="mt-4 font-mono text-xs text-zinc-500">$100 stake returns <span className="text-zinc-200">${(decimal * 100).toFixed(2)}</span> · profit <span className="text-zinc-200">${((decimal - 1) * 100).toFixed(2)}</span> · break-even win rate <span className="text-zinc-200">{pct(1 / decimal)}</span></p>
+        : <p id="conv-error" className="mt-4 text-xs text-rose-400">{oddsError(src.text, src.format)}</p>}
     </Panel>
   );
 }
@@ -114,20 +114,18 @@ function NoVig({ init }: { init: OddsPageQuery }) {
           <tbody className="font-mono">
             {legs.map((leg, i) => {
               const d = decimals[i];
-              const bad = leg.text.trim() !== '' && d === null;
               return (
                 <tr key={leg.id} className="border-t border-zinc-800/60">
                   <td className="py-2 pr-3">
                     <input aria-label={`Outcome ${i + 1} name`} value={leg.label} onChange={(e) => update(leg.id, { label: e.target.value })} className={`${INPUT_CLS} h-9 w-28 font-sans`} />
                   </td>
-                  <td className="py-2 pr-3">
-                    <input
+                  <td className="py-2 pr-3 align-top">
+                    <PriceInput
                       aria-label={`${leg.label || `Outcome ${i + 1}`} book price`}
-                      aria-invalid={bad}
+                      error={oddsError(leg.text, format)}
                       value={leg.text}
                       onChange={(e) => update(leg.id, { text: e.target.value })}
-                      inputMode="decimal"
-                      className={`${INPUT_CLS} h-9 w-28 ${bad ? 'border-rose-500/60' : ''}`}
+                      className="h-9 w-28"
                     />
                   </td>
                   <td className="py-2 pr-3 text-right text-zinc-400">{d ? pct(1 / d) : '—'}</td>
@@ -162,6 +160,7 @@ function NoVig({ init }: { init: OddsPageQuery }) {
         <Plus className="h-3.5 w-3.5" /> Add outcome
       </button>
 
+      {!result && <FixPrices what="the fair prices" />}
       {result && (
         <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-zinc-800/60 pt-5 sm:grid-cols-4">
           <Stat label="Overround" value={pct(result.overround)} hint="Σ implied − 100%" />
@@ -191,7 +190,9 @@ export default function OddsConverter() {
         accent="violet"
         title={<>Odds Converter &amp; <Accented accent="violet">No-Vig</Accented> Fair Price</>}
         lede="Convert between American, decimal, fractional and implied-probability odds, then remove the bookmaker's margin from any two-way or multi-way market using the multiplicative, power, or Shin method."
-      />
+      >
+        <RgLine />
+      </PageHead>
       <div className="flex flex-col gap-6">
         <Converter init={init} />
         <NoVig init={init} />
