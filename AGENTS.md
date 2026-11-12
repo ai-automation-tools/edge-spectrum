@@ -115,6 +115,13 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   settled, and `passesFilters` applies the ranges and the streak filter. A new selection is one `case` in
   `selectSide`; never read the side back out of the ledger text. `favouriteSide` reads the line for a
   spread bet and the prices for a moneyline bet, and is null on level prices.
+- **A min/max rule lives in `rangeIssues`** (`site/src/strategyBounds.ts`). The schema, the strategy
+  form and the advisor's template check all call it, so the form blocks exactly what the endpoint
+  rejects. A totals bet takes no streak filter: the schema rejects it, and the form, the share-link
+  parser and the advisor each reset it to `any`.
+- **Line capture reads the archive tolerantly.** `readRecords` (`site/scripts/capture-lines.ts`) skips
+  and counts a line that does not parse; never `JSON.parse` a day file directly. A game is "seen"
+  across the sport's recent day files, not per file, so it has one `open` record.
 - **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
   before it draws a game, because rest days, streaks and the prices set from them are carried from
   one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
@@ -152,8 +159,8 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
   CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `check:live-grading` → `build:registry --check` → `check:deployment` → `build` → `check:bundle` → `check:spectrum-browser` on every PR.
-  `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page (`vite preview` on
-  `dist/`), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
+  `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page and the backtester
+  form (`vite preview` on `dist/`, with `/api/backtest` answered by a real engine run), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level
   Actions master switch rather than the workflow file: `gh api repos/.../actions/permissions` reports
   `enabled: true` and Settings → Actions shows "Allow all actions" selected even when it is off, and

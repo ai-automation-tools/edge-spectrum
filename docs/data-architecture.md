@@ -156,7 +156,9 @@ To transition from synthetic simulations to observed historical tracking, forwar
 - **Collector (5.2):** `site/scripts/capture-lines.ts` (`npm run capture:lines -- --out <folder>`),
   reading ESPN through the same `parseEspnScoreboard` (`site/src/server/espn.ts`) the live feed
   uses, for NFL, NBA, MLB and NHL. A run never rewrites a line; a sport whose fetch fails is named
-  and the run exits 1; a sport with no games is a success.
+  and the run exits 1; a sport with no games is a success. A line that does not parse (a run killed
+  mid-write) and a game with no usable start time are skipped with a warning and a count. The day in
+  the file name is ESPN's only when it is a date; otherwise the capture date is used.
 - **Schedule:** every 3 hours, as the Cronsole template
   [`edge-spectrum-line-capture`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
   (or any scheduler running the same command).
@@ -165,18 +167,22 @@ To transition from synthetic simulations to observed historical tracking, forwar
   `spread` (home), `spreadOdds` `{home, away}`, `overUnder`, `moneyline` `{home, away}`. A number
   ESPN does not publish is `null`, never `0`; a pick'em spread is `0`.
 - **`linePhase`, decided at capture and never revised:** `open` is the first capture of a
-  not-yet-started game in its day file; `close` is a later capture within one collection interval
+  not-yet-started game across the sport's last 8 day files (ESPN lists an NFL week under a new
+  date each day, so one game appears in several files); `close` is a later capture within one collection interval
   (`--interval-hours`, default 3) of the start, which on that schedule is the last look before the
   game; `midday` is any other pre-game capture; `null` means the game has started, so the line is
   no longer pre-game, though the score is kept for grading. If the job runs more often than the
   interval says, two captures can both read `close`: take the one with the smallest
-  `minutesToStart`. A final game is logged once.
+  `minutesToStart`. A final game is logged once, in the file of the day it was first seen final.
 - **Held by:** `npm run check:lines` (in CI), which runs a recorded ESPN response through the real
-  parser and asserts the fields, the phase rule and that a second run only appends.
+  parser and asserts the fields, the phase rule, that a second run only appends, that a game has one opener
+  across two day files, and that a broken line, an undated game and a non-date day are handled.
 - **Daily digest:** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder>`),
   scheduled daily at 12:30 UTC as the Cronsole template
   [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest).
-  Read-only over the archive; writes `<archive>/digests/<day>.md`. Opening is a game's `open`
+  Read-only over the archive; writes `<archive>/digests/<day>.md`. It lists the games in the day's
+  file and follows each into the earlier files and the next one, where its opener or final may sit.
+  Opening is a game's `open`
   capture, closing its `close` capture with the smallest `minutesToStart`; a game with no `close`
   shows its last pre-game line marked `*` and is listed as a gap, never reported as a move. A day
   with no capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`). Held by `npm run check:lines`.

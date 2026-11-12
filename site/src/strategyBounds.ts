@@ -39,3 +39,23 @@ export const SIDE_SELECTIONS = [
   ...TOTALS_SIDES,
 ] as const;
 export const STREAK_FILTERS = ['any', 'after_win', 'after_loss', 'hot_streak_3plus', 'cold_streak_3plus'] as const;
+
+/** The min/max filter pairs, with the name the form and the schema both use for them. */
+export const RANGE_PAIRS = [
+  ['oddsMin', 'oddsMax', 'Odds'],
+  ['spreadMin', 'spreadMax', 'Spread'],
+  ['totalMin', 'totalMax', 'Total'],
+] as const;
+
+type RangeField = typeof RANGE_PAIRS[number][0 | 1];
+
+/** One issue per pair whose minimum is above its maximum: the form shows them, the schema rejects them. */
+export function rangeIssues(s: Partial<Record<RangeField, number>>): { field: RangeField; message: string }[] {
+  return RANGE_PAIRS.flatMap(([min, max, label]) => {
+    const lo = s[min];
+    const hi = s[max];
+    return lo !== undefined && hi !== undefined && lo > hi
+      ? [{ field: max, message: `${label} maximum must be greater than or equal to the minimum` }]
+      : [];
+  });
+}

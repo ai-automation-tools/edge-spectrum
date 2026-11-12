@@ -806,7 +806,7 @@ function passesFilters(strategy: Strategy, game: Game, side: BetSide, odds: numb
   if (outside(odds, strategy.oddsMin, strategy.oddsMax)) return false;
   if (strategy.betType === 'spread' && outside(Math.abs(game.homeSpread), strategy.spreadMin, strategy.spreadMax)) return false;
   if (strategy.betType === 'totals' && outside(game.overUnder, strategy.totalMin, strategy.totalMax)) return false;
-  // A total backs no team, so the streak filter has nothing to read (audit BUG-06, still open).
+  // A total backs no team, so there is no streak to read; the schema rejects that combination.
   if (side === 'over' || side === 'under') return true;
   const streak = side === 'home' ? game.homeWinStreak : game.awayWinStreak;
   switch (strategy.streakFilter) {
