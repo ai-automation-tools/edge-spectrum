@@ -81,11 +81,10 @@ export default function ProfitChart({ data }: ProfitChartProps) {
                   return (
                     <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl font-sans text-xs">
                       <div className="text-[10px] uppercase text-sky-400 font-bold font-mono">Bet Record #{p.index}</div>
-                      <div className="font-semibold text-zinc-200 mt-1">{p.matchup}</div>
-                      <div className="text-[10px] text-zinc-400 mt-0.5">{p.date}</div>
+                      <div className="font-semibold text-zinc-200 mt-1">{p.date}</div>
                       <div className="border-t border-zinc-850 my-2 pt-1.5 flex flex-col gap-1">
                         <div className="flex items-center justify-between gap-6">
-                          <span className="text-zinc-400 leading-none">Scoring Plunge:</span>
+                          <span className="text-zinc-400 leading-none">This bet:</span>
                           <span className={`font-mono font-bold leading-none ${p.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {p.netProfit >= 0 ? '+' : ''}${p.netProfit.toLocaleString()}
                           </span>

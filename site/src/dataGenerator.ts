@@ -687,6 +687,33 @@ export function americanToDecimalOdds(odds: number): number {
  */
 export const LEDGER_PREVIEW_LIMIT = 250;
 
+/**
+ * Most points the equity curve ships. One point per wager made the largest run
+ * a 3 MB response, 97% of it this array, for a chart a few hundred pixels wide.
+ */
+export const PROFIT_HISTORY_LIMIT = 1500;
+
+/**
+ * Thin a long equity curve to PROFIT_HISTORY_LIMIT points: the first and last
+ * wager, plus the lowest and highest bankroll in each equal slice, so every
+ * peak and trough the full curve had is still drawn.
+ */
+export function sampleHistory(points: ProfitHistoryPoint[], limit = PROFIT_HISTORY_LIMIT): ProfitHistoryPoint[] {
+  if (points.length <= limit) return points;
+  const size = Math.ceil(points.length / (limit / 2 - 1));
+  const keep = new Set([0, points.length - 1]);
+  for (let start = 0; start < points.length; start += size) {
+    let lo = start;
+    let hi = start;
+    for (let i = start; i < Math.min(start + size, points.length); i++) {
+      if (points[i].currentBankroll < points[lo].currentBankroll) lo = i;
+      if (points[i].currentBankroll > points[hi].currentBankroll) hi = i;
+    }
+    keep.add(lo).add(hi);
+  }
+  return points.filter((_, i) => keep.has(i));
+}
+
 export function runBacktest(strategy: Strategy): BacktestResponse {
   const allGames: Game[] = [];
   for (let yr = strategy.startYear; yr <= strategy.endYear; yr++) {
@@ -933,7 +960,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
         id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), status: isWinOutcome
       });
       profitHistory.push({
-        index: totalBets, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, netProfit: parseFloat(netResult.toFixed(2)), cumulativeProfit: parseFloat((currentBankroll - strategy.startingBankroll).toFixed(2)), currentBankroll: parseFloat(currentBankroll.toFixed(2))
+        index: totalBets, date: game.date, netProfit: parseFloat(netResult.toFixed(2)), cumulativeProfit: parseFloat((currentBankroll - strategy.startingBankroll).toFixed(2)), currentBankroll: parseFloat(currentBankroll.toFixed(2))
       });
     }
   });
@@ -963,7 +990,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
 
   return {
     summary,
-    profitHistory,
+    profitHistory: sampleHistory(profitHistory),
     gamesPreview: simulatedGames.slice(-LEDGER_PREVIEW_LIMIT),
     previewLimit: LEDGER_PREVIEW_LIMIT,
     totalGames: simulatedGames.length,
