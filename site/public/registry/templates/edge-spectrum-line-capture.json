@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "id": "edge-spectrum-line-capture",
   "name": "Edge Spectrum: ESPN Line Capture",
-  "description": "Snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game (spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/.",
+  "description": "Snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game (spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. Uses an unofficial, undocumented ESPN endpoint: Edge Spectrum is not affiliated with ESPN, you are responsible for following ESPN's terms of use, and the capture is for personal, low-volume use, not for republishing.",
   "runtime": "node",
   "os": "cross-platform",
   "category": "data-sync",

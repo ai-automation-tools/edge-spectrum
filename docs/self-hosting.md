@@ -87,6 +87,19 @@ hour per visitor, `ADVISOR_DAILY_LIMIT` a day for everyone) are per process, not
 usage quota; set provider usage limits appropriate to your account. If the passcode is
 shared accidentally, rotate it **and** `ADVISOR_SECRET` to invalidate existing sessions.
 
+## Rolling back
+
+When a deploy is bad:
+
+1. **Promote the previous deployment.** In Vercel, open the project's Deployments, pick the last good
+   production deployment and choose *Promote to Production* (or *Instant Rollback*). The site is back in
+   seconds and no code changes.
+2. **Open a revert PR** for the merge that broke it (`git revert -m 1 <merge commit>`), let CI run, and
+   merge it. Until it merges, `main` and the live site disagree.
+3. **Expect the daily *Registry drift* workflow to fail in between** if the bad merge touched the
+   Cronsole templates or the dataset: it compares the live site with `main`. It goes green once the
+   revert is merged and deployed.
+
 ## Customize and verify
 
 - Edit `site/src/pages/Home.tsx` for the landing page and `site/src/projectLinks.ts`
