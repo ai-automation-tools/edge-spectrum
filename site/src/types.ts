@@ -109,6 +109,9 @@ export interface BacktestSummary {
   winRateLow: number;       // %, 95% Wilson interval on winRate
   winRateHigh: number;
   pValue: number;           // one-tailed, H0: true win rate ≤ breakeven
+  /** Set when the bankroll could no longer cover a stake: wagers placed before the run stopped, and the date it stopped. */
+  bustedAtBet?: number;
+  bustedOn?: string;
 }
 
 export interface ProfitHistoryPoint {

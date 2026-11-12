@@ -11,6 +11,7 @@
     "lint": "tsc --noEmit",
     "gen:edges": "tsx scripts/generate-edge-artifacts.ts",
     "check:market": "tsx scripts/check-market.ts",
+    "check:engine": "tsx scripts/check-engine.ts",
     "check:spectrum": "tsx scripts/check-spectrum.ts",
     "check:odds": "tsx scripts/check-odds.ts",
     "check:stats": "tsx scripts/check-stats.ts",

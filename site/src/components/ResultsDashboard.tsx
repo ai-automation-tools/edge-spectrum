@@ -72,6 +72,16 @@ export default function ResultsDashboard({ summary }: ResultsDashboardProps) {
           sub={<span className="inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-sky-400" />{summary.kellyPercentage > 0 ? 'Wager size suggestion' : 'No positive edge found'}</span>}
         />
       </div>
+      {summary.bustedAtBet !== undefined && (
+        <p role="status" className="flex items-start gap-2 rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-[12px] text-rose-200 light:text-rose-800">
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            Bankroll busted after {summary.bustedAtBet.toLocaleString()} wagers, on {summary.bustedOn}: what was left could
+            not cover another {money(summary.totalWagered / Math.max(1, summary.totalBets))} stake, so the run stopped there.
+            Everything above covers only the wagers placed before that.
+          </span>
+        </p>
+      )}
       <SignificancePanel summary={summary} />
     </div>
   );
