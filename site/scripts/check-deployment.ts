@@ -38,9 +38,9 @@ try {
   assert.equal(guardAdvisorRequest(cookie, 'Explain this simulation.'), null);
   assert.equal(attemptUnlock('wrong', 'test-client').status, 401);
   assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 200);
-  assert.equal(guardAdvisorRequest(undefined, 'Hello').status, 401);
-  assert.equal(guardAdvisorRequest(cookie, '').status, 400);
-  assert.equal(guardAdvisorRequest(cookie, 'x'.repeat(1001)).status, 400);
+  assert.equal(guardAdvisorRequest(undefined, 'Hello')?.status, 401);
+  assert.equal(guardAdvisorRequest(cookie, '')?.status, 400);
+  assert.equal(guardAdvisorRequest(cookie, 'x'.repeat(1001))?.status, 400);
   assert.equal(sessionStatus(`${SESSION_COOKIE}=%ZZ`).body.authed, false);
   assert.equal(attemptUnlock('test-only-passcode ', 'len-client').status, 401, 'a passcode with a trailing space');
   assert.equal(attemptUnlock('x'.repeat(5000), 'len-client').status, 401, 'an oversized passcode');
@@ -52,7 +52,7 @@ try {
     else process.env.EDGE_SPECTRUM_MODE = mode;
     assert.deepEqual(sessionStatus(cookie).body, { mode: 'demo', configured: false, authed: false });
     assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 403);
-    assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 403);
+    assert.equal(guardAdvisorRequest(cookie, 'Hello')?.status, 403);
     await assert.rejects(generateAdvice('Hello', {}), /disabled in demo mode/);
 
     const advisor = responseCapture();
@@ -66,13 +66,13 @@ try {
 
   process.env.EDGE_SPECTRUM_MODE = 'full';
   delete process.env.ADVISOR_PASSCODE;
-  assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 503);
+  assert.equal(guardAdvisorRequest(cookie, 'Hello')?.status, 503);
   assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 503);
   // A passcode with no signing secret is not a configured gate either.
   process.env.ADVISOR_PASSCODE = 'test-only-passcode';
   delete process.env.ADVISOR_SECRET;
   assert.equal(sessionStatus(cookie).body.configured, false);
-  assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 503);
+  assert.equal(guardAdvisorRequest(cookie, 'Hello')?.status, 503);
   assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 503);
   process.env.ADVISOR_SECRET = 'test-only-signing-secret';
 
@@ -98,13 +98,13 @@ try {
   // Advisor spend controls: an hourly allowance per session and address, a daily ceiling for everyone.
   resetLimiters();
   for (let i = 0; i < ADVISOR_REQUESTS_PER_HOUR; i++) assert.equal(guardAdvisorRequest(cookie, 'Hello', 'a'), null);
-  assert.equal(guardAdvisorRequest(cookie, 'Hello', 'a').status, 429);
-  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'a').status, 429, 'a fresh session from the same address');
-  assert.equal(guardAdvisorRequest(cookie, '', 'a').status, 400, 'a rejected request is not counted');
+  assert.equal(guardAdvisorRequest(cookie, 'Hello', 'a')?.status, 429);
+  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'a')?.status, 429, 'a fresh session from the same address');
+  assert.equal(guardAdvisorRequest(cookie, '', 'a')?.status, 400, 'a rejected request is not counted');
   resetLimiters();
   process.env.ADVISOR_DAILY_LIMIT = '3';
   for (let i = 0; i < 3; i++) assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', `b${i}`), null);
-  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'b9').status, 503);
+  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'b9')?.status, 503);
   delete process.env.ADVISOR_DAILY_LIMIT;
   resetLimiters();
 

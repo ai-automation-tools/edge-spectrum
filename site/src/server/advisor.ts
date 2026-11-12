@@ -90,10 +90,10 @@ export function parseAdvice(text: string): AdvisorResponse {
     const parsed = templateSchema.safeParse(item);
     if (!parsed.success) return [];
     const t = parsed.data;
-    const totalsSide = (TOTALS_SIDES as readonly string[]).includes(t.sideSelection!);
+    const totalsSide = (TOTALS_SIDES as readonly string[]).includes(t.sideSelection);
     if ((t.betType === 'totals') !== totalsSide) return [];
     if (!ordered(t.oddsMin, t.oddsMax) || !ordered(t.spreadMin, t.spreadMax) || !ordered(t.totalMin, t.totalMax)) return [];
-    return [t as AdvisorResponse['suggestedTemplates'][number]];
+    return [t as NonNullable<AdvisorResponse['suggestedTemplates']>[number]];
   }).slice(0, 2);
 
   return { analysis, suggestedTemplates };
