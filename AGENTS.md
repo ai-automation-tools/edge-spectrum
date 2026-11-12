@@ -107,10 +107,9 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 ## Conventions
 
-- Strict TS; functional components + hooks; Tailwind; match existing `site/src/` style.
-  Note that `tsconfig.json` does **not** set `strict`/`strictNullChecks`, so some type-level
-  idioms silently do not work — notably, narrowing a discriminated union on a boolean field
-  (`if (r.ok) …`) does not narrow, and Zod infers every output field as optional.
+- Strict TS (`"strict": true` in `site/tsconfig.json` since 2026-11-12; `npm run lint` holds it);
+  functional components + hooks; Tailwind; match existing `site/src/` style. `react-dom/client` is typed
+  by `site/src/react-dom-client.d.ts`, because `@types/react-dom` is not installed.
 - **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
   before it draws a game, because rest days, streaks and the prices set from them are carried from
   one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
