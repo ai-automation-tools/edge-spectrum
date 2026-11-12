@@ -113,6 +113,37 @@ try {
   check(youName && (await page.evaluate(() => (document.getElementById('chart') as any).data[0].x as string[])).includes(youName), 'the "You" bar disappears under the None category filter');
   check(new URL(page.url()).searchParams.has('ym'), 'the "You" row is not in the URL');
 
+  // ── 5b. The open form keeps what was typed through a bar hover, a Play tick and
+  //        arrow keys in its select, which leave the horizon alone (audit BUG-25) ──
+  await open(page);
+  await page.click('#addYou');
+  await page.fill('#youForm input[name="n"]', 'Typed name');
+  await page.fill('#youForm input[name="e"]', '-1.25');
+  const typed = () => page.evaluate(() => {
+    const f = document.getElementById('youForm') as HTMLFormElement | null;
+    return f ? ['n', 'e'].map((k) => (f.elements.namedItem(k) as HTMLInputElement).value).join('|') : 'form gone';
+  });
+  const bar = (await page.locator('#chart .bars .point path').nth(3).boundingBox())!;
+  await page.mouse.move(bar.x + bar.width / 2, bar.y + Math.min(bar.height / 2, 20));
+  await page.waitForTimeout(300);
+  check((await typed()) === 'Typed name|-1.25', `hovering a bar wiped the form (${await typed()})`);
+  await page.mouse.move(5, 5);
+  await page.click('#btnPlay');
+  await page.waitForFunction(() => new URL(location.href).searchParams.has('h'), null, { timeout: 3_000 }).catch(() => {});
+  check(new URL(page.url()).searchParams.has('h') && (await typed()) === 'Typed name|-1.25', `a Play tick wiped the form (${await typed()})`);
+  await page.click('#btnPlay');
+  const horizon = new URL(page.url()).searchParams.get('h');
+  await page.focus('#youForm select[name="game"]');
+  await page.keyboard.press('ArrowLeft'); // Play left the horizon past 1yr, so one press would move it
+  check(new URL(page.url()).searchParams.get('h') === horizon, 'arrow keys in the form\'s select changed the horizon');
+
+  // ── 5c. A reader's own row name is text in the chart, never markup (audit BUG-33) ──
+  const markup = '<a href="https://example.com">x</a>';
+  await open(page, '?ym=i&ya=5&yn=' + encodeURIComponent(markup));
+  check((await page.locator('#chart a').count()) === 0, 'a "You" name made a link in the chart');
+  const youText = await page.locator('#chart .bars text').filter({ hasText: '▼' }).allTextContents();
+  check(youText.length === 1 && youText[0].includes(markup), `a "You" name with markup is not shown as written: ${JSON.stringify(youText)}`);
+
   // ── 6. Comparison search and compare mode ──────────────────────────────────
   await open(page, '?q=' + encodeURIComponent('slots, S&P 500 Index'));
   check((await bars(page)) === 5, `"slots, S&P 500 Index" shows ${await bars(page)} bars, expected 5`);
@@ -188,4 +219,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You", compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter.');
