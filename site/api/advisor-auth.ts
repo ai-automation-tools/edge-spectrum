@@ -22,7 +22,7 @@ export default function handler(req: ApiRequest, res: ApiResponse) {
         action?: unknown;
       };
       if (action === 'logout') return logout();
-      return attemptUnlock(passcode, clientIp(req.headers));
+      return attemptUnlock(passcode, clientIp(req));
     }
     return { status: 405, body: { error: 'Method not allowed' } };
   })();

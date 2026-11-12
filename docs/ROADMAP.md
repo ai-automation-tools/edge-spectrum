@@ -96,7 +96,7 @@ Phase 7: Public Launch ⚪
 - [x] 🟡 **Action 2.6 — Debounce & Abort Backtest Race Conditions (Audit D7):**
    - **Implementation:** Added 300 ms debounce timer on the auto-rerun `useEffect` in `BacktesterApp.tsx` and an in-flight `AbortController` ref that aborts superseded runs. Repeated the abort check after `response.json()` to discard late-arriving responses, and suppressed error banners / spinner drops on aborts.
 
-- [ ] 🟠 **Action 2.7 — AI Advisor Rate Limiting & Spend Caps** *(Security; the code half, split 2026-11-11: the owner's steps are Action 2.7b)*
+- [x] 🟠 **Action 2.7 — AI Advisor Rate Limiting & Spend Caps** *(Security; the code half, split 2026-11-11: the owner's steps are Action 2.7b)* — done 2026-11-12, in process memory: 10 calls an hour per session and per address, `ADVISOR_DAILY_LIMIT` (default 200) answering 503, a 20 s model timeout, an output cap, a 7-day session, and `ADVISOR_SECRET` required. Not durable across serverless instances; a shared store is the follow-up if 2.7b's key quota proves too coarse.
    - **Problem:** Passcode authentication protects against unauthenticated users but does not limit total requests or cost from authenticated sessions.
    - **Implementation:**
      - Add IP/session rate limiting (e.g. 10 requests per hour per session).

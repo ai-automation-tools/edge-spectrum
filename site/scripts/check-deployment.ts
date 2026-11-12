@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import {
-  attemptUnlock, guardAdvisorRequest, issueToken, sessionStatus, SESSION_COOKIE,
+  ADVISOR_REQUESTS_PER_HOUR, attemptUnlock, clientIp, failureEntries, guardAdvisorRequest, issueToken,
+  resetLimiters, sessionStatus, SESSION_COOKIE,
 } from '../src/server/auth';
-import { generateAdvice } from '../src/server/advisor';
+import { AdviceFormatError, generateAdvice, parseAdvice } from '../src/server/advisor';
 import { fetchEspnScoreboard } from '../src/server/espn';
 import advisorHandler from '../api/strategy-advisor';
 import backtestHandler from '../api/backtest';
@@ -10,7 +11,7 @@ import espnHandler from '../api/espn-scoreboard';
 import authHandler from '../api/advisor-auth';
 import type { ApiRequest, ApiResponse } from '../src/server/httpTypes';
 
-const keys = ['EDGE_SPECTRUM_MODE', 'ADVISOR_PASSCODE', 'ADVISOR_SECRET', 'GEMINI_API_KEY'] as const;
+const keys = ['EDGE_SPECTRUM_MODE', 'ADVISOR_PASSCODE', 'ADVISOR_SECRET', 'GEMINI_API_KEY', 'ADVISOR_DAILY_LIMIT', 'VERCEL', 'TRUST_PROXY'] as const;
 const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
 let networkCalls = 0;
@@ -65,6 +66,62 @@ try {
   delete process.env.ADVISOR_PASSCODE;
   assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 503);
   assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 503);
+  // A passcode with no signing secret is not a configured gate either.
+  process.env.ADVISOR_PASSCODE = 'test-only-passcode';
+  delete process.env.ADVISOR_SECRET;
+  assert.equal(sessionStatus(cookie).body.configured, false);
+  assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 503);
+  assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 503);
+  process.env.ADVISOR_SECRET = 'test-only-signing-secret';
+
+  // Forwarding headers are believed only behind a proxy that sets them, so a
+  // new X-Forwarded-For per guess does not dodge the lockout.
+  delete process.env.VERCEL;
+  delete process.env.TRUST_PROXY;
+  const from = (forwarded: string) => clientIp({ headers: { 'x-forwarded-for': forwarded }, socket: { remoteAddress: '203.0.113.9' } } as any);
+  assert.equal(from('198.51.100.1'), '203.0.113.9');
+  process.env.TRUST_PROXY = '1';
+  assert.equal(from('198.51.100.1, 10.0.0.1'), '198.51.100.1');
+  delete process.env.TRUST_PROXY;
+  resetLimiters();
+  for (let i = 0; i < 8; i++) assert.equal(attemptUnlock('wrong', from(`198.51.100.${i}`)).status, 401);
+  assert.equal(attemptUnlock('test-only-passcode', from('198.51.100.99')).status, 429);
+  // Guesses spread across real addresses hit the all-clients ceiling, which also bounds the map.
+  resetLimiters();
+  const spread = Array.from({ length: 60 }, (_, i) => attemptUnlock('wrong', `client-${i}`).status);
+  assert.equal(spread.filter((s) => s === 401).length, 40);
+  assert.equal(spread.at(-1), 429);
+  assert.equal(failureEntries(), 40);
+
+  // Advisor spend controls: an hourly allowance per session and address, a daily ceiling for everyone.
+  resetLimiters();
+  for (let i = 0; i < ADVISOR_REQUESTS_PER_HOUR; i++) assert.equal(guardAdvisorRequest(cookie, 'Hello', 'a'), null);
+  assert.equal(guardAdvisorRequest(cookie, 'Hello', 'a').status, 429);
+  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'a').status, 429, 'a fresh session from the same address');
+  assert.equal(guardAdvisorRequest(cookie, '', 'a').status, 400, 'a rejected request is not counted');
+  resetLimiters();
+  process.env.ADVISOR_DAILY_LIMIT = '3';
+  for (let i = 0; i < 3; i++) assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', `b${i}`), null);
+  assert.equal(guardAdvisorRequest(`${SESSION_COOKIE}=${issueToken().token}`, 'Hello', 'b9').status, 503);
+  delete process.env.ADVISOR_DAILY_LIMIT;
+  resetLimiters();
+
+  // The model's reply is checked before it leaves the server.
+  for (const bad of ['', 'not json', '{}', '{"analysis":{}}', '{"analysis":"  "}', 'null']) {
+    assert.throws(() => parseAdvice(bad), AdviceFormatError, `parseAdvice(${JSON.stringify(bad)})`);
+  }
+  const template = { name: 'T', description: 'd', sport: 'NFL', betType: 'spread', sideSelection: 'favorites', streakFilter: 'any' };
+  const advice = parseAdvice(JSON.stringify({ analysis: 'ok', extra: 1, suggestedTemplates: [
+    template,
+    { ...template, sideSelection: 'over' }, // a team bet on a totals side
+    { ...template, sport: 'XFL' },
+    { ...template, oddsMin: 200, oddsMax: 100 },
+    { ...template, name: 'Totals', betType: 'totals', sideSelection: 'under', spreadMin: 'x' },
+  ] }));
+  assert.deepEqual(Object.keys(advice), ['analysis', 'suggestedTemplates']);
+  assert.deepEqual(advice.suggestedTemplates!.map((t) => t.name), ['T', 'Totals']);
+  assert.equal(advice.suggestedTemplates![1].spreadMin, undefined);
+  assert.deepEqual(parseAdvice('{"analysis":"ok"}').suggestedTemplates, []);
 
   // Bad input to the two open endpoints is the caller's error (400), never a
   // 500, and none of it reaches the network.
@@ -99,7 +156,22 @@ try {
   const keepAlive = setTimeout(() => {}, 5000);
   assert.equal((await espnScoreboardRoute({ sport: 'NFL' }, 50)).status, 504);
   clearTimeout(keepAlive);
-  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504.');
+
+  // Through the handler with a stubbed Gemini: an empty reply is a 502, a good one a 200.
+  const gemini = (text: string) => (async () => new Response(
+    JSON.stringify({ candidates: [{ content: { role: 'model', parts: [{ text }] }, finishReason: 'STOP' }] }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )) as typeof fetch;
+  const ask = () => call(advisorHandler, { method: 'POST', headers: { cookie }, socket: {}, body: { prompt: 'Hello' } });
+  globalThis.fetch = gemini('');
+  const empty = await ask();
+  assert.equal(empty.status, 502);
+  assert.equal(typeof empty.body.error, 'string');
+  globalThis.fetch = gemini('{"analysis":"Fine.","suggestedTemplates":[]}');
+  const good = await ask();
+  assert.equal(good.status, 200);
+  assert.deepEqual(good.body, { analysis: 'Fine.', suggestedTemplates: [] });
+  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; advisor limits, lockout and reply validation hold.');
 } finally {
   for (const key of keys) {
     if (previous[key] === undefined) delete process.env[key];
