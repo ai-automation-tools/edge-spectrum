@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Strategy, SportType, BetType, SideSelectionType } from '../types';
 import {
   MIN_SEASON, MAX_SEASON, MAX_UNIT_SIZE, MAX_STARTING_BANKROLL,
-  MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS,
+  MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS, rangeIssues,
 } from '../strategyBounds';
 import { strategyToQuery } from '../strategyUrl';
 import {
@@ -208,6 +208,9 @@ const PRESETS: { name: string; strategy: Strategy }[] = [
 export default function StrategyBuilder({ currentStrategy, onChange, onRunBacktest, isLoading, }: StrategyBuilderProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [copied, setCopied] = useState(false);
+  // A min above its max: said here and never sent, since the endpoint would answer 400.
+  const issues = rangeIssues(currentStrategy);
+  const invalid = (field: string) => issues.some((i) => i.field === field) || undefined;
 
   // Built from the strategy itself rather than read off the address bar, which
   // only catches up once the debounced rerun fires.
@@ -371,7 +374,9 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       // and betType would never actually change.
                       const sideSelection: SideSelectionType =
                         type === 'totals' ? 'over' : 'favorites';
-                      onChange({ ...currentStrategy, betType: type, sideSelection });
+                      // A total backs no team, so it takes no streak filter.
+                      const streakFilter = type === 'totals' ? 'any' : currentStrategy.streakFilter;
+                      onChange({ ...currentStrategy, betType: type, sideSelection, streakFilter });
                     }}
                     className={`py-1.5 text-[11px] font-semibold capitalize rounded-md transition-all duration-200 ${
                       active
@@ -475,12 +480,13 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           className="group flex items-center gap-1.5 max-sm:py-2 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-sky-400 hover:text-sky-300 transition-colors duration-150"
         >
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
-          Advanced Screening — Odds · Streaks
+          Advanced Screening — Odds{currentStrategy.betType === 'totals' ? ' · Line' : ' · Streaks'}
         </button>
 
         {showAdvanced && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-(--bg-2)/50 rounded-xl border border-zinc-800 transition-all duration-300 animate-fadeIn">
-            {/* Streak Filtering */}
+            {/* Streak Filtering: a total backs no team, so there is no streak to filter on */}
+            {currentStrategy.betType !== 'totals' && (
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="sb-streak">Streak Preconditions</FieldLabel>
               <Select
@@ -495,9 +501,10 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                 <option value="cold_streak_3plus">Cold Streak (3+ Consecutive Losses)</option>
               </Select>
             </div>
+            )}
 
             {/* Decimal/American odds parameters */}
-            <div className="col-span-1 md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-3 border-t border-zinc-800 pt-3 mt-1">
+            <div className={`col-span-1 md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-3 ${currentStrategy.betType === 'totals' ? '' : 'border-t border-zinc-800 pt-3 mt-1'}`}>
               <div className="flex flex-col gap-1">
                 <label htmlFor="sb-oddsMin" className="text-[10px] uppercase font-semibold text-zinc-400">Min Odds (American)</label>
                 <input
@@ -520,6 +527,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                   min={-MAX_AMERICAN_ODDS}
                   max={MAX_AMERICAN_ODDS}
                   value={currentStrategy.oddsMax ?? ''}
+                  aria-invalid={invalid('oddsMax')}
                   onChange={(e) => updateField('oddsMax', boundedOptional(e.target.value, -MAX_AMERICAN_ODDS, MAX_AMERICAN_ODDS, parseInt))}
                   className="h-9 px-3 bg-(--bg-2) border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                 />
@@ -551,6 +559,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       min={0}
                       max={MAX_SPREAD_POINTS}
                       value={currentStrategy.spreadMax ?? ''}
+                      aria-invalid={invalid('spreadMax')}
                       onChange={(e) => updateField('spreadMax', boundedOptional(e.target.value, 0, MAX_SPREAD_POINTS, parseFloat))}
                       className="h-9 px-3 bg-(--bg-2) border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
@@ -584,6 +593,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                       min={0}
                       max={MAX_TOTAL_POINTS}
                       value={currentStrategy.totalMax ?? ''}
+                      aria-invalid={invalid('totalMax')}
                       onChange={(e) => updateField('totalMax', boundedOptional(e.target.value, 0, MAX_TOTAL_POINTS, parseFloat))}
                       className="h-9 px-3 bg-(--bg-2) border border-zinc-800 rounded-lg text-xs font-mono tabular-nums text-zinc-300 placeholder:text-zinc-600 hover:border-zinc-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all duration-200"
                     />
@@ -594,6 +604,13 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           </div>
         )}
       </div>
+
+      {issues.length > 0 && (
+        <p role="alert" className="flex items-center gap-1.5 text-[11px] text-amber-400">
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+          {issues.map((i) => i.message).join('. ')}. Fix it under Advanced Screening to run the backtest.
+        </p>
+      )}
 
       {/* Action bar — live recipe + execute */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-zinc-800 pt-4 gap-3">
@@ -615,7 +632,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
         </button>
         <button
           type="button"
-          disabled={isLoading}
+          disabled={isLoading || issues.length > 0}
           onClick={() => onRunBacktest(currentStrategy)}
           className="group px-6 py-2.5 bg-sky-700 hover:bg-sky-600 disabled:bg-sky-800 text-white light:disabled:text-zinc-100 font-semibold rounded-xl shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 active:scale-95 text-xs flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none shrink-0"
         >

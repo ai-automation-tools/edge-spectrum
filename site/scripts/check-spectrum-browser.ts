@@ -11,6 +11,8 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
+import { runBacktest } from '../src/dataGenerator';
+import { DEFAULT_STRATEGY } from '../src/strategyUrl';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PORT = 4317;
@@ -132,6 +134,50 @@ try {
   await open(phone);
   check((await phone.evaluate(() => (document.getElementById('chart') as any).layout.dragmode)) === false, 'touch screens still get drag-zoom on the chart');
   await phone.close();
+
+  // ── 9. Backtester: a failed run takes the old numbers down, and a min above its max is
+  //       said in the form and never sent (audit BUG-20, BUG-16) ──────────────────────────
+  // `vite preview` has no API, so the endpoint is answered here with a real engine run.
+  const bt = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  const run = JSON.stringify(runBacktest(DEFAULT_STRATEGY));
+  let failing = false;
+  let posts = 0;
+  await bt.route('**/api/backtest', (route) => {
+    posts++;
+    return failing
+      ? route.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"engine fell over"}' })
+      : route.fulfill({ status: 200, contentType: 'application/json', body: run });
+  });
+  const kpis = bt.getByText('Net profit (P/L)');
+  const execute = bt.getByRole('button', { name: 'Execute Backtest' });
+  await bt.goto(`http://127.0.0.1:${PORT}/backtester`);
+  await kpis.waitFor({ timeout: 15_000 });
+  failing = true;
+  await execute.click();
+  await bt.getByText('engine fell over').waitFor({ timeout: 5_000 });
+  check((await kpis.count()) === 0, 'a failed backtest leaves the previous result on screen');
+  failing = false;
+  await execute.click();
+  await kpis.waitFor({ timeout: 5_000 });
+
+  await bt.getByRole('button', { name: /Advanced Screening/ }).click();
+  await bt.fill('#sb-oddsMin', '200');
+  await bt.waitForTimeout(800); // past the 300 ms rerun debounce
+  const sent = posts;
+  await bt.fill('#sb-oddsMax', '100');
+  await bt.waitForTimeout(800);
+  check(posts === sent, 'a min above its max was sent to /api/backtest');
+  check(await bt.getByRole('alert').filter({ hasText: 'Odds maximum must be greater than or equal to the minimum' }).isVisible(), 'the form does not say that the odds range is inverted');
+  check(await execute.isDisabled(), 'Execute stays enabled on an inverted range');
+  check((await bt.getAttribute('#sb-oddsMax', 'aria-invalid')) === 'true', 'the inverted maximum is not marked invalid');
+  await bt.fill('#sb-oddsMax', '300');
+  await bt.waitForTimeout(800);
+  check(posts === sent + 1 && await execute.isEnabled(), 'fixing the range does not run the backtest again');
+  // Totals take no streak filter, so the control goes with the bet type.
+  check(await bt.locator('#sb-streak').isVisible(), 'the streak filter is missing on a moneyline bet');
+  await bt.getByRole('button', { name: 'totals', exact: true }).click();
+  check((await bt.locator('#sb-streak').count()) === 0, 'the streak filter is still offered on a totals bet');
+  await bt.close();
 } finally {
   await browser.close();
   server.kill();
@@ -142,4 +188,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Spectrum browser check passed: loads clean, pins, survives reload, re-themes, places "You", compares, embeds, and leaves touch scrolling alone.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You", compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter.');

@@ -101,7 +101,9 @@ cd site && npm run capture:lines -- --out ~/edge-lines
 Schedule it with [Cronsole](https://cronsole.ai-automation-tools.dev/): download the
 [ESPN Line Capture template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
 (or the [Edge Spectrum pack](https://cronsole.ai-automation-tools.dev/#/collection/edge-spectrum)) and
-import it under **Templates → Import**. It runs every 3 hours by default. How `linePhase` is decided
+import it under **Templates → Import**. It runs every 3 hours by default. A game gets one `open`
+record even when ESPN lists it on several days' boards, and a damaged line in a file is skipped with a
+warning. How `linePhase` is decided
 is in [data-architecture.md](docs/data-architecture.md#a-append-only-scoreboard-line-snapshots).
 
 **Daily digest.** Once captures are running, the

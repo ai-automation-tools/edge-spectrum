@@ -2,7 +2,9 @@
  * Daily line-movement digest over the archive capture-lines.ts writes. For one scoreboard day it
  * reads <archive>/<SPORT>/<day>.jsonl and reports, per game, the opening and closing spread,
  * total and home moneyline, the final score, and any gap in the captures, then lists the biggest
- * spread moves. Read-only over the archive; writes one markdown file and prints it.
+ * spread moves. A game's opener can sit in an earlier day's file and its final in the next day's
+ * (the collector logs each once), so the day's games are followed into the neighbouring files.
+ * Read-only over the archive; writes one markdown file and prints it.
  *
  *   <out>/<YYYY-MM-DD>.md        out defaults to <archive>/digests
  *
@@ -14,10 +16,10 @@
  * --date defaults to yesterday (UTC). Exits 1 when the day has no capture file for any sport,
  * because that means the capture did not run, not that nothing happened.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SPORTS, type LineRecord } from './capture-lines';
+import { RECENT_DAY_FILES, SPORTS, dayFiles, readRecords, type LineRecord } from './capture-lines';
 
 export interface GameDigest {
   sport: string;
@@ -110,8 +112,14 @@ export function renderDigest(day: string, archive: string, games: GameDigest[]):
   return out.join('\n') + '\n';
 }
 
-function readDay(file: string): LineRecord[] {
-  return readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l) as LineRecord);
+/** Every record of the games in one day file, from that file, the days before it and the day after. */
+export function readDay(file: string): LineRecord[] {
+  const files = dayFiles(resolve(file, '..'));
+  const at = files.indexOf(resolve(file));
+  const ids = new Set(readRecords([file]).records.map(r => r.eventId));
+  const { records, skipped } = readRecords(files.slice(Math.max(0, at - RECENT_DAY_FILES + 1), at + 2));
+  if (skipped) console.warn(`skipped ${skipped} unreadable line(s) near ${file}`);
+  return records.filter(r => ids.has(r.eventId));
 }
 
 function arg(name: string): string | undefined {

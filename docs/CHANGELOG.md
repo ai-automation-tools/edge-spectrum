@@ -2,6 +2,46 @@
 
 ---
 
+## November 12, 2026 — Nine small bugs: the backtester form, the odds parser, line capture
+
+From the 2026-11-11 project audit (BUG-06, BUG-16, BUG-20, BUG-21, BUG-22, BUG-23, BUG-24, BUG-32, BUG-34).
+
+- **Backtester form**
+  - *Streak filter on totals (BUG-06).* A total backs no team, so the filter did nothing and the run
+    came back unfiltered under a filtered label. The API now answers 400 for that combination, the
+    form hides the control on a totals bet, and a share link or an advisor template carrying one is
+    reset to "any".
+  - *Min above max (BUG-16).* The form says which range is inverted, marks the field and does not send
+    the request; Execute is disabled until it is fixed. The form and the schema share one rule,
+    `rangeIssues`, so they cannot drift.
+  - *Stale result (BUG-20).* A failed run takes the previous numbers off the screen instead of leaving
+    them under the error.
+- **Odds calculators**
+  - *Parser (BUG-21).* Only a plain number is a price. `0/5`, `0x64`, `1e3` and `1+1+0` used to
+    parse (the last as +110); they are now rejected. One leading `+` and, for a percentage, one
+    trailing `%` are still accepted.
+  - *Power de-vig (BUG-22).* The search for the exponent had a fixed upper bound of 50, so two sides
+    at 1.01 came back summing to 1.216. The bound is now found, and every method sums to 1 on a grid
+    of markets from 1.01 to 1001.
+- **Line capture and digest** (`capture:lines`, `digest:lines`)
+  - *One opener per game (BUG-32).* "Seen" is keyed by event across the sport's last 8 day files. ESPN
+    lists an NFL week under a new date each day, so a game used to get a fresh `open` record, and a
+    stale final a fresh copy, in every day's file. The digest follows a day's games into the files
+    around it, so it still finds the opener and the final. **Existing archives:** games already in
+    earlier files get no new `open` from now on; old duplicate openers stay as written.
+  - *Damaged files (BUG-23).* A line that does not parse is skipped and counted in a warning, in both
+    scripts. The next append starts on a new line instead of joining the broken one.
+  - *Undated games (BUG-24).* A game with no usable start time is skipped with a warning, never
+    written with a null `minutesToStart`.
+  - *File name (BUG-34).* The day in the file name is ESPN's only when it is a date; anything else
+    falls back to the capture date.
+- **Not settled** Whether a game that ends after ESPN's board has moved to the next day is still
+  listed there, and so gets its final captured, needs two consecutive days of real captures to
+  confirm (the rest of BUG-32).
+- **Checks** `check:lines`, `check:odds` and `check:strategy-url` have a case for each of the above;
+  `check:spectrum-browser` now also drives the backtester form for the three that only show in a
+  browser.
+
 ## November 12, 2026 — The backtest engine picks a side once, and spread favourites lay points
 
 From the 2026-11-11 project audit (ARCH-02, BUG-26).
