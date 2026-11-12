@@ -139,7 +139,7 @@ Phase 7: Public Launch ⚪
     - **Where:** `site/package.json`, `site/package-lock.json`, and the call sites above. `.github/workflows/ci.yml` pins `actions/checkout@v4` / `actions/setup-node@v4` (latest tags v7.0.1 / v7.1.0 per api.github.com/repos/actions/*/releases/latest): a workflow edit, split out as Action 2.14b.
     - **Done when:** `npm run lint`, every `check:*`, and `npm run build` pass on the new versions, and `docs/UPSTREAMS.md` lists the new declared versions.
 
-- [ ] 🔵 **Action 2.14b — Bump the CI workflow's action pins** — `.github/workflows/ci.yml` pins `actions/checkout@v4` and `actions/setup-node@v4`; take the current majors. A workflow edit. **Done when:** CI is green on the new pins. 🔒 Needs owner
+- [ ] 🔵 **Action 2.14b — Bump the CI workflow's action pins** — both workflows pin `actions/checkout` and `actions/setup-node` to the v4.4.0 commit SHA (2026-11-12), and Dependabot now raises new versions, majors included. What is left is merging its first majors PR, which the sweep holds because it edits a workflow. **Done when:** CI is green on the current majors. 🔒 Needs owner
 
 ## 🚦 Public release
 
@@ -155,8 +155,31 @@ which of them may ship before Phase 2 closes.
 
 - [ ] `small` 🟡 **Stamp the build** *(Site)* — `<meta name="build">` set from `VERCEL_GIT_COMMIT_SHA` at build time. **Done when:** `Get-SurfaceDrift.py` shows edge-spectrum `current`.
 - [ ] `small` 🟡 **ROADMAP in the home page's Read on card** *(Site)* — `site/src/pages/Home.tsx` lists Methodology, Data architecture, Change log and the repo; today the roadmap is only reachable from the ⌘K palette. **Done when:** the card links `docs/ROADMAP.md` and `check:spectrum-browser` still passes.
-- [ ] 🟡 **A full Content-Security-Policy** *(Security)* — today it is only `frame-ancestors 'self'`. Script, style, connect (`/registry/`, the ESPN proxy) and frame (`/diagram/`). **Done when:** `check:spectrum-browser` passes with no CSP violations in the console.
+- [ ] 🟡 **Enforce the Content-Security-Policy** *(Security)* — the full policy shipped **report-only** on 2026-11-12 (`site/vercel.json`: strict for the app, looser for `/spectrum/` and `/diagram/`, zero violations in a scripted pass over every page and theme). Rename the two `Content-Security-Policy-Report-Only` headers to `Content-Security-Policy` and fold `frame-ancestors` in, after production has run clean for a week. A `vercel.json` edit, so the sweep holds it. **Done when:** `curl -I` shows an enforced policy with `script-src` and the browser check logs no violation. 🔒 Needs owner
 - [ ] **Trim the GitHub topics to four or five** *(Metadata)* — the repo carries eight. 🔒 Needs owner
+
+### 🔎 Audit follow-ups (project audit, 2026-11-11)
+
+The audit's immediate, 7-day and 30-day items shipped on 2026-11-12 (two changelog entries of that
+date). These are what it left, in its own order; the IDs are the audit's.
+
+- [ ] 🟠 **Require CI and code-owner review on `main`** *(Security, SEC-02)* — `.github/CODEOWNERS` exists but does nothing until the ruleset requires code-owner review, and the `check` job is still advisory. **Done when:** a PR with a failing `check` cannot be merged. 🔒 Needs owner
+- [ ] 🟠 **Remove the personal email from public history** *(Security, SEC-01)* — 30 commits on `main`. A history rewrite and force-push in a quiet window, then re-clone everywhere. **Done when:** `git log --all --format=%ae` lists only noreply addresses. 🔒 Needs owner
+- [ ] 🟡 **Confirm the code-scanning list is empty** *(Security, SEC-11)* — the 2026-11-12 work removed the code behind all four open alerts; they close when it reaches `main`. **Done when:** the code-scanning list is empty, or every entry left has a recorded decision. 🔒 Needs owner
+- [ ] 🟡 **Read ESPN's terms at the source** *(Compliance, GOV-01)* — the notice in the README and the templates reflects a summarised reading. **Done when:** the ESPN-terms row in `UPSTREAMS.md` carries the date the owner read them. 🔒 Needs owner
+- [ ] 🟠 **Live scoreboard grading** *(Bugs, BUG-17, BUG-31, BUG-15, BUG-28, BUG-35)* — extract one pure `gradeBet` from `EspnFeed.tsx`: grade every spread selection or say it is not evaluated, find the favourite from the numeric spread instead of matching team abbreviations, build the date label in local time, and abort a superseded request. **Done when:** a table test covers selection × outcome including `SA`/`SAC`, in CI.
+- [ ] `small` 🟡 **TypeScript `strict`** *(Code quality, ARCH-01)* — 9 errors at the audit; then drop the `parse`/`catch` and cast workarounds in `strategySchema.ts`. **Done when:** `tsconfig.json` sets `strict: true` and `npm run lint` passes.
+- [ ] 🟡 **Split `runBacktest`** *(Architecture, ARCH-02, BUG-26)* — selection returns a side, grading and pricing read it in one place; no more recovering the side from the bet's display text. Decide spread favourites from the line. **Done when:** no use of `betPlacedText` decides odds or the streak target, and `check:engine` and `check:market` pass.
+- [ ] `small` 🟡 **Backtester form leftovers** *(Bugs, BUG-06, BUG-16, BUG-20)* — the streak filter does nothing on totals (reject it in the schema and hide the control), min above max reaches the API, and a failed run leaves the old result on screen. **Done when:** each has a case in a check.
+- [ ] `small` 🟡 **Odds parser and de-vig edge cases** *(Bugs, BUG-21, BUG-22)* — `0/5`, `0x64` and `1+1+0` parse as odds; power de-vig does not sum to 1 on extreme markets. **Done when:** `check:odds` holds both.
+- [ ] `small` 🟡 **Line capture robustness** *(Bugs, BUG-23, BUG-24, BUG-32, BUG-34)* — skip a corrupt line with a warning, skip a game with an unparseable date, check the day-file name against `YYYY-MM-DD`, and key "seen" by event across day files. **Done when:** `check:lines` has a fixture for each.
+- [ ] `small` 🟡 **Spectrum form and label safety** *(Bugs, BUG-25, BUG-33)* — the "Where do I sit?" form loses typed values on hover, and the reader's own row name reaches the chart unescaped. **Done when:** `check:spectrum-browser` fills the form, hovers a bar and reads the values back.
+- [ ] 🟡 **Accessibility depth** *(UX-05, UX-06, UX-11, UX-12, UX-13, UX-16, UX-19)* — the palette as a native dialog, a paged games table, state and status exposed to assistive tech, a text alternative for the equity chart, calculator error messages, and the age and helpline line near each tool. **Done when:** each item is closed or has its own line here.
+- [ ] `small` 🟡 **Remove unused dependencies and leftovers** *(ARCH-04, ARCH-05, ARCH-07)* — `d3`, `@types/d3`, `autoprefixer`, the duplicate `vite` entry, AI Studio comments and dead fields. A `package.json` and lockfile change. **Done when:** `npm ci`, `npm run lint` and `npm run build` pass without them.
+- [ ] 🟡 **A fork that does not point at the original** *(Product, PROD-04)* — canonical URL, footer domain and consent script driven from `projectLinks.ts`, plus an "after you fork" list in the setup guide. **Done when:** a build with the config emptied has no reference to the org domain in `dist/`.
+- [ ] 🟡 **A durable store for the advisor limits** *(Security, SEC-03, SEC-05)* — the 2026-11-12 limits are in process memory. Only worth doing if the Gemini key quota (Action 2.7b) proves too coarse; picking the store is an owner decision. 🔒 Needs owner
+- [ ] `small` 🔵 **Record count in one place** *(AI-08)* — `check-spectrum.ts` and `check-spectrum-browser.ts` each pin the count; read it from `provenance-baseline.json`. **Done when:** a content PR changes the count in one code file.
+- [ ] 🟠 **Provenance programme and a dataset freeze** *(Product, PROD-07, PROD-08)* — most rows cite no source while the dataset grows weekly. Classify rows as math, published or estimate, ratchet cited coverage per category in `check:edges`, and add no row while a category is under its target. **Done when:** the per-category ratchet is in CI and the freeze rule is written here.
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*
@@ -206,7 +229,7 @@ which of them may ship before Phase 2 closes.
    - **Feature:** Compare performance across Flat Staking, Proportional % Sizing, Quarter/Full Kelly, and Martingale (with ruin warnings). Add a vig slider allowing users to test resilience if lines move from −110 to −115.
    - **Reuse note (2026-09-03):** the Kelly sizing math must be the same function Action 6.3 ships (put it in `site/src/odds.ts` or a sibling pure module, no React imports) so the simulator grid and the standalone calculator cannot disagree. The vig slider is a `devig()` / `americanToDecimal()` call from `odds.ts`, not new arithmetic.
 
-- [ ] 🟠 **Action 4.5 — Bundle Optimization & Code Splitting**
+- [x] 🟠 **Action 4.5 — Bundle Optimization & Code Splitting** — done 2026-11-12: tool pages and the markdown parser are `lazy()` chunks and the fade uses the slim motion build. The home page loads **138 kB** gzip of JS (was 324 kB in one 1,068 kB chunk); `npm run check:bundle` fails CI over 150 kB or on any chunk over 500 kB. Each new tool page must be a `lazy()` import.
    - **Feature:** Lazy-load secondary routes (`/backtester`, `/odds`, `/parlay`, and each later calculator) with `React.lazy` and split vendor chunks (`recharts`, `react-markdown`) to reduce initial JS payload to <150 kB. Measured 2026-09-03: a single **799 kB** chunk (was ~776 kB before the two calculators; the calculators themselves are small — the weight is the backtester's `recharts` + `react-markdown` + `dataGenerator`, which the hub landing and the calculators never use). Each new Phase 6 tool that lands before this makes the case for it stronger.
 
 - [ ] 🟡 **Action 4.6 — Native React Port of Spectrum Visualizer**
@@ -280,7 +303,7 @@ which of them may ship before Phase 2 closes.
 - [ ] 🟡 **Action 7.2 — User Accounts & Saved Portfolios**
    - **Feature:** Optional user authentication for saving custom backtests, personal edge audits, and tracking CLV records over time.
 
-- [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop**
+- [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop** *(the static half shipped 2026-11-12: `robots.txt`, `sitemap.xml`, one share image, per-route titles and descriptions, real 404s. Per-result cards are what is left.)*
    - **Feature:** Implement `@vercel/og` to generate dynamic social sharing cards for backtest equity curves and calculator results, with automated sitemaps and meta tags.
 
 - [ ] 🟡 **Action 7.4 — Publish the Dataset as an Endpoint**

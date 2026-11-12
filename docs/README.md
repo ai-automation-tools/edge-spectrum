@@ -43,7 +43,8 @@ Edge Spectrum operates as a multi-tool web application hosted on **Vercel** with
 
 ## 🧪 Testing & Validation Invariants
 
-- **`npm run check:deployment`** — Verifies demo mode rejects live AI and full-mode sessions, while full mode retains passcode authentication.
+- **`npm run check:deployment`** — Verifies demo mode rejects live AI and full-mode sessions, while full mode retains passcode authentication. Also holds the advisor's limits and lockout, the validation of the model's reply, and the 400 / 404 / 504 answers of the API handlers, all with no network call.
+- **`node site/scripts/check-live.mjs`** — Not in CI: smoke-checks the deployed site daily and after each production deploy.
 
 - **`npm run check:engine`** — Replays every simulated season: games in date order, no negative rest days, each stored streak equal to the team's earlier results, and a busted bankroll stops the run with drawdown at or under 100%.
 - **`npm run check:bundle`** — After a build: no chunk over 500 kB, the home page's JS under 150 kB gzip, and the CSP in `vercel.json` still allows the inline theme script.

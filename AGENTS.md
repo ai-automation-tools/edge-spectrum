@@ -76,7 +76,10 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 1. Add one entry to `TOOLS` in `site/src/tools.ts` (`slug`, `title`, `blurb`, `icon`, `href`, `kind`, `status`, `accent`).
 2. Then, by `kind`:
-   - `route` → build the page component and add its `<Route>` in `site/src/App.tsx`.
+   - `route` → build the page component and add it to `site/src/App.tsx` as a `lazy()` import with its `<Route>`.
+     A new route is also listed in three more places,
+     or it is a 404 in production while it works in dev: 
+     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
    - `static` → drop the page under `site/public/<slug>/` and point `href` at `/<slug>/index.html`
      (Vite dev does **not** auto-serve a `public/` directory index — always link the explicit file).
    - `external` → just the URL; opens in a new tab.
