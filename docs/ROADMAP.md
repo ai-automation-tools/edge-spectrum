@@ -160,10 +160,10 @@ which of them may ship before Phase 2 closes.
 
 ### 🔎 Audit follow-ups (project audit, 2026-11-11)
 
-The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did the first seven items
-of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90 and #92).
+The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did the first eight items
+of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90, #92 and #94).
 The unticked items are what is left, in the audit's order; the IDs are the audit's. Next up:
-**Accessibility depth**.
+**Remove unused dependencies and leftovers**.
 
 - [ ] 🟠 **Require CI and code-owner review on `main`** *(Security, SEC-02)* — `.github/CODEOWNERS` exists but does nothing until the ruleset requires code-owner review, and the `check` job is still advisory. **Done when:** a PR with a failing `check` cannot be merged. 🔒 Needs owner
 - [ ] 🟠 **Remove the personal email from public history** *(Security, SEC-01)* — 30 commits on `main`. A history rewrite and force-push in a quiet window, then re-clone everywhere. **Done when:** `git log --all --format=%ae` lists only noreply addresses. 🔒 Needs owner
@@ -177,7 +177,7 @@ The unticked items are what is left, in the audit's order; the IDs are the audit
 - [x] `small` 🟡 **Line capture robustness** *(Bugs, BUG-23, BUG-24, BUG-32, BUG-34)* — done 2026-11-12: broken lines and undated games are skipped with a warning, the day-file name must be a date, and "seen" is keyed by event across the last 8 day files, with the digest following a game across files. Held by `check:lines`. Still to confirm on two days of real captures: that a game ending after the board date changes gets its final.
 - [ ] `small` 🔵 **Late finals in the line archive** *(Bugs, BUG-32)* — a game that ends after ESPN's board has moved to the next day may never get its final captured. Read two consecutive days of real capture files; if a final is missing, have the collector also fetch the previous day's board. **Done when:** every finished game in those two days has a final record, or the gap has a fix held by `check:lines`.
 - [x] `small` 🟡 **Spectrum form and label safety** *(Bugs, BUG-25, BUG-33)* — done 2026-11-12: an open "Where do I sit?" form is never rebuilt, so a bar hover, a Play tick or a filter keeps what was typed; arrow keys in a select no longer move the horizon; the reader's row name is escaped in the chart. Held by `check:spectrum-browser` (it fills the form, hovers a bar, plays a tick and reads the values back, and loads a name made of markup).
-- [ ] 🟡 **Accessibility depth** *(UX-05, UX-06, UX-11, UX-12, UX-13, UX-16, UX-19)* — the palette as a native dialog, a paged games table, state and status exposed to assistive tech, a text alternative for the equity chart, calculator error messages, and the age and helpline line near each tool. **Done when:** each item is closed or has its own line here.
+- [x] 🟡 **Accessibility depth** *(UX-05, UX-06, UX-11, UX-12, UX-13, UX-16, UX-19)* — done 2026-11-12: the ⌘K palette is a native modal dialog with combobox and listbox roles; the game log shows 25 rows a page and sorts by date, net return and status; on a phone the advisor comes before the chart; toggles, tabs and the current page expose their state; a finished backtest and a scoreboard error are announced; the equity curve, the hero strip and the Spectrum charts have text alternatives; a bad calculator price says why under its field; the age and help-line line sits under each tool's heading. Held by `check:spectrum-browser` section 10 and `check:odds`.
 - [ ] `small` 🟡 **Remove unused dependencies and leftovers** *(ARCH-04, ARCH-05, ARCH-07)* — `d3`, `@types/d3`, `autoprefixer`, the duplicate `vite` entry, AI Studio comments and dead fields. A `package.json` and lockfile change. **Done when:** `npm ci`, `npm run lint` and `npm run build` pass without them.
 - [ ] 🟡 **A fork that does not point at the original** *(Product, PROD-04)* — canonical URL, footer domain and consent script driven from `projectLinks.ts`, plus an "after you fork" list in the setup guide. **Done when:** a build with the config emptied has no reference to the org domain in `dist/`.
 - [ ] 🟡 **A durable store for the advisor limits** *(Security, SEC-03, SEC-05)* — the 2026-11-12 limits are in process memory. Only worth doing if the Gemini key quota (Action 2.7b) proves too coarse; picking the store is an owner decision. 🔒 Needs owner

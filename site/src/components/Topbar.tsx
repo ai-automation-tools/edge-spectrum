@@ -50,7 +50,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
         <nav ref={navRef} className="relative ml-3 hidden items-center gap-0.5 md:flex" aria-label="Tools">
           {items.map((i) =>
             i.kind === 'route' ? (
-              <Link key={i.key} to={i.href} data-key={i.key} className={linkCls(activeKey === i.key)}>{i.label}</Link>
+              <Link key={i.key} to={i.href} data-key={i.key} aria-current={activeKey === i.key ? 'page' : undefined} className={linkCls(activeKey === i.key)}>{i.label}</Link>
             ) : (
               <a key={i.key} href={i.href} data-key={i.key} className={linkCls(false)}>{i.label}</a>
             ),
@@ -91,7 +91,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
         <div className="border-b border-zinc-800/70 bg-(--bg-2)/95 md:hidden">
           {items.map((i) =>
             i.kind === 'route' ? (
-              <Link key={i.key} to={i.href} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">{i.label}</Link>
+              <Link key={i.key} to={i.href} aria-current={activeKey === i.key ? 'page' : undefined} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">{i.label}</Link>
             ) : (
               <a key={i.key} href={i.href} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">{i.label}</a>
             ),

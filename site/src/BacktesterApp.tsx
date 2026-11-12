@@ -16,6 +16,12 @@ import SiteFooter from './components/SiteFooter';
 // Keystroke-to-request grace period for the auto-rerun effect.
 const RERUN_DEBOUNCE_MS = 300;
 
+/** One sentence per finished run, for the live region. */
+function runSummary({ summary: s }: BacktestResponse): string {
+  const net = `${s.netProfit < 0 ? 'a loss of' : 'a profit of'} $${Math.abs(s.netProfit).toLocaleString()}`;
+  return `Backtest done: ${s.totalBets.toLocaleString()} bets, ${s.winRate.toFixed(1)}% won, ${net}, ROI ${s.roi.toFixed(2)}%.`;
+}
+
 export default function App() {
   // The strategy is mirrored into the query string so a run can be
   // bookmarked or shared; a bare /backtester opens on the defaults.
@@ -108,6 +114,14 @@ export default function App() {
     strategy.totalMax,
   ]);
 
+  const onTabKey = (e: React.KeyboardEvent) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const next = e.key === 'Home' ? 'analytics' : e.key === 'End' ? 'espn' : activeTab === 'analytics' ? 'espn' : 'analytics';
+    setActiveTab(next);
+    document.getElementById(`tab-${next}`)?.focus();
+  };
+
   // Accept recommended templates directly from the AI Advisor
   const handleApplyTemplate = (tmpl: StrategyTemplate) => {
     const updatedStrategy: Strategy = {
@@ -153,6 +167,12 @@ export default function App() {
           />
         </div>
 
+        {/* What a screen reader hears when a run starts and finishes (audit UX-12). The
+            dashboard counts its numbers up, so the live region carries the final values. */}
+        <p role="status" className="sr-only">
+          {isLoading ? 'Running the backtest…' : result ? runSummary(result) : ''}
+        </p>
+
         {/* Middle Segment: KPI Metrics Panel */}
         {result?.summary && (
           <div className="transition-all duration-300">
@@ -165,17 +185,18 @@ export default function App() {
           
           {/* Main Visual Workspace Area (Spans 3 Columns on desktop) */}
           <div className="lg:col-span-3 flex flex-col gap-4">
-            {/* Workspace tabs navigator */}
-            <div className="flex border-b border-zinc-800/70" role="tablist" aria-label="Workspace">
-              <button role="tab" aria-selected={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} className="ttab">
+            {/* Workspace tabs navigator: the full tab pattern, arrows move between the two */}
+            <div className="flex border-b border-zinc-800/70" role="tablist" aria-label="Workspace" onKeyDown={onTabKey}>
+              <button role="tab" id="tab-analytics" aria-controls="ws-panel" aria-selected={activeTab === 'analytics'} tabIndex={activeTab === 'analytics' ? 0 : -1} onClick={() => setActiveTab('analytics')} className="ttab">
                 <LineChart className="h-3.5 w-3.5" /> Backtest analytics
               </button>
-              <button role="tab" aria-selected={activeTab === 'espn'} onClick={() => setActiveTab('espn')} className="ttab">
+              <button role="tab" id="tab-espn" aria-controls="ws-panel" aria-selected={activeTab === 'espn'} tabIndex={activeTab === 'espn' ? 0 : -1} onClick={() => setActiveTab('espn')} className="ttab">
                 <Table className="h-3.5 w-3.5" /> Live ESPN scoreboard
                 <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-px font-mono text-[9px] font-medium uppercase tracking-wider text-emerald-400">Live</span>
               </button>
             </div>
 
+            <div role="tabpanel" id="ws-panel" aria-labelledby={`tab-${activeTab}`}>
             {activeTab === 'analytics' ? (
               <div className="flex flex-col gap-6 animate-fadeIn">
                 <ProfitChart data={result?.profitHistory || []} />
@@ -194,13 +215,17 @@ export default function App() {
                 <EspnFeed currentStrategy={strategy} />
               </div>
             )}
+            </div>
           </div>
 
-          {/* AI Advisor Space (Spans 2 Columns on desktop) */}
-          <AiAdvisor
-            currentStrategy={strategy}
-            onApplyTemplate={handleApplyTemplate}
-          />
+          {/* AI Advisor Space (Spans 2 Columns on desktop). On a phone it comes before the
+              chart and the game log, which otherwise pushed it thousands of pixels down (audit UX-06). */}
+          <div className="max-lg:order-first lg:col-span-2">
+            <AiAdvisor
+              currentStrategy={strategy}
+              onApplyTemplate={handleApplyTemplate}
+            />
+          </div>
 
         </div>
 

@@ -53,9 +53,32 @@ function toFraction(x: number, maxDen: number): [number, number] {
  * anything unusable (empty, non-numeric, out of range, zero-probability).
  */
 export function parseOdds(text: string, format: OddsFormat): number | null {
+  const d = parseRaw(text, format);
+  return d !== null && d <= MAX_DECIMAL ? d : null;
+}
+
+/** The longest price a field accepts, +1,000,000: past it a typo, not a market, sets the parlay hold. */
+export const MAX_DECIMAL = 10001;
+
+/** What each format accepts, shown under a field whose text does not parse. */
+export const FORMAT_HINT: Record<OddsFormat, string> = {
+  american: 'American odds run from ±100 to ±1,000,000, e.g. −110 or +150.',
+  decimal: 'Decimal odds are above 1 and up to 10,001, e.g. 1.91.',
+  fractional: 'Fractional odds look like 10/11 or 5/2, up to 10000/1.',
+  implied: 'Implied % is between 0.01% and 100%, e.g. 52.4 or 0.524.',
+};
+
+/** Why a field's text is not a price, or null when it is. */
+export function oddsError(text: string, format: OddsFormat): string | null {
+  if (parseOdds(text, format) !== null) return null;
+  return text.trim() ? FORMAT_HINT[format] : 'Enter a price.';
+}
+
+function parseRaw(text: string, format: OddsFormat): number | null {
   // One leading "+" and, for a percentage, one trailing "%": stripping every one of them
   // turned "1+1+0" into 110. Number() alone also reads hex ("0x64") and exponents.
-  let s = text.replace(/\s/g, '').replace(/^\+/, '');
+  // A typographic minus (U+2212, what a copied price often carries) is a minus.
+  let s = text.replace(/\s/g, '').replace(/−/g, '-').replace(/^\+/, '');
   if (format === 'implied') s = s.replace(/%$/, '');
   if (format !== 'fractional' && !/^-?(?:\d+\.?\d*|\.\d+)$/.test(s)) return null;
   switch (format) {
