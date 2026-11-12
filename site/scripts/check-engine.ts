@@ -5,7 +5,7 @@
  * a drawdown measured against the wrong peak (audit BUG-01 to BUG-04).
  */
 import assert from 'node:assert/strict';
-import { generateGamesDatabase, nextStreak, runBacktest } from '../src/dataGenerator';
+import { generateGamesDatabase, nextStreak, PROFIT_HISTORY_LIMIT, runBacktest } from '../src/dataGenerator';
 import { MAX_SEASON, MIN_SEASON, SPORTS } from '../src/strategyBounds';
 import type { Strategy } from '../src/types';
 
@@ -68,6 +68,20 @@ for (const sideSelection of ['favorites', 'underdogs'] as const) {
     worst = Math.max(worst, (peak - p.currentBankroll) / peak);
   }
   assert.ok(Math.abs(summary.maxDrawdownPercent - worst * 100) < 0.01, `drawdown ${summary.maxDrawdownPercent} vs replay ${worst * 100}`);
+}
+
+// The largest run ships a thinned equity curve that still starts and ends on
+// the true bankroll, under a response budget (audit PERF-02).
+{
+  const big = runBacktest({ ...base, sport: 'MLB', sideSelection: 'home', startingBankroll: 10_000_000 });
+  const { summary, profitHistory } = big;
+  assert.equal(summary.totalBets, 20800);
+  assert.ok(profitHistory.length <= PROFIT_HISTORY_LIMIT, `${profitHistory.length} points`);
+  assert.equal(profitHistory[0].index, 1);
+  assert.equal(profitHistory.at(-1)!.index, summary.totalBets);
+  assert.equal(profitHistory.at(-1)!.currentBankroll, summary.finalBankroll);
+  const bytes = JSON.stringify(big).length;
+  assert.ok(bytes <= 300_000, `largest response is ${bytes} bytes, budget 300,000`);
 }
 
 console.log(`Engine check passed: ${games} games in date order with replayable streaks; bust and drawdown hold.`);
