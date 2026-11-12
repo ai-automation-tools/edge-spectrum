@@ -70,7 +70,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
             href={REPOSITORY_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-8 items-center gap-2 rounded-lg border border-zinc-700/80 px-3 text-[13px] font-medium text-zinc-300 transition-colors hover:border-zinc-500 hover:bg-zinc-900/70"
+            className="inline-flex h-8 items-center gap-2 rounded-lg border border-zinc-700/80 px-3 text-[13px] font-medium text-zinc-300 transition-colors hover:border-zinc-500 hover:bg-zinc-900/70 max-[359px]:hidden"
           >
             <GithubMark className="h-[15px] w-[15px]" />
             <span className="hidden md:inline">GitHub</span>
