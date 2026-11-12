@@ -17,10 +17,10 @@ interface AiAdvisorProps {
 }
 
 const COMMON_PROMPTS = [
-  "Does buying point-spread favorites in NBA historically cash?",
-  "Formulate an MLB underdog value betting strategy",
-  "Critique my NFL favorite moneyline model - is it EV+?",
-  "Suggest a high-win-rate NHL totals strategy"
+  "How do NBA point-spread favorites fare in this simulator, and why?",
+  "Walk me through testing an MLB underdog moneyline strategy",
+  "Critique my NFL favorite moneyline setup",
+  "What should I expect from an NHL totals strategy?"
 ];
 
 /**
@@ -70,7 +70,6 @@ What strategy concept would you like to build? You can outline rules in natural 
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
 
   // Passcode gate. The advisor spends a metered Gemini key, so it is locked by
   // default — the real check lives on the server (src/server/auth.ts); this is
@@ -125,14 +124,6 @@ What strategy concept would you like to build? You can outline rules in natural 
     updateAuth(false);
   };
 
-  const loadingSentences = [
-    'Scanning past 25 years of game database matrices...',
-    'Evaluating vig weights and moneyline arbitrage odds...',
-    'Performing regression analytics on player injury rosters...',
-    'Formulating Kelly Criterion decimal sizing vectors...',
-    'Isolating sport divisional performance indicators...'
-  ];
-
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isGenerating) return;
 
@@ -140,13 +131,6 @@ What strategy concept would you like to build? You can outline rules in natural 
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsGenerating(true);
-
-    let loadIdx = 0;
-    setStatusMessage(loadingSentences[0]);
-    const loadInterval = setInterval(() => {
-      loadIdx = (loadIdx + 1) % loadingSentences.length;
-      setStatusMessage(loadingSentences[loadIdx]);
-    }, 1500);
 
     try {
       const response = await fetch('/api/strategy-advisor', {
@@ -196,7 +180,6 @@ What strategy concept would you like to build? You can outline rules in natural 
         }
       ]);
     } finally {
-      clearInterval(loadInterval);
       setIsGenerating(false);
     }
   };
@@ -205,7 +188,7 @@ What strategy concept would you like to build? You can outline rules in natural 
     setMessages([
       {
         role: 'assistant',
-        content: `Aviation systems recalculated. **EdgeFinder console cleared.** How can I assist you with sports analytics now?`,
+        content: 'Chat cleared.',
       }
     ]);
   };
@@ -369,7 +352,7 @@ What strategy concept would you like to build? You can outline rules in natural 
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
               </div>
-              <span className="text-[11px] font-mono text-zinc-400 animate-pulse">{statusMessage}</span>
+              <span className="text-[11px] font-mono text-zinc-400 animate-pulse">Waiting for the advisor…</span>
             </div>
           </div>
         )}

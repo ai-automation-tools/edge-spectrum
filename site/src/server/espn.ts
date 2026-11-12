@@ -4,48 +4,82 @@
  * (`server.ts`) and the Vercel serverless function (`api/espn-scoreboard.ts`).
  */
 
+import type { RouteResult } from './httpTypes.js';
+
 interface EspnScoreboardResult {
   sport: string;
   date: string;
   games: any[];
 }
 
-/** Map our sport code to ESPN's {sport, league} path segments. */
-function espnPath(sport: string): { espnSport: string; espnLeague: string } {
-  switch (sport) {
-    case 'NBA':
-      return { espnSport: 'basketball', espnLeague: 'nba' };
-    case 'MLB':
-      return { espnSport: 'baseball', espnLeague: 'mlb' };
-    case 'NHL':
-      return { espnSport: 'hockey', espnLeague: 'nhl' };
-    default:
-      return { espnSport: 'football', espnLeague: 'nfl' };
-  }
-}
+/** Our sport code -> ESPN's sport/league path. The only sports the proxy serves. */
+const ESPN_PATHS: Record<string, string> = {
+  NFL: 'football/nfl',
+  NBA: 'basketball/nba',
+  MLB: 'baseball/mlb',
+  NHL: 'hockey/nhl',
+};
+
+/** How long ESPN gets before the request is abandoned. */
+export const ESPN_TIMEOUT_MS = 8000;
+
+/** The caller asked for something the proxy does not serve: a 400, not a 500. */
+export class EspnInputError extends Error {}
 
 export async function fetchEspnScoreboard(
   sportRaw: string,
   dateInput = '',
+  timeoutMs = ESPN_TIMEOUT_MS,
 ): Promise<EspnScoreboardResult> {
   const sport = (sportRaw || 'NFL').toUpperCase();
-  const { espnSport, espnLeague } = espnPath(sport);
+  // An unknown sport used to fall through to NFL and come back labelled with
+  // the caller's string, one CDN cache entry per spelling.
+  const path = ESPN_PATHS[sport];
+  if (!path) throw new EspnInputError(`Unknown sport: expected one of ${Object.keys(ESPN_PATHS).join(', ')}`);
 
-  let url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/${espnLeague}/scoreboard?limit=100`;
+  let url = `https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard?limit=100`;
   if (dateInput) {
     // Only YYYYMMDD or YYYYMMDD-YYYYMMDD reaches ESPN: anything else could add
     // its own query parameters and mint unlimited cache-key variants.
     if (!/^\d{8}(-\d{8})?$/.test(dateInput)) {
-      throw new Error('Invalid date: expected YYYYMMDD or YYYYMMDD-YYYYMMDD');
+      throw new EspnInputError('Invalid date: expected YYYYMMDD or YYYYMMDD-YYYYMMDD');
     }
     url += `&dates=${dateInput}`;
   }
 
-  const response = await fetch(url);
+  // Without a signal a stalled upstream holds the function, and the line
+  // collector's scheduled task, until something else kills it.
+  const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
   if (!response.ok) {
     throw new Error(`ESPN API returned status ${response.status}`);
   }
   return parseEspnScoreboard(await response.json(), sport, dateInput);
+}
+
+/**
+ * GET /api/espn-scoreboard, minus the framework. `query` is whatever the
+ * adapter parsed: a repeated parameter arrives as an array and is refused
+ * here rather than crashing on `.toUpperCase()`.
+ */
+export async function espnScoreboardRoute(
+  query: { sport?: unknown; date?: unknown },
+  timeoutMs = ESPN_TIMEOUT_MS,
+): Promise<RouteResult> {
+  const sport = query.sport ?? 'NFL';
+  const date = query.date ?? '';
+  if (typeof sport !== 'string' || typeof date !== 'string') {
+    return { status: 400, body: { error: 'sport and date take one value each' } };
+  }
+  try {
+    return { status: 200, body: await fetchEspnScoreboard(sport, date, timeoutMs) };
+  } catch (error) {
+    if (error instanceof EspnInputError) return { status: 400, body: { error: error.message } };
+    if ((error as Error)?.name === 'TimeoutError') {
+      return { status: 504, body: { error: 'ESPN did not answer in time.' } };
+    }
+    console.error('Error fetching ESPN scoreboard:', error);
+    return { status: 500, body: { error: 'Failed to retrieve real-time ESPN scoreboard games.' } };
+  }
 }
 
 /** A number from ESPN's odds strings ("-110", "+670", "o222.5", "EVEN"), or null. */

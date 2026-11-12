@@ -5,6 +5,8 @@ import {
 import { generateAdvice } from '../src/server/advisor';
 import { fetchEspnScoreboard } from '../src/server/espn';
 import advisorHandler from '../api/strategy-advisor';
+import backtestHandler from '../api/backtest';
+import espnHandler from '../api/espn-scoreboard';
 import authHandler from '../api/advisor-auth';
 import type { ApiRequest, ApiResponse } from '../src/server/httpTypes';
 
@@ -63,8 +65,41 @@ try {
   delete process.env.ADVISOR_PASSCODE;
   assert.equal(guardAdvisorRequest(cookie, 'Hello').status, 503);
   assert.equal(attemptUnlock('test-only-passcode', 'test-client').status, 503);
+
+  // Bad input to the two open endpoints is the caller's error (400), never a
+  // 500, and none of it reaches the network.
+  const call = async (handler: (req: ApiRequest, res: ApiResponse) => unknown, req: object) => {
+    const { result, response } = responseCapture();
+    await handler(req as ApiRequest, response);
+    return result;
+  };
+  await assert.rejects(fetchEspnScoreboard('XYZ'), /Unknown sport/);
+  for (const query of [{ sport: 'NFL', date: 'abc' }, { sport: ['NFL', 'NBA'] }, { date: ['20240101', '20240102'] }, { sport: 'zzz' }]) {
+    const res = await call(espnHandler, { method: 'GET', query });
+    assert.equal(res.status, 400, `espn ${JSON.stringify(query)}`);
+    assert.equal(res.headers['Cache-Control'], undefined);
+  }
+  const malformed = { method: 'POST', get body(): unknown { throw new SyntaxError('Unexpected end of JSON input'); } };
+  assert.equal((await call(backtestHandler, malformed)).status, 400);
+  assert.equal((await call(backtestHandler, { method: 'POST', body: { sport: 'NFL' } })).status, 400);
+  assert.equal((await call(backtestHandler, { method: 'GET' })).status, 405);
+  const ran = await call(backtestHandler, { method: 'POST', body: {
+    sport: 'NHL', startYear: 2020, endYear: 2020, betType: 'totals', sideSelection: 'over', unitSize: 100, startingBankroll: 10000,
+  } });
+  assert.equal(ran.status, 200);
+  assert.ok(ran.body.summary.totalBets > 0);
   assert.equal(networkCalls, 0);
-  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls.');
+
+  // A stalled ESPN is cut off and reported as a gateway timeout.
+  const { espnScoreboardRoute } = await import('../src/server/espn');
+  globalThis.fetch = ((_url: unknown, init?: RequestInit) => new Promise((_resolve, reject) => {
+    init?.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+  })) as typeof fetch;
+  // AbortSignal.timeout's timer is unref'd; with no socket open, hold the process for it.
+  const keepAlive = setTimeout(() => {}, 5000);
+  assert.equal((await espnScoreboardRoute({ sport: 'NFL' }, 50)).status, 504);
+  clearTimeout(keepAlive);
+  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504.');
 } finally {
   for (const key of keys) {
     if (previous[key] === undefined) delete process.env[key];

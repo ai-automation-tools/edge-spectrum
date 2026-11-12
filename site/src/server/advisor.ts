@@ -11,16 +11,18 @@ import { deploymentMode } from './deployment.js';
  */
 let client: GoogleGenAI | null = null;
 
+/**
+ * Model ids retire on Google's schedule, not ours, so a self-hoster can move
+ * with `GEMINI_MODEL` instead of waiting for a release. The default is the
+ * model `gemini-2.5-flash` requests are routed to from 2026-12-01; see
+ * docs/UPSTREAMS.md for when it was last checked.
+ */
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+export const geminiModel = () => process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+
 function getClient(): GoogleGenAI {
   if (!client) {
-    client = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    });
+    client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   }
   return client;
 }
@@ -37,7 +39,7 @@ Help the user parse their natural language ideas, critique their current backtes
 Warn them about standard traps (e.g., heavily favored moneylines have huge vig/juice; point spread favorites cover less than expected; betting over/under trends usually regress to the mean).
 
 ALWAYS formulate your output in JSON conforming exactly to the response schema:
-- 'analysis': A well-articulated expert review in Markdown. Include bullet points, historical truths (e.g. why 2007 Patriots, 2016 Warriors, or early 2010s Giants are great simulation testbeds), and suggestions of alternative profitable metrics.
+- 'analysis': A well-articulated expert review in Markdown. Include bullet points and suggestions of other angles worth testing.
 - 'suggestedTemplates': A list of 1 to 2 strategy configurations matching your expert recommendations, so the user can test them immediately. Use the following structured options for 'sideSelection': 'favorites'|'underdogs'|'home'|'away'|'home_favorites'|'away_favorites'|'home_underdogs'|'away_underdogs'|'over'|'under'`;
 
 /**
@@ -66,10 +68,10 @@ Bet Type: ${s(cs.betType, 'moneyline')}
 Side: ${s(cs.sideSelection, 'favorites')}
 Unit: $${n(cs.unitSize, 100)}
 
-Please provide your analysis and suggest 1-2 profitable alternative strategies or variations to backtest.`;
+Please provide your analysis and suggest 1-2 alternative strategies or variations to backtest.`;
 
   const response = await getClient().models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: geminiModel(),
     contents: modelPrompt,
     config: {
       systemInstruction: SYSTEM_PROMPT,
