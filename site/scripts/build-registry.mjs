@@ -29,6 +29,9 @@ const REPO_PARAM = {
   help: 'Absolute path to your clone of ai-automation-tools/edge-spectrum, with `npm ci` run in its site/ folder.',
 };
 
+// Audit GOV-01. The same notice is in the README; change them together.
+const ESPN_NOTICE = "Uses an unofficial, undocumented ESPN endpoint: Edge Spectrum is not affiliated with ESPN, you are responsible for following ESPN's terms of use, and the capture is for personal, low-volume use, not for republishing.";
+
 const TEMPLATES = [
   {
     schemaVersion: '1.0',
@@ -38,7 +41,7 @@ const TEMPLATES = [
       'Snapshots ESPN\'s public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game '
       + '(spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture '
       + 'open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone '
-      + 'of edge-spectrum with `npm ci` run in site/.',
+      + 'of edge-spectrum with `npm ci` run in site/. ' + ESPN_NOTICE,
     runtime: 'node',
     os: 'cross-platform',
     category: 'data-sync',
@@ -75,7 +78,7 @@ const TEMPLATES = [
       + 'score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the '
       + 'archive, no keys, no network. Fails when the day has no capture file at all, which means the capture '
       + 'task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with '
-      + '`npm ci` run in site/.',
+      + '`npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use.',
     runtime: 'node',
     os: 'cross-platform',
     category: 'monitoring',

@@ -4,7 +4,7 @@
     {
       "id": "edge-spectrum-line-capture",
       "name": "Edge Spectrum: ESPN Line Capture",
-      "description": "Snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game (spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/.",
+      "description": "Snapshots ESPN's public scoreboard for NFL, NBA, MLB and NHL and appends one JSON line per game (spread, total, moneyline, scores) to <output>/<SPORT>/<day>.jsonl, labelling each pre-game capture open, midday or close for closing-line-value analysis. Append-only, no keys. Needs Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. Uses an unofficial, undocumented ESPN endpoint: Edge Spectrum is not affiliated with ESPN, you are responsible for following ESPN's terms of use, and the capture is for personal, low-volume use, not for republishing.",
       "category": "data-sync",
       "tags": [
         "edge-spectrum",
@@ -23,12 +23,12 @@
         "macos"
       ],
       "path": "templates/edge-spectrum-line-capture.json",
-      "sha256": "8c980fff1e155b7f9b1de807cac5f545ab8c9aceac43dc18f30d859bbf5a3b44"
+      "sha256": "37ee8688f3721154792f86bf347c55acd412830a744ed9cf61821a611e9609da"
     },
     {
       "id": "edge-spectrum-line-digest",
       "name": "Edge Spectrum: Daily Line Movement Digest",
-      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/.",
+      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use.",
       "category": "monitoring",
       "tags": [
         "edge-spectrum",
@@ -47,7 +47,7 @@
         "macos"
       ],
       "path": "templates/edge-spectrum-line-digest.json",
-      "sha256": "8bf02d84d7343f40fb6d786b4ad7260692dcc74940622d5c3e28404a24ca0acd"
+      "sha256": "4c4890eb226a5d6c86e30e9634cdc7ab79237e262610528dc41f518f6b7cfaed"
     }
   ],
   "packs": [
@@ -60,7 +60,7 @@
         "edge-spectrum-line-digest"
       ],
       "path": "packs/edge-spectrum.json",
-      "sha256": "f36bcdff1e4cf84f029106d34cf5c6abd4eee78a072494e6562721392bc35b03"
+      "sha256": "769e903210982406288ae03d40bde67117fbcbb1255c0c0c68d3eebabcda1745"
     }
   ]
 }

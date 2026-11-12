@@ -20,8 +20,10 @@ tool is roughly *one registry entry + one page*.
 - **Host: Vercel** (project `edge-spectrum`). The Vercel project's **Root Directory is set to `site`**
   (dashboard → Settings → Build & Deployment → Root Directory), so `vercel.json` and `api/` inside
   `site/` are picked up as-is. Working branch **`mike_desktop`**, deploy branch **`main`**.
-  Deploy via CLI: `vercel deploy --prod` **from `site/`** (the `.vercel/` link folder lives there).
-  (Git-connected; production branch may also be set to `main` in the dashboard for push-to-deploy.)
+  **A merge to `main` is the only deploy path**: the project is Git-connected with `main` as its
+  production branch (GitHub's deployment log shows every production deploy at a `main` merge commit),
+  and each PR gets a preview. Do not run `vercel deploy --prod` by hand; it would ship code that skipped
+  the PR and CI. Rolling back is in `docs/self-hosting.md`.
 - `site/server.ts` (Express + Vite middleware) is **local dev only**; on Vercel the SPA is served from
   `site/dist/` and `site/api/*` run as serverless functions. `vercel.json` has an SPA rewrite so client
   routes deep-link.

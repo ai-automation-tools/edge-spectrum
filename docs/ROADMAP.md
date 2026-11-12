@@ -240,6 +240,7 @@ which of them may ship before Phase 2 closes.
 
 - [ ] 🟠 **Action 5.4 — Closing Line Value (CLV) Skill Grading Engine**
    - **Feature:** Allow users to log hypothetical or placed wagers, fetch the true closing line from captured data, and calculate CLV beat rate (the primary mathematical indicator of betting edge).
+   - **Constraint (2026-11-12, audit GOV-01):** grading runs on the user's own archive, locally. The site does not host or republish lines captured from ESPN.
 
 ### 🧮 Phase 6: Standalone Calculators & Engagement Tools 🟡
 *Builds high-utility, SEO-friendly standalone calculators that feed back into the core hub.*

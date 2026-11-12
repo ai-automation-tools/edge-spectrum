@@ -88,6 +88,12 @@ and appends one JSON line per game to `<folder>/<SPORT>/<day>.jsonl`: spread and
 moneyline, scores, and a `linePhase` of `open`, `midday` or `close`. Files are only ever appended to,
 there are no keys, and nothing leaves your machine.
 
+> [!NOTE]
+> The collector and the live scoreboard read an **unofficial, undocumented ESPN endpoint**. Edge Spectrum
+> is not affiliated with ESPN. If you run the collector you are responsible for following ESPN's terms of
+> use: keep it to personal, low-volume use (the default is one request per league every three hours) and do
+> not republish what you capture. This project does not publish captured lines.
+
 ```bash
 cd site && npm run capture:lines -- --out ~/edge-lines
 ```
