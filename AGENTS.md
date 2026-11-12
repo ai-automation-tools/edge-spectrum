@@ -110,6 +110,11 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 - Strict TS (`"strict": true` in `site/tsconfig.json` since 2026-11-12; `npm run lint` holds it);
   functional components + hooks; Tailwind; match existing `site/src/` style. `react-dom/client` is typed
   by `site/src/react-dom-client.d.ts`, because `@types/react-dom` is not installed.
+- **A bet is selected, then graded, in two places only.** In `site/src/dataGenerator.ts`, `selectSide`
+  returns the side a strategy backs (or null), `priceAndGrade` is the one place a bet is priced and
+  settled, and `passesFilters` applies the ranges and the streak filter. A new selection is one `case` in
+  `selectSide`; never read the side back out of the ledger text. `favouriteSide` reads the line for a
+  spread bet and the prices for a moneyline bet, and is null on level prices.
 - **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
   before it draws a game, because rest days, streaks and the prices set from them are carried from
   one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
