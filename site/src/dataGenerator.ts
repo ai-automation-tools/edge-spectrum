@@ -714,6 +714,110 @@ export function sampleHistory(points: ProfitHistoryPoint[], limit = PROFIT_HISTO
   return points.filter((_, i) => keep.has(i));
 }
 
+type TeamSide = 'home' | 'away';
+type BetSide = TeamSide | 'over' | 'under';
+
+/** What a selection decided for one game: which side, and why if the reason is worth showing. */
+interface Pick {
+  side: BetSide;
+  tag?: string;
+}
+
+const other = (side: TeamSide): TeamSide => (side === 'home' ? 'away' : 'home');
+
+/**
+ * The favoured team in the market being bet, or null when it names none. A
+ * spread bet reads the line and a moneyline bet reads the prices: the two can
+ * disagree on a near pick'em, and "favourites -1.5" must be the side laying
+ * points. Equal moneylines have no favourite, so favourite and underdog
+ * selections skip the game instead of defaulting to the away team.
+ */
+export function favouriteSide(betType: BetType, game: Game): TeamSide | null {
+  const lean = betType === 'spread' ? game.homeSpread : game.homeMoneyline - game.awayMoneyline;
+  return lean === 0 ? null : lean < 0 ? 'home' : 'away';
+}
+
+/** The team whose streak qualifies; when both do, the longer run, home on a tie. */
+function byStreak(game: Game, qualifies: (streak: number) => boolean, sign: 1 | -1, tag: string): Pick | null {
+  const home = qualifies(game.homeWinStreak);
+  const away = qualifies(game.awayWinStreak);
+  if (home && (!away || sign * game.homeWinStreak >= sign * game.awayWinStreak)) return { side: 'home', tag };
+  return away ? { side: 'away', tag } : null;
+}
+
+/** The side a strategy backs in this game, or null when the game does not qualify. */
+function selectSide(strategy: Strategy, game: Game): Pick | null {
+  const { betType, sideSelection } = strategy;
+  if (sideSelection === 'over' || sideSelection === 'under') {
+    return betType === 'totals' ? { side: sideSelection } : null;
+  }
+  if (betType === 'totals') return null;
+
+  const fav = favouriteSide(betType, game);
+  const dog = fav && other(fav);
+  const rest = game.homeRestDays - game.awayRestDays;
+  switch (sideSelection) {
+    case 'home': return { side: 'home' };
+    case 'away': return { side: 'away' };
+    case 'favorites': return fav && { side: fav };
+    case 'underdogs': return dog && { side: dog };
+    case 'home_favorites': return fav === 'home' ? { side: 'home', tag: 'Home Fav' } : null;
+    case 'away_favorites': return fav === 'away' ? { side: 'away', tag: 'Away Fav' } : null;
+    case 'home_underdogs': return dog === 'home' ? { side: 'home', tag: 'Home Dog' } : null;
+    case 'away_underdogs': return dog === 'away' ? { side: 'away', tag: 'Away Dog' } : null;
+    case 'after_win': return byStreak(game, (n) => n > 0, 1, 'Off Win');
+    case 'after_loss': return byStreak(game, (n) => n < 0, -1, 'Off Loss');
+    case 'hot_streak': return byStreak(game, (n) => n >= 3, 1, 'Hot');
+    case 'cold_streak': return byStreak(game, (n) => n <= -3, -1, 'Cold');
+    // On equal rest there is no edge to take, and each selection falls back to a fixed side.
+    case 'rest_advantage': return rest === 0 ? { side: 'home', tag: 'Equal Rest' } : { side: rest > 0 ? 'home' : 'away', tag: 'Rest Adv' };
+    case 'rest_disadvantage': return rest === 0 ? { side: 'away', tag: 'Equal Rest' } : { side: rest < 0 ? 'home' : 'away', tag: 'Rest Disadv' };
+  }
+}
+
+const settle = (diff: number): 'win' | 'loss' | 'push' => (diff > 0 ? 'win' : diff < 0 ? 'loss' : 'push');
+
+/** The posted price, the result and the ledger text for a pick: the only place a bet is graded. */
+function priceAndGrade(strategy: Strategy, game: Game, { side, tag }: Pick) {
+  if (side === 'over' || side === 'under') {
+    const total = game.homeScore + game.awayScore;
+    return side === 'over'
+      ? { odds: game.overOdds, outcome: settle(total - game.overUnder), label: `Over ${game.overUnder}` }
+      : { odds: game.underOdds, outcome: settle(game.overUnder - total), label: `Under ${game.overUnder}` };
+  }
+  const home = side === 'home';
+  const team = home ? game.homeTeam : game.awayTeam;
+  const margin = home ? game.homeScore - game.awayScore : game.awayScore - game.homeScore;
+  const note = (text?: string | number) => (text === undefined ? '' : ` (${text})`);
+  if (strategy.betType === 'spread') {
+    const line = home ? game.homeSpread : -game.homeSpread;
+    return { odds: home ? game.homeSpreadOdds : game.awaySpreadOdds, outcome: settle(margin + line), label: `${team} ${line}${note(tag)}` };
+  }
+  const odds = home ? game.homeMoneyline : game.awayMoneyline;
+  const byPrice = strategy.sideSelection === 'favorites' || strategy.sideSelection === 'underdogs';
+  // A level final score loses a moneyline bet here: the simulated leagues have no ties to push on.
+  return { odds, outcome: margin > 0 ? 'win' as const : 'loss' as const, label: `${team} ML${note(byPrice ? odds : tag)}` };
+}
+
+/** The strategy's ranges and streak filter, applied to a bet that is already priced. */
+function passesFilters(strategy: Strategy, game: Game, side: BetSide, odds: number): boolean {
+  const outside = (value: number, min?: number, max?: number) =>
+    (min !== undefined && value < min) || (max !== undefined && value > max);
+  if (outside(odds, strategy.oddsMin, strategy.oddsMax)) return false;
+  if (strategy.betType === 'spread' && outside(Math.abs(game.homeSpread), strategy.spreadMin, strategy.spreadMax)) return false;
+  if (strategy.betType === 'totals' && outside(game.overUnder, strategy.totalMin, strategy.totalMax)) return false;
+  // A total backs no team, so the streak filter has nothing to read (audit BUG-06, still open).
+  if (side === 'over' || side === 'under') return true;
+  const streak = side === 'home' ? game.homeWinStreak : game.awayWinStreak;
+  switch (strategy.streakFilter) {
+    case 'after_win': return streak > 0;
+    case 'after_loss': return streak < 0;
+    case 'hot_streak_3plus': return streak >= 3;
+    case 'cold_streak_3plus': return streak <= -3;
+    default: return true;
+  }
+}
+
 export function runBacktest(strategy: Strategy): BacktestResponse {
   const allGames: Game[] = [];
   for (let yr = strategy.startYear; yr <= strategy.endYear; yr++) {
@@ -740,229 +844,44 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
 
   allGames.forEach((game) => {
     if (bustedAtBet !== undefined) return;
-    let shouldBet = false;
-    let betPlacedText = '';
-    let odds = 100;
-    let isWinOutcome: 'win' | 'loss' | 'push' = 'loss';
-
-    const homeIsFav = game.homeMoneyline < game.awayMoneyline;
-    const favoriteTeam = homeIsFav ? game.homeTeam : game.awayTeam;
-    const underdogTeam = homeIsFav ? game.awayTeam : game.homeTeam;
-    const favoriteOdds = homeIsFav ? game.homeMoneyline : game.awayMoneyline;
-    const underdogOdds = homeIsFav ? game.awayMoneyline : game.homeMoneyline;
-
-    if (strategy.betType === 'moneyline') {
-      if (strategy.sideSelection === 'favorites') {
-        shouldBet = true; odds = favoriteOdds; betPlacedText = `${favoriteTeam} ML (${odds})`; isWinOutcome = (homeIsFav && game.homeScore > game.awayScore) || (!homeIsFav && game.awayScore > game.homeScore) ? 'win' : 'loss';
-      } else if (strategy.sideSelection === 'underdogs') {
-        shouldBet = true; odds = underdogOdds; betPlacedText = `${underdogTeam} ML (${odds})`; isWinOutcome = (!homeIsFav && game.homeScore > game.awayScore) || (homeIsFav && game.awayScore > game.homeScore) ? 'win' : 'loss';
-      } else if (strategy.sideSelection === 'home') {
-        shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-      } else if (strategy.sideSelection === 'away') {
-        shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-      } else if (strategy.sideSelection === 'home_favorites') {
-        if (homeIsFav) { shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Home Fav)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss'; }
-      } else if (strategy.sideSelection === 'away_favorites') {
-        if (!homeIsFav) { shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Away Fav)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss'; }
-      } else if (strategy.sideSelection === 'home_underdogs') {
-        if (!homeIsFav) { shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Home Dog)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss'; }
-      } else if (strategy.sideSelection === 'away_underdogs') {
-        if (homeIsFav) { shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Away Dog)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss'; }
-      } else if (strategy.sideSelection === 'after_win') {
-        const hQual = game.homeWinStreak > 0;
-        const aQual = game.awayWinStreak > 0;
-        if (hQual && (!aQual || game.homeWinStreak >= game.awayWinStreak)) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Off Win)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (aQual) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Off Win)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        }
-      } else if (strategy.sideSelection === 'after_loss') {
-        const hQual = game.homeWinStreak < 0;
-        const aQual = game.awayWinStreak < 0;
-        if (hQual && (!aQual || game.homeWinStreak <= game.awayWinStreak)) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Off Loss)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (aQual) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Off Loss)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        }
-      } else if (strategy.sideSelection === 'hot_streak') {
-        const hQual = game.homeWinStreak >= 3;
-        const aQual = game.awayWinStreak >= 3;
-        if (hQual && (!aQual || game.homeWinStreak >= game.awayWinStreak)) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Hot)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (aQual) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Hot)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        }
-      } else if (strategy.sideSelection === 'cold_streak') {
-        const hQual = game.homeWinStreak <= -3;
-        const aQual = game.awayWinStreak <= -3;
-        if (hQual && (!aQual || game.homeWinStreak <= game.awayWinStreak)) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Cold)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (aQual) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Cold)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        }
-      } else if (strategy.sideSelection === 'rest_advantage') {
-        if (game.homeRestDays > game.awayRestDays) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Rest Adv)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (game.awayRestDays > game.homeRestDays) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Rest Adv)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        } else {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Equal Rest)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        }
-      } else if (strategy.sideSelection === 'rest_disadvantage') {
-        if (game.homeRestDays < game.awayRestDays) {
-          shouldBet = true; odds = game.homeMoneyline; betPlacedText = `${game.homeTeam} ML (Rest Disadv)`; isWinOutcome = game.homeScore > game.awayScore ? 'win' : 'loss';
-        } else if (game.awayRestDays < game.homeRestDays) {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Rest Disadv)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        } else {
-          shouldBet = true; odds = game.awayMoneyline; betPlacedText = `${game.awayTeam} ML (Equal Rest)`; isWinOutcome = game.awayScore > game.homeScore ? 'win' : 'loss';
-        }
-      }
-    } else if (strategy.betType === 'spread') {
-      const hSpread = game.homeSpread;
-      const aSpread = -hSpread;
-      if (strategy.sideSelection === 'home') {
-        shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread}`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-      } else if (strategy.sideSelection === 'away') {
-        shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread}`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-      } else if (strategy.sideSelection === 'favorites') {
-        const betHome = homeIsFav; const activeSpread = betHome ? hSpread : aSpread; const activeTeam = betHome ? game.homeTeam : game.awayTeam;
-        shouldBet = true; betPlacedText = `${activeTeam} ${activeSpread}`; const coverDiff = betHome ? game.homeScore + hSpread - game.awayScore : game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-      } else if (strategy.sideSelection === 'underdogs') {
-        const betHome = !homeIsFav; const activeSpread = betHome ? hSpread : aSpread; const activeTeam = betHome ? game.homeTeam : game.awayTeam;
-        shouldBet = true; betPlacedText = `${activeTeam} ${activeSpread}`; const coverDiff = betHome ? game.homeScore + hSpread - game.awayScore : game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-      } else if (strategy.sideSelection === 'home_favorites') {
-        if (homeIsFav) { shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Home Fav)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push'; }
-      } else if (strategy.sideSelection === 'away_favorites') {
-        if (!homeIsFav) { shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Away Fav)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push'; }
-      } else if (strategy.sideSelection === 'home_underdogs') {
-        if (!homeIsFav) { shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Home Dog)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push'; }
-      } else if (strategy.sideSelection === 'away_underdogs') {
-        if (homeIsFav) { shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Away Dog)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push'; }
-      } else if (strategy.sideSelection === 'after_win') {
-        const hQual = game.homeWinStreak > 0; const aQual = game.awayWinStreak > 0;
-        if (hQual && (!aQual || game.homeWinStreak >= game.awayWinStreak)) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Off Win)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (aQual) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Off Win)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      } else if (strategy.sideSelection === 'after_loss') {
-        const hQual = game.homeWinStreak < 0; const aQual = game.awayWinStreak < 0;
-        if (hQual && (!aQual || game.homeWinStreak <= game.awayWinStreak)) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Off Loss)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (aQual) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Off Loss)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      } else if (strategy.sideSelection === 'hot_streak') {
-        const hQual = game.homeWinStreak >= 3; const aQual = game.awayWinStreak >= 3;
-        if (hQual && (!aQual || game.homeWinStreak >= game.awayWinStreak)) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Hot)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (aQual) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Hot)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      } else if (strategy.sideSelection === 'cold_streak') {
-        const hQual = game.homeWinStreak <= -3; const aQual = game.awayWinStreak <= -3;
-        if (hQual && (!aQual || game.homeWinStreak <= game.awayWinStreak)) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Cold)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (aQual) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Cold)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      } else if (strategy.sideSelection === 'rest_advantage') {
-        if (game.homeRestDays > game.awayRestDays) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Rest Adv)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (game.awayRestDays > game.homeRestDays) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Rest Adv)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Equal Rest)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      } else if (strategy.sideSelection === 'rest_disadvantage') {
-        if (game.homeRestDays < game.awayRestDays) {
-          shouldBet = true; betPlacedText = `${game.homeTeam} ${hSpread} (Rest Disadv)`; const coverDiff = game.homeScore + hSpread - game.awayScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else if (game.awayRestDays < game.homeRestDays) {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Rest Disadv)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        } else {
-          shouldBet = true; betPlacedText = `${game.awayTeam} ${aSpread} (Equal Rest)`; const coverDiff = game.awayScore + aSpread - game.homeScore; isWinOutcome = coverDiff > 0 ? 'win' : coverDiff < 0 ? 'loss' : 'push';
-        }
-      }
-    } else if (strategy.betType === 'totals') {
-      const totalPoints = game.homeScore + game.awayScore;
-      if (strategy.sideSelection === 'over') {
-        shouldBet = true; betPlacedText = `Over ${game.overUnder}`; isWinOutcome = totalPoints > game.overUnder ? 'win' : totalPoints < game.overUnder ? 'loss' : 'push';
-      } else if (strategy.sideSelection === 'under') {
-        shouldBet = true; betPlacedText = `Under ${game.overUnder}`; isWinOutcome = totalPoints < game.overUnder ? 'win' : totalPoints > game.overUnder ? 'loss' : 'push';
-      }
-    }
-
-    if (shouldBet && strategy.betType === 'spread') {
-      // Spread and total prices move with the line, so read the posted price
-      // for whichever side the selection above actually took.
-      odds = betPlacedText.startsWith(game.homeTeam) ? game.homeSpreadOdds : game.awaySpreadOdds;
-    } else if (shouldBet && strategy.betType === 'totals') {
-      odds = betPlacedText.startsWith('Over') ? game.overOdds : game.underOdds;
-    }
-
-    if (shouldBet) {
-      if (strategy.oddsMin !== undefined && odds < strategy.oddsMin) shouldBet = false;
-      if (strategy.oddsMax !== undefined && odds > strategy.oddsMax) shouldBet = false;
-      if (strategy.betType === 'spread') {
-        const absSpread = Math.abs(game.homeSpread);
-        if (strategy.spreadMin !== undefined && absSpread < strategy.spreadMin) shouldBet = false;
-        if (strategy.spreadMax !== undefined && absSpread > strategy.spreadMax) shouldBet = false;
-      }
-      if (strategy.betType === 'totals') {
-        if (strategy.totalMin !== undefined && game.overUnder < strategy.totalMin) shouldBet = false;       
-        if (strategy.totalMax !== undefined && game.overUnder > strategy.totalMax) shouldBet = false;       
-      }
-      
-      if (strategy.streakFilter !== 'any') {
-        let betTargetTeam = '';
-        if (betPlacedText.includes(game.homeTeam)) betTargetTeam = game.homeTeam;
-        else if (betPlacedText.includes(game.awayTeam)) betTargetTeam = game.awayTeam;
-
-        if (betTargetTeam) {
-          const streakVal = betTargetTeam === game.homeTeam ? game.homeWinStreak : game.awayWinStreak;
-          if (strategy.streakFilter === 'after_win' && streakVal <= 0) shouldBet = false;
-          if (strategy.streakFilter === 'after_loss' && streakVal >= 0) shouldBet = false;
-          if (strategy.streakFilter === 'hot_streak_3plus' && streakVal < 3) shouldBet = false;
-          if (strategy.streakFilter === 'cold_streak_3plus' && streakVal > -3) shouldBet = false;
-        }
-      }
-    }
+    const pick = selectSide(strategy, game);
+    if (!pick) return;
+    const { odds, outcome: isWinOutcome, label: betPlacedText } = priceAndGrade(strategy, game, pick);
+    if (!passesFilters(strategy, game, pick.side, odds)) return;
 
     // A bankroll that cannot cover the stake is finished: no reloading, so the
     // final bankroll never goes below zero and drawdown never passes 100%.
-    if (shouldBet && currentBankroll < strategy.unitSize) {
+    if (currentBankroll < strategy.unitSize) {
       bustedAtBet = totalBets;
       bustedOn = game.date;
       return;
     }
 
-    if (shouldBet) {
-      totalBets++;
-      const decimalOdds = americanToDecimalOdds(odds);
-      const stake = strategy.unitSize;
-      let returnVal = 0;
-      let netResult = 0;
-      if (isWinOutcome === 'win') {
-        wonBets++; returnVal = stake * decimalOdds; netResult = returnVal - stake;
-      } else if (isWinOutcome === 'loss') {
-        lostBets++; returnVal = 0; netResult = -stake;
-      } else {
-        pushedBets++; returnVal = stake; netResult = 0;
-      }
-      if (isWinOutcome !== 'push') decidedOdds.push(decimalOdds);
-      totalWagered += stake; totalReturn += returnVal; currentBankroll += netResult;
-      if (currentBankroll > peakBankroll) peakBankroll = currentBankroll;
-      const dd = peakBankroll - currentBankroll;
-      if (dd > maxDrawdown) maxDrawdown = dd;
-      // Against the peak in force at the time, not whatever peak the run ends on.
-      if (peakBankroll > 0 && dd / peakBankroll > maxDrawdownPct) maxDrawdownPct = dd / peakBankroll;
-      simulatedGames.push({
-        id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), status: isWinOutcome
-      });
-      profitHistory.push({
-        index: totalBets, date: game.date, netProfit: parseFloat(netResult.toFixed(2)), cumulativeProfit: parseFloat((currentBankroll - strategy.startingBankroll).toFixed(2)), currentBankroll: parseFloat(currentBankroll.toFixed(2))
-      });
+    totalBets++;
+    const decimalOdds = americanToDecimalOdds(odds);
+    const stake = strategy.unitSize;
+    let returnVal = 0;
+    let netResult = 0;
+    if (isWinOutcome === 'win') {
+      wonBets++; returnVal = stake * decimalOdds; netResult = returnVal - stake;
+    } else if (isWinOutcome === 'loss') {
+      lostBets++; returnVal = 0; netResult = -stake;
+    } else {
+      pushedBets++; returnVal = stake; netResult = 0;
     }
+    if (isWinOutcome !== 'push') decidedOdds.push(decimalOdds);
+    totalWagered += stake; totalReturn += returnVal; currentBankroll += netResult;
+    if (currentBankroll > peakBankroll) peakBankroll = currentBankroll;
+    const dd = peakBankroll - currentBankroll;
+    if (dd > maxDrawdown) maxDrawdown = dd;
+    // Against the peak in force at the time, not whatever peak the run ends on.
+    if (peakBankroll > 0 && dd / peakBankroll > maxDrawdownPct) maxDrawdownPct = dd / peakBankroll;
+    simulatedGames.push({
+      id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), status: isWinOutcome
+    });
+    profitHistory.push({
+      index: totalBets, date: game.date, netProfit: parseFloat(netResult.toFixed(2)), cumulativeProfit: parseFloat((currentBankroll - strategy.startingBankroll).toFixed(2)), currentBankroll: parseFloat(currentBankroll.toFixed(2))
+    });
   });
 
   const netProfit = totalReturn - totalWagered;
