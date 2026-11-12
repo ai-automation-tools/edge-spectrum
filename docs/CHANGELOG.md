@@ -2,6 +2,29 @@
 
 ---
 
+## November 12, 2026 — The ESPN scoreboard panel grades what it says it grades
+
+From the 2026-11-11 project audit (BUG-17, BUG-31, BUG-15, BUG-28, BUG-35).
+
+- **Grading** moved out of the component into one pure function, `site/src/liveGrading.ts`. Spread bets
+  on home, away and the four home/away favourite/underdog combinations are now graded (only
+  favourites and underdogs were). The spread, total and odds ranges are applied where the scoreboard
+  has the number.
+- **Not evaluated, and it says so** Streak and rest selections, the streak filter, and an odds range on
+  a total used to show *No Trigger*. They now show *Not evaluated* with the reason: the scoreboard
+  carries no streaks, rest days or total prices.
+- **Favourite** comes from the sign of the home spread, then the moneyline. It used to be a substring
+  match on team abbreviations, which called `SA` the favourite on a `SAC -3.5` line.
+- **Finished** means ESPN's `completed` flag, so an overtime final is graded and a postponed game is
+  not. A score ESPN does not send is `null` and shows as a dash; it used to become 0 or `NaN`.
+- **Date label** is built in local time: it was a day early for anyone west of Greenwich. The day
+  arrows have accessible names.
+- **Stale responses** A slow answer for an earlier sport or day is aborted and can no longer replace a
+  newer one. The panel shows the proxy's own error message.
+- **Copy** The panel no longer claims real-time forward testing; it states what is graded and that the
+  line shown may not be the closing line.
+- **Checks** New `npm run check:live-grading`, in CI.
+
 ## November 12, 2026 — Audit fixes, second batch: speed, advisor limits, accessibility, hardening
 
 From the 2026-11-11 project audit (30-day items).
