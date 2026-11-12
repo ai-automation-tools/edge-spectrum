@@ -111,6 +111,7 @@ const PACKS = [
 
 // Mirrors cronsole backend/src/catalog/schema.ts (Registry v1).
 const TARGETS = new Set(['windows', 'cronsole-native', 'macos', 'linux', 'claude-code', 'chatgpt', 'gemini']);
+const COMMAND_SHAPE = /^node "\{\{repoPath\}\}\/site\/node_modules\/tsx\/dist\/cli\.mjs" "\{\{repoPath\}\}\/site\/scripts\/[a-z-]+\.ts"( --[a-z-]+ ("\{\{\w+\}\}"|\{\{\w+\}\}))*$/;
 function validate(t) {
   const errs = [];
   const req = (ok, msg) => { if (!ok) errs.push(`${t.id}: ${msg}`); };
@@ -122,6 +123,9 @@ function validate(t) {
   const used = [...(t.commandTemplate || '').matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]);
   req(used.every(k => keys.has(k)), `placeholders without parameters: ${used.filter(k => !keys.has(k))}`);
   req((t.parameters || []).every(p => !('default' in p) || typeof p.default === 'string'), 'parameter defaults must be strings');
+  // These commands run on other people's machines. The only shape allowed is this repo's own tsx
+  // running a script under site/scripts/, with flags whose values are parameters (audit AI-01).
+  req(COMMAND_SHAPE.test(t.commandTemplate || ''), 'commandTemplate must be node, the tsx in the clone, a script under {{repoPath}}/site/scripts/, then --flag {{param}} pairs');
   return errs;
 }
 
