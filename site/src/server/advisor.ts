@@ -6,7 +6,7 @@ import { guardAdvisorRequest } from './auth.js';
 import type { RouteResult } from './httpTypes.js';
 import {
   BET_TYPES, MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS, SIDE_SELECTIONS, SPORTS,
-  STREAK_FILTERS, TOTALS_SIDES,
+  STREAK_FILTERS, TOTALS_SIDES, rangeIssues,
 } from '../strategyBounds.js';
 
 /**
@@ -85,14 +85,15 @@ export function parseAdvice(text: string): AdvisorResponse {
   if (typeof analysis !== 'string' || analysis.trim() === '') throw new AdviceFormatError('reply has no analysis');
 
   const offered = (raw as { suggestedTemplates?: unknown }).suggestedTemplates;
-  const ordered = (min?: number, max?: number) => min === undefined || max === undefined || min <= max;
   const suggestedTemplates = (Array.isArray(offered) ? offered : []).flatMap((item) => {
     const parsed = templateSchema.safeParse(item);
     if (!parsed.success) return [];
     const t = parsed.data;
     const totalsSide = (TOTALS_SIDES as readonly string[]).includes(t.sideSelection);
     if ((t.betType === 'totals') !== totalsSide) return [];
-    if (!ordered(t.oddsMin, t.oddsMax) || !ordered(t.spreadMin, t.spreadMax) || !ordered(t.totalMin, t.totalMax)) return [];
+    if (rangeIssues(t).length) return [];
+    // The schema rejects a streak filter on a total; the rest of the template is still usable.
+    if (t.betType === 'totals') t.streakFilter = 'any';
     return [t as NonNullable<AdvisorResponse['suggestedTemplates']>[number]];
   }).slice(0, 2);
 

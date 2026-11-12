@@ -53,8 +53,11 @@ function toFraction(x: number, maxDen: number): [number, number] {
  * anything unusable (empty, non-numeric, out of range, zero-probability).
  */
 export function parseOdds(text: string, format: OddsFormat): number | null {
-  const s = text.trim().replace(/[%+\s]/g, '');
-  if (!s) return null;
+  // One leading "+" and, for a percentage, one trailing "%": stripping every one of them
+  // turned "1+1+0" into 110. Number() alone also reads hex ("0x64") and exponents.
+  let s = text.replace(/\s/g, '').replace(/^\+/, '');
+  if (format === 'implied') s = s.replace(/%$/, '');
+  if (format !== 'fractional' && !/^-?(?:\d+\.?\d*|\.\d+)$/.test(s)) return null;
   switch (format) {
     case 'american': {
       const a = Number(s);
@@ -70,7 +73,8 @@ export function parseOdds(text: string, format: OddsFormat): number | null {
       if (!m) return null;
       const num = Number(m[1]);
       const den = Number(m[2]);
-      return den > 0 && num >= 0 ? 1 + num / den : null;
+      // 0/5 is a price of 1.0: a bet that returns only the stake, with no American form.
+      return den > 0 && num > 0 ? 1 + num / den : null;
     }
     case 'implied': {
       // Accept 52.4 or 0.524; anything ≤ 1 is treated as a fraction.
@@ -160,8 +164,14 @@ export function devig(decimals: number[], method: DevigMethod): DevigResult {
       return { ...base, fair: implied.map((q) => q / sum) };
 
     case 'power': {
-      // Σ q_i^k is decreasing in k; k = 1 gives sum > 1, so the root is above 1.
-      const k = bisect((k) => implied.reduce((a, q) => a + Math.pow(q, k), 0) - 1, 1, 50);
+      // A price of 1.0 or less is a certainty: no exponent brings the sum down to 1.
+      if (implied.some((q) => q >= 1)) return { ...base, fair: implied.map((q) => q / sum) };
+      // Σ q_i^k is decreasing in k; k = 1 gives sum > 1, so the root is above 1. Two sides
+      // at 1.01 need k ≈ 70, so the upper bound is found rather than assumed.
+      const excess = (k: number) => implied.reduce((a, q) => a + Math.pow(q, k), 0) - 1;
+      let hi = 2;
+      while (excess(hi) > 0) hi *= 2;
+      const k = bisect(excess, 1, hi);
       return { ...base, fair: implied.map((q) => Math.pow(q, k)), param: k };
     }
 

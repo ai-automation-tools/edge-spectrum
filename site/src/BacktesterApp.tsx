@@ -9,6 +9,7 @@ import AiAdvisor from './components/AiAdvisor';
 import EspnFeed from './components/EspnFeed';
 import { Strategy, BacktestResponse, StrategyTemplate } from './types';
 import { strategyFromQuery, strategyToQuery } from './strategyUrl';
+import { rangeIssues } from './strategyBounds';
 import { AlertCircle, RotateCcw, LineChart, Table, Info, BookOpen } from 'lucide-react';
 import SiteFooter from './components/SiteFooter';
 
@@ -66,6 +67,8 @@ export default function App() {
     } catch (err: any) {
       if (controller.signal.aborted) return;
       console.error(err);
+      // The numbers on screen belong to an earlier strategy, not the one that just failed.
+      setResult(null);
       setError(err?.message || 'Error executing backtest. Please retry.');
     } finally {
       // Leave the spinner up for whichever run superseded us.
@@ -83,6 +86,8 @@ export default function App() {
     const timer = setTimeout(() => {
       // Replace, not push: every keystroke is not a history entry.
       setSearchParams(strategyToQuery(strategy), { replace: true });
+      // The form shows what is wrong; the endpoint would only answer 400.
+      if (rangeIssues(strategy).length) return;
       runBacktest(strategy);
     }, RERUN_DEBOUNCE_MS);
     return () => clearTimeout(timer);
