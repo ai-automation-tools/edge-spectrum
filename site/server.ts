@@ -2,8 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { runValidatedBacktest, BadRequestError } from './src/server/backtest';
-import { fetchEspnScoreboard } from './src/server/espn';
+import { backtestRoute } from './src/server/backtest';
+import { espnScoreboardRoute } from './src/server/espn';
 import { generateAdvice } from './src/server/advisor';
 import {
   attemptUnlock,
@@ -23,29 +23,14 @@ app.use(express.json());
 
 // 1. Backtest Engine Endpoint
 app.post('/api/backtest', (req, res) => {
-  try {
-    const result = runValidatedBacktest(req.body);
-    res.json(result);
-  } catch (error: any) {
-    if (error instanceof BadRequestError) {
-      return res.status(400).json({ error: error.message, details: error.details });
-    }
-    console.error('Error running backtest:', error);
-    res.status(500).json({ error: 'Internal Backtest Engine Error' });
-  }
+  const result = backtestRoute(req.body);
+  res.status(result.status).json(result.body);
 });
 
 // 2. ESPN Live Scoreboard Proxied Endpoint
 app.get('/api/espn-scoreboard', async (req, res) => {
-  try {
-    const sport = (req.query.sport as string) || 'NFL';
-    const date = (req.query.date as string) || ''; // YYYYMMDD
-    const result = await fetchEspnScoreboard(sport, date);
-    res.json(result);
-  } catch (error: any) {
-    console.error('Error fetching ESPN scoreboard:', error);
-    res.status(500).json({ error: 'Failed to retrieve real-time ESPN scoreboard games.' });
-  }
+  const result = await espnScoreboardRoute(req.query);
+  res.status(result.status).json(result.body);
 });
 
 // 3. AI Advisor Session Endpoint (passcode gate)

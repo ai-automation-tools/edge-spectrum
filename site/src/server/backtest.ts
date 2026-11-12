@@ -1,5 +1,6 @@
 import { runBacktest } from '../dataGenerator.js';
 import { validateStrategy } from './strategySchema.js';
+import type { RouteResult } from './httpTypes.js';
 
 /** Thrown when a backtest request is not a legal strategy. */
 export class BadRequestError extends Error {
@@ -26,4 +27,17 @@ export function runValidatedBacktest(body: unknown) {
     throw new BadRequestError('Invalid strategy parameters', result.errors);
   }
   return runBacktest(result.strategy);
+}
+
+/** POST /api/backtest, minus the framework: both adapters send its result as-is. */
+export function backtestRoute(body: unknown): RouteResult {
+  try {
+    return { status: 200, body: runValidatedBacktest(body) };
+  } catch (error) {
+    if (error instanceof BadRequestError) {
+      return { status: 400, body: { error: error.message, details: error.details } };
+    }
+    console.error('Error running backtest:', error);
+    return { status: 500, body: { error: 'Internal Backtest Engine Error' } };
+  }
 }
