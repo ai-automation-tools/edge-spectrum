@@ -1,33 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Strategy, SportType } from '../types';
-import { Calendar, RefreshCw, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Info, Sparkles, HelpCircle } from 'lucide-react';
+import { RefreshCw, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Info, Sparkles } from 'lucide-react';
+import { gradeBet, scoreboardDate, toScoreboardDay, type LiveGame } from '../liveGrading';
 
-interface EspnGame {
-  id: string;
-  date: string;
-  shortName: string;
+interface EspnTeam {
   name: string;
-  status: string;
+  abbrev: string;
+  logo?: string;
+  score: number | null;
+}
+
+interface EspnGame extends LiveGame {
+  id: string;
   statusDetail: string;
-  homeTeam: {
-    name: string;
-    abbrev: string;
-    logo?: string;
-    score: number;
-    winner: boolean;
-  };
-  awayTeam: {
-    name: string;
-    abbrev: string;
-    logo?: string;
-    score: number;
-    winner: boolean;
-  };
-  odds: {
-    details: string;
-    overUnder: number | null;
-    spread: number | null;
-  };
+  homeTeam: EspnTeam;
+  awayTeam: EspnTeam;
+  odds: LiveGame['odds'] & { details: string };
 }
 
 interface EspnFeedProps {
@@ -36,253 +24,50 @@ interface EspnFeedProps {
 
 export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
   const [sport, setSport] = useState<SportType>(currentStrategy.sport);
-  const [dateStr, setDateStr] = useState<string>(''); // YYYYMMDD formats
+  const [dateStr, setDateStr] = useState<string>(''); // YYYYMMDD, or '' for ESPN's current board
   const [games, setGames] = useState<EspnGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0); // bumped by Retry
 
   // Auto-update local sport selection when parent strategy sport changes
   useEffect(() => {
     setSport(currentStrategy.sport);
   }, [currentStrategy.sport]);
 
-  // Format date helper to human readable
-  const getHumanDate = (rawDate: string) => {
-    if (!rawDate) return 'Today / Latest';
-    if (rawDate.length === 8) {
-      const year = rawDate.slice(0, 4);
-      const month = rawDate.slice(4, 6);
-      const day = rawDate.slice(6, 8);
-      return new Date(`${year}-${month}-${day}`).toLocaleDateString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-    }
-    return rawDate;
-  };
+  const humanDate = (raw: string) =>
+    scoreboardDate(raw)?.toLocaleDateString(undefined, {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+    }) ?? 'Today / Latest';
 
-  // Helper to step date backward/forward
   const stepDate = (dayOffset: number) => {
-    const defaultDate = new Date();
-    if (dateStr) {
-      const year = parseInt(dateStr.slice(0, 4));
-      const month = parseInt(dateStr.slice(4, 6)) - 1;
-      const day = parseInt(dateStr.slice(6, 8));
-      defaultDate.setFullYear(year, month, day);
-    }
-    defaultDate.setDate(defaultDate.getDate() + dayOffset);
-    
-    const yyyy = defaultDate.getFullYear();
-    const mm = String(defaultDate.getMonth() + 1).padStart(2, '0');
-    const dd = String(defaultDate.getDate()).padStart(2, '0');
-    setDateStr(`${yyyy}${mm}${dd}`);
+    const d = scoreboardDate(dateStr) ?? new Date();
+    d.setDate(d.getDate() + dayOffset);
+    setDateStr(toScoreboardDay(d));
   };
 
-  // Fetch games from proxy
-  const fetchEspnGames = async () => {
+  // The clean-up aborts the request this effect started, so a slow answer for
+  // an earlier sport or day cannot land on top of a newer one.
+  useEffect(() => {
+    const controller = new AbortController();
     setIsLoading(true);
     setError(null);
-    try {
-      const url = `/api/espn-scoreboard?sport=${sport}&date=${dateStr}`;
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Response error from proxy server');
-      }
-      const data = await res.json();
-      setGames(data.games || []);
-    } catch (err: any) {
-      console.error(err);
-      setError('Could not connect to ESPN Live Data feed. This might be due to offline connections or API drift.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchEspnGames();
-  }, [sport, dateStr]);
-
-  // Determine favorite
-  const parseFavorite = (details: string, home: string, away: string) => {
-    if (!details || details === 'N/A' || details === 'EVEN') return 'none';
-    const cleanDetails = details.toUpperCase();
-    const homeUpper = home.toUpperCase();
-    const awayUpper = away.toUpperCase();
-
-    if (cleanDetails.includes(homeUpper)) {
-      return 'home';
-    }
-    if (cleanDetails.includes(awayUpper)) {
-      return 'away';
-    }
-    return 'none';
-  };
-
-  // Evaluate the strategy's outcome on this specific real game
-  const evaluateRealGameBet = (game: EspnGame) => {
-    const isFinished = game.status === 'STATUS_FINAL';
-    if (!isFinished) return { betPlaced: 'N/A', status: 'pending', detail: 'Game has not concluded yet' };
-
-    const fav = parseFavorite(game.odds.details, game.homeTeam.abbrev, game.awayTeam.abbrev);
-    const totalScore = game.homeTeam.score + game.awayTeam.score;
-    const isOverUnderSet = game.odds.overUnder !== null;
-
-    let selectedTeam: 'home' | 'away' | 'none' = 'none';
-    let label = 'No Bet Triggered';
-
-    if (currentStrategy.betType === 'moneyline') {
-      if (currentStrategy.sideSelection === 'home') {
-        selectedTeam = 'home';
-        label = `ML: ${game.homeTeam.abbrev}`;
-      } else if (currentStrategy.sideSelection === 'away') {
-        selectedTeam = 'away';
-        label = `ML: ${game.awayTeam.abbrev}`;
-      } else if (currentStrategy.sideSelection === 'favorites') {
-        if (fav === 'home') {
-          selectedTeam = 'home';
-          label = `Fav ML: ${game.homeTeam.abbrev}`;
-        } else if (fav === 'away') {
-          selectedTeam = 'away';
-          label = `Fav ML: ${game.awayTeam.abbrev}`;
-        }
-      } else if (currentStrategy.sideSelection === 'underdogs') {
-        if (fav === 'home') {
-          selectedTeam = 'away';
-          label = `Dog ML: ${game.awayTeam.abbrev}`;
-        } else if (fav === 'away') {
-          selectedTeam = 'home';
-          label = `Dog ML: ${game.homeTeam.abbrev}`;
-        }
-      } else if (currentStrategy.sideSelection === 'home_favorites' && fav === 'home') {
-        selectedTeam = 'home';
-        label = `Home Fav ML: ${game.homeTeam.abbrev}`;
-      } else if (currentStrategy.sideSelection === 'away_favorites' && fav === 'away') {
-        selectedTeam = 'away';
-        label = `Away Fav ML: ${game.awayTeam.abbrev}`;
-      } else if (currentStrategy.sideSelection === 'home_underdogs' && fav === 'away') {
-        selectedTeam = 'home';
-        label = `Home Dog ML: ${game.homeTeam.abbrev}`;
-      } else if (currentStrategy.sideSelection === 'away_underdogs' && fav === 'home') {
-        selectedTeam = 'away';
-        label = `Away Dog ML: ${game.awayTeam.abbrev}`;
-      }
-
-      if (selectedTeam === 'none') {
-        return { betPlaced: 'No Bet', status: 'no_bet', detail: 'Line parameters do not match strategy' };
-      }
-
-      const wonBet = (selectedTeam === 'home' && game.homeTeam.winner) || (selectedTeam === 'away' && game.awayTeam.winner);
-      return {
-        betPlaced: label,
-        status: wonBet ? 'win' : 'loss',
-        detail: wonBet ? 'Wagered winner' : 'Wagered loser'
-      };
-    }
-
-    if (currentStrategy.betType === 'totals') {
-      if (!isOverUnderSet) {
-        return { betPlaced: 'N/A', status: 'no_bet', detail: 'No Over/Under threshold offered' };
-      }
-      const ou = game.odds.overUnder!;
-
-      if (currentStrategy.sideSelection === 'over') {
-        const isWin = totalScore > ou;
-        const isPush = totalScore === ou;
-        return {
-          betPlaced: `Over ${ou}`,
-          status: isPush ? 'push' : isWin ? 'win' : 'loss',
-          detail: `Combined scores: ${totalScore} points`
-        };
-      } else if (currentStrategy.sideSelection === 'under') {
-        const isWin = totalScore < ou;
-        const isPush = totalScore === ou;
-        return {
-          betPlaced: `Under ${ou}`,
-          status: isPush ? 'push' : isWin ? 'win' : 'loss',
-          detail: `Combined scores: ${totalScore} points`
-        };
-      }
-    }
-
-    if (currentStrategy.betType === 'spread') {
-      // Point Spread evaluation helper
-      if (!game.odds.details || game.odds.details === 'N/A' || game.odds.details === 'EVEN') {
-        return { betPlaced: 'N/A', status: 'no_bet', detail: 'No point spread details offered' };
-      }
-      
-      const lineText = game.odds.details;
-      // Spread lines usually look like "KC -3" or "PHI -7.5"
-      const match = lineText.match(/(-?\d+(?:\.\d+)?)$/);
-      if (!match) return { betPlaced: 'No Bet', status: 'no_bet', detail: 'Unable to parse spread value' };
-      
-      const spreadVal = Math.abs(parseFloat(match[1])); // size of spread, e.g. 3.5
-
-      let betSide: 'home' | 'away' | 'none' = 'none';
-      let textLabel = 'Spread Bet';
-
-      if (currentStrategy.sideSelection === 'favorites') {
-        if (fav === 'home') {
-          betSide = 'home';
-          textLabel = `Spread ${game.homeTeam.abbrev} -${spreadVal}`;
-        } else if (fav === 'away') {
-          betSide = 'away';
-          textLabel = `Spread ${game.awayTeam.abbrev} -${spreadVal}`;
-        }
-      } else if (currentStrategy.sideSelection === 'underdogs') {
-        if (fav === 'home') {
-          betSide = 'away';
-          textLabel = `Spread ${game.awayTeam.abbrev} +${spreadVal}`;
-        } else if (fav === 'away') {
-          betSide = 'home';
-          textLabel = `Spread ${game.homeTeam.abbrev} +${spreadVal}`;
-        }
-      }
-
-      if (betSide === 'none') {
-        return { betPlaced: 'No Bet', status: 'no_bet', detail: 'Line conditions skipped spread target' };
-      }
-
-      let difference = 0;
-      let wonSpread = false;
-      let isPushSpread = false;
-
-      if (betSide === 'home') {
-        if (fav === 'home') {
-          // Favorite covers spread if homeScore - awayScore > spreadVal
-          difference = game.homeTeam.score - game.awayTeam.score;
-          wonSpread = difference > spreadVal;
-          isPushSpread = difference === spreadVal;
-        } else {
-          // Underdog covers if homeScore + spreadVal > awayScore
-          difference = game.homeTeam.score - game.awayTeam.score;
-          wonSpread = difference + spreadVal > 0;
-          isPushSpread = difference + spreadVal === 0;
-        }
-      } else if (betSide === 'away') {
-        if (fav === 'away') {
-          // Favorite covers spread if awayScore - homeScore > spreadVal
-          difference = game.awayTeam.score - game.homeTeam.score;
-          wonSpread = difference > spreadVal;
-          isPushSpread = difference === spreadVal;
-        } else {
-          // Underdog covers if awayScore + spreadVal > homeScore
-          difference = game.awayTeam.score - game.homeTeam.score;
-          wonSpread = difference + spreadVal > 0;
-          isPushSpread = difference + spreadVal === 0;
-        }
-      }
-
-      return {
-        betPlaced: textLabel,
-        status: isPushSpread ? 'push' : wonSpread ? 'win' : 'loss',
-        detail: `Spread differential: ${difference > 0 ? '+' : ''}${difference}`
-      };
-    }
-
-    return { betPlaced: 'No Bet', status: 'no_bet', detail: 'Selected strategy matches no filters' };
-  };
+    fetch(`/api/espn-scoreboard?sport=${sport}&date=${dateStr}`, { signal: controller.signal })
+      .then(async (res) => {
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error || 'The scoreboard request failed.');
+        if (!controller.signal.aborted) setGames(data?.games || []);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        console.error(err);
+        setError(err?.message || 'Could not load the ESPN scoreboard.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
+  }, [sport, dateStr, attempt]);
 
   return (
     <div className="panel p-5 flex flex-col gap-4">
@@ -291,10 +76,10 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
         <div>
           <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Real-Time ESPN Scoreboard Feed
+            ESPN scoreboard check
           </h3>
           <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
-            Undocumented public scoreboard parsing & validation against your Strategy
+            Finished games on ESPN's unofficial scoreboard, graded against your selection
           </p>
         </div>
 
@@ -302,17 +87,19 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => stepDate(-1)}
+            aria-label="Previous day"
             className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white light:hover:text-zinc-50 rounded-lg text-zinc-400 transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           
           <span className="px-3 py-1 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono font-medium text-zinc-300">
-            {getHumanDate(dateStr)}
+            {humanDate(dateStr)}
           </span>
 
           <button
             onClick={() => stepDate(1)}
+            aria-label="Next day"
             className="p-1.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:text-white light:hover:text-zinc-50 rounded-lg text-zinc-400 transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
@@ -362,10 +149,10 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
           <Info className="w-5 h-5" />
           <span>{error}</span>
           <button 
-            onClick={fetchEspnGames} 
+            onClick={() => setAttempt((n) => n + 1)}
             className="mt-1 px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-md font-sans text-[11px] font-semibold tracking-wide cursor-pointer"
           >
-            Retry Connecting
+            Retry
           </button>
         </div>
       ) : games.length === 0 ? (
@@ -375,8 +162,8 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {games.map((game) => {
-            const betResult = evaluateRealGameBet(game);
-            const isFinished = game.status === 'STATUS_FINAL';
+            const betResult = gradeBet(currentStrategy, game);
+
             
             return (
               <div 
@@ -417,7 +204,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
                         </span>
                       </div>
                       <span className="font-mono text-xs font-bold text-zinc-100">
-                        {game.awayTeam.score}
+                        {game.awayTeam.score ?? '–'}
                       </span>
                     </div>
 
@@ -444,7 +231,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
                         </span>
                       </div>
                       <span className="font-mono text-xs font-bold text-zinc-100">
-                        {game.homeTeam.score}
+                        {game.homeTeam.score ?? '–'}
                       </span>
                     </div>
                   </div>
@@ -468,9 +255,16 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
                   {/* Strategy Output Badge */}
                   <div className="text-right">
                     {betResult.status === 'no_bet' ? (
-                      <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-500 text-[9px] font-bold rounded uppercase">
+                      <span title={betResult.detail} className="px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-500 text-[9px] font-bold rounded uppercase">
                         No Trigger
                       </span>
+                    ) : betResult.status === 'not_evaluated' ? (
+                      <div className="flex flex-col items-end gap-0.5 max-w-[11rem]">
+                        <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[9px] font-bold rounded uppercase">
+                          Not evaluated
+                        </span>
+                        <span className="text-[9px] text-zinc-500 leading-snug">{betResult.detail}</span>
+                      </div>
                     ) : betResult.status === 'pending' ? (
                       <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold rounded uppercase">
                         Scheduled
@@ -509,7 +303,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       <div className="flex items-center gap-1.5 p-3 bg-zinc-950 border border-zinc-850 rounded-xl text-[10px] text-zinc-400 leading-relaxed font-sans">
         <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
         <span>
-          <strong>Live Strategy Validation</strong> translates your current multi-parameter strategy criteria to historical and contemporary schedules on ESPN directly, providing real-time forward test verification!
+          <strong>What is graded:</strong> your bet type, your side (home, away, favourite, underdog and the four combinations, over, under) and your line and odds ranges, against the line ESPN shows now, which may not be the closing line. Streak and rest selections and the streak filter are marked <em>not evaluated</em>: the scoreboard does not carry that history.
         </span>
       </div>
     </div>
