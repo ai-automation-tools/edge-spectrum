@@ -101,7 +101,7 @@ export default function SpectrumStrip({ href }: { href: string }) {
       });
       if (!reduced) raf = requestAnimationFrame(draw);
     };
-    const pick = (e: PointerEvent) => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let best: Dot | null = null, bd = 12; dots.forEach((d) => { const dist = Math.hypot(d.x - x, d.y - y); if (dist < bd) { bd = dist; best = d; } }); return best; };
+    const pick = (e: PointerEvent) => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let best: Dot | null = null, bd = 12; for (const d of dots) { const dist = Math.hypot(d.x - x, d.y - y); if (dist < bd) { bd = dist; best = d; } } return best; };
     const onMove = (e: PointerEvent) => { const d = pick(e); hoverRef.current = d; cv.style.cursor = d ? 'pointer' : 'default'; setTip(d ? { x: d.x, y: d.y, dot: d } : null); if (reduced) draw(performance.now()); };
     const onLeave = () => { hoverRef.current = null; setTip(null); if (reduced) draw(performance.now()); };
     const onResize = () => { size(); if (reduced) draw(performance.now()); };
