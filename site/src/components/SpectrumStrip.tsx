@@ -18,6 +18,15 @@ const LANES = [
   { label: 'Repeated wagers', unit: 'edge per decision', pick: (r: EdgeRecord) => (r.m === 'g' ? r.e : null) },
 ] as const;
 
+/** What the canvas shows, for assistive tech (audit UX-13); the full visualizer lists every record. */
+const LABEL = (() => {
+  const span = (li: 0 | 1) => {
+    const vs = EDGES.map(LANES[li].pick).filter((v): v is number => v !== null);
+    return `${vs.length} ${LANES[li].label.toLowerCase()} by ${LANES[li].unit}, from ${Math.min(...vs)}% to +${Math.max(...vs)}%`;
+  };
+  return `All ${EDGES.length} records on two lanes: ${span(0)}; ${span(1)}. The Spectrum page lists each one.`;
+})();
+
 type RGB = [number, number, number];
 
 /** Canvas colours per theme; the light set uses the 600/700 shades so dots and labels hold up on a pale ground. */
@@ -110,9 +119,8 @@ export default function SpectrumStrip({ href }: { href: string }) {
     return () => { cancelAnimationFrame(raf); cv.removeEventListener('pointermove', onMove); cv.removeEventListener('pointerleave', onLeave); removeEventListener('resize', onResize); };
   }, [reduced, theme]);
 
-  const assets = EDGES.filter((r) => r.m === 'i').length, wagers = EDGES.length - assets;
   return (
-    <div ref={boxRef} className="relative aspect-[1/.86] w-full max-w-[560px] min-h-[300px] justify-self-center" aria-label={`All ${EDGES.length} records: ${assets} held assets by annual return and ${wagers} wagers by edge per decision. Hover a dot to read it; click to open the full visualizer.`}>
+    <div ref={boxRef} className="relative aspect-[1/.86] w-full max-w-[560px] min-h-[300px] justify-self-center" role="img" aria-label={LABEL}>
       <canvas ref={cvRef} className="absolute inset-0 block h-full w-full" onClick={() => { if (hoverRef.current) window.location.href = href; }} />
       {tip && (
         <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border border-zinc-700/80 bg-(--bg-5) px-2.5 py-1.5 text-xs shadow-[0_10px_30px_-10px_rgba(0,0,0,.8)] light:shadow-[0_10px_30px_-12px_rgba(0,0,0,.2)]" style={{ left: tip.x, top: tip.y, transform: 'translate(-50%, calc(-100% - 14px))' }}>
