@@ -1,4 +1,4 @@
-import { createHmac, createHash, timingSafeEqual, randomUUID } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import { deploymentMode, demoRestriction } from './deployment.js';
 
@@ -58,11 +58,16 @@ const NOT_CONFIGURED: GateResult = {
   },
 };
 
-/** Constant-time string compare that doesn't leak length via early return. */
+/**
+ * Constant-time string compare that doesn't leak length via early return. Both
+ * sides go through an HMAC under a key that exists only in this process, so
+ * the digests are equal-length and say nothing about the inputs: this is a
+ * comparison, not a stored password hash.
+ */
+const COMPARE_KEY = randomBytes(32);
 function safeEqual(a: string, b: string): boolean {
-  const aHash = createHash('sha256').update(a).digest();
-  const bHash = createHash('sha256').update(b).digest();
-  return timingSafeEqual(aHash, bHash);
+  const digest = (v: string) => createHmac('sha256', COMPARE_KEY).update(v).digest();
+  return timingSafeEqual(digest(a), digest(b));
 }
 
 /** Check a user-supplied passcode against the configured one. */

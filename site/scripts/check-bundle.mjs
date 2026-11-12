@@ -30,7 +30,7 @@ if (entryGzip > MAX_ENTRY_GZIP) failures.push(`initial JS is ${entryGzip} bytes 
 // script without updating the hash would turn into a blank-theme page the day the policy is enforced.
 const policy = JSON.parse(readFileSync(join(dist, '..', 'vercel.json'), 'utf8')).headers
   .flatMap((h) => h.headers).filter((h) => h.key.startsWith('Content-Security-Policy')).map((h) => h.value).join(' ');
-for (const [, body] of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+for (const [, body] of html.matchAll(/<script>([\s\S]*?)<\/script>/gi)) {
   const hash = `'sha256-${createHash('sha256').update(body).digest('base64')}'`;
   if (!policy.includes(hash)) failures.push(`vercel.json's CSP does not allow the inline script in index.html: add ${hash} to script-src`);
 }
