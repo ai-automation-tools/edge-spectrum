@@ -26,6 +26,7 @@ Hosting and AI usage are billed by your chosen providers.
 | --- | --- | --- |
 | `EDGE_SPECTRUM_MODE` | `demo` or unset | Exactly `full` |
 | `GEMINI_API_KEY` | Not needed | Your Gemini API key |
+| `GEMINI_MODEL` | Not needed | Optional. A Gemini model id, to move off the default when Google retires it |
 | `ADVISOR_PASSCODE` | Not needed | Strong, unique passcode for advisor access |
 | `ADVISOR_SECRET` | Not needed | Long random value for signing sessions |
 
