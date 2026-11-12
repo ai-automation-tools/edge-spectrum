@@ -160,9 +160,10 @@ which of them may ship before Phase 2 closes.
 
 ### 🔎 Audit follow-ups (project audit, 2026-11-11)
 
-The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did the first six items
-of its 60-day list, ticked below (six changelog entries of that date, pull requests #84 and #87 to #90).
-The unticked items are what is left, in the audit's order; the IDs are the audit's.
+The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did the first seven items
+of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90 and #92).
+The unticked items are what is left, in the audit's order; the IDs are the audit's. Next up:
+**Accessibility depth**.
 
 - [ ] 🟠 **Require CI and code-owner review on `main`** *(Security, SEC-02)* — `.github/CODEOWNERS` exists but does nothing until the ruleset requires code-owner review, and the `check` job is still advisory. **Done when:** a PR with a failing `check` cannot be merged. 🔒 Needs owner
 - [ ] 🟠 **Remove the personal email from public history** *(Security, SEC-01)* — 30 commits on `main`. A history rewrite and force-push in a quiet window, then re-clone everywhere. **Done when:** `git log --all --format=%ae` lists only noreply addresses. 🔒 Needs owner
