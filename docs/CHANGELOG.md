@@ -2,6 +2,16 @@
 
 ---
 
+## November 12, 2026 — Roadmap: audit follow-ups brought up to date
+
+Docs only.
+
+- The *Audit follow-ups* section of the roadmap says what has shipped: the first six items of the
+  audit's 60-day list, in pull requests #87 to #90.
+- **Code scanning (SEC-11)** ticked: the list has no open alerts now that the fixes are on `main`.
+- **New item:** late finals in the line archive, the half of BUG-32 that still needs two days of real
+  captures to confirm.
+
 ## November 12, 2026 — Nine small bugs: the backtester form, the odds parser, line capture
 
 From the 2026-11-11 project audit (BUG-06, BUG-16, BUG-20, BUG-21, BUG-22, BUG-23, BUG-24, BUG-32, BUG-34).
