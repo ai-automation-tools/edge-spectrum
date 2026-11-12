@@ -306,7 +306,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                     onClick={() => updateField('sport', sport)}
                     className={`py-1.5 text-[11px] font-bold rounded-md transition-all duration-200 ${
                       active
-                        ? 'bg-sky-500/20 text-sky-300 shadow-sm shadow-sky-500/10'
+                        ? 'bg-sky-500/20 text-sky-300 light:text-sky-200 shadow-sm shadow-sky-500/10'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
                     }`}
                   >
@@ -375,7 +375,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
                     }}
                     className={`py-1.5 text-[11px] font-semibold capitalize rounded-md transition-all duration-200 ${
                       active
-                        ? 'bg-sky-500/20 text-sky-300 shadow-sm shadow-sky-500/10'
+                        ? 'bg-sky-500/20 text-sky-300 light:text-sky-200 shadow-sm shadow-sky-500/10'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
                     }`}
                   >
@@ -617,7 +617,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           type="button"
           disabled={isLoading}
           onClick={() => onRunBacktest(currentStrategy)}
-          className="group px-6 py-2.5 bg-sky-600 hover:bg-sky-500 disabled:bg-sky-800 text-zinc-100 light:text-white light:disabled:text-zinc-100 font-semibold rounded-xl shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 active:scale-95 text-xs flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none shrink-0"
+          className="group px-6 py-2.5 bg-sky-700 hover:bg-sky-600 disabled:bg-sky-800 text-white light:disabled:text-zinc-100 font-semibold rounded-xl shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 active:scale-95 text-xs flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:shadow-none shrink-0"
         >
           {isLoading ? (
             <div className="w-4 h-4 border-2 border-zinc-300 border-t-transparent rounded-full animate-spin"></div>
