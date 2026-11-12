@@ -84,4 +84,29 @@ for (const sideSelection of ['favorites', 'underdogs'] as const) {
   assert.ok(bytes <= 300_000, `largest response is ${bytes} bytes, budget 300,000`);
 }
 
-console.log(`Engine check passed: ${games} games in date order with replayable streaks; bust and drawdown hold.`);
+// A favourite is the favourite of the market being bet: the side laying points
+// on a spread, the shorter price on a moneyline, and nobody when the prices are
+// level (audit BUG-26). Read back from the ledger the page shows.
+let ledgerRows = 0;
+for (const sport of SPORTS) {
+  for (const sideSelection of ['favorites', 'underdogs', 'home_favorites', 'away_underdogs'] as const) {
+    const wantsFav = sideSelection !== 'underdogs' && sideSelection !== 'away_underdogs';
+    const ledger = (betType: Strategy['betType']) => runBacktest({
+      ...base, sport, betType, sideSelection, startYear: 2019, endYear: 2020, startingBankroll: 1e9,
+    }).gamesPreview;
+    for (const row of ledger('spread')) {
+      const line = Number(/ (-?[\d.]+)(?: \(|$)/.exec(row.betPlaced)?.[1]);
+      assert.ok(wantsFav ? line < 0 : line > 0, `${sport} spread ${sideSelection}: ${row.betPlaced}`);
+      ledgerRows++;
+    }
+    for (const row of ledger('moneyline')) {
+      const home = row.betPlaced.startsWith(row.homeTeam);
+      const [mine, theirs] = home ? [row.homeMoneyline, row.awayMoneyline] : [row.awayMoneyline, row.homeMoneyline];
+      assert.ok(wantsFav ? mine < theirs : mine > theirs, `${sport} moneyline ${sideSelection}: ${row.betPlaced} at ${mine} v ${theirs}`);
+      ledgerRows++;
+    }
+  }
+}
+assert.ok(ledgerRows > 5000, `only ${ledgerRows} ledger rows read`);
+
+console.log(`Engine check passed: ${games} games in date order with replayable streaks; bust and drawdown hold; ${ledgerRows} favourite and underdog bets on the right side.`);
