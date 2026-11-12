@@ -118,9 +118,8 @@ export const strategySchema = z
 
 /**
  * Compile-time check that the schema still describes `Strategy`: a rename or a
- * dropped field in `types.ts` fails here. It is an input-side check because
- * this project's `tsconfig.json` is not in strict mode, and without
- * `strictNullChecks` Zod infers every output field as optional.
+ * dropped field in `types.ts` fails here on the input side, and on the output
+ * side where `validateStrategy` returns the parsed value as a `Strategy`.
  */
 const _schemaAcceptsStrategy: z.input<typeof strategySchema> = {} as Strategy;
 /** ...and that neither side has gained or lost a field the other lacks. */
@@ -135,35 +134,20 @@ export function formatIssues(error: z.ZodError): string[] {
   });
 }
 
-export interface StrategyValidation {
-  /** True when `strategy` holds a bounded, engine-safe strategy. */
-  ok: boolean;
-  /** The parsed strategy — unknown keys stripped, defaults applied. */
-  strategy: Strategy | null;
-  /** One line per failed field; empty when `ok`. */
-  errors: string[];
-}
+export type StrategyValidation =
+  /** A bounded, engine-safe strategy: unknown keys stripped, defaults applied. */
+  | { ok: true; strategy: Strategy; errors: [] }
+  /** One line per failed field. */
+  | { ok: false; strategy: null; errors: string[] };
 
 /**
  * Validate an untrusted request body. Called by `runValidatedBacktest`, which
  * both entry points go through — the endpoint is the thing being abused, so
  * this runs server-side on every request regardless of what the form did.
- *
- * Uses `parse`/`catch` rather than `safeParse` deliberately: narrowing on a
- * boolean discriminant needs `strictNullChecks`, which this project does not
- * enable, so `safeParse(...).error` does not type-check here.
  */
 export function validateStrategy(input: unknown): StrategyValidation {
-  try {
-    // Cast for the same non-strict-mode reason as `_schemaAcceptsStrategy`
-    // above: the schema marks these fields required, Zod's inference cannot
-    // say so without `strictNullChecks`.
-    const strategy = strategySchema.parse(input) as Strategy;
-    return { ok: true, strategy, errors: [] };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { ok: false, strategy: null, errors: formatIssues(error) };
-    }
-    throw error;
-  }
+  const parsed = strategySchema.safeParse(input);
+  return parsed.success
+    ? { ok: true, strategy: parsed.data, errors: [] }
+    : { ok: false, strategy: null, errors: formatIssues(parsed.error) };
 }

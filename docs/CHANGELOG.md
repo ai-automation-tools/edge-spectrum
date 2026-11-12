@@ -2,6 +2,18 @@
 
 ---
 
+## November 12, 2026 — TypeScript `strict`
+
+From the 2026-11-11 project audit (ARCH-01).
+
+- **`strict: true`** in `site/tsconfig.json`. It surfaced 15 errors at five sites, all fixed; none was a
+  runtime bug.
+- **Workarounds removed** `validateStrategy` uses `safeParse` and returns a discriminated union, so the
+  `parse`/`catch` and the `as Strategy` cast are gone and the schema's output is now checked against
+  `Strategy` by the compiler.
+- **`react-dom/client`** had no types (the build never noticed without `strict`). A five-line
+  declaration covers the one call the app makes; no dependency was added.
+
 ## November 12, 2026 — The ESPN scoreboard panel grades what it says it grades
 
 From the 2026-11-11 project audit (BUG-17, BUG-31, BUG-15, BUG-28, BUG-35).
