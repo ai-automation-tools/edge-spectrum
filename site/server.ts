@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
+import { readFileSync } from 'node:fs';
 import { createServer as createViteServer } from 'vite';
 import { backtestRoute } from './src/server/backtest';
 import { espnScoreboardRoute } from './src/server/espn';
@@ -66,9 +67,11 @@ async function startServer() {
     // The SPA shell for every path, but only the routes it serves are a 200:
     // the rest render its not-found page with a 404 (same list as vercel.json).
     const CLIENT_ROUTES = ['/', '/backtester', '/odds', '/parlay', '/setup'];
+    // Read once: the shell never changes while the server runs, so no request touches the disk for it.
+    const shell = readFileSync(path.join(distPath, 'index.html'), 'utf8');
     app.get('*', (req, res) => {
       const known = CLIENT_ROUTES.includes(req.path.replace(/\/+$/, '') || '/');
-      res.status(known ? 200 : 404).sendFile(path.join(distPath, 'index.html'));
+      res.status(known ? 200 : 404).type('html').send(shell);
     });
   }
 

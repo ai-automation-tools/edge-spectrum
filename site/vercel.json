@@ -5,7 +5,11 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/(backtester|odds|parlay|setup)/?",
+      "source": "/:page(backtester|odds|parlay|setup)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:page(backtester|odds|parlay|setup)/",
       "destination": "/index.html"
     }
   ],
