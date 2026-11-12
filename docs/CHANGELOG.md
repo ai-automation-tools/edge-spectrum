@@ -2,6 +2,26 @@
 
 ---
 
+## November 12, 2026 — The backtest engine picks a side once, and spread favourites lay points
+
+From the 2026-11-11 project audit (ARCH-02, BUG-26).
+
+- **Backtest numbers change for favourite and underdog selections.** A spread favourite is now the side
+  with the negative line. It was the side with the shorter moneyline, which on a near pick'em could be
+  the team getting points: a "favourites" spread run could include a bet at +0.5. A moneyline bet still
+  reads the prices, and a game with level prices has no favourite: favourite and underdog selections
+  skip it, where they used to treat the away team as the favourite. Home, away, streak, rest and totals
+  selections are unchanged.
+- **Engine structure** `runBacktest` no longer has one branch per selection per bet type. `selectSide`
+  returns the side, `priceAndGrade` prices and settles it in one place, and `passesFilters` applies the
+  ranges. The side is no longer recovered from the bet's display text. `dataGenerator.ts` is 81 lines
+  shorter.
+- **How it was checked** Before the favourite change, the refactored engine's full response was
+  byte-identical to the old one on 276 strategies (every sport, bet type and selection, plus the streak,
+  odds and line filters). After it, only favourite and underdog selections differ.
+- **Checks** `check:engine` reads 8,000 ledger rows back and fails if a favourite spread bet is not
+  laying points or a moneyline favourite is not the shorter price. It fails on the old engine.
+
 ## November 12, 2026 — TypeScript `strict`
 
 From the 2026-11-11 project audit (ARCH-01).
