@@ -32,11 +32,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19">
-  <img src="https://img.shields.io/badge/Vite-6.2-646cff?style=flat-square&logo=vite&logoColor=white" alt="Vite 6">
+  <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19">
+  <img src="https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white" alt="Vite 8">
   <img src="https://img.shields.io/badge/TypeScript-Strict-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-v4.0-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind v4">
-  <img src="https://img.shields.io/badge/Gemini_AI-API_v2-f59e0b?style=flat-square&logo=google&logoColor=white" alt="Gemini AI">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind v4">
+  <img src="https://img.shields.io/badge/Gemini_SDK-3-f59e0b?style=flat-square&logo=google&logoColor=white" alt="Gemini SDK 3">
 </p>
 
 ---
