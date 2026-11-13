@@ -3,7 +3,7 @@
   "name": "edge-spectrum",
   "title": "Edge Spectrum: returns and house edges across investing and gambling",
   "description": "239 activities, from index funds to keno, each with an annual return (held assets) or an edge per decision (wagers), the evidence behind it, and where cited, its source, check date, window and method. Education only, not advice.",
-  "version": "2026-11-12",
+  "version": "2026-11-12+1b93619d",
   "licenses": [
     {
       "name": "CC-BY-4.0",

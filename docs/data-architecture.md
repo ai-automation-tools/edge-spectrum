@@ -47,7 +47,7 @@ the page's footer links them. `datapackage.json` is a [Frictionless Data Package
   are `EdgeRecord` with readable names (`annual_return_pct`, `edge_pct`, `decisions_per_day`, ...).
   `edges.json` keeps the page's short keys and may change with the page; `edges.csv` is the stable
   shape.
-- **Version:** the newest `asOf` in the data, so it moves whenever a figure is checked or changed.
+- **Version:** the newest `asOf` in the data plus the first 8 characters of the CSV's sha256 (`2026-11-12+1a2b3c4d`), so two changes on one day are two versions.
   Each resource carries a `sha256` hash.
 - **Licence:** CC BY 4.0 for the compilation. Every figure is a fact credited to the publisher in
   its `source`; no publisher's table is reproduced. The code stays Apache-2.0.
