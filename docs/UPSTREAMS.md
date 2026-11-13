@@ -46,7 +46,7 @@ need a paid licence that permits public redistribution, and none of the paid sou
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
 | **Plotly.js** | Self-hosted `plotly-basic-4.2.0.min.js` (npm `plotly.js-basic-dist-min@4.2.0`), version in the filename | `site/public/spectrum/index.html`, `site/public/spectrum/plotly-basic-4.2.0.min.js` | github.com/plotly/plotly.js/releases (pinned 4.2.0, current as of 2026-11-02; roadmap Action 2.8) | 2026-11-02 |
-| **Google Fonts** | `fonts.googleapis.com/css2?family=…` (Inter + JetBrains Mono on both the hub and the Spectrum page since the 2026-10-05 redesign) | `site/public/spectrum/index.html`, `site/src/index.css` | developers.google.com/fonts/docs/css2 | 2026-10-21 |
+| **Fontsource** | Inter and JetBrains Mono, self-hosted since 2026-11-13 (audit GOV-04): the variable `latin` and `latin-ext` WOFF2 files from `@fontsource-variable/inter` 5.3.0 and `@fontsource-variable/jetbrains-mono` 5.3.0, copied into `site/public/fonts/` with their OFL texts; `fonts.css` keeps Fontsource's `unicode-range` split. Not an npm dependency: to update, `npm pack` the packages and copy the four files. Google Fonts is no longer requested | `site/public/fonts/`, `site/index.html`, `site/public/spectrum/index.html` | npmjs.com/package/@fontsource-variable/inter | 2026-11-13 |
 
 ## Hosting and runtime
 

@@ -218,7 +218,8 @@ The full application is included in this repository under [Apache-2.0](LICENSE).
 MIT, © Plotly, Inc.; the licence header is kept in the file). The app bundles its runtime dependencies from
 `site/package.json`, each under its own licence: MIT (React, React Router, Recharts, motion, Express,
 react-markdown, zod), ISC (lucide-react), BSD-2-Clause (dotenv) and Apache-2.0 (`@google/genai`).
-The Inter and JetBrains Mono fonts load from Google Fonts under the SIL Open Font License.
+The Inter and JetBrains Mono fonts are served from the site itself (`site/public/fonts/`, from Fontsource 5.3.0)
+under the SIL Open Font License; the licence texts sit beside the files.
 [Create your own site](https://edge-spectrum.ai-automation-tools.dev/setup) to deploy a copy to
 Vercel with your own Gemini key, private advisor passcode, and live AI responses.
 Use **Use this template** on GitHub to create a complete copy you can customize.

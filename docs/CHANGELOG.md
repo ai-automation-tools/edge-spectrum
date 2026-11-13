@@ -2,6 +2,21 @@
 
 ---
 
+## November 13, 2026 — Fonts served from the site
+
+Audit GOV-04 and SEC-06.
+
+- **No Google Fonts request.** Inter and JetBrains Mono come from `site/public/fonts/` on the hub and the
+  Spectrum page: the variable `latin` and `latin-ext` WOFF2 files from Fontsource 5.3.0 (about 88 kB for
+  the two `latin` files most pages need), one `fonts.css`, and the two OFL licence texts. The hub and
+  the page preload Inter's `latin` file.
+- **A narrower Content-Security-Policy.** `vercel.json` drops `fonts.googleapis.com` from `style-src`
+  and `fonts.gstatic.com` from `font-src` on both policies.
+- **Held by `check:spectrum-browser`.** The Spectrum page and the hub must load both fonts, and neither may
+  request any host but its own and the org consent banner.
+
+---
+
 ## November 13, 2026 — Advisor call log, versioned templates
 
 Audit AI-06 and OPS-12.
