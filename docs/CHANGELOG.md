@@ -2,6 +2,14 @@
 
 ---
 
+## November 12, 2026 — @google/genai 3
+
+Roadmap Action 2.14, fourth of the batch: `@google/genai` 2 → 3. The breaking change that reaches
+this repo is the default API version: the Gemini Developer API is now called at `v1`, not `v1beta`.
+No code changed. One live advisor call on `v1` with the repo's system instruction and JSON response
+schema returned a full analysis and two templates in 2.6 s; `check:deployment`'s stubbed Gemini
+replies pass unchanged. 3.0 also needs Node 22, which CI and `engines` already require.
+
 ## November 12, 2026 — Express 5
 
 Roadmap Action 2.14, third of the batch: Express 4 → 5 (and `@types/express` 5) for `site/server.ts`,
