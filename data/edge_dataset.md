@@ -36,21 +36,21 @@ category cites under 50% of its rows (bold below). No category is under it.
 
 | Category | Records | Cited | Share | math | published | estimate |
 |----------|--------:|------:|------:|-----:|----------:|---------:|
-| Stock Market | 32 | 29 | 91% | 0 | 29 | 3 |
+| Stock Market | 32 | 32 | 100% | 0 | 32 | 0 |
 | Cash & Savings | 17 | 17 | 100% | 0 | 17 | 0 |
 | Bonds | 17 | 17 | 100% | 0 | 17 | 0 |
-| Real Estate | 12 | 6 | 50% | 0 | 6 | 6 |
-| Cryptocurrency | 13 | 7 | 54% | 0 | 7 | 6 |
+| Real Estate | 12 | 11 | 92% | 0 | 11 | 1 |
+| Cryptocurrency | 13 | 8 | 62% | 0 | 8 | 5 |
 | Collectibles | 10 | 6 | 60% | 0 | 6 | 4 |
-| Precious Metals | 12 | 11 | 92% | 0 | 11 | 1 |
+| Precious Metals | 12 | 12 | 100% | 0 | 12 | 0 |
 | Insurance & Annuities | 11 | 8 | 73% | 0 | 8 | 3 |
-| Trading & Derivatives | 10 | 7 | 70% | 0 | 5 | 5 |
-| Sports Betting | 22 | 12 | 55% | 12 | 0 | 10 |
+| Trading & Derivatives | 10 | 8 | 80% | 0 | 6 | 4 |
+| Sports Betting | 22 | 20 | 91% | 12 | 8 | 2 |
 | Horse Racing & Pari-Mutuel | 6 | 6 | 100% | 0 | 6 | 0 |
 | Casino Gambling | 44 | 44 | 100% | 42 | 1 | 1 |
 | Poker & Skill-Based | 9 | 5 | 56% | 0 | 5 | 4 |
 | Prediction Markets | 11 | 11 | 100% | 0 | 11 | 0 |
-| Lottery | 13 | 12 | 92% | 5 | 7 | 1 |
+| Lottery | 13 | 13 | 100% | 5 | 8 | 0 |
 
 ## Model reference
 
@@ -92,15 +92,15 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 17 | FTSE 100 UK Index | 5.53% | raw | published | ✓ |
 | 18 | MSCI Emerging Markets (EEM) | 9.94% | raw | published | ✓ |
 | 19 | Commodity Index (DJP) | -0.18% | raw | published | ✓ |
-| 20 | Individual Stock Picking (Retail) | -2.0% | raw | estimate |  |
-| 21 | Penny Stocks (Retail Avg) | -30.0% | raw | estimate |  |
+| 20 | Individual Stock Picking (Retail) | 8.22% | raw | published | ✓ |
+| 21 | Penny Stocks (Retail Avg) | -3.7% | raw | published | ✓ |
 | 22 | S&P 500 After 0.03% Index Fee | 9.97% | fee | published | ✓ |
 | 23 | S&P 500 After 0.35% Robo-Advisor | 9.65% | fee | published | ✓ |
 | 24 | S&P 500 After 0.60% Target-Date Fund | 9.4% | fee | published | ✓ |
 | 25 | S&P 500 After 1% Advisory Fee | 9.0% | fee | published | ✓ |
 | 26 | S&P 500 After 1.5% Active Mutual Fund | 8.5% | fee | published | ✓ |
 | 27 | S&P 500 After 2-and-20 Hedge Fund | 6.4% | fee | published | ✓ |
-| 28 | S&P 500 After 2-and-20 (Underperforming) | 4.0% | fee | estimate |  |
+| 28 | S&P 500 After 2-and-20 (Underperforming) | 6.42% | fee | published | ✓ |
 | 29 | S&P 500 After LTCG Tax (20%) | 8.0% | tax | published | ✓ |
 | 30 | S&P 500 After STCG Tax (37%) | 6.3% | tax | published | ✓ |
 | 31 | S&P 500 After 1% Fee + LTCG Tax | 7.2% | tax | published | ✓ |
@@ -168,15 +168,15 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Multi-Unit Apartments (5+ Units) | 9.83% | raw | published | ✓ |
 | 2 | Industrial / Warehouse | 10.12% | raw | published | ✓ |
-| 3 | Multi Single Family Portfolio | 8.5% | raw | estimate |  |
+| 3 | Multi Single Family Portfolio | 8.6% | raw | published | ✓ |
 | 4 | Single Family Home (Buy & Hold) | 8.52% | raw | published | ✓ |
 | 5 | Commercial Office Space | 7.13% | raw | published | ✓ |
 | 6 | Retail / Strip Mall | 7.78% | raw | published | ✓ |
 | 7 | Vacation / Short-Term Rental | 4.0% | raw | estimate |  |
-| 8 | Raw Land (Speculative) | 2.0% | raw | estimate |  |
-| 9 | House Flipping (Retail Avg) | -5.0% | raw | estimate |  |
-| 10 | Timeshare | -12.0% | raw | estimate |  |
-| 11 | Rental Income After Ordinary Tax (37%) | 4.73% | tax | estimate |  |
+| 8 | Raw Land (Speculative) | 3.7% | raw | published | ✓ |
+| 9 | House Flipping (Retail Avg) | -9.8% | raw | published | ✓ |
+| 10 | Timeshare | -10.0% | raw | published | ✓ |
+| 11 | Rental Income After Ordinary Tax (37%) | 3.36% | tax | published | ✓ |
 | 12 | Home Sale After LTCG (w/ $250K Exclusion) | 4.3% | tax | published | ✓ |
 
 ## 5. Cryptocurrency
@@ -189,7 +189,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Bitcoin Spot (Buy & Hold) | 58.58% | raw | published | ✓ |
 | 2 | Ethereum Spot (Buy & Hold) | 70.02% | raw | published | ✓ |
-| 3 | Stablecoin Yield Farming | 5.0% | raw | estimate |  |
+| 3 | Stablecoin Yield Farming | 4.47% | raw | published | ✓ |
 | 4 | DeFi LP Major Pairs | 2.0% | raw | estimate |  |
 | 5 | DeFi LP Volatile Pairs | -10.0% | raw | estimate |  |
 | 6 | Altcoin Portfolio (Retail) | -15.0% | raw | estimate |  |
@@ -236,7 +236,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 6 | Palladium Bullion (PALL) | 5.86% | raw | published | ✓ |
 | 7 | Silver Mining Stocks (SIL) | 4.13% | raw | published | ✓ |
 | 8 | Platinum Bullion (PPLT) | 0.01% | raw | published | ✓ |
-| 9 | Precious Coins (Numismatic) | 1.5% | raw | estimate |  |
+| 9 | Precious Coins (Numismatic) | 1.4% | raw | published | ✓ |
 | 10 | Junior Mining Stocks (GDXJ) | 1.82% | raw | published | ✓ |
 | 11 | Gold After Collectibles Tax (28%) | 5.11% | tax | published | ✓ |
 | 12 | Gold Mining After LTCG Tax (20%) | 3.3% | tax | published | ✓ |
@@ -283,7 +283,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Binary Options (Offshore) | -10.0% | 10 | 2% | raw | estimate |  |
+| 1 | Binary Options (Offshore) | -10.0% | 10 | 2% | raw | published | ✓ |
 
 ## 10. Sports Betting
 
@@ -293,25 +293,25 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Sharp Bettor (+2% Closing Line Value) | 2.0% | 3 | 2% | raw | estimate |  |
+| 1 | Sharp Bettor (+2% Closing Line Value) | 2.0% | 3 | 2% | raw | published | ✓ |
 | 2 | Betting Exchange (2% Commission) | -1.0% | 2 | 3% | raw | math | ✓ |
 | 3 | Reduced Juice Line (-105) | -2.38% | 2 | 3% | raw | math | ✓ |
 | 4 | Single Game Spread (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
 | 5 | Single Game O/U (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
 | 6 | Pick'em Moneyline (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
-| 7 | Teaser 2-Team 6pt | -5.0% | 1 | 3% | raw | estimate |  |
-| 8 | Live / In-Game Bet | -6.5% | 5 | 3% | raw | estimate |  |
+| 7 | Teaser 2-Team 6pt | -14.0% | 1 | 3% | raw | published | ✓ |
+| 8 | Live / In-Game Bet | -7.9% | 5 | 3% | raw | published | ✓ |
 | 9 | Player Prop Bet | -7.0% | 3 | 2% | raw | estimate |  |
 | 10 | Micro-Bet (Next Play / Next Pitch) | -9.0% | 20 | 1% | raw | estimate |  |
-| 11 | Season Win Total Future | -8.0% | 0.05 | 5% | raw | estimate |  |
+| 11 | Season Win Total Future | -4.32% | 0.05 | 5% | raw | published | ✓ |
 | 12 | 2-Team Parlay | -8.88% | 2 | 2% | raw | math | ✓ |
-| 13 | Championship Future | -12.0% | 0.03 | 5% | raw | estimate |  |
+| 13 | Championship Future | -17.6% | 0.03 | 5% | raw | published | ✓ |
 | 14 | 3-Team Parlay | -13.03% | 1 | 2% | raw | math | ✓ |
 | 15 | 4-Team Parlay | -16.98% | 1 | 1% | raw | math | ✓ |
-| 16 | Same-Game Parlay (SGP) | -15.0% | 2 | 2% | raw | estimate |  |
-| 17 | First Touchdown Scorer | -18.0% | 1 | 1% | raw | estimate |  |
+| 16 | Same-Game Parlay (SGP) | -14.0% | 2 | 2% | raw | published | ✓ |
+| 17 | First Touchdown Scorer | -38.5% | 1 | 1% | raw | published | ✓ |
 | 18 | 5-Team Parlay | -20.75% | 0.5 | 1% | raw | math | ✓ |
-| 19 | Correct Score (Soccer) | -20.0% | 0.5 | 1% | raw | estimate |  |
+| 19 | Correct Score (Soccer) | -10.7% | 0.5 | 1% | raw | published | ✓ |
 | 20 | 6-Team Parlay | -24.36% | 0.3 | 1% | raw | math | ✓ |
 | 21 | 8-Team Parlay | -31.08% | 0.2 | 1% | raw | math | ✓ |
 | 22 | 10-Team Parlay | -37.2% | 0.1 | 0.5% | raw | math | ✓ |
@@ -410,16 +410,16 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Polymarket Elections | -4.0% | 1 | 5% | raw | published | ✓ |
+| 1 | Polymarket Elections | -3.03% | 1 | 5% | raw | published | ✓ |
 | 2 | Polymarket SCOTUS | -4.0% | 0.5 | 5% | raw | published | ✓ |
-| 3 | Polymarket Oscars | -4.5% | 0.5 | 3% | raw | published | ✓ |
-| 4 | Polymarket Geopolitics | -2.0% | 0.5 | 3% | raw | published | ✓ |
-| 5 | Polymarket Sports/Entertainment | -4.5% | 1 | 3% | raw | published | ✓ |
-| 6 | Polymarket Crypto Prices | -5.5% | 2 | 3% | raw | published | ✓ |
-| 7 | Kalshi Economic | -3.5% | 0.5 | 3% | raw | published | ✓ |
-| 8 | Kalshi Fed Rate | -3.5% | 0.2 | 5% | raw | published | ✓ |
-| 9 | Kalshi GDP | -3.5% | 0.2 | 5% | raw | published | ✓ |
-| 10 | Kalshi Weather | -3.5% | 0.5 | 2% | raw | published | ✓ |
+| 3 | Polymarket Oscars | -5.01% | 0.5 | 3% | raw | published | ✓ |
+| 4 | Polymarket Geopolitics | -1.59% | 0.5 | 3% | raw | published | ✓ |
+| 5 | Polymarket Sports/Entertainment | -4.19% | 1 | 3% | raw | published | ✓ |
+| 6 | Polymarket Crypto Prices | -4.93% | 2 | 3% | raw | published | ✓ |
+| 7 | Kalshi Economic | -6.06% | 0.5 | 3% | raw | published | ✓ |
+| 8 | Kalshi Fed Rate | -6.73% | 0.2 | 5% | raw | published | ✓ |
+| 9 | Kalshi GDP | -9.79% | 0.2 | 5% | raw | published | ✓ |
+| 10 | Kalshi Weather | -4.28% | 0.5 | 2% | raw | published | ✓ |
 | 11 | PredictIt US Politics | -5.0% | 1 | 5% | raw | published | ✓ |
 
 ## 15. Lottery
@@ -432,7 +432,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
 | 1 | Pull-Tab Tickets | -13.96% | 1 | 0.3% | raw | published | ✓ |
 | 2 | $1 Scratch-Off Best Odds | -40.0% | 1 | 0.5% | raw | published | ✓ |
-| 3 | Bingo Hall Session | -25.0% | 0.5 | 1% | raw | estimate |  |
+| 3 | Bingo Hall Session | -23.88% | 0.5 | 1% | raw | published | ✓ |
 | 4 | Premium Scratch-Off $20+ | -20.0% | 0.5 | 1% | raw | published | ✓ |
 | 5 | Scratch-Off Tickets Avg | -23.93% | 0.5 | 0.5% | raw | published | ✓ |
 | 6 | Keno State-Run | -30.84% | 2 | 0.5% | raw | published | ✓ |
