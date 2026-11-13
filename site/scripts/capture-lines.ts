@@ -18,7 +18,10 @@
  *   null    the game has started (`state` in|post): the line is no longer pre-game,
  *           but the score is still worth keeping for grading. A final is logged once.
  *
- * Run (from site/):  npm run capture:lines -- --out <folder> [--interval-hours 3]
+ * Run (from site/):  npm run capture:lines -- --out <folder> [--interval-hours 3] [--provider espn|odds-api] [--book draftkings]
+ * --provider odds-api reads the self-hoster's own ODDS_API_KEY from site/.env and writes the same
+ * records (scripts/odds-api.ts, audit INT-06); the default, espn, needs no key. The Odds API's
+ * boards span several days, so its games are filed under each game's own Eastern date.
  * Exits 1 naming any sport whose fetch failed; a sport with no games is a success. A line that
  * does not parse (a run killed mid-write) and a game with no usable start time are skipped with
  * a warning.
@@ -27,6 +30,7 @@ import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchEspnScoreboard } from '../src/server/espn';
+import { fetchOddsApi } from './odds-api';
 
 /** The sports `fetchEspnScoreboard` maps; anything else would silently fetch NFL. */
 export const SPORTS = ['NFL', 'NBA', 'MLB', 'NHL'] as const;
@@ -153,20 +157,34 @@ async function main() {
   const intervalHours = Number(arg('interval-hours') ?? 3);
   if (!(intervalHours > 0)) throw new Error('--interval-hours must be a positive number');
 
+  const provider = arg('provider') ?? 'espn';
+  if (provider !== 'espn' && provider !== 'odds-api') throw new Error('--provider must be espn or odds-api');
+  const book = arg('book') ?? 'draftkings';
+  let key = '';
+  if (provider === 'odds-api') {
+    const { config } = await import('dotenv');
+    config({ path: resolve(fileURLToPath(import.meta.url), '../../.env'), quiet: true });
+    key = process.env.ODDS_API_KEY ?? '';
+    if (!key) throw new Error('--provider odds-api needs ODDS_API_KEY in site/.env (see site/.env.example)');
+  }
+
   const capturedAt = new Date();
   const failed: string[] = [];
   for (const sport of SPORTS) {
     try {
-      const board = await fetchEspnScoreboard(sport);
+      const boards = provider === 'espn' ? [await fetchEspnScoreboard(sport)] : await fetchOddsApi(sport, key, book, capturedAt);
       const dir = join(out, sport);
-      const file = join(dir, `${dayName(board.date, capturedAt)}.jsonl`);
       const prior = readRecords(dayFiles(dir).slice(-RECENT_DAY_FILES));
       if (prior.skipped) console.warn(`${sport}: skipped ${prior.skipped} unreadable line(s) under ${dir}`);
-      const records = toRecords(sport, board.games, capturedAt, seenIds(prior.records), intervalHours);
-      appendRecords(file, records);
-      console.log(records.length ? `${sport}: ${records.length} game(s) -> ${file}`
-        : board.games.length ? `${sport}: nothing new (${board.games.length} final(s) already logged)`
-          : `${sport}: no games on ESPN's board`);
+      const seen = seenIds(prior.records);
+      if (!boards.some((b) => b.games.length)) console.log(`${sport}: no games on the ${provider} board`);
+      for (const board of boards) {
+        const file = join(dir, `${dayName(board.date, capturedAt)}.jsonl`);
+        const records = toRecords(sport, board.games, capturedAt, seen, intervalHours);
+        appendRecords(file, records);
+        if (records.length) console.log(`${sport}: ${records.length} game(s) -> ${file}`);
+        else if (board.games.length) console.log(`${sport}: nothing new on ${board.date} (${board.games.length} final(s) already logged)`);
+      }
     } catch (err) {
       failed.push(sport);
       console.error(`${sport}: capture failed: ${(err as Error).message}`);
