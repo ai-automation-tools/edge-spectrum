@@ -2,6 +2,28 @@
 
 ---
 
+## November 13, 2026 — Market-close capture and digest delivery
+
+Audit INT-08 and roadmap Action 5.3.
+
+- **Market closes.** `site/scripts/capture-closes.ts` (`npm run capture:closes -- --out <folder>`) fetches the
+  last ten days of end-of-day prices for SPY, QQQ, GLD and HYG (or `--tickers`) from Tiingo. It appends each
+  trading day not yet recorded to `<folder>/<TICKER>.jsonl`: close, adjusted close, dividend, split factor
+  and capture time.
+  - It needs the self-hoster's own free Tiingo key as `TIINGO_API_KEY` in `site/.env`, sent in a header.
+  - No keyless source was usable. Stooq answers scripts with a bot check, and Yahoo's endpoint is
+    unofficial and its terms forbid automated access, so the owner chose Tiingo. Its free plan is for
+    personal use, so the archive stays local.
+- **Third Cronsole template.** `edge-spectrum-market-close` runs the collector on weekdays at 23:30 UTC. It is
+  in the generated registry and linked from the README.
+- **Digest delivery.** Cronsole's run-outcome webhook already sends a run's output to ntfy, Discord, email
+  (Resend) or any endpoint, and the digest prints the whole digest. The README and the digest template
+  (now 0.1.1) say to turn on **Notify on success** for the digest task. No `--webhook` flag was needed.
+- **Checks.** `check:lines` covers Tiingo's rows, one write per trading day, a cut-off line kept apart,
+  the key kept out of the URL and errors, and a malformed ticker rejected. `UPSTREAMS.md` has a Tiingo row.
+
+---
+
 ## November 13, 2026 — Audit polish: skip links, the Kelly help, targets, advisor context
 
 Five P2 items from the 2026-11-11 project audit.

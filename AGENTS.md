@@ -61,6 +61,7 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
   scripts/            # not shipped: check-bundle.mjs (after build), check-live.mjs (the deployed site, run by the
                       #   Registry drift workflow daily and after each production deploy), check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
                       #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
+                      #   capture-closes.ts: the Tiingo market-close collector (Action 5.3), held by check-lines.ts
                       #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
                       #   templates there, never the output; --check in CI. check-registry-published.mjs
                       #   is the daily drift check of the served copy
@@ -183,7 +184,7 @@ That repo is canonical: **edit them there, never in `.claude/skills/`.**
 | `edge-spectrum-hub-tool` | Adding/changing a tool tile or page — `tools.ts`, `App.tsx`, `Home.tsx`, `pages/` |
 | `edge-spectrum-dataset` | Touching the records in `edges.ts`, `gen:edges`, or the Spectrum page's measures |
 | `edge-spectrum-endpoint` | Anything under `site/api/`, `site/server.ts`, `site/src/server/` |
-| `edge-spectrum-registry` | The Cronsole templates (`build-registry.mjs`, `site/public/registry/`), `capture-lines.ts`, `digest-lines.ts`, the registry-drift workflow. Owner-held files |
+| `edge-spectrum-registry` | The Cronsole templates (`build-registry.mjs`, `site/public/registry/`), `capture-lines.ts`, `digest-lines.ts`, `capture-closes.ts`, the registry-drift workflow. Owner-held files |
 
 Any agent can read a skill's `SKILL.md` there directly; the three scheduled jobs do, by path. Installing them for Claude Code is covered in
 `CLAUDE.md`.
