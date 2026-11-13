@@ -24,6 +24,7 @@
 | [**🧭 Diagrams**](diagrams/README.md) | The hub data-flow diagram the [homepage](https://edge-spectrum.ai-automation-tools.dev/#sec-flow) shows: dataset → generated Spectrum page, registry → tiles and routes, simulator → serverless functions → ESPN and Gemini. Interactive, every node linked to its code, and drift-checked weekly. | All Hub Tools |
 | [**🔌 API Reference**](api.md) | The five method and path pairs under `/api/`: body, response, status codes, auth and cache headers. | Serverless API |
 | [**🤝 Contributing**](../CONTRIBUTING.md) | Ground rules, changing the dataset, the checks, and which paths the maintainer reviews. | All Hub Tools |
+| [**⚖️ Decisions**](decisions.md) | The standing choices in one table: date, decision, why, and where it's enforced. | All Hub Tools |
 | [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 15 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
 | [**💡 Hub Improvement Plan**](ideas/hub_improvement_plan.md) | Archived 2026-08 review: the evidence behind the early fixes, and the ideas never scheduled. | Archive |
 | [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |

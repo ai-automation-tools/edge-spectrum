@@ -2,6 +2,21 @@
 
 ---
 
+## November 13, 2026 — A decision log and a note for agents
+
+Audit DOC-18 and AI-12; DOC-20 turned out to be done already.
+
+- **`docs/decisions.md`** lists the 14 standing decisions in one table (date, decision, why, where):
+  the five the audit found in roadmap prose (the release-gate scope, demo mode by default, the inlined
+  Spectrum data, Dependabot skipping npm majors, the local JSONL line archive) and the nine made since.
+  Change a decision by editing its row in the same PR. Linked from `docs/README.md` and the roadmap.
+- **For agents and scripts.** The README names the two public JSON files, `/spectrum/edges.json` and
+  `/registry/index.json`, both open to any origin. There is still no MCP server, by choice.
+- **DOC-20** (a duplicate `vite` entry, a broken `clean` script, two leftover tsconfig flags) was fixed in
+  #95 with the audit's ARCH-04 and ARCH-05.
+
+---
+
 ## November 13, 2026 — Faster backtests, a Spectrum page that paints first
 
 Audit PERF-04 and PERF-06.
