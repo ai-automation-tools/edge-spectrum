@@ -110,8 +110,8 @@ function edgesCsv(): string {
 
 const sha256 = (s: string) => `sha256:${createHash('sha256').update(s, 'utf8').digest('hex')}`;
 function dataPackage(csv: string, json: string): string {
-  // The version is the newest check date, so it moves whenever a figure is re-checked or changed.
-  const version = EDGES.map((r) => r.asOf ?? '').sort().at(-1);
+  // The newest check date, plus the CSV's hash: two edits on one day are still two versions.
+  const version = `${EDGES.map((r) => r.asOf ?? '').sort().at(-1)}+${sha256(csv).slice(7, 15)}`;
   const pkg = {
     $schema: 'https://datapackage.org/profiles/2.0/datapackage.json',
     name: 'edge-spectrum',

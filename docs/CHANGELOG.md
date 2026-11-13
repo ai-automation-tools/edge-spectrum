@@ -2,6 +2,13 @@
 
 ---
 
+## November 12, 2026 — The dataset version carries a content hash
+
+The data package's `version` was the newest check date alone, so the second dataset change of
+2026-11-12 shipped under the same version as the first. It is now that date plus the first 8
+characters of the CSV's sha256 (`2026-11-12+1b93619d`), and the `dataset-2026-11-12` release carries
+the current files.
+
 ## November 12, 2026 — 20 more rows sourced; prediction markets priced with measured spreads
 
 From the 2026-11-11 project audit (PROD-07, INT-10). 218 of 239 records now cite a source (was 198);
