@@ -2,6 +2,32 @@
 
 ---
 
+## November 12, 2026 — Every published row cited
+
+From the 2026-11-11 project audit (PROD-07). The last 33 `published` rows cite a source read on
+2026-11-12, so every `math` and `published` row is cited: 170 of 240 (was 137); 32 figures moved. Real Estate,
+Cryptocurrency, Trading & Derivatives, Horse Racing and Lottery are over the 50% line; Collectibles,
+Insurance & Annuities, Poker and Prediction Markets are not, because their uncited rows are estimates.
+
+- **Real estate uses Nareit sector returns, 1994-2025**, as a listed proxy for direct ownership:
+  Apartments 9.83, Industrial 10.12, Office 7.13, Shopping Centers 7.78. Single Family Home is the US
+  housing total return from Jordà et al. (8.52); Home Sale After LTCG is Case-Shiller's price-only
+  4.30, since an owner-occupier earns no rent and the exclusion covers a typical gain.
+- **Crypto uses FRED's Coinbase prices over the 10 years to today**: Bitcoin 45.0 → 58.58, Ethereum
+  10.0 → 70.02, Staked Ethereum adds Lido's 2.33%. The fee and tax rows follow.
+- **Trading rows use issuer NAV since inception**: JEPI 7.0 → 11.18, DBMF 5.0 → 9.79, TQQQ 15.0 →
+  41.02, SQQQ −60 → −52.21. PUTW became a different fund in 2025, so its row cites the Cboe
+  PutWrite index (7.1).
+- **Annuities and CDs**: the top 5-year MYGA as a compound rate (6.30), a SPIA quote's IRR over SSA
+  life expectancy (4.92), 3-Month CD 4.30, No-Penalty CD 4.46.
+- **Gambling rows use regulators and lottery reports**: Nevada statewide slot win 7.13 (was 8.0),
+  Minnesota pull-tabs −13.96 (was −20), Michigan scratch-offs ($1 −40, $50 −20, average −23.93;
+  were −25, −30, −35), New Hampshire keno −30.84 (was −40), Florida Fantasy 5 −43.23 and Lotto
+  −50, NYRA takeout for the ADW-rebate (−10.5) and Pick 4 (−24) rows.
+- Two row names now read oddly against their figures: "$1 Scratch-Off Best Odds" is the worst-paying
+  scratch-off, and "Slots Average 92%" is 92.9%. They are kept because names are the keys in shared
+  `?cmp=` links.
+
 ## November 12, 2026 — Stock, bond, cash and metals rows cited
 
 From the 2026-11-11 project audit (PROD-07). 52 `published` rows in four categories now cite a

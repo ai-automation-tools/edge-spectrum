@@ -68,10 +68,10 @@ export const EDGES: readonly EdgeRecord[];
 
 ### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-Every record declares its `basis` and may carry a citation. A minority are cited (the coverage table in
-[`data/edge_dataset.md`](../data/edge_dataset.md)): the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
-Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
-rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
+Every record declares its `basis` and may carry a citation. The coverage table in
+[`data/edge_dataset.md`](../data/edge_dataset.md) has the counts. Every `math` and `published` row
+cites a source (November 2026); the uncited rows are `estimate` rows, which is why Collectibles, Poker,
+Prediction Markets and most of Insurance stay under the freeze line. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old, except a `math` row with a methodology: a
 figure that follows from the rules does not age. Every `math` row is cited (2026-11-12).
 
