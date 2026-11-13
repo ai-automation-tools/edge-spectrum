@@ -25,7 +25,7 @@ const files = (dir: string): string[] =>
 const dist = join(ROOT, 'dist');
 check(read(dist, 'index.html').includes(`<link rel="canonical" href="${ORIGINAL_SITE_URL}/"`), 'the original build lost its canonical URL');
 check(read(dist, 'index.html').includes(`${ORIGINAL_ORG_URL}/consent.js`), 'the original build lost the consent script');
-check(read(dist, 'sitemap.xml').includes(`${ORIGINAL_SITE_URL}/backtester`), 'the original build lost its sitemap');
+check(read(dist, 'sitemap.xml').includes(`<loc>${ORIGINAL_SITE_URL}/backtester</loc>`), 'the original build lost its sitemap');
 
 function forkBuild(name: string, siteUrl?: string): string {
   const out = join(ROOT, 'node_modules/.cache/fork-check', name);
@@ -48,7 +48,7 @@ check(!read(bare, 'index.html').includes('rel="canonical"'), "a fork's build sti
 // A fork with its own address: everything points there.
 const own = forkBuild('own', 'https://bets.example.com/');
 check(read(own, 'index.html').includes('<link rel="canonical" href="https://bets.example.com/"'), "a fork's own address is not its canonical URL");
-check(read(own, 'sitemap.xml').includes('https://bets.example.com/backtester'), "a fork's sitemap does not use its own address");
+check(read(own, 'sitemap.xml').includes('<loc>https://bets.example.com/backtester</loc>'), "a fork's sitemap does not use its own address");
 check(read(own, 'spectrum/index.html').includes('href="https://bets.example.com/spectrum/index.html"'), "the fork's Spectrum page does not use its own address");
 check(!read(own, 'index.html').includes(ORG_DOMAIN), "a fork with its own address still loads the org's consent script");
 
