@@ -2,6 +2,24 @@
 
 ---
 
+## November 13, 2026 — Spectrum page: headings, focus and a phone layout
+
+Audit UX-18.
+
+- **Headings.** The chart title and the inspector's title are `h2`, and its section labels (Leaders,
+  Ruin point, Provenance and the rest) are `h3`, so a screen reader can jump between panels. The page
+  had only its `h1`. They look the same as before.
+- **Focus survives pin and unpin.** Pinning from the list, Unpin, Compare and Esc rebuild the inspector
+  under the focused button, which used to drop focus to the page itself. Focus now moves to the
+  inspector's new heading.
+- **The chart comes first on a phone.** Below 600 px, Layer, Color, Sort, Overlays and the category chips
+  wait behind a **More controls** button, and the four stat cards follow the chart. At 390 px the chart
+  starts 803 px down, where it had been 1,723. Wider screens are unchanged.
+- `check:spectrum-browser` asserts the headings, focus after a keyboard pin and unpin, the phone chart
+  position and the button.
+
+---
+
 ## November 13, 2026 — A decision log and a note for agents
 
 Audit DOC-18 and AI-12; DOC-20 turned out to be done already.
