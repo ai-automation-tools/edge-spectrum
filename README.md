@@ -115,6 +115,10 @@ record even when ESPN lists it on several days' boards, and a damaged line in a 
 warning. How `linePhase` is decided
 is in [data-architecture.md](docs/data-architecture.md#a-append-only-scoreboard-line-snapshots).
 
+> [!IMPORTANT]
+> **Back the archive up yourself.** Captured lines exist only in the folder you chose. ESPN serves today's
+> board, not past ones, so a lost day can't be fetched again, and nothing in this project keeps a copy.
+
 **Daily digest.** Once captures are running, the
 [Daily Line Movement Digest template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest)
 reads yesterday's files and writes `<folder>/digests/<day>.md`: each game's opening and closing spread,
@@ -196,6 +200,13 @@ odds and parlay calculators, synthetic backtester, and live scoreboard. Its AI a
 shows **clearly labeled sample responses**, with no Gemini calls and no visitor API keys.
 
 The full application is included in this repository under [Apache-2.0](LICENSE). The dataset (`edges.csv` and its copies) is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Third-party code.** The Spectrum page ships a copy of
+[plotly.js](https://github.com/plotly/plotly.js) basic 4.2.0 (`site/public/spectrum/plotly-basic-4.2.0.min.js`,
+MIT, © Plotly, Inc.; the licence header is kept in the file). The app bundles its runtime dependencies from
+`site/package.json`, each under its own licence: MIT (React, React Router, Recharts, motion, Express,
+react-markdown, zod), ISC (lucide-react), BSD-2-Clause (dotenv) and Apache-2.0 (`@google/genai`).
+The Inter and JetBrains Mono fonts load from Google Fonts under the SIL Open Font License.
 [Create your own site](https://edge-spectrum.ai-automation-tools.dev/setup) to deploy a copy to
 Vercel with your own Gemini key, private advisor passcode, and live AI responses.
 Use **Use this template** on GitHub to create a complete copy you can customize.
