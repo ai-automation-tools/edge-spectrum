@@ -2,6 +2,15 @@
 
 ---
 
+## November 12, 2026 — Historical line licences recorded
+
+From the 2026-11-11 project audit's long-term list (PROD-12). Before any real historical lines go into
+the backtester, the licences of 16 candidate datasets were read and recorded in `docs/UPSTREAMS.md`.
+Only nflverse's NFL schedules (CC BY 4.0) could be committed and served, and even that has an open
+question about where its lines come from. Every multi-season NBA, MLB and NHL set is either
+personal-use only or scraped from sites that forbid it, whatever its label says. Roadmap 7.1 now
+waits on the owner's decision; the seasons stay simulated.
+
 ## November 12, 2026 — Ask the advisor about the dataset
 
 From the 2026-11-11 project audit's long-term list (PROD-15).

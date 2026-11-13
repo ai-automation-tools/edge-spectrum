@@ -308,8 +308,9 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 ### 💰 Phase 7: Public Launch & Data Coverage ⚪
 *Real closing lines, share cards and the published dataset. Accounts are dropped (audit PROD-22): every tool keeps its state in the URL instead.*
 
-- [ ] 🟠 **Action 7.1 — Commercial Historical Odds Integration**
-   - **Integration:** Integrate verified historical closing lines and injury reports from commercial feeds (The Odds API / Sportradar) stored as static Parquet/JSON files for instant loading.
+- [ ] 🟠 **Action 7.1 — Real Historical Lines in the Backtester** *(licences read 2026-11-12, audit PROD-12; see `docs/UPSTREAMS.md`)* 🔒 Needs owner
+   - **Integration:** Real closing lines for the backtest, committed only under a licence that permits redistribution. The only candidate is nflverse's NFL schedules (CC BY 4.0, 1999-2026), with two open questions: its upstream repo states no licence, and the lines' source is undocumented. NBA, MLB and NHL have no openly licensed, lawfully sourced set, so they stay simulated; real lines there would come only from a user's own key or file at runtime.
+   - **Decision for the owner:** ship NFL from nflverse with attribution (after asking nflverse where the lines come from), or keep every sport simulated.
 
 
 - [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop** *(the static half shipped 2026-11-12: `robots.txt`, `sitemap.xml`, one share image, per-route titles and descriptions, real 404s. Per-result cards are what is left.)*
