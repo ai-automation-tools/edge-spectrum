@@ -100,6 +100,31 @@ When a deploy is bad:
    Cronsole templates or the dataset: it compares the live site with `main`. It goes green once the
    revert is merged and deployed.
 
+## After you fork
+
+Your build stops pointing at the original site without any edit. `site/vite.config.ts` reads which
+repository it is building (Vercel's `VERCEL_GIT_REPO_OWNER` and `VERCEL_GIT_REPO_SLUG`, or `git remote`
+elsewhere) and applies the original's site and org links only to `ai-automation-tools/edge-spectrum`.
+A copy built anywhere else ships with:
+
+- no canonical URL, `og:url` or share image naming the original, and no sitemap entries;
+- no org consent script, and no org, cookie-notice or Cronsole-gallery links.
+
+`npm run check:fork` builds the site as a fork and fails if any output file names the org domain.
+
+What to change yourself:
+
+| File or setting | Why |
+| --- | --- |
+| `EDGE_SPECTRUM_SITE_URL` (Vercel variable, read at build time) | Your address, for example `https://bets.example.com`. Restores the canonical URL, the sitemap, `robots.txt` and the share image, pointed at your site |
+| `site/src/projectLinks.ts` (`REPOSITORY_URL`) | The source links, the **Deploy your own** button and the setup-guide link still name the original repository |
+| `site/vercel.json` (`Content-Security-Policy`) | Both policies allow scripts from `https://ai-automation-tools.dev` for the consent script; remove that origin |
+| `.github/CODEOWNERS` | Names the original owner for the registry folder; replace or delete it |
+| `site/public/registry/` | The Cronsole templates tell users to clone the original repository; edit them and run `npm run build:registry` |
+| `README.md` and `docs/` | Badges, demo links and the repository name |
+
+`.github/workflows/registry-drift.yml` runs only in the original repository, so a fork needs no change there.
+
 ## Customize and verify
 
 - Edit `site/src/pages/Home.tsx` for the landing page and `site/src/projectLinks.ts`

@@ -2,6 +2,22 @@
 
 ---
 
+## November 12, 2026 — A fork's build no longer points at the original site
+
+From the 2026-11-11 project audit (PROD-04).
+
+- **Which repo is building.** `site/vite.config.ts` reads it from Vercel's build env, or from
+  `git remote` elsewhere. The original's site and org URLs, now kept in `src/projectLinks.ts`, apply
+  only to `ai-automation-tools/edge-spectrum`.
+- **A fork's build** has no canonical URL, `og:url`, share image or sitemap entries naming the
+  original, no org consent script, and no org, cookie-notice or Cronsole-gallery links in the footer,
+  the palette or the home page. `EDGE_SPECTRUM_SITE_URL` points the canonical URL, sitemap,
+  `robots.txt` and share image at the fork's own address.
+- **The original** builds exactly as before.
+- **Guide.** `docs/self-hosting.md` has an *After you fork* list of the files a fork edits itself.
+- **Check.** `npm run check:fork`, in CI, builds as a fork twice: once with no address, where no output
+  file may name the org domain, and once with its own. All ten of its cases failed on the old code.
+
 ## November 12, 2026 — Cleanup: unused dependencies, AI Studio leftovers and dead code removed
 
 From the 2026-11-11 project audit (ARCH-04, ARCH-05, ARCH-07). No change in what the tools compute.

@@ -1,10 +1,58 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import {defineConfig} from 'vite';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { defineConfig, type Plugin } from 'vite';
+import { ORIGINAL_ORG_URL, ORIGINAL_REPO, ORIGINAL_SITE_URL } from './src/projectLinks';
+
+/** owner/name of the repository being built: Vercel says so in its build env, anywhere else git does. */
+function buildRepo(): string {
+  const { VERCEL_GIT_REPO_OWNER: owner, VERCEL_GIT_REPO_SLUG: slug } = process.env;
+  if (owner && slug) return `${owner}/${slug}`;
+  try {
+    const url = execSync('git remote get-url origin', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return url.trim().match(/github\.com[/:]([^/]+\/[^/]+?)(?:\.git)?$/)?.[1] ?? '';
+  } catch {
+    return ''; // no git (a tarball, a Docker build): not the original
+  }
+}
+
+// Only the original repo's builds point at the original site and org (audit PROD-04).
+const original = buildRepo().toLowerCase() === ORIGINAL_REPO;
+const SITE_URL = (process.env.EDGE_SPECTRUM_SITE_URL ?? (original ? ORIGINAL_SITE_URL : '')).replace(/\/+$/, '');
+const ORG_URL = original ? ORIGINAL_ORG_URL : '';
+// Read by src/projectLinks.ts through import.meta.env.
+process.env.VITE_SITE_URL = SITE_URL;
+process.env.VITE_ORG_URL = ORG_URL;
+
+/** Point a page at this build's own site, or drop the lines that would point at the original. */
+function retarget(text: string): string {
+  const drop = (needle: string) => text.split('\n').filter((line) => !line.includes(needle)).join('\n');
+  if (SITE_URL !== ORIGINAL_SITE_URL) text = SITE_URL ? text.replaceAll(ORIGINAL_SITE_URL, SITE_URL) : drop(ORIGINAL_SITE_URL);
+  if (!ORG_URL) text = drop(`${ORIGINAL_ORG_URL}/`);
+  return text;
+}
+
+/** index.html as Vite builds it, plus the files `public/` copies verbatim. */
+function siteUrls(): Plugin {
+  let outDir = 'dist';
+  return {
+    name: 'edge-spectrum-site-urls',
+    configResolved: (c) => { outDir = c.build.outDir; },
+    transformIndexHtml: retarget,
+    closeBundle() {
+      for (const f of ['spectrum/index.html', 'robots.txt', 'sitemap.xml']) {
+        const p = join(outDir, f);
+        if (existsSync(p)) writeFileSync(p, retarget(readFileSync(p, 'utf8')));
+      }
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), siteUrls()],
     server: {
       // server.ts runs Vite in middleware mode, which opens the HMR WebSocket on its own
       // port (default 24678). Pin it so this app and my-prompt-library can run side by side.

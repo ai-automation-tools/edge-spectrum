@@ -6,7 +6,7 @@ import { useTheme } from '../theme';
 import { EDGES } from '../data/edges';
 import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
 import { METHOD_LABEL } from '../odds';
-import { REPOSITORY_URL } from '../projectLinks';
+import { GALLERY_URL, REPOSITORY_URL } from '../projectLinks';
 import { Card, Reveal, Eyebrow, SectionHead, GithubMark, alpha } from '../components/ui';
 import SpectrumStrip from '../components/SpectrumStrip';
 import SiteFooter from '../components/SiteFooter';
@@ -39,7 +39,6 @@ function DiagramFrame() {
   );
 }
 
-const GALLERY = 'https://cronsole.ai-automation-tools.dev/';
 type RegistryEntry = { id: string; name: string; description: string; runtime?: string; os?: string; path: string };
 
 /**
@@ -76,9 +75,11 @@ function CronsoleTemplates() {
                   </div>
                 </div>
                 <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-zinc-800/60 px-5 py-3">
-                  <a href={`${GALLERY}#/t/${encodeURIComponent(t.id)}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-accent" aria-label={`Get ${name} for Cronsole`}>
-                    Get it for Cronsole <ArrowUpRight className="h-3.5 w-3.5" />
-                  </a>
+                  {GALLERY_URL && (
+                    <a href={`${GALLERY_URL}#/t/${encodeURIComponent(t.id)}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-accent" aria-label={`Get ${name} for Cronsole`}>
+                      Get it for Cronsole <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                  )}
                   <a href={`/registry/${t.path}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost">Template JSON</a>
                 </div>
               </Card>
@@ -88,9 +89,9 @@ function CronsoleTemplates() {
       </div>
       <p className="mt-4 text-[13px] text-zinc-500" aria-live="polite">
         {failed
-          ? <>The templates couldn't be loaded here. Browse them in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
+          ? <>The templates couldn't be loaded here.{GALLERY_URL && <> Browse them in the <a href={`${GALLERY_URL}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>}</>
           : list
-            ? <>Needs Node 22 or 24 and a clone of this repo on the machine the task runs on. Every template is also in the <a href={`${GALLERY}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>
+            ? <>Needs Node 22 or 24 and a clone of this repo on the machine the task runs on.{GALLERY_URL && <> Every template is also in the <a href={`${GALLERY_URL}#/collection/edge-spectrum`} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300">Cronsole gallery ↗</a>.</>}</>
             : 'Loading the templates…'}
       </p>
     </>

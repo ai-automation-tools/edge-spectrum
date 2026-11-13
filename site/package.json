@@ -23,6 +23,7 @@
     "digest:lines": "tsx scripts/digest-lines.ts",
     "build:registry": "node scripts/build-registry.mjs",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:fork": "tsx scripts/check-fork-build.ts",
     "check:deployment": "tsx scripts/check-deployment.ts",
     "check:spectrum-browser": "tsx scripts/check-spectrum-browser.ts"
   },
