@@ -2,6 +2,21 @@
 
 ---
 
+## November 13, 2026 — Notices: advisor, third-party code, line backups
+
+Audit GOV-05, GOV-02 and OPS-13.
+
+- **The advisor panel carries its own notice.** One line under the panel, in demo, locked and live mode:
+  education only, built on simulated seasons, not investment, financial or betting advice. The page footer
+  already said so; now the advisor's own words do too. The line is in the panel component, not the
+  model's reply, so no prompt or server code changed.
+- **Third-party code is credited.** The README's licence section names the copy of plotly.js the
+  Spectrum page ships (MIT), the licences of the bundled runtime dependencies, and the fonts.
+- **Back up your line archive.** The README's line-capture section says the captured lines exist only
+  in your folder and a lost day can't be fetched again.
+
+---
+
 ## November 13, 2026 — Workflow limits and branch cleanup
 
 Audit OPS-10 and OPS-09.

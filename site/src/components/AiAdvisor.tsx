@@ -57,6 +57,10 @@ function Shell({
         <div className="flex items-center gap-1">{actions}</div>
       </div>
       {children}
+      {/* In every state, demo included: the advisor's own words carry the notice too (audit GOV-05). */}
+      <p className="border-t border-zinc-800/60 bg-(--bg-4) px-4 py-1.5 text-[10px] leading-snug text-zinc-400">
+        Education only, built on simulated seasons: not investment, financial or betting advice.
+      </p>
     </div>
   );
 }
