@@ -8,7 +8,9 @@
  *   registry/index.json            every template and pack with the sha256 of its exact bytes
  *
  * Deterministic and LF (no timestamps): Cronsole verifies each file's sha256 over its bytes.
- * Edit the templates HERE, never the output. Also fails if the README stops linking a template.
+ * Edit the templates HERE, never the output. Also fails if the README stops linking a template, or
+ * if a template's commandTemplate changed without its version moving (audit OPS-12): a self-hoster
+ * who imported it compares versions, not commands.
  *
  *   npm run build:registry            write
  *   npm run build:registry -- --check exit 1 if the committed output or a README link is stale
@@ -179,6 +181,15 @@ export function build() {
   for (const p of PACKS) for (const id of p.templateIds) if (!ids.has(id)) errs.push(`pack ${p.id}: unknown template ${id}`);
   const readme = readFileSync(README, 'utf8');
   for (const id of ids) if (!readme.includes(`${GALLERY}#/t/${id}`)) errs.push(`README.md does not link ${GALLERY}#/t/${id}`);
+  // The committed output is the last published version of each template.
+  for (const t of TEMPLATES) {
+    const file = join(OUT, 'templates', `${t.id}.json`);
+    if (!existsSync(file)) continue;
+    const prev = JSON.parse(readFileSync(file, 'utf8'));
+    if (prev.commandTemplate !== t.commandTemplate && prev.version === t.version) {
+      errs.push(`${t.id}: commandTemplate changed but version is still ${t.version}; bump it`);
+    }
+  }
   if (errs.length) throw new Error('Registry validation failed:\n  ' + errs.join('\n  '));
 
   const files = new Map();

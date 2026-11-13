@@ -182,10 +182,24 @@ try {
   const empty = await ask();
   assert.equal(empty.status, 502);
   assert.equal(typeof empty.body.error, 'string');
-  globalThis.fetch = gemini('{"analysis":"Fine.","suggestedTemplates":[]}');
-  const good = await ask();
+  globalThis.fetch = (async () => new Response(JSON.stringify({
+    candidates: [{ content: { role: 'model', parts: [{ text: '{"analysis":"Fine.","suggestedTemplates":[]}' }] }, finishReason: 'STOP' }],
+    usageMetadata: { promptTokenCount: 812, candidatesTokenCount: 140, totalTokenCount: 952 },
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } })) as typeof fetch;
+  // An answered call logs one JSON line with its latency and token use, and no prompt or reply text (audit AI-06).
+  const logged: string[] = [];
+  const consoleLog = console.log;
+  console.log = (...args: unknown[]) => { logged.push(args.map(String).join(' ')); };
+  let good;
+  try { good = await ask(); } finally { console.log = consoleLog; }
   assert.equal(good.status, 200);
   assert.deepEqual(good.body, { analysis: 'Fine.', suggestedTemplates: [] });
+  assert.equal(logged.length, 1, 'one log line per answered call');
+  const line = JSON.parse(logged[0]);
+  assert.equal(line.event, 'advisor_call');
+  assert.ok(Number.isFinite(line.ms) && line.ms >= 0);
+  assert.deepEqual([line.promptTokens, line.outputTokens, line.totalTokens, line.templates], [812, 140, 952, 0]);
+  assert.ok(!logged[0].includes('Hello') && !logged[0].includes('Fine.'), 'no prompt or reply text in the log');
   // A dataset question carries the matching rows and their sources to the model (audit PROD-15).
   let sent = '';
   globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
@@ -207,7 +221,7 @@ try {
   assert.equal(runContext(undefined), '', 'no run, no backtest section');
   const { relevantEdges } = await import('../src/server/edgeContext');
   assert.deepEqual(relevantEdges('How should I size my NFL underdog bets?'), [], 'a strategy question carries no dataset rows');
-  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; the open endpoints cap each client; advisor limits, lockout and reply validation hold; dataset questions carry their rows, and the run on screen reaches the model as numbers only.');
+  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; the open endpoints cap each client; advisor limits, lockout and reply validation hold, and an answered call logs its latency and tokens but no text; dataset questions carry their rows, and the run on screen reaches the model as numbers only.');
 } finally {
   for (const key of keys) {
     if (previous[key] === undefined) delete process.env[key];

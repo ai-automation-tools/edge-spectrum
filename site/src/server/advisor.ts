@@ -179,6 +179,7 @@ Please provide your analysis and suggest 1-2 alternative strategies or variation
   // Dataset questions get the matching rows (audit PROD-15); a strategy question usually matches none.
   const context = edgeContext(String(prompt));
 
+  const started = Date.now();
   const response = await getClient().models.generateContent({
     model: geminiModel(),
     contents: context ? `${modelPrompt}\n\n${context}` : modelPrompt,
@@ -226,5 +227,19 @@ Please provide your analysis and suggest 1-2 alternative strategies or variation
     },
   });
 
-  return parseAdvice(response.text ?? '');
+  const advice = parseAdvice(response.text ?? '');
+  // One line per answered call, for the function logs (audit AI-06): what it took and what it
+  // spent, never the question or the answer.
+  const u = response.usageMetadata;
+  console.log(JSON.stringify({
+    event: 'advisor_call',
+    model: geminiModel(),
+    ms: Date.now() - started,
+    promptTokens: u?.promptTokenCount ?? null,
+    outputTokens: u?.candidatesTokenCount ?? null,
+    totalTokens: u?.totalTokenCount ?? null,
+    templates: advice.suggestedTemplates?.length ?? 0,
+    datasetRows: Boolean(context),
+  }));
+  return advice;
 }
