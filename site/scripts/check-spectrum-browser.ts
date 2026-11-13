@@ -228,6 +228,10 @@ try {
   const csvRows = readFileSync((await download.path())!, 'utf8').trimEnd().split('\n').length - 1;
   const wagers = (JSON.parse(run) as { summary: { totalBets: number } }).summary.totalBets;
   check(csvRows === wagers, `the CSV has ${csvRows} rows for ${wagers} wagers`);
+  // PROD-13: the luck panel draws the fan and says in words what it shows, with the season split.
+  await a11y.getByText('How much was luck').waitFor({ timeout: 15_000 });
+  check(/nine times in ten/.test(await a11y.getByText(/reshuffles of these/).innerText()), 'the fan chart has no text summary');
+  check((await a11y.getByText(/\(out of sample\)/).count()) === 1, 'the walk-forward split is missing');
   // UX-06: 25 rows a page, newest first, and the sortable headers say how they are sorted.
   const rows = a11y.locator('table tbody tr');
   check((await rows.count()) === 25, `the game log shows ${await rows.count()} rows, not 25`);
@@ -323,4 +327,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager, the luck panel draws the fan and the season split. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');

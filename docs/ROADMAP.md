@@ -230,11 +230,11 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
    - **Feature:** Move `runBacktest()` execution from `/api/backtest` into a client-side Web Worker.
    - **Benefits:** Sub-millisecond iteration, offline execution, zero serverless compute consumption, and immunity to server timeout constraints.
 
-- [ ] 🟠 **Action 4.2 — Monte Carlo Equity Path Fan Chart**
+- [x] 🟠 **Action 4.2 — Monte Carlo Equity Path Fan Chart** — done 2026-11-12 (audit PROD-13): the engine resamples the run's wagers 1,000 times (seeded by the strategy) and returns the 5th to 95th percentile paths at 100 points and the share that bust; the backtester's "How much was luck" panel draws them with a text summary. `site/src/monteCarlo.ts`, held by `check:engine`.
    - **Feature:** Resample the wager sequence 1,000 times using bootstrap shuffling to render 5th, 25th, 50th, 75th, and 95th percentile equity paths.
    - **Purpose:** Illustrates path variance and demonstrates how identical edges can yield vastly different short-term outcomes.
 
-- [ ] 🟡 **Action 4.3 — Walk-Forward Strategy Validation**
+- [x] 🟡 **Action 4.3 — Walk-Forward Strategy Validation** — done 2026-11-12 (audit PROD-13): every run of two or more seasons is split by season, the first ~60% in sample and the rest out of sample, with bets, win rate and ROI per half and a line saying whether the ROI kept its sign. The strategies are fixed rules, so nothing is fitted; the split shows whether an edge seen early carried forward.
    - **Feature:** Provide automatic in-sample / out-of-sample partitioning (e.g. 2000–2015 parameter selection vs. 2016–2025 out-of-sample testing) to detect data mining and curve fitting.
 
 - [ ] 🟡 **Action 4.4 — Staking Strategy Grid & Vig Sensitivity Slider**

@@ -2,6 +2,21 @@
 
 ---
 
+## November 12, 2026 — How much was luck: a fan chart and a season split
+
+From the 2026-11-11 project audit's long-term list (PROD-13), roadmap Actions 4.2 and 4.3.
+
+- **A Monte Carlo fan under the equity curve.** The engine draws the run's own wagers 1,000 times in
+  random order (with replacement, seeded by the strategy so a run always draws the same fan) and
+  returns the 5th, 25th, 50th, 75th and 95th percentile paths and the share of paths that run out of
+  bankroll. The backtester's new **How much was luck** panel shades the 90% and 50% bands, draws the
+  median, and says in a sentence where nine in ten outcomes land.
+- **A walk-forward split.** Every run of two or more seasons is split by season, the first ~60% in
+  sample and the rest out of sample, with bets, win rate and ROI for each and a line saying whether
+  the ROI kept its sign.
+- The panel is its own `lazy()` chunk, so the backtester stays under the 500 kB chunk budget. The
+  largest run's response is 267 kB, under the 300 kB budget, and takes about 350 ms to compute.
+
 ## November 12, 2026 — Grade your bets against the close; sample prediction-market spreads
 
 From the 2026-11-11 project audit's long-term list (PROD-10, INT-10).
