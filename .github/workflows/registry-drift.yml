@@ -16,6 +16,9 @@ on:
 permissions:
   contents: read
 
+# No concurrency group: every preview deploy also fires deployment_status (the job skips it), and a
+# shared group would let that skipped run cancel or displace a production check.
+
 jobs:
   # Not `check`: that is the CI job's name, and a skipped job here must never stand in for it.
   live:
@@ -25,13 +28,14 @@ jobs:
       (github.event_name != 'deployment_status' ||
        (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'))
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 24
       - name: Hosted catalog matches site/public/registry/
         run: node site/scripts/check-registry-published.mjs
       - name: Live site answers and the demo is in demo mode
