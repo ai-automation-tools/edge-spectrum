@@ -173,7 +173,18 @@ try {
   const good = await ask();
   assert.equal(good.status, 200);
   assert.deepEqual(good.body, { analysis: 'Fine.', suggestedTemplates: [] });
-  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; advisor limits, lockout and reply validation hold.');
+  // A dataset question carries the matching rows and their sources to the model (audit PROD-15).
+  let sent = '';
+  globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+    sent = String(init?.body ?? '');
+    return gemini('{"analysis":"Double-zero roulette loses 5.26%."}')('');
+  }) as typeof fetch;
+  const roulette = await call(advisorHandler, { method: 'POST', headers: { cookie }, socket: {}, body: { prompt: 'How bad is roulette compared with keno?' } });
+  assert.equal(roulette.status, 200);
+  assert.ok(sent.includes('Roulette Double Zero') && sent.includes('Wizard of Odds') && sent.includes('Keno'), 'dataset rows and sources reach the model');
+  const { relevantEdges } = await import('../src/server/edgeContext');
+  assert.deepEqual(relevantEdges('How should I size my NFL underdog bets?'), [], 'a strategy question carries no dataset rows');
+  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; advisor limits, lockout and reply validation hold; dataset questions carry their rows.');
 } finally {
   for (const key of keys) {
     if (previous[key] === undefined) delete process.env[key];
