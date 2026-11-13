@@ -2,6 +2,23 @@
 
 ---
 
+## November 13, 2026 — Faster backtests, a Spectrum page that paints first
+
+Audit PERF-04 and PERF-06.
+
+- **Seasons are generated once** (PERF-04). `generateGamesDatabase` caches each sport-year: generation is
+  seeded, so a season never changes, and the backtester used to rebuild up to 26 of them per request. The
+  merged schedule sorts on its ISO date strings instead of parsing two `Date`s per comparison. MLB
+  2000–2025 went from a median of 93–116 ms to 33 ms over ten warm runs, and four full runs hash
+  identically before and after. With all 104 seasons cached the heap holds 17 MB more.
+- **The Spectrum page paints before Plotly arrives** (PERF-06). The 1.2 MB Plotly file loads with
+  `defer`, and the page draws its chart on `DOMContentLoaded`. With Plotly held back two seconds, first
+  paint went from 3.0 s to 0.34 s.
+- **The home strip stops when you scroll past it** (PERF-06). An `IntersectionObserver` pauses its
+  animation loop off screen and restarts it on return: 0 frames a second off screen, where it had been 61.
+
+---
+
 ## November 13, 2026 — Notices: advisor, third-party code, line backups
 
 Audit GOV-05, GOV-02 and OPS-13.
