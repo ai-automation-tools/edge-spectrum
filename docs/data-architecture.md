@@ -68,13 +68,15 @@ export const EDGES: readonly EdgeRecord[];
 
 ### Provenance fields (Action 2.3, built 2026-09-07; headline rows cited 2026-10-19)
 
-Every record may carry an optional citation. A minority do (the `withSource` count in `site/src/data/provenance-baseline.json`): the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
+Every record declares its `basis` and may carry a citation. A minority are cited (the coverage table in
+[`data/edge_dataset.md`](../data/edge_dataset.md)): the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
 Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
 rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old.
 
 ```typescript
 export type Provenance = {
+  basis: 'math' | 'published' | 'estimate'; // what evidence the figure needs (2026-11-12)
   source?: string;       // where the figure comes from, e.g. "FDIC National Rates and Rate Caps"
   asOf?: string;         // ISO date the figure was last checked against that source
   window?: string;       // the period it was computed over, e.g. "1928-2025"
@@ -134,10 +136,12 @@ asserts:
    has a finite edge, positive decisions per day, capital exposure in (0, 100], and, where a payout
    is given, a positive payout above the edge. The sign of the edge is not asserted: a few
    skilled-play rows (card counting, a sharp bettor) are positive on purpose.
-3. **The Provenance Ratchet:**
-   - Provenance metadata (`source`, `asOf`) tracked against a committed baseline (`site/src/data/provenance-baseline.json`).
-   - If a pull request adds or updates records, the total count of cited records cannot drop below the baseline.
-   - Any PR adding citations increments the baseline count, preventing future regressions.
+3. **The Provenance Ratchet (per category since 2026-11-12):**
+   - Every record declares a `basis`: `math`, `published` or `estimate`.
+   - `site/src/data/provenance-baseline.json` holds each category's record count and how many of them cite a `source`.
+     A category's cited count can never fall below it.
+   - `--write-baseline` records new counts, and refuses a new record anywhere while any category cites under
+     `MIN_CITED_SHARE` (50%) of its rows: the dataset freeze. Cite existing rows instead.
 
 ---
 
