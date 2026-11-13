@@ -54,7 +54,7 @@ stale until someone has re-read that code. Two of them change often for their ow
 
 | When | What catches it |
 |:---|:---|
-| **Every push and PR** | CI's *Diagram drift* step runs `--hook` and turns each finding into a warning annotation. It never fails the build |
+| **Every push and PR** | Nothing. CI dropped its warning step on 2026-11-12 (audit OPS-08): the weekly data edits kept it warning on almost every run, so nobody read it |
 | **Any time** | `node scripts/build-diagram.mjs --check` exits 1 and names the stale files |
 | **Weekly** | The repo owner's doc drift check runs `--check` on the local clone, and the org upkeep job rebuilds a stale diagram by PR |
 

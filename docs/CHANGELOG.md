@@ -2,6 +2,30 @@
 
 ---
 
+## November 12, 2026 — Every math row cited, and none of them ages
+
+From the 2026-11-11 project audit (PROD-07 steps 2 and 3, OPS-04, OPS-08).
+
+- All 59 `math` records now cite the rules they follow from and say how the figure is derived;
+  35 had no source. 85 of 240 records cite a source (was 50).
+- **Thirteen figures changed** to match their source. Parlays are now priced at true odds from
+  −110 legs, as online books and the `/parlay` calculator price them: 2 to 10 legs read −8.88,
+  −13.03, −16.98, −20.75, −24.36, −31.08 and −37.20% (the old values mixed fixed parlay-card
+  payouts with true odds). Blackjack 3:2 −0.43 and 6:5 −1.82 (Atlantic City rules), Pai Gow Poker
+  −2.51, Three Card Poker −3.37, Let It Ride −3.51, Caribbean Stud −5.22, Big Six −11.11 (the
+  $1 symbol), Keno 4-spot −25.94 and 10-spot −27.71 (Tropicana Atlantic City tables),
+  Powerball / Mega Millions −50 and Cash4Life −45 (prize-fund share of sales; Cash4Life ended
+  2026-02-21).
+- "Moneyline (Standard Juice)" is now "Pick'em Moneyline (−110)": only a pick'em is priced at −110
+  on both sides.
+- The Spectrum page no longer badges a `math` row **verify** once it carries a methodology: a
+  rule-derived figure does not age. `check:edges` requires a source and a methodology on every
+  `math` row, and `check:spectrum` fails if the page would badge one.
+- `docs/UPSTREAMS.md` quotes framework majors beside the registry's latest instead of patch ranges
+  Dependabot moved weekly (it still said zod 3).
+- CI drops the *Diagram drift* warning step: weekly data edits kept it warning on nearly every run.
+  The weekly `--check` and the org upkeep re-pin remain.
+
 ## November 12, 2026 — A per-category citation ratchet, and a dataset freeze
 
 From the 2026-11-11 project audit (PROD-07, PROD-08).

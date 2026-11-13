@@ -69,6 +69,8 @@ for (const r of EDGES) {
 // ── Basis, and the per-category citation ratchet and freeze ──
 for (const r of EDGES) {
   assert.ok(['math', 'published', 'estimate'].includes(r.basis), `${r.n}: basis must be math, published or estimate`);
+  // A math figure follows from rules someone publishes: name them and show the derivation (audit PROD-07).
+  if (r.basis === 'math') assert.ok(r.source && r.methodology, `${r.n}: a math row needs a source for its rules and a methodology`);
 }
 const now: Record<string, Coverage> = {};
 for (const c of EDGE_CATEGORIES) {
