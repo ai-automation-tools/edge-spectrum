@@ -14,6 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
 import { runBacktest } from '../src/dataGenerator';
 import { DEFAULT_STRATEGY } from '../src/strategyUrl';
+import { EDGES } from '../src/data/edges';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PORT = 4317;
@@ -87,7 +88,9 @@ try {
     await open(page, '?l=all&pin=' + encodeURIComponent(name));
     return page.locator('#insp .insp-meta .badge', { hasText: /^verify$/ }).count();
   };
-  check((await verifyBadge('Bitcoin Spot (Buy & Hold)')) === 1, 'an undated row shows no "verify" badge');
+  // Any undated row: a fixed name breaks once that row is cited.
+  const undated = EDGES.find(r => !r.asOf);
+  check(!!undated && (await verifyBadge(undated.n)) === 1, 'an undated row shows no "verify" badge');
   check((await verifyBadge('S&P 500 Index (SPY/VOO)')) === 0, 'a cited, dated row shows a "verify" badge');
 
   // ── 4. The theme switch redraws the chart in the other palette ─────────────

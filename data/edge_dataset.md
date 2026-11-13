@@ -26,25 +26,25 @@ data. One place computes them, one guard checks them.
 `published` is a rate, price, index or takeout someone publishes, `estimate` is a typical
 outcome no one publishes as one figure. **Cited** means the record names a `source`.
 `npm run check:edges` holds each category's cited count, and no record may be added while a
-category cites under 50% of its rows (bold below). **The dataset is frozen:** 8 of 15 categories are under it.
+category cites under 50% of its rows (bold below). **The dataset is frozen:** 4 of 15 categories are under it.
 
 | Category | Records | Cited | Share | math | published | estimate |
 |----------|--------:|------:|------:|-----:|----------:|---------:|
 | Stock Market | 32 | 29 | 91% | 0 | 29 | 3 |
-| Cash & Savings | 17 | 15 | 88% | 0 | 17 | 0 |
+| Cash & Savings | 17 | 17 | 100% | 0 | 17 | 0 |
 | Bonds | 17 | 17 | 100% | 0 | 17 | 0 |
-| Real Estate | 12 | 0 | **0%** | 0 | 6 | 6 |
-| Cryptocurrency | 13 | 0 | **0%** | 0 | 7 | 6 |
+| Real Estate | 12 | 6 | 50% | 0 | 6 | 6 |
+| Cryptocurrency | 13 | 7 | 54% | 0 | 7 | 6 |
 | Collectibles | 10 | 0 | **0%** | 0 | 0 | 10 |
 | Precious Metals | 12 | 11 | 92% | 0 | 11 | 1 |
-| Insurance & Annuities | 11 | 0 | **0%** | 0 | 2 | 9 |
-| Trading & Derivatives | 10 | 2 | **20%** | 0 | 5 | 5 |
+| Insurance & Annuities | 11 | 2 | **18%** | 0 | 2 | 9 |
+| Trading & Derivatives | 10 | 7 | 70% | 0 | 5 | 5 |
 | Sports Betting | 22 | 12 | 55% | 12 | 0 | 10 |
-| Horse Racing & Pari-Mutuel | 6 | 3 | 50% | 0 | 6 | 0 |
-| Casino Gambling | 44 | 43 | 98% | 42 | 1 | 1 |
+| Horse Racing & Pari-Mutuel | 6 | 6 | 100% | 0 | 6 | 0 |
+| Casino Gambling | 44 | 44 | 100% | 42 | 1 | 1 |
 | Poker & Skill-Based | 9 | 0 | **0%** | 0 | 0 | 9 |
 | Prediction Markets | 12 | 0 | **0%** | 0 | 0 | 12 |
-| Lottery | 13 | 5 | **38%** | 5 | 7 | 1 |
+| Lottery | 13 | 12 | 92% | 5 | 7 | 1 |
 
 ## Model reference
 
@@ -114,8 +114,8 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 4 | 6-Month CD | 4.4% | raw | published | ✓ |
 | 5 | High-Yield Money Market Account | 4.05% | raw | published | ✓ |
 | 6 | Cash Management Account (SoFi/Wealthfront) | 3.55% | raw | published | ✓ |
-| 7 | No-Penalty CD | 4.0% | raw | published |  |
-| 8 | 3-Month CD | 4.0% | raw | published |  |
+| 7 | No-Penalty CD | 4.46% | raw | published | ✓ |
+| 8 | 3-Month CD | 4.3% | raw | published | ✓ |
 | 9 | 2-Year CD | 4.8% | raw | published | ✓ |
 | 10 | 5-Year CD | 5.0% | raw | published | ✓ |
 | 11 | Bank Money Market (Traditional) | 0.63% | raw | published | ✓ |
@@ -160,18 +160,18 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | Multi-Unit Apartments (5+ Units) | 10.0% | raw | published |  |
-| 2 | Industrial / Warehouse | 9.0% | raw | published |  |
+| 1 | Multi-Unit Apartments (5+ Units) | 9.83% | raw | published | ✓ |
+| 2 | Industrial / Warehouse | 10.12% | raw | published | ✓ |
 | 3 | Multi Single Family Portfolio | 8.5% | raw | estimate |  |
-| 4 | Single Family Home (Buy & Hold) | 7.5% | raw | published |  |
-| 5 | Commercial Office Space | 6.5% | raw | published |  |
-| 6 | Retail / Strip Mall | 5.5% | raw | published |  |
+| 4 | Single Family Home (Buy & Hold) | 8.52% | raw | published | ✓ |
+| 5 | Commercial Office Space | 7.13% | raw | published | ✓ |
+| 6 | Retail / Strip Mall | 7.78% | raw | published | ✓ |
 | 7 | Vacation / Short-Term Rental | 4.0% | raw | estimate |  |
 | 8 | Raw Land (Speculative) | 2.0% | raw | estimate |  |
 | 9 | House Flipping (Retail Avg) | -5.0% | raw | estimate |  |
 | 10 | Timeshare | -12.0% | raw | estimate |  |
 | 11 | Rental Income After Ordinary Tax (37%) | 4.73% | tax | estimate |  |
-| 12 | Home Sale After LTCG (w/ $250K Exclusion) | 6.75% | tax | published |  |
+| 12 | Home Sale After LTCG (w/ $250K Exclusion) | 4.3% | tax | published | ✓ |
 
 ## 5. Cryptocurrency
 
@@ -181,19 +181,19 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | Bitcoin Spot (Buy & Hold) | 45.0% | raw | published |  |
-| 2 | Ethereum Spot (Buy & Hold) | 10.0% | raw | published |  |
+| 1 | Bitcoin Spot (Buy & Hold) | 58.58% | raw | published | ✓ |
+| 2 | Ethereum Spot (Buy & Hold) | 70.02% | raw | published | ✓ |
 | 3 | Stablecoin Yield Farming | 5.0% | raw | estimate |  |
 | 4 | DeFi LP Major Pairs | 2.0% | raw | estimate |  |
 | 5 | DeFi LP Volatile Pairs | -10.0% | raw | estimate |  |
 | 6 | Altcoin Portfolio (Retail) | -15.0% | raw | estimate |  |
 | 7 | Meme Coins (Retail Avg) | -70.0% | raw | estimate |  |
-| 8 | Staked Ethereum (ETH + Staking Yield) | 13.0% | raw | published |  |
+| 8 | Staked Ethereum (ETH + Staking Yield) | 72.35% | raw | published | ✓ |
 | 9 | Leveraged Perpetual Futures (Retail Avg) | -60.0% | raw | estimate |  |
-| 10 | Bitcoin Spot ETF After 0.25% Fee (IBIT) | 44.75% | fee | published |  |
-| 11 | Bitcoin After LTCG Tax (20%) | 36.0% | tax | published |  |
-| 12 | Bitcoin After STCG Tax (37%) | 28.35% | tax | published |  |
-| 13 | Ethereum After LTCG Tax (20%) | 8.0% | tax | published |  |
+| 10 | Bitcoin Spot ETF After 0.25% Fee (IBIT) | 58.33% | fee | published | ✓ |
+| 11 | Bitcoin After LTCG Tax (20%) | 46.86% | tax | published | ✓ |
+| 12 | Bitcoin After STCG Tax (37%) | 36.91% | tax | published | ✓ |
+| 13 | Ethereum After LTCG Tax (20%) | 56.02% | tax | published | ✓ |
 
 ## 6. Collectibles
 
@@ -245,8 +245,8 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Variable Annuity (Equity Sub-Accounts) | 5.0% | raw | estimate |  |
 | 2 | Indexed Universal Life (IUL) | 4.5% | raw | estimate |  |
-| 3 | Fixed Annuity (MYGA 5-Year) | 4.2% | raw | published |  |
-| 4 | Single Premium Immediate Annuity (SPIA) | 4.0% | raw | published |  |
+| 3 | Fixed Annuity (MYGA 5-Year) | 6.3% | raw | published | ✓ |
+| 4 | Single Premium Immediate Annuity (SPIA) | 4.92% | raw | published | ✓ |
 | 5 | Whole Life — Top Mutual Co. (NWM/MassMutual) | 3.5% | raw | estimate |  |
 | 6 | Fixed Indexed Annuity (FIA) | 3.5% | raw | estimate |  |
 | 7 | Universal Life (Current Rate) | 3.0% | raw | estimate |  |
@@ -263,15 +263,15 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | Covered Call ETF (JEPI/QYLD) | 7.0% | raw | published |  |
-| 2 | Systematic Put Writing (PUTW) | 6.0% | raw | published |  |
-| 3 | Managed Futures / Trend Following (DBMF) | 5.0% | raw | published |  |
-| 4 | 3x Leveraged Nasdaq Held (TQQQ) | 15.0% | raw | published |  |
+| 1 | Covered Call ETF (JEPI/QYLD) | 11.18% | raw | published | ✓ |
+| 2 | Systematic Put Writing (PUTW) | 7.1% | raw | published | ✓ |
+| 3 | Managed Futures / Trend Following (DBMF) | 9.79% | raw | published | ✓ |
+| 4 | 3x Leveraged Nasdaq Held (TQQQ) | 41.02% | raw | published | ✓ |
 | 5 | Retail Day Trading (Avg) | -15.0% | raw | estimate | ✓ |
 | 6 | Retail Options Buying (Avg) | -20.0% | raw | estimate |  |
 | 7 | Retail Forex / CFD Trading (Avg) | -25.0% | raw | estimate | ✓ |
 | 8 | 0DTE Options Buying (Retail) | -40.0% | raw | estimate |  |
-| 9 | Inverse / Short ETF Held (SQQQ) | -60.0% | raw | published |  |
+| 9 | Inverse / Short ETF Held (SQQQ) | -52.21% | raw | published | ✓ |
 
 ### Games — linear model
 
@@ -318,12 +318,12 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Horse Racing with 8% ADW Rebate | -12.0% | 3 | 2% | raw | published |  |
+| 1 | Horse Racing with 8% ADW Rebate | -10.5% | 3 | 2% | raw | published | ✓ |
 | 2 | Horse Racing Win / Place / Show | -17.0% | 3 | 2% | raw | published | ✓ |
 | 3 | Horse Racing Exacta / Daily Double | -20.0% | 2 | 2% | raw | published | ✓ |
-| 4 | Greyhound Racing | -20.0% | 3 | 2% | raw | published |  |
+| 4 | Greyhound Racing | -20.0% | 3 | 2% | raw | published | ✓ |
 | 5 | Horse Racing Trifecta / Superfecta | -25.0% | 2 | 1% | raw | published | ✓ |
-| 6 | Horse Racing Pick 4 / Pick 6 | -25.0% | 0.5 | 1% | raw | published |  |
+| 6 | Horse Racing Pick 4 / Pick 6 | -24.0% | 0.5 | 1% | raw | published | ✓ |
 
 ## 12. Casino Gambling
 
@@ -370,7 +370,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 35 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw | math | ✓ |
 | 36 | Caribbean Stud | -5.22% | 30 | 3% | raw | math | ✓ |
 | 37 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math | ✓ |
-| 38 | Slots Average 92% | -8.0% | 500 | 0.5% | raw | published |  |
+| 38 | Slots Average 92% | -7.13% | 500 | 0.5% | raw | published | ✓ |
 | 39 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math | ✓ |
 | 40 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
 | 41 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
@@ -425,14 +425,14 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Pull-Tab Tickets | -20.0% | 1 | 0.3% | raw | published |  |
-| 2 | $1 Scratch-Off Best Odds | -25.0% | 1 | 0.5% | raw | published |  |
+| 1 | Pull-Tab Tickets | -13.96% | 1 | 0.3% | raw | published | ✓ |
+| 2 | $1 Scratch-Off Best Odds | -40.0% | 1 | 0.5% | raw | published | ✓ |
 | 3 | Bingo Hall Session | -25.0% | 0.5 | 1% | raw | estimate |  |
-| 4 | Premium Scratch-Off $20+ | -30.0% | 0.5 | 1% | raw | published |  |
-| 5 | Scratch-Off Tickets Avg | -35.0% | 0.5 | 0.5% | raw | published |  |
-| 6 | Keno State-Run | -40.0% | 2 | 0.5% | raw | published |  |
-| 7 | Daily Numbers Game | -42.0% | 1 | 0.5% | raw | published |  |
-| 8 | State Pick 6 / Lotto | -45.0% | 0.15 | 0.1% | raw | published |  |
+| 4 | Premium Scratch-Off $20+ | -20.0% | 0.5 | 1% | raw | published | ✓ |
+| 5 | Scratch-Off Tickets Avg | -23.93% | 0.5 | 0.5% | raw | published | ✓ |
+| 6 | Keno State-Run | -30.84% | 2 | 0.5% | raw | published | ✓ |
+| 7 | Daily Numbers Game | -43.23% | 1 | 0.5% | raw | published | ✓ |
+| 8 | State Pick 6 / Lotto | -50.0% | 0.15 | 0.1% | raw | published | ✓ |
 | 9 | State Lottery Pick 3/4 | -50.0% | 0.5 | 0.3% | raw | math | ✓ |
 | 10 | EuroMillions | -50.0% | 0.1 | 0.1% | raw | math | ✓ |
 | 11 | Charity 50/50 Raffle | -50.0% | 0.05 | 0.5% | raw | math | ✓ |
