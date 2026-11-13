@@ -84,6 +84,18 @@ for (const sideSelection of ['favorites', 'underdogs'] as const) {
   const bytes = JSON.stringify(big).length;
   assert.ok(bytes <= 300_000, `largest response is ${bytes} bytes, budget 300,000`);
 
+  // Monte Carlo fan (roadmap 4.2): seeded, ordered percentiles, centred on the run's own result.
+  const { fan, walkForward: wf } = big;
+  assert.equal(fan.paths, 1000);
+  assert.deepEqual(runBacktest({ ...base, sport: 'MLB', sideSelection: 'home', startingBankroll: 10_000_000 }).fan, fan, 'the fan is not seeded');
+  for (const p of fan.points) assert.ok(p.p5 <= p.p25 && p.p25 <= p.p50 && p.p50 <= p.p75 && p.p75 <= p.p95, `fan out of order at ${p.index}`);
+  const end = fan.points.at(-1)!;
+  assert.equal(end.index, summary.totalBets);
+  assert.ok(Math.abs(end.p50 - summary.netProfit) < 0.2 * (end.p95 - end.p5), `fan median ${end.p50} far from the run's ${summary.netProfit}`);
+  // Walk-forward (roadmap 4.3): the halves cover the run, split by season.
+  assert.ok(wf && wf.inSample.toYear + 1 === wf.outOfSample.fromYear && wf.inSample.bets + wf.outOfSample.bets === summary.totalBets);
+  assert.equal(runBacktest({ ...base, startYear: 2010, endYear: 2010 }).walkForward, null, 'one season has no split');
+
   // The CSV download: one row per wager, the same run the server summarised, ending on its bankroll (PROD-06).
   const strategy = { ...base, sport: 'MLB', sideSelection: 'home', startingBankroll: 10_000_000 } as Strategy;
   const csv = ledgerCsv(runBacktest(strategy, Infinity).gamesPreview).trimEnd().split('\n');

@@ -1,6 +1,7 @@
 import { Game, SportType, Strategy, BacktestResponse, SimulatedBetGame, ProfitHistoryPoint, BacktestSummary, BetType, SideSelectionType } from './types.js';
 import { breakevenRate, wilsonInterval, binomialUpperTail } from './stats.js';
 import { americanToDecimal } from './odds.js';
+import { fanChart, walkForward } from './monteCarlo.js';
 
 // Deterministic seedable random number generator (LCG or Jenkins-style)
 // This guarantees that backtests are identical and stable across runs
@@ -900,6 +901,9 @@ export function runBacktest(strategy: Strategy, ledgerLimit = LEDGER_PREVIEW_LIM
   return {
     summary,
     profitHistory: sampleHistory(profitHistory),
+    // Seeded by the strategy, so the same run always draws the same fan (audit PROD-13).
+    fan: fanChart(simulatedGames.map((g) => g.netResult), strategy.startingBankroll, strategy.unitSize, seedRandom(`fan-${JSON.stringify(strategy)}`)),
+    walkForward: walkForward(simulatedGames, strategy.startYear, strategy.endYear),
     gamesPreview: simulatedGames.slice(-ledgerLimit),
     previewLimit: ledgerLimit,
     totalGames: simulatedGames.length,
