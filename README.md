@@ -132,11 +132,11 @@ edge-spectrum/
 │   │   ├── pages/
 │   │   │   └── Home.tsx   # Landing page (dashboard tile grid mapping over tools.ts)
 │   │   ├── server/        # Shared backend engines (backtest, ESPN score, Gemini prompt engines)
-│   │   ├── data/edges.ts  # The Dataset — SINGLE SOURCE OF TRUTH for all 240 edge records
+│   │   ├── data/edges.ts  # The Dataset — SINGLE SOURCE OF TRUTH for every edge record
 │   │   ├── App.tsx        # Main router shell & top-nav bar
 │   │   ├── main.tsx       # React bootstrap
 │   │   └── tools.ts       # The Registry — SINGLE SOURCE OF TRUTH for all tools
-│   ├── scripts/           # Guards & generators (check:market, check:engine, check:edges, check:spectrum, check:odds, check:stats, check:strategy-url, gen:edges)
+│   ├── scripts/           # Guards & generators (the checks `npm run verify` runs; see docs/README.md)
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
@@ -191,10 +191,10 @@ The default demo needs no API key. For full mode, fill in the variables document
 in the [setup guide](docs/self-hosting.md); the passcode and the signing secret are both required. Never commit your `.env` file.
 
 ```sh
-npm run lint
-npm run check:deployment
-npm run build
+npm run verify   # every check CI runs, in order; the first run needs `npx playwright install chromium`
 ```
+
+What each check holds is listed in [docs/README.md](docs/README.md#-testing--validation-invariants).
 
 ---
 
