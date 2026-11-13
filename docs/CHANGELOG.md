@@ -2,6 +2,33 @@
 
 ---
 
+## November 12, 2026 — 20 more rows sourced; prediction markets priced with measured spreads
+
+From the 2026-11-11 project audit (PROD-07, INT-10). 218 of 239 records now cite a source (was 198);
+27 figures moved.
+
+- **20 `estimate` rows found a published figure** and are `published` now:
+  - **Stock market:** stock picking 8.22 (the S&P 500 less Barber & Odean's 1.8-point gap; was −2,
+    which read as an absolute loss the study does not show), penny stocks −30 → −3.7 (Ang, Shtauber &
+    Tetlock), the S&P 500 after 2-and-20 4.0 → 6.42.
+  - **Real estate and coins:** single-family portfolio 8.6 (Nareit), raw land 2.0 → 3.7 (USDA), house
+    flipping −5 → −9.8 (ATTOM, at the midpoint of its quoted costs), timeshare −12 → −10 (ARDA), rental
+    income after tax 4.73 → 3.36 (Jordà et al.), numismatic coins 1.5 → 1.4 (PCGS3000).
+  - **Crypto:** stablecoin yield 5.0 → 4.47 (DefiLlama).
+  - **Sports betting:** 2-team teaser −5 → −14 (Wizard of Odds), live betting −6.5 → −7.9, season win
+    totals −8 → −4.32 and championship futures −12 → −17.6 (DraftKings boards), SGP −15 → −14
+    (Colorado, all parlays), first touchdown −18 → −38.5 (Action Network), correct score −20 → −10.7
+    (Reade et al.); the +2% CLV bettor (Buchdahl) and offshore binary options (ESMA) keep their figures.
+  - **Bingo:** −25 → −23.88 (Minnesota).
+- **Prediction markets now include the spread.** `npm run sample:spreads` measured each row's markets
+  near 50c, weighted by 24-hour volume. Kalshi rows were fee-only and become −4.28 (weather) to −9.79
+  (GDP); Polymarket rows swap the one published spread for their own category's: elections −3.03,
+  geopolitics −1.59, Oscars −5.01. SCOTUS keeps the published spread: only two of its markets traded.
+- **Still estimates (21):** rows where nothing publishes a figure that means the same thing: player
+  props, micro-bets, the DeFi LP pairs, altcoins, meme coins, perps, options buying, short-term rentals,
+  four poker rows, four collectibles, three insurance rows and two others. Each is listed in the
+  coverage table of `data/edge_dataset.md`.
+
 ## November 12, 2026 — How much was luck: a fan chart and a season split
 
 From the 2026-11-11 project audit's long-term list (PROD-13), roadmap Actions 4.2 and 4.3.
