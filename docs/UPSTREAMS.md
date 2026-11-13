@@ -47,7 +47,8 @@ exact ranges are in `site/package.json`. *Latest* is the npm registry's on the *
 | Tailwind CSS, @tailwindcss/vite | 4, 4 | 4, 4 | github.com/tailwindlabs/tailwindcss/releases | 2026-11-12 |
 | TypeScript | 7.0 (`~`, minor pinned) | 7 | devblogs.microsoft.com/typescript | 2026-11-12 |
 | @google/genai | 3 | 3 | github.com/googleapis/js-genai/releases | 2026-11-12 |
-| motion | 12 | 14 (roadmap Action 2.14) | github.com/motiondivision/motion/releases | 2026-11-12 |
+| motion | 14 | 14 | github.com/motiondivision/motion/releases | 2026-11-12 |
+| lucide-react, dotenv | 1, 18 | 1, 18 | github.com/lucide-icons/lucide/releases, github.com/motdotla/dotenv/releases | 2026-11-12 |
 | express (local dev server only) | 5 | 5 | github.com/expressjs/express/releases | 2026-11-12 |
 | zod, recharts, react-markdown | 4, 3, 10 | 4, 3, 10 | each package's GitHub releases | 2026-11-12 |
 
