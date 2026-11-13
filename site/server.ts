@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { readFileSync } from 'node:fs';
-import { createServer as createViteServer } from 'vite';
 import { backtestRoute } from './src/server/backtest';
 import { espnScoreboardRoute } from './src/server/espn';
 import { advisorRoute } from './src/server/advisor';
@@ -56,6 +55,14 @@ app.post('/api/strategy-advisor', async (req, res) => {
 // Start Express Server / Connect Vite middleware
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    // The built bundle (dist/server.cjs) would otherwise start Vite's dev server in production,
+    // skipping the built shell and the Secure flag on the advisor cookie (audit SEC-10).
+    if (/\.cjs$/.test(process.argv[1] ?? '')) {
+      console.error('dist/server.cjs is the production build: set NODE_ENV=production, or use `npm run dev`.');
+      process.exit(1);
+    }
+    // Loaded only here, so production start-up never needs vite installed (audit ARCH-10).
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',

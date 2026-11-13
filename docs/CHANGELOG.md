@@ -2,6 +2,25 @@
 
 ---
 
+## November 13, 2026 — Six small fixes from the audit's last tier
+
+- **Money reads as money** (UX-24). One `money()` helper in `components/ui.tsx` formats every dollar figure
+  on the results card, the equity-chart tooltip and the games table: two decimals and the minus before the
+  `$`. Before, the end bankroll could read `$8,116.4` and a loss `$-55`.
+- **Borders that were white** (UX-15). `zinc-850` and `zinc-750` aren't Tailwind colours, so those borders
+  fell back to the text colour. They're now `zinc-800` and `zinc-700`.
+- **Mobile menu** (UX-17). Escape closes it and puts focus back on the menu button. The sheet is opaque, sits
+  inside a `<nav>` and starts with Home.
+- **Production start-up** (ARCH-10, SEC-10). `server.ts` loads Vite only in development, and `vite` and its
+  two plugins moved to `devDependencies`, so the built server runs without them. `dist/server.cjs` started
+  without `NODE_ENV=production` now exits with a one-line hint instead of running Vite's dev server.
+- **Theme scripts held together** (ARCH-08). `check:spectrum` asserts both pre-paint scripts use the key and
+  dark fallback exported by `src/theme.ts`.
+- **Not done: UX-21.** First visits stay dark rather than following the OS setting, as `theme.ts` already
+  records and the org's house style specifies.
+
+---
+
 ## November 13, 2026 — Content-Security-Policy enforced
 
 The full policy had shipped report-only on November 12; `site/vercel.json` now enforces it.

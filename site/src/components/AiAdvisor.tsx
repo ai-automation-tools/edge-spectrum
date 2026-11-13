@@ -352,7 +352,7 @@ What strategy concept would you like to build? You can outline rules in natural 
         {/* Loading Bubble */}
         {isGenerating && (
           <div className="flex flex-col items-start max-w-[90%]">
-            <div className="bg-zinc-900 border border-zinc-850 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-3">
+            <div className="bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-3">
               <div className="flex gap-1.5 justify-center py-1">
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '0ms' }}></span>
                 <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
@@ -366,14 +366,14 @@ What strategy concept would you like to build? You can outline rules in natural 
 
       {/* Suggested Starters (Only shown when chat is starting/short) */}
       {messages.length < 3 && !isGenerating && (
-        <div className="p-3 bg-zinc-950 border-t border-zinc-850 flex flex-col gap-1.5">
+        <div className="p-3 bg-zinc-950 border-t border-zinc-800 flex flex-col gap-1.5">
           <span className="text-[9px] uppercase font-bold text-zinc-500 tracking-wider">Diagnostic Starters</span>
           <div className="flex flex-wrap gap-1.5">
             {COMMON_PROMPTS.map((p, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSendMessage(p)}
-                className="px-2.5 py-1 text-[10px] text-zinc-400 bg-zinc-900 border border-zinc-850 hover:border-zinc-750 hover:text-zinc-200 rounded-lg transition-all flex items-center gap-1 text-left"
+                className="px-2.5 py-1 text-[10px] text-zinc-400 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:text-zinc-200 rounded-lg transition-all flex items-center gap-1 text-left"
               >
                 <span>{p}</span>
                 <ArrowUpRight className="w-2.5 h-2.5 shrink-0" />
@@ -389,7 +389,7 @@ What strategy concept would you like to build? You can outline rules in natural 
           e.preventDefault();
           handleSendMessage(inputValue);
         }}
-        className="p-3 bg-zinc-950 border-t border-zinc-850 flex items-center gap-2"
+        className="p-3 bg-zinc-950 border-t border-zinc-800 flex items-center gap-2"
       >
         <input
           type="text"

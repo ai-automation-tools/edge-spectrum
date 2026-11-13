@@ -16,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { EDGE_CATEGORIES } from '../src/data/edges';
+import { DEFAULT_THEME, THEME_KEY } from '../src/theme';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PAGE = resolve(HERE, '../public/spectrum/index.html');
@@ -215,6 +216,13 @@ for (const r of RAW.filter((x) => x.src && !(x.asOf && Number.isFinite(Date.pars
   fail(`${r.n}: cites a source but has no valid asOf date, so the page would flag it forever`);
 }
 const staleToday = RAW.filter((r) => isStale(r, Date.now())).length;
+
+// ── 10. Both pre-paint theme scripts match src/theme.ts (audit ARCH-08) ──────
+// Each page stamps the theme before React loads; a drifted key or fallback flashes the wrong theme.
+for (const [name, page] of [['index.html', readFileSync(resolve(HERE, '../index.html'), 'utf8')], ['public/spectrum/index.html', html]]) {
+  if (!page.includes(`localStorage.getItem('${THEME_KEY}')`)) fail(`${name}: pre-paint script does not read the ${THEME_KEY} key from src/theme.ts`);
+  if (!page.includes(`var t = '${DEFAULT_THEME}';`)) fail(`${name}: pre-paint fallback is not DEFAULT_THEME ('${DEFAULT_THEME}') from src/theme.ts`);
+}
 
 console.log(`Spectrum check — ${RAW.length} records, ${HZ.length} horizons, read live from the page`);
 console.log(`  return on capital       worst ${worstROC.toFixed(2)}%  (floor ${RUIN_FLOOR}%)`);

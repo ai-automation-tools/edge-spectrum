@@ -15,6 +15,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
   const navRef = useRef<HTMLElement>(null);
   const [ind, setInd] = useState<{ left: number; width: number; on: boolean }>({ left: 0, width: 0, on: false });
   const [open, setOpen] = useState(false);
+  const menuBtn = useRef<HTMLButtonElement>(null);
 
   const items = [
     ...TOOLS.map((t) => ({ key: t.slug, label: t.title.split(' ')[0] === 'The' ? 'Spectrum' : t.title.split(/ &| and /)[0].replace(' Simulator', '').replace(' Converter', ''), href: t.href, kind: t.kind })),
@@ -36,6 +37,14 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
   }, [activeKey]);
 
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  // Escape closes the sheet and hands focus back to the button that opened it (audit UX-17).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(false); menuBtn.current?.focus(); } };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  }, [open]);
 
   const linkCls = (active: boolean) =>
     `relative rounded-md px-[11px] py-1.5 text-[13.5px] transition-colors ${active ? 'text-zinc-100' : 'text-zinc-400 hover:text-zinc-100'}`;
@@ -77,6 +86,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
           </a>
           <ThemeToggle />
           <button
+            ref={menuBtn}
             type="button"
             onClick={() => setOpen((o) => !o)}
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700/80 text-zinc-300 md:hidden"
@@ -88,7 +98,8 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
         </div>
       </div>
       {open && (
-        <div className="border-b border-zinc-800/70 bg-(--bg-2)/95 md:hidden">
+        <nav aria-label="Menu" className="border-b border-zinc-800/70 bg-(--bg-2) md:hidden">
+          <Link to="/" aria-current={pathname === '/' ? 'page' : undefined} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">Home</Link>
           {items.map((i) =>
             i.kind === 'route' ? (
               <Link key={i.key} to={i.href} aria-current={activeKey === i.key ? 'page' : undefined} className="block border-t border-zinc-800/50 px-5 py-3 text-[15px] text-zinc-200">{i.label}</Link>
@@ -97,7 +108,7 @@ export default function Topbar({ onPalette }: { onPalette: () => void }) {
             ),
           )}
           <button type="button" onClick={() => { setOpen(false); onPalette(); }} className="block w-full border-t border-zinc-800/50 px-5 py-3 text-left text-[15px] text-zinc-200">Jump to…</button>
-        </div>
+        </nav>
       )}
     </header>
   );

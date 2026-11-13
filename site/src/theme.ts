@@ -11,8 +11,8 @@ export const THEME_KEY = 'edge-spectrum.theme';
 /**
  * The hub shipped dark-only, so dark stays the default for anyone who never clicks the
  * switch; the OS preference is deliberately not followed. The pre-paint scripts in
- * index.html and public/spectrum/index.html hard-code the same fallback — change all
- * three together or the first frame disagrees with the app.
+ * index.html and public/spectrum/index.html hard-code the same key and fallback;
+ * `check:spectrum` fails if either drifts from the values here.
  */
 export const DEFAULT_THEME: Theme = 'dark';
 

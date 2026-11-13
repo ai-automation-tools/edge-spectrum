@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SimulatedBetGame } from '../types';
 import { CheckCircle2, XCircle, Slash, Info, Download } from 'lucide-react';
+import { money } from './ui';
 
 interface GamesTableProps {
   /** The truncated tail of the ledger — `gamesPreview` from the API. */
@@ -105,7 +106,7 @@ export default function GamesTable({ games, totalGames, previewLimit, onDownload
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-850 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider font-mono">
+              <tr className="border-b border-zinc-800 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider font-mono">
                 {th('date')}
                 <th className="py-2.5 px-3">Sport</th>
                 <th className="py-2.5 px-3">Matchup</th>
@@ -123,7 +124,7 @@ export default function GamesTable({ games, totalGames, previewLimit, onDownload
                 return (
                   <tr
                     key={g.id}
-                    className="border-b border-zinc-850/60 hover:bg-zinc-950/30 transition-colors duration-150 text-xs text-zinc-300 font-medium font-sans"
+                    className="border-b border-zinc-800/60 hover:bg-zinc-950/30 transition-colors duration-150 text-xs text-zinc-300 font-medium font-sans"
                   >
                     {/* Date */}
                     <td className="py-3 px-3 font-mono text-[11px] text-zinc-400">
@@ -154,15 +155,15 @@ export default function GamesTable({ games, totalGames, previewLimit, onDownload
 
                     {/* Stake / Return */}
                     <td className="py-3 px-3 text-right font-mono text-[11px]">
-                      <div>${g.stake.toLocaleString()}</div>
-                      <div className="text-[9px] text-zinc-500">${g.returnVal.toLocaleString()} ret</div>
+                      <div>{money(g.stake)}</div>
+                      <div className="text-[9px] text-zinc-500">{money(g.returnVal)} ret</div>
                     </td>
 
                     {/* Net Result */}
                     <td className={`py-3 px-3 text-right font-mono font-bold text-[11px] ${
                       isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-zinc-400'
                     }`}>
-                      {g.netResult > 0 ? '+' : ''}${g.netResult.toLocaleString()}
+                      {money(g.netResult, true)}
                     </td>
 
                     {/* Status Badge */}
@@ -205,7 +206,7 @@ export default function GamesTable({ games, totalGames, previewLimit, onDownload
           </span>
         </nav>
       )}
-      <div className="flex items-center gap-1.5 p-3.5 bg-zinc-950 border border-zinc-850 rounded-xl mt-1 text-[11px] text-zinc-400 leading-normal">
+      <div className="flex items-center gap-1.5 p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl mt-1 text-[11px] text-zinc-400 leading-normal">
         <Info className="w-3.5 h-3.5 text-sky-400 shrink-0" />
         <span>
           {truncated ? (
