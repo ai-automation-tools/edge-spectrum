@@ -26,6 +26,21 @@ const ORG_URL = original ? ORIGINAL_ORG_URL : '';
 process.env.VITE_SITE_URL = SITE_URL;
 process.env.VITE_ORG_URL = ORG_URL;
 
+/**
+ * The commit this build is from, for `<meta name="build">` (org site upkeep: the surface-drift check
+ * compares it with main). Vercel names it in the build env; elsewhere git does; neither, no stamp.
+ */
+function buildSha(): string {
+  let sha = process.env.VERCEL_GIT_COMMIT_SHA ?? '';
+  if (!sha) {
+    try { sha = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* no git */ }
+  }
+  return /^[0-9a-f]{7,40}$/.test(sha) ? sha : '';
+}
+const BUILD_SHA = buildSha();
+const stamp = (html: string) =>
+  BUILD_SHA ? html.replace('<meta charset="UTF-8" />', `$&\n    <meta name="build" content="${BUILD_SHA}" />`) : html;
+
 /** Point a page at this build's own site, or drop the lines that would point at the original. */
 function retarget(text: string): string {
   const drop = (needle: string) => text.split('\n').filter((line) => !line.includes(needle)).join('\n');
@@ -40,7 +55,7 @@ function siteUrls(): Plugin {
   return {
     name: 'edge-spectrum-site-urls',
     configResolved: (c) => { outDir = c.build.outDir; },
-    transformIndexHtml: retarget,
+    transformIndexHtml: (html) => stamp(retarget(html)),
     closeBundle() {
       for (const f of ['spectrum/index.html', 'robots.txt', 'sitemap.xml']) {
         const p = join(outDir, f);

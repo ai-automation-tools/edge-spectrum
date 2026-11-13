@@ -26,6 +26,7 @@ const dist = join(ROOT, 'dist');
 check(read(dist, 'index.html').includes(`<link rel="canonical" href="${ORIGINAL_SITE_URL}/"`), 'the original build lost its canonical URL');
 check(read(dist, 'index.html').includes(`${ORIGINAL_ORG_URL}/consent.js`), 'the original build lost the consent script');
 check(read(dist, 'sitemap.xml').includes(`<loc>${ORIGINAL_SITE_URL}/backtester</loc>`), 'the original build lost its sitemap');
+check(/<meta name="build" content="[0-9a-f]{7,40}" \/>/.test(read(dist, 'index.html')), 'the build lost its <meta name="build"> commit stamp');
 
 function forkBuild(name: string, siteUrl?: string): string {
   const out = join(ROOT, 'node_modules/.cache/fork-check', name);

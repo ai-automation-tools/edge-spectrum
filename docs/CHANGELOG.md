@@ -2,6 +2,19 @@
 
 ---
 
+## November 13, 2026 — Build stamp and a roadmap link
+
+Two items from the org's site-upkeep list.
+
+- **Build stamp.** `index.html` carries `<meta name="build" content="<commit>">`, written by `vite.config.ts`
+  from `VERCEL_GIT_COMMIT_SHA`, or from `git rev-parse HEAD` off Vercel. A build with neither gets no stamp
+  rather than a wrong one. The org's surface-drift check compares the stamp with `main`, and `check:fork`
+  fails a build that loses it.
+- **Roadmap link.** The home page's "Read on" card links `docs/ROADMAP.md` after the change log. Before,
+  the ⌘K palette was the only way to reach it.
+
+---
+
 ## November 13, 2026 — Market-close capture and digest delivery
 
 Audit INT-08 and roadmap Action 5.3.
