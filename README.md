@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://edge-spectrum.ai-automation-tools.dev">
-    <img src="images/Betting-Spectrum-Images/logos/dark/landscape-01-edge-gradient.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
+    <img src="images/logo.svg" alt="Edge Spectrum - Expected Returns & Backtesting" width="720">
   </a>
 </p>
 
@@ -175,11 +175,11 @@ edge-spectrum/
 │   ├── server.ts          # Express local dev server (proxies/runs Vite + serverless local engines)
 │   ├── package.json       # Scripts & node dependencies
 │   └── vercel.json        # Vercel configuration (SPA routing overrides & API serverless mappings)
-├── docs/                  # In-depth logs, standardized analysis, and future ideas
+├── docs/                  # Roadmap, changelog, methodology, data and API references
 │   └── diagrams/          # Code-pinned Archify diagram of the hub (shown on the homepage)
 ├── scripts/               # build-diagram.mjs: builds and drift-checks docs/diagrams/ (docs tooling, not shipped)
-├── data/                  # edge_dataset.md (generated from edges.ts) + frozen legacy catalogs
-└── images/                # Logos, icons, screenshots, and favicon.svg (archived copy of the app icon)
+├── data/                  # edge_dataset.md (generated from edges.ts) + edge_analysis12.md, the frozen V12 catalog
+└── images/                # logo.svg, the README banner
 ```
 
 > **Note:** everything the site needs lives under `site/`; the repo root holds only docs, archives and

@@ -25,7 +25,7 @@
 | [**🔌 API Reference**](api.md) | The five method and path pairs under `/api/`: body, response, status codes, auth and cache headers. | Serverless API |
 | [**🤝 Contributing**](../CONTRIBUTING.md) | Ground rules, changing the dataset, the checks, and which paths the maintainer reviews. | All Hub Tools |
 | [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 15 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
-| [**💡 Planning & Ideas**](ideas/README.md) | Over-engineering audits, hub improvement records, and visualizer feature backlogs. | Research & Audits |
+| [**💡 Hub Improvement Plan**](ideas/hub_improvement_plan.md) | Archived 2026-08 review: the evidence behind the early fixes, and the ideas never scheduled. | Archive |
 | [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
 
 ---

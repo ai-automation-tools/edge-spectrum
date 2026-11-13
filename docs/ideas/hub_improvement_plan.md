@@ -4,7 +4,15 @@
 **Scope:** Full review of the `edge-spectrum` repo, the `site/` app, and the two live tools
 (The Edge Spectrum viz + the Backtest Simulator).
 **Companion docs:** [ROADMAP.md](../ROADMAP.md) (phased milestones) ·
-[improvement_ideas.md](improvement_ideas.md) (Spectrum viz feature backlog)
+[CHANGELOG.md](../CHANGELOG.md) (what shipped)
+
+> [!NOTE]
+> **Archived 2026-11-13 (audit PROD-18).** This is the one note left in `docs/ideas/`, kept for the
+> evidence and reasoning behind the fixes it records; code and docs link its sections. Its ✅ / ⬜
+> marks are as of the dates they carry, not live status. Open work lives in
+> [ROADMAP.md](../ROADMAP.md). The ideas no one scheduled are listed at the
+> [end](#ideas-never-scheduled). The complexity audit and the visualizer backlog that sat beside
+> this file were deleted, since every finding in them is done or listed below. Git history keeps them.
 
 **Status Key:** 🔴 Critical · 🟠 High · 🟡 Medium · ✨ Feature · ✅ Done
 
@@ -603,3 +611,24 @@ The architecture is genuinely good — the `tools.ts` registry with shared `src/
 bridging Express and Vercel is clean, and adding a tool really is one entry plus one page. The
 bottleneck was not structure; it was that the flagship tool's numbers were wrong. With section 1
 fixed, the hub is ready to grow.
+
+---
+
+## Ideas never scheduled
+
+Added 2026-11-13 when the rest of `docs/ideas/` was retired. None of these is planned, and none is on the
+roadmap. They're kept here so they aren't lost. A future item that picks one up gets a roadmap line of its own.
+
+- **Backtester:** the sample size a run would need to reach significance (section 4.1); a vig sensitivity
+  slider (−110 → −115); a splits heatmap by season, month, weekday and favourite size; a count of the
+  filter variants tried in a session, to go with the multiple-testing caveat.
+- **Spectrum page** (from the retired visualizer backlog, which numbered 29 ideas; 15 shipped):
+  a variance overlay or scatter view; a range per bar (box-and-whisker) instead of one expected value;
+  perceived edge beside the real one; a parlay-hold deep dive; time-to-double and time-to-zero at a
+  chosen stake; famous bets and investor quotes per tier; a breakeven-skill percentile for skill
+  activities; the house edge as a yearly cost at a realistic activity level; share images.
+- **Gated on a real odds feed:** an EV, arbitrage and middle finder.
+
+The rest of that backlog shipped or is on the roadmap: the Monte Carlo fan chart and walk-forward split
+(Phase 4), the Kelly calculator (`/kelly`), Spectrum's side-by-side compare, the Personal Edge Audit and
+the quiz.

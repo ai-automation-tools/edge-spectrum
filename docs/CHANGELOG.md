@@ -2,6 +2,28 @@
 
 ---
 
+## November 13, 2026 — Archive cleanup
+
+Files nobody reads, cut down to the ones something links (audit PROD-18, PROD-19, PROD-20, DOC-12).
+
+- **`images/`** is one file, `logo.svg`, the README banner, moved there from
+  `Betting-Spectrum-Images/logos/dark/`. Gone: the five other logo and six icon variants with their
+  preview page, three screenshots of retired themes, and `images/favicon.svg`, which the docs called an
+  archived copy of the app icon but which no longer matched `site/public/favicon.svg`.
+- **`data/`** keeps `edge_dataset.md` and `edge_analysis12.md`, the frozen V12 catalog that
+  `edge_dataset.md` and `data-architecture.md` cite. `edge_analysis9.md` to `11.md` and the eight files in
+  `data/Legacy/` are deleted; git history keeps them. `gen:edges --check` still passes.
+- **`docs/ideas/`** keeps only `hub_improvement_plan.md`, now marked archived, because code, docs and
+  skills link its sections. The complexity audit (every finding done) and the visualizer backlog are
+  deleted, and the ideas no one scheduled are listed at the end of the plan, so no open item lives
+  only in a deleted file.
+- **Roadmap.** Action 2.5's stale "25 seasons" residual is closed, and 5.2a's 🟢, which isn't in the
+  legend, is now 🟡.
+- **DOC-02 and DOC-05 needed nothing:** the badges already name majors only, and Gemini's is the SDK
+  major, not an API version.
+
+---
+
 ## November 13, 2026 — Six small fixes from the audit's last tier
 
 - **Money reads as money** (UX-24). One `money()` helper in `components/ui.tsx` formats every dollar figure
