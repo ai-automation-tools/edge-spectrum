@@ -1,5 +1,6 @@
 import { Game, SportType, Strategy, BacktestResponse, SimulatedBetGame, ProfitHistoryPoint, BacktestSummary, BetType, SideSelectionType } from './types.js';
 import { breakevenRate, wilsonInterval, binomialUpperTail } from './stats.js';
+import { americanToDecimal } from './odds.js';
 
 // Deterministic seedable random number generator (LCG or Jenkins-style)
 // This guarantees that backtests are identical and stable across runs
@@ -651,9 +652,6 @@ export function generateGamesDatabase(sport: SportType, year: number): Game[] {
       awaySpreadOdds: market.awaySpreadOdds,
       overOdds: market.overOdds,
       underOdds: market.underOdds,
-      isPlayoff: i > (gameCount * 0.9),
-      starHomeInjured,
-      starAwayInjured,
       homeWinStreak: homeStreak,
       awayWinStreak: awayStreak,
       homeRestDays,
@@ -668,15 +666,6 @@ export function generateGamesDatabase(sport: SportType, year: number): Game[] {
   }
 
   return games; // already in date order
-}
-
-// Convert American Odds to Decimal Multiplier
-export function americanToDecimalOdds(odds: number): number {
-  if (odds > 0) {
-    return 1 + (odds / 100);
-  } else {
-    return 1 + (100 / Math.abs(odds));
-  }
 }
 
 // Main backtester processor
@@ -858,7 +847,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
     }
 
     totalBets++;
-    const decimalOdds = americanToDecimalOdds(odds);
+    const decimalOdds = americanToDecimal(odds);
     const stake = strategy.unitSize;
     let returnVal = 0;
     let netResult = 0;

@@ -43,7 +43,7 @@ source. `—` means never checked.
 | Vite, @vitejs/plugin-react | `^6.4.4`, `^5.0.4` (latest 8.3.5, 6.1.2; roadmap Action 2.14) | github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md | 2026-10-21 |
 | Tailwind CSS v4 | `^4.1.14` (`@tailwindcss/vite` `^4.3.3`) | github.com/tailwindlabs/tailwindcss/releases | 2026-10-21 |
 | TypeScript | `~5.9.3` (latest 7.0.2; roadmap Action 2.14) | devblogs.microsoft.com/typescript | 2026-10-21 |
-| zod, recharts, d3, motion, react-markdown, express (dev only) | see `package.json` (zod 3 vs latest 4.6.7, express 4 vs 5.3.0, motion 12 vs 14.5.0; roadmap Action 2.14) | each package's GitHub releases | 2026-10-21 |
+| zod, recharts, motion, react-markdown, express (dev only) | see `package.json` (zod 3 vs latest 4.6.7, express 4 vs 5.3.0, motion 12 vs 14.5.0; roadmap Action 2.14) | each package's GitHub releases | 2026-10-21 |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are
 Dependabot's job.

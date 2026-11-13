@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Layers, Plus, X, Info, TrendingDown } from 'lucide-react';
 import {
@@ -14,7 +14,6 @@ const FORMATS = Object.keys(FORMAT_LABEL) as OddsFormat[];
 const METHODS = Object.keys(METHOD_LABEL) as DevigMethod[];
 
 interface Leg { id: number; label: string; side: string; other: string }
-let nextId = 4;
 
 const price = (d: number) => `${formatOdds(d, 'american')} · ${d.toFixed(3)}`;
 
@@ -25,9 +24,10 @@ export default function ParlayCalculator() {
   const [format, setFormat] = useState<OddsFormat>(init.format);
   const [method, setMethod] = useState<DevigMethod>(init.method);
   const [quoted, setQuoted] = useState(init.quoted);
+  const nextId = useRef(0);
   const [legs, setLegs] = useState<Leg[]>(() => {
     const src = init.legs ?? [1, 2, 3].map(() => ({ side: '-110', other: '-110' }));
-    nextId = src.length + 1;
+    nextId.current = src.length + 1;
     return src.map((l, i) => ({ id: i + 1, label: `Leg ${i + 1}`, ...l }));
   });
 
@@ -136,7 +136,7 @@ export default function ParlayCalculator() {
           </div>
 
           <button
-            onClick={() => setLegs((ls) => [...ls, { id: nextId++, label: `Leg ${ls.length + 1}`, side: '', other: '' }])}
+            onClick={() => setLegs((ls) => [...ls, { id: nextId.current++, label: `Leg ${ls.length + 1}`, side: '', other: '' }])}
             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-100"
           >
             <Plus className="h-3.5 w-3.5" /> Add leg

@@ -17,9 +17,6 @@ export interface Game {
   awaySpreadOdds: number;  // juice when a line sits off the true 50/50 point.
   overOdds: number;        // Same for the total.
   underOdds: number;
-  isPlayoff: boolean;
-  starHomeInjured: boolean; // Simulates missing marquee players
-  starAwayInjured: boolean;
   homeWinStreak: number;    // Number of consecutive prior wins of the home team
   awayWinStreak: number;    // Number of consecutive prior wins of the away team
   homeRestDays: number;     // Days since last game

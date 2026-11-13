@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Calculator, Scale, Plus, X, Info } from 'lucide-react';
 import { INPUT_CLS, pct, Select, Panel, Stat, PriceInput, FixPrices } from '../components/CalcUi';
@@ -57,15 +57,15 @@ function Converter({ init }: { init: OddsPageQuery }) {
 // ── No-vig ───────────────────────────────────────────────────────────────
 
 interface Leg { id: number; label: string; text: string }
-let nextId = 3;
 
 function NoVig({ init }: { init: OddsPageQuery }) {
   const [format, setFormat] = useState<OddsFormat>(init.format);
   const [method, setMethod] = useState<DevigMethod>(init.method);
+  const nextId = useRef(0);
   const [legs, setLegs] = useState<Leg[]>(() => {
     const prices = init.legs ?? ['-110', '-110'];
     const labels = prices.length === 2 ? ['Home', 'Away'] : prices.map((_, i) => `Outcome ${i + 1}`);
-    nextId = prices.length + 1;
+    nextId.current = prices.length + 1;
     return prices.map((text, i) => ({ id: i + 1, label: labels[i], text }));
   });
 
@@ -154,7 +154,7 @@ function NoVig({ init }: { init: OddsPageQuery }) {
       </div>
 
       <button
-        onClick={() => setLegs((ls) => [...ls, { id: nextId++, label: `Outcome ${ls.length + 1}`, text: '' }])}
+        onClick={() => setLegs((ls) => [...ls, { id: nextId.current++, label: `Outcome ${ls.length + 1}`, text: '' }])}
         className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-100"
       >
         <Plus className="h-3.5 w-3.5" /> Add outcome

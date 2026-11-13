@@ -1,4 +1,3 @@
-import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { setTheme, useTheme, type Theme } from '../theme';
 

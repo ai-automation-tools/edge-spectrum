@@ -1,4 +1,3 @@
-import React from 'react';
 import { Shield, TrendingUp, FlaskConical } from 'lucide-react';
 import { MARKET_OVERROUND } from '../dataGenerator';
 import { MIN_SEASON, MAX_SEASON } from '../strategyBounds';
