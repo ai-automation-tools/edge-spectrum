@@ -96,7 +96,11 @@ when both `ADVISOR_PASSCODE` and `ADVISOR_SECRET` are set. Sent with `Cache-Cont
 
 ## `POST /api/strategy-advisor`
 
-Asks Gemini about a strategy. This is the only endpoint that spends money, so it fails closed.
+Asks Gemini about a strategy, or about the Edge Spectrum dataset. This is the only endpoint that spends
+money, so it fails closed. A question whose words match activity names or categories carries those rows
+(figure, basis, source, check date) into the prompt, at most 12, and the model is told to answer from them
+and name their sources (`src/server/edgeContext.ts`, audit PROD-15). Demo mode never calls the model, so it
+is unchanged.
 
 **Body:** `{ "prompt": string, "currentStrategy"?: Strategy }`. The prompt is required and at most
 1,000 characters.

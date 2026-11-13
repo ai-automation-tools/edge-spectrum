@@ -195,6 +195,7 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 - [x] `small` 🟡 **Download a backtest's every wager** *(Product, PROD-06)* — done 2026-11-12: a **CSV** button on the game log; see Action 3.2.
 - [x] 🟡 **Kelly and bankroll calculator** *(Product, PROD-11)* — done 2026-11-12: `/kelly`; see Action 6.3.
 - [x] `small` 🟡 **Prune the roadmap** *(Product, PROD-22)* — done 2026-11-12: 4.6 (React port of the Spectrum page) and 7.2 (accounts) dropped; 3.2 shrunk to the CSV plus a `strategy.json`; 7.4 done as static files; 6.5, 6.7 and 6.8 deferred behind the provenance programme. 7.1 had no enterprise feed left to remove.
+- [x] 🟡 **Ask the advisor about the dataset** *(Product, PROD-15)* — done 2026-11-12: in full mode, a question that names activities or categories carries up to 12 matching rows with their figures and sources into the prompt, and the model answers from them. Demo mode is unchanged. `check:deployment` holds it.
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*

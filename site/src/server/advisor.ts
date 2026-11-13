@@ -4,6 +4,7 @@ import type { AdvisorResponse, Strategy } from '../types.js';
 import { deploymentMode } from './deployment.js';
 import { guardAdvisorRequest } from './auth.js';
 import type { RouteResult } from './httpTypes.js';
+import { edgeContext } from './edgeContext.js';
 import {
   BET_TYPES, MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS, SIDE_SELECTIONS, SPORTS,
   STREAK_FILTERS, TOTALS_SIDES, rangeIssues,
@@ -43,6 +44,7 @@ from, which means the book's hold (about 4.5%) is the only edge present. Never i
 profitable in the real world because it backtested well here, and when a run looks like a winner,
 say plainly that it is variance. Do teach what the strategy would face in a real market.
 Help the user parse their natural language ideas, critique their current backtest parameters, and provide concrete recommendations.
+The user may also ask about the Edge Spectrum dataset of returns and house edges across investing and gambling. When dataset rows are supplied with the question, answer from them, name their sources, and leave 'suggestedTemplates' empty unless a backtest would help.
 Warn them about standard traps (e.g., heavily favored moneylines have huge vig/juice; point spread favorites cover less than expected; betting over/under trends usually regress to the mean).
 
 ALWAYS formulate your output in JSON conforming exactly to the response schema:
@@ -148,10 +150,12 @@ Side: ${s(cs.sideSelection, 'favorites')}
 Unit: $${n(cs.unitSize, 100)}
 
 Please provide your analysis and suggest 1-2 alternative strategies or variations to backtest.`;
+  // Dataset questions get the matching rows (audit PROD-15); a strategy question usually matches none.
+  const context = edgeContext(String(prompt));
 
   const response = await getClient().models.generateContent({
     model: geminiModel(),
-    contents: modelPrompt,
+    contents: context ? `${modelPrompt}\n\n${context}` : modelPrompt,
     config: {
       systemInstruction: SYSTEM_PROMPT,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
