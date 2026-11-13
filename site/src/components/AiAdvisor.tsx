@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { Strategy, StrategyTemplate } from '../types';
+import { BacktestSummary, Strategy, StrategyTemplate } from '../types';
 import { Send, Sparkles, ArrowUpRight, BrainCircuit, Play, RotateCcw, Lock, LoaderCircle, KeyRound } from 'lucide-react';
 import { useDeployment } from '../deployment';
 import DemoAdvisor from './DemoAdvisor';
@@ -15,6 +15,8 @@ interface Message {
 
 interface AiAdvisorProps {
   currentStrategy: Strategy;
+  /** The run on screen, when it belongs to `currentStrategy`: the advisor explains these numbers (audit PROD-05). */
+  lastRun?: BacktestSummary;
   onApplyTemplate: (template: StrategyTemplate) => void;
 }
 
@@ -59,7 +61,7 @@ function Shell({
   );
 }
 
-export default function AiAdvisor({ currentStrategy, onApplyTemplate }: AiAdvisorProps) {
+export default function AiAdvisor({ currentStrategy, lastRun, onApplyTemplate }: AiAdvisorProps) {
   const { deployment, error: deploymentError, updateAuth } = useDeployment();
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -140,7 +142,8 @@ What strategy concept would you like to build? You can outline rules in natural 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: text,
-          currentStrategy
+          currentStrategy,
+          lastRun,
         }),
         // A little past the server's own model timeout, so its message arrives first.
         signal: AbortSignal.timeout(30_000),

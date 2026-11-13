@@ -102,8 +102,9 @@ money, so it fails closed. A question whose words match activity names or catego
 and name their sources (`src/server/edgeContext.ts`, audit PROD-15). Demo mode never calls the model, so it
 is unchanged.
 
-**Body:** `{ "prompt": string, "currentStrategy"?: Strategy }`. The prompt is required and at most
-1,000 characters.
+**Body:** `{ "prompt": string, "currentStrategy"?: Strategy, "lastRun"?: BacktestSummary }`. The prompt is
+required and at most 1,000 characters. `lastRun` is the run on screen; only its finite numbers reach the
+model, rounded (`runContext`).
 
 **200:** `{ analysis: string, suggestedTemplates: StrategyTemplate[] }`, validated by `parseAdvice`
 before it is sent; a template the backtest schema would reject is dropped.

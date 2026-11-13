@@ -108,11 +108,11 @@ export function parseAdvice(text: string): AdvisorResponse {
  * not only in the UI.
  */
 export async function advisorRoute(cookieHeader: string | undefined, body: unknown, ip: string): Promise<RouteResult> {
-  const { prompt, currentStrategy } = (body ?? {}) as { prompt?: unknown; currentStrategy?: Partial<Strategy> };
+  const { prompt, currentStrategy, lastRun } = (body ?? {}) as { prompt?: unknown; currentStrategy?: Partial<Strategy>; lastRun?: unknown };
   const denied = guardAdvisorRequest(cookieHeader, prompt, ip);
   if (denied) return denied;
   try {
-    return { status: 200, body: await generateAdvice(prompt as string, currentStrategy) };
+    return { status: 200, body: await generateAdvice(prompt as string, currentStrategy, lastRun) };
   } catch (error) {
     const name = (error as Error)?.name;
     if (name === 'TimeoutError' || name === 'AbortError') {
@@ -126,10 +126,35 @@ export async function advisorRoute(cookieHeader: string | undefined, body: unkno
   }
 }
 
+/**
+ * The backtest the user is looking at, so the advisor explains their numbers instead of guessing
+ * (audit PROD-05). It comes from the request body, so only finite numbers get through, rounded;
+ * anything else drops the line, and a run without a wager count adds nothing.
+ */
+export function runContext(lastRun: unknown): string {
+  const r = (lastRun ?? {}) as Record<string, unknown>;
+  const num = (k: string, digits = 2) => {
+    const v = Number(r[k]);
+    return r[k] !== null && r[k] !== '' && Number.isFinite(v) ? v.toFixed(digits) : null;
+  };
+  const s = (k: string, digits?: number) => num(k, digits) ?? '?';
+  const bets = num('totalBets', 0);
+  if (bets === null) return '';
+  const lines = [
+    `Wagers: ${bets} (won ${s('wonBets', 0)}, lost ${s('lostBets', 0)}, pushed ${s('pushedBets', 0)})`,
+    num('winRate') && `Win rate: ${s('winRate')}% (95% interval ${s('winRateLow')}% to ${s('winRateHigh')}%); breakeven at these prices ${s('breakevenWinRate')}%`,
+    num('pValue') && `One-tailed p-value against breakeven: ${s('pValue', 4)}`,
+    num('roi') && `ROI: ${s('roi')}%; net profit $${s('netProfit')}; max drawdown ${s('maxDrawdownPercent')}%`,
+    num('bustedAtBet') && `The bankroll ran out after wager ${s('bustedAtBet', 0)}`,
+  ].filter(Boolean);
+  return ['Their latest backtest of that setup returned:', ...lines].join('\n');
+}
+
 /** Ask the model for advice and return it validated (see parseAdvice). */
 export async function generateAdvice(
   prompt: string,
   currentStrategy: Partial<Strategy> | undefined,
+  lastRun?: unknown,
 ): Promise<AdvisorResponse> {
   if (deploymentMode() !== 'full') {
     throw new Error('Live AI is disabled in demo mode.');
@@ -139,6 +164,7 @@ export async function generateAdvice(
   const s = (v: unknown, d: string) => String(v || d).slice(0, 20);
   const n = (v: unknown, d: number) => Number(v) || d;
   const cs = currentStrategy ?? {};
+  const run = runContext(lastRun);
   const modelPrompt = `
 User Query: "${prompt}"
 
@@ -148,7 +174,7 @@ Years: ${n(cs.startYear, 2020)} - ${n(cs.endYear, 2024)}
 Bet Type: ${s(cs.betType, 'moneyline')}
 Side: ${s(cs.sideSelection, 'favorites')}
 Unit: $${n(cs.unitSize, 100)}
-
+${run ? `\n${run}\n` : ''}
 Please provide your analysis and suggest 1-2 alternative strategies or variations to backtest.`;
   // Dataset questions get the matching rows (audit PROD-15); a strategy question usually matches none.
   const context = edgeContext(String(prompt));

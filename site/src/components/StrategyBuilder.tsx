@@ -477,7 +477,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
           aria-expanded={showAdvanced}
-          className="group flex items-center gap-1.5 max-sm:py-2 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-sky-400 hover:text-sky-300 transition-colors duration-150"
+          className="group flex min-h-6 items-center gap-1.5 max-sm:py-2 text-[11px] font-mono font-medium uppercase tracking-[0.12em] text-sky-400 hover:text-sky-300 transition-colors duration-150"
         >
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
           Advanced Screening — Odds{currentStrategy.betType === 'totals' ? ' · Line' : ' · Streaks'}
