@@ -169,7 +169,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
 
 ## Project skills
 
-Three repo-specific skills live in the org's skills repo, not here — `agent-skills` under
+Four repo-specific skills live in the org's skills repo, not here — `agent-skills` under
 [`skills/projects/edge-spectrum/`](../../Tools/agent-skills/skills/projects/edge-spectrum/README.md)
 ([GitHub](https://github.com/ai-automation-tools/agent-skills/tree/main/skills/projects/edge-spectrum)).
 That repo is canonical: **edit them there, never in `.claude/skills/`.**
@@ -177,10 +177,11 @@ That repo is canonical: **edit them there, never in `.claude/skills/`.**
 | Skill | Reach for it when |
 |:---|:---|
 | `edge-spectrum-hub-tool` | Adding/changing a tool tile or page — `tools.ts`, `App.tsx`, `Home.tsx`, `pages/` |
-| `edge-spectrum-dataset` | Touching the 240 records, `gen:edges`, or the Spectrum page's measures |
+| `edge-spectrum-dataset` | Touching the records in `edges.ts`, `gen:edges`, or the Spectrum page's measures |
 | `edge-spectrum-endpoint` | Anything under `site/api/`, `site/server.ts`, `site/src/server/` |
+| `edge-spectrum-registry` | The Cronsole templates (`build-registry.mjs`, `site/public/registry/`), `capture-lines.ts`, `digest-lines.ts`, the registry-drift workflow. Owner-held files |
 
-Any agent can read a skill's `SKILL.md` there directly. Installing them for Claude Code is covered in
+Any agent can read a skill's `SKILL.md` there directly; the three scheduled jobs do, by path. Installing them for Claude Code is covered in
 `CLAUDE.md`.
 
 ## Branch workflow (PR flow)
