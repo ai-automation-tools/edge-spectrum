@@ -41,7 +41,7 @@ export default function DemoAdvisor({ sport, onApplyTemplate }: {
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-sky-400">Sample response</p>
           <p className="text-sm leading-relaxed text-zinc-300">{EXAMPLES[selected].response}</p>
           {selected === 2 && (
-            <button className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-sky-300 hover:text-sky-100"
+            <button type="button" className="mt-4 inline-flex min-h-6 items-center gap-2 text-xs font-semibold text-sky-300 hover:text-sky-100"
               onClick={() => onApplyTemplate({
                 name: 'Home-team baseline', description: 'A simple control strategy for the synthetic simulator.',
                 sport, betType: 'moneyline', sideSelection: 'home', streakFilter: 'any',

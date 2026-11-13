@@ -159,7 +159,7 @@ body {
 .src-bar { display: flex; align-items: center; gap: 16px; height: 34px; padding: 0 16px; background: #0b0b0c; border-bottom: 1px solid #18181b; font-size: 12px; }
 .src-note { margin: 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #8e8e98; }
 .src-note strong { font-weight: 600; color: #38bdf8; }
-.src-link { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 6px; color: #a1a1aa; text-decoration: none; }
+.src-link { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 24px; color: #a1a1aa; text-decoration: none; }
 .src-link:hover { color: #fafafa; }
 
 /* ── Surfaces ── */
@@ -276,7 +276,17 @@ kbd.key { font-family: var(--font-mono); font-size: 10.5px; padding: 2px 5px; bo
 }
 
 /* A heading focused by the router after a navigation is a landing point, not a control. */
-h1[tabindex="-1"]:focus { outline: none; }
+h1[tabindex="-1"]:focus, main[tabindex="-1"]:focus { outline: none; }
+
+/* "Skip to content" (audit UX-08): off screen until a keyboard user tabs onto it. */
+.skip-link { position: absolute; left: 12px; top: -48px; z-index: 100; padding: 8px 12px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 14px; font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 12px; }
 
 /* The page behind an open modal dialog (the ⌘K palette) stays put. */
 html:has(dialog:modal) { overflow: hidden; }
+
+/* The Kelly help (audit UX-22) opens beside its button where anchor positioning exists; elsewhere it stays centred. */
+@supports (anchor-name: --a) {
+  .kelly-help { anchor-name: --kelly-help; }
+  [popover].kelly-pop { position-anchor: --kelly-help; position-area: top span-left; position-try-fallbacks: flip-block, flip-inline; margin: 0 0 6px; max-width: min(20rem, calc(100vw - 32px)); }
+}

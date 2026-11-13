@@ -255,6 +255,7 @@ export default function App() {
           <div className="max-lg:order-first lg:col-span-2">
             <AiAdvisor
               currentStrategy={strategy}
+              lastRun={result && JSON.stringify(resultStrategy) === JSON.stringify(strategy) ? result.summary : undefined}
               onApplyTemplate={handleApplyTemplate}
             />
           </div>

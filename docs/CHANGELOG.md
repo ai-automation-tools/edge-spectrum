@@ -2,6 +2,28 @@
 
 ---
 
+## November 13, 2026 — Audit polish: skip links, the Kelly help, targets, advisor context
+
+Five P2 items from the 2026-11-11 project audit.
+
+- **Skip links (UX-08).** A "Skip to content" link is the first stop for the Tab key on every React
+  route and on the Spectrum page. It stays off screen until focused and moves focus to the page's `main`.
+- **The Kelly help (UX-22).** The explanation on the backtester's Kelly card was a `title` on a span,
+  out of reach of a keyboard or a finger. It is now a 24 px button that opens a native popover, closed
+  by Escape or a tap outside, beside the button where the browser supports CSS anchor positioning.
+- **Target sizes (UX-22).** "Advanced Screening", "Try this baseline" and the source bar's "View
+  source" are at least 24 px tall.
+- **"At a glance" (UX-07).** The home page's four links lost their link role to `role="listitem"`;
+  the list roles are gone, so they read as links.
+- **The advisor sees the run (PROD-05).** When the run on screen belongs to the current strategy, its
+  wagers, win rate and interval, breakeven, p-value, ROI, net profit, drawdown and any bust go into
+  the advisor's prompt. The server passes only finite numbers, rounded. `check:deployment` asserts the
+  numbers arrive and that text in a number field does not.
+- **Changelog order (DOC-14).** Three November 10 entries sat below November 9 and 4; every entry is
+  now newest first.
+
+---
+
 ## November 13, 2026 — Personal email removed from public history
 
 Audit SEC-01, done by the owner's decision. 30 commits had been authored with a personal address.
@@ -614,12 +636,6 @@ From the 2026-11-11 project audit (immediate and 7-day items).
 
 - **Roadmap** `docs/ROADMAP.md` rechecked against the org's 2026-11 requirements. The intro names the job that works it (`edge-spectrum-roadmap`) instead of a disabled task and its day. Action 2.7 is split: the code half stays (now also requiring `ADVISOR_SECRET`), and the Gemini quota and the Vercel secret are Action 2.7b (🔒 Needs owner). The CI action-pin step of 2.14 is its own owner line, 2.14b. Action 5.3's done-when names its Cronsole template. New *Site upkeep* group: a build stamp, ROADMAP in the Read on card, a full CSP, and trimming the topics (🔒).
 
-## November 9, 2026 — Payoff shape for positive-edge rows (Action 2.13)
-
-- **Data** `GameEdge` gains an optional `payout`, the average net win per unit staked (`pay` on the page). **Poker Skilled Tournaments** takes `5.7`: tournaments pay about the top 15% of the field (2023 WSOP Main Event, 1,507 of 10,043), so a cash averages about 6.7× the buy-in. Every other row stays at even money.
-- **Math** `ruinRisk` solves the general flat-stake ruin equation `p·z^(b+1) − z + q = 0` instead of assuming even money, and `kellyMultiple` is `ced·b/e`. The tournament row's chance of going broke moves from 67.0% to **93.3%** and its stake from 5× to **28.5×** Kelly; the even-money rows are unchanged.
-- **Inspector** The ruin box shows the Kelly stake as `e/b` and says which payoff it assumed, and that an average cash understates the real spread of prizes.
-- **Checks** `check:spectrum` asserts the ruin root solves the payoff equation, `b = 1` reproduces the closed form, and a longer payoff carries more risk; `check:edges` asserts the implied win rate is a probability. Formulas in `docs/methodology.md` Metric D.
 ## November 10, 2026 — Daily line-movement digest
 
 - **Digest** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder> [--date <day>]`)
@@ -658,6 +674,21 @@ From the 2026-11-11 project audit (immediate and 7-day items).
 
 ---
 
+## November 10, 2026 — Hub data-flow diagram re-pinned
+
+- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the three casino table-game records. The `edges.ts` node now says 237 edge records (was 234), the Spectrum page node's related-tools range is 1168-1187, and the diagram is rebuilt with `--pin-head` (org upkeep).
+
+## November 9, 2026 — Payoff shape for positive-edge rows (Action 2.13)
+
+- **Data** `GameEdge` gains an optional `payout`, the average net win per unit staked (`pay` on the page). **Poker Skilled Tournaments** takes `5.7`: tournaments pay about the top 15% of the field (2023 WSOP Main Event, 1,507 of 10,043), so a cash averages about 6.7× the buy-in. Every other row stays at even money.
+- **Math** `ruinRisk` solves the general flat-stake ruin equation `p·z^(b+1) − z + q = 0` instead of assuming even money, and `kellyMultiple` is `ced·b/e`. The tournament row's chance of going broke moves from 67.0% to **93.3%** and its stake from 5× to **28.5×** Kelly; the even-money rows are unchanged.
+- **Inspector** The ruin box shows the Kelly stake as `e/b` and says which payoff it assumed, and that an average cash understates the real spread of prizes.
+- **Checks** `check:spectrum` asserts the ruin root solves the payoff equation, `b = 1` reproduces the closed form, and a longer payoff carries more risk; `check:edges` asserts the implied win rate is a probability. Formulas in `docs/methodology.md` Metric D.
+
+## November 7, 2026 — Hub data-flow diagram re-pinned
+
+- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the craps and Plotly changes. The `edges.ts` node now says 234 edge records (was 231), the Spectrum page node's related-tools range moved to lines 1168-1179, and the diagram is rebuilt with `--pin-head` (org upkeep).
+
 ## November 4, 2026 — Three more casino table games
 
 - **Dataset** `Four Card Poker Ante` (−2.79%), `Four Card Poker Aces Up` (−3.89%) and `Mississippi Stud` (−4.91%),
@@ -665,13 +696,6 @@ From the 2026-11-11 project audit (immediate and 7-day items).
   strategy. Dataset is now 237 records, 47 cited.
 
 ---
-## November 10, 2026 — Hub data-flow diagram re-pinned
-
-- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the three casino table-game records. The `edges.ts` node now says 237 edge records (was 234), the Spectrum page node's related-tools range is 1168-1187, and the diagram is rebuilt with `--pin-head` (org upkeep).
-
-## November 7, 2026 — Hub data-flow diagram re-pinned
-
-- **Docs** `docs/diagrams/hub-data-flow.json` re-read against `site/src/data/edges.ts`, `site/src/tools.ts` and `site/public/spectrum/index.html` after the craps and Plotly changes. The `edges.ts` node now says 234 edge records (was 231), the Spectrum page node's related-tools range moved to lines 1168-1179, and the diagram is rebuilt with `--pin-head` (org upkeep).
 
 ## November 3, 2026 — Craps rows on one convention: house edge per bet made
 
@@ -1002,6 +1026,7 @@ advice; gambling is for adults (18+ or 21+); and tap-to-call help lines — US 1
 (`flex-wrap`) so the row sits under the existing two. The same wording is built into the hub's shared
 `SiteFooter.tsx`, so every React route carries it too. The `MATH & CONSTANTS`, `RAW` and
 `DATA INJECTION` blocks are untouched.
+
 ## October 5, 2026 — Light / dark theme switch
 
 A Sun / Moon switch now sits at the right end of the hub topbar (every route) and of the Spectrum
@@ -1048,7 +1073,6 @@ animation (`motion` was already a dependency; it now does the reveals and the me
 - **Spectrum page** (`public/spectrum/index.html`): tokens, fonts and the hub nav only. The `MATH &
   CONSTANTS`, `RAW` and `DATA INJECTION` blocks are byte-for-byte unchanged, so `check:spectrum` and
   `gen:edges --check` still test the same page.
-
 
 ## September 29, 2026 — Upstreams worklist
 

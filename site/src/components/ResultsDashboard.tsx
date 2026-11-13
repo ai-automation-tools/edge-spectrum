@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { animate, useReducedMotion } from 'motion/react';
 import { BacktestSummary } from '../types';
 import { TrendingUp, Award, HelpCircle, Activity, ShieldAlert, Sparkles, AlertCircle, Sigma, Wallet } from 'lucide-react';
@@ -42,6 +42,24 @@ function Metric({ label, accent, icon, value, sub, badge, title }: {
   );
 }
 
+/**
+ * The Kelly explanation, reachable by keyboard and touch (audit UX-22; it was a `title` on a span).
+ * A native popover: Escape and a tap outside close it, with no positioning code.
+ */
+function KellyHelp() {
+  const id = useId();
+  return (
+    <>
+      <button type="button" popoverTarget={id} aria-label="What is Kelly sizing?" className="kelly-help -m-1 inline-flex h-6 w-6 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300">
+        <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+      <div id={id} popover="auto" className="kelly-pop m-auto max-w-xs rounded-lg border border-zinc-700 bg-(--bg-2) p-3 text-xs leading-relaxed text-zinc-300">
+        Kelly Criterion calculates the optimal percentage of bankroll to wager on similar parameters based on the historic advantage.
+      </div>
+    </>
+  );
+}
+
 export default function ResultsDashboard({ summary }: ResultsDashboardProps) {
   const isProfit = summary.netProfit >= 0;
   const pnlColor = isProfit ? 'var(--a-emerald)' : 'var(--a-rose)';
@@ -67,7 +85,7 @@ export default function ResultsDashboard({ summary }: ResultsDashboardProps) {
         <Metric label="Max drawdown" accent="var(--a-amber)" icon={<ShieldAlert className="h-4 w-4 text-amber-400" />} value={`-${dd.toFixed(1)}%`} sub={<>Max drop ${summary.maxDrawdown.toLocaleString()}</>} />
         <Metric
           label="Kelly sizing" accent={summary.kellyPercentage > 0 ? 'var(--a-sky)' : 'var(--a-zinc)'}
-          icon={<span className="cursor-help" title="Kelly Criterion calculates the optimal percentage of bankroll to wager on similar parameters based on the historic advantage."><HelpCircle className="h-3.5 w-3.5 text-zinc-500" /></span>}
+          icon={<KellyHelp />}
           value={summary.kellyPercentage > 0 ? `${kelly.toFixed(2)}%` : '0.00%'}
           sub={<span className="inline-flex items-center gap-1"><Sparkles className="h-3 w-3 text-sky-400" />{summary.kellyPercentage > 0 ? 'Wager size suggestion' : 'No positive edge found'}</span>}
         />

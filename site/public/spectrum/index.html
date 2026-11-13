@@ -38,6 +38,7 @@
             --text-muted: #a1a1aa;
             --text-dim: #8a8a94;
             --accent: #38bdf8;
+            --accent-ink: #0b1220;
             --accent-glow: rgba(56,189,248,0.15);
             --success: #34d399;
             --danger: #fb7185;
@@ -64,6 +65,7 @@
             --text-muted: #52525b;
             --text-dim: #63636b;
             --accent: #0369a1;
+            --accent-ink: #ffffff;
             --accent-glow: rgba(3,105,161,0.12);
             --success: #047857;
             --danger: #be123c;
@@ -87,6 +89,10 @@
         }
         button { font: inherit; color: inherit; }
         button:focus-visible, input:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+        /* "Skip to content" (audit UX-08): off screen until a keyboard user tabs onto it. */
+        .skip-link { position: absolute; left: 12px; top: -48px; z-index: 100; padding: 8px 12px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font: 600 14px Inter, system-ui, sans-serif; text-decoration: none; }
+        .skip-link:focus { top: 12px; }
+        main:focus { outline: none; }
 
         /* ── Hub nav + theme switch (same control as the hub's top bar) ── */
         .hub-nav { display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 20px; border-bottom: 1px solid var(--nav-line); background: var(--nav-bg); font: 13px Inter, system-ui, sans-serif; }
@@ -306,6 +312,7 @@
     </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <nav aria-label="Edge Spectrum hub" class="hub-nav">
     <a href="/" class="hub-brand"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#38bdf8"/><path d="M 24 8 C 18 8 14 8 10 8 C 6 8 6 16 10 16 L 22 16 C 26 16 26 24 22 24 L 8 24" stroke="#0b1220" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Edge <span class="hub-accent">Spectrum</span></a>
     <span class="hub-crumb">/ the visualizer</span>
@@ -397,7 +404,7 @@
 
 <section class="cats" id="cats" aria-label="Categories"></section>
 
-<main class="content">
+<main class="content" id="main" tabindex="-1">
     <div class="stats-row">
         <div class="stat-card"><span class="stat-label" id="mCL">Activities shown</span><span class="stat-value" id="mC">0</span><span class="stat-sub" id="mCS"></span></div>
         <div class="stat-card"><span class="stat-label" id="mBL">Peak performer</span><span class="stat-value" id="mB" style="color: var(--success)">—</span><span class="stat-sub" id="mBS"></span></div>

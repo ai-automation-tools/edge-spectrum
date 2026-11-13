@@ -123,6 +123,20 @@ function Shell() {
   }, []);
   return (
     <div className="min-h-screen text-zinc-100">
+      {/* Past the source bar and the topbar to the page (audit UX-08). It focuses whichever `main` the route rendered, so no page needs an id. */}
+      <a
+        href="#main"
+        className="skip-link"
+        onClick={(e) => {
+          const main = document.querySelector('main');
+          if (!main) return;
+          e.preventDefault();
+          main.setAttribute('tabindex', '-1');
+          main.focus();
+        }}
+      >
+        Skip to content
+      </a>
       {/* The org source bar sits above every other piece of chrome, in flow, and scrolls away under the sticky topbar. */}
       <SourceBar />
       <Topbar onPalette={openPal} />

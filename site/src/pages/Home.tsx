@@ -172,12 +172,12 @@ export default function Home() {
         </div>
 
         {/* ── Fact strip ── */}
-        <div className="mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-zinc-800/60 bg-(--bg-2)/60 px-3 py-2.5" role="list" aria-label="At a glance">
+        <div className="mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-zinc-800/60 bg-(--bg-2)/60 px-3 py-2.5">
           <span className="px-1.5 font-mono text-[11px] uppercase tracking-[.12em] text-zinc-500">At a glance</span>
-          <a role="listitem" href="/spectrum/index.html" className="pill" style={{ ['--c' as string]: 'var(--a-sky)' }}><i className="dot" />{EDGES.length} activities · 7 horizons</a>
-          <Link role="listitem" to="/backtester" className="pill" style={{ ['--c' as string]: 'var(--a-emerald)' }}><i className="dot" />{seasons} simulated seasons · 4 sports</Link>
-          <Link role="listitem" to="/odds" className="pill" style={{ ['--c' as string]: 'var(--a-violet)' }}><i className="dot" />{methods} de-vig methods</Link>
-          <Link role="listitem" to="/parlay" className="pill" style={{ ['--c' as string]: 'var(--a-amber)' }}><i className="dot" />parlay hold, leg by leg</Link>
+          <a href="/spectrum/index.html" className="pill" style={{ ['--c' as string]: 'var(--a-sky)' }}><i className="dot" />{EDGES.length} activities · 7 horizons</a>
+          <Link to="/backtester" className="pill" style={{ ['--c' as string]: 'var(--a-emerald)' }}><i className="dot" />{seasons} simulated seasons · 4 sports</Link>
+          <Link to="/odds" className="pill" style={{ ['--c' as string]: 'var(--a-violet)' }}><i className="dot" />{methods} de-vig methods</Link>
+          <Link to="/parlay" className="pill" style={{ ['--c' as string]: 'var(--a-amber)' }}><i className="dot" />parlay hold, leg by leg</Link>
           <span className="ml-auto pr-1 font-mono text-[11px] text-zinc-600">runs in the browser · AI advisor on your own instance</span>
         </div>
 
