@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
-import { ORIGINAL_ORG_URL, ORIGINAL_REPO, ORIGINAL_SITE_URL } from './src/projectLinks';
+import { ORIGINAL_ORG_URL, ORIGINAL_REPO, ORIGINAL_SITE_URL } from './src/projectLinks.ts';
 
 /** owner/name of the repository being built: Vercel says so in its build env, anywhere else git does. */
 function buildRepo(): string {
