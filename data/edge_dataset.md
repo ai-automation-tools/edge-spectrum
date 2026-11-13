@@ -26,7 +26,7 @@ data. One place computes them, one guard checks them.
 `published` is a rate, price, index or takeout someone publishes, `estimate` is a typical
 outcome no one publishes as one figure. **Cited** means the record names a `source`.
 `npm run check:edges` holds each category's cited count, and no record may be added while a
-category cites under 50% of its rows (bold below). **The dataset is frozen:** 13 of 15 categories are under it.
+category cites under 50% of its rows (bold below). **The dataset is frozen:** 12 of 15 categories are under it.
 
 | Category | Records | Cited | Share | math | published | estimate |
 |----------|--------:|------:|------:|-----:|----------:|---------:|
@@ -39,12 +39,12 @@ category cites under 50% of its rows (bold below). **The dataset is frozen:** 13
 | Precious Metals | 12 | 2 | **17%** | 0 | 11 | 1 |
 | Insurance & Annuities | 11 | 0 | **0%** | 0 | 2 | 9 |
 | Trading & Derivatives | 10 | 2 | **20%** | 0 | 5 | 5 |
-| Sports Betting | 22 | 1 | **5%** | 12 | 0 | 10 |
+| Sports Betting | 22 | 12 | 55% | 12 | 0 | 10 |
 | Horse Racing & Pari-Mutuel | 6 | 3 | 50% | 0 | 6 | 0 |
-| Casino Gambling | 44 | 23 | 52% | 42 | 1 | 1 |
+| Casino Gambling | 44 | 43 | 98% | 42 | 1 | 1 |
 | Poker & Skill-Based | 9 | 0 | **0%** | 0 | 0 | 9 |
 | Prediction Markets | 12 | 0 | **0%** | 0 | 0 | 12 |
-| Lottery | 13 | 1 | **8%** | 5 | 7 | 1 |
+| Lottery | 13 | 5 | **38%** | 5 | 7 | 1 |
 
 ## Model reference
 
@@ -289,26 +289,26 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
 | 1 | Sharp Bettor (+2% Closing Line Value) | 2.0% | 3 | 2% | raw | estimate |  |
 | 2 | Betting Exchange (2% Commission) | -1.0% | 2 | 3% | raw | math | ✓ |
-| 3 | Reduced Juice Line (-105) | -2.38% | 2 | 3% | raw | math |  |
-| 4 | Single Game Spread (-110) | -4.55% | 2 | 3% | raw | math |  |
-| 5 | Single Game O/U (-110) | -4.55% | 2 | 3% | raw | math |  |
-| 6 | Moneyline (Standard Juice) | -4.55% | 2 | 3% | raw | math |  |
+| 3 | Reduced Juice Line (-105) | -2.38% | 2 | 3% | raw | math | ✓ |
+| 4 | Single Game Spread (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
+| 5 | Single Game O/U (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
+| 6 | Pick'em Moneyline (-110) | -4.55% | 2 | 3% | raw | math | ✓ |
 | 7 | Teaser 2-Team 6pt | -5.0% | 1 | 3% | raw | estimate |  |
 | 8 | Live / In-Game Bet | -6.5% | 5 | 3% | raw | estimate |  |
 | 9 | Player Prop Bet | -7.0% | 3 | 2% | raw | estimate |  |
 | 10 | Micro-Bet (Next Play / Next Pitch) | -9.0% | 20 | 1% | raw | estimate |  |
 | 11 | Season Win Total Future | -8.0% | 0.05 | 5% | raw | estimate |  |
-| 12 | 2-Team Parlay | -10.0% | 2 | 2% | raw | math |  |
+| 12 | 2-Team Parlay | -8.88% | 2 | 2% | raw | math | ✓ |
 | 13 | Championship Future | -12.0% | 0.03 | 5% | raw | estimate |  |
-| 14 | 3-Team Parlay | -12.5% | 1 | 2% | raw | math |  |
-| 15 | 4-Team Parlay | -15.0% | 1 | 1% | raw | math |  |
+| 14 | 3-Team Parlay | -13.03% | 1 | 2% | raw | math | ✓ |
+| 15 | 4-Team Parlay | -16.98% | 1 | 1% | raw | math | ✓ |
 | 16 | Same-Game Parlay (SGP) | -15.0% | 2 | 2% | raw | estimate |  |
 | 17 | First Touchdown Scorer | -18.0% | 1 | 1% | raw | estimate |  |
-| 18 | 5-Team Parlay | -20.0% | 0.5 | 1% | raw | math |  |
+| 18 | 5-Team Parlay | -20.75% | 0.5 | 1% | raw | math | ✓ |
 | 19 | Correct Score (Soccer) | -20.0% | 0.5 | 1% | raw | estimate |  |
-| 20 | 6-Team Parlay | -25.0% | 0.3 | 1% | raw | math |  |
-| 21 | 8-Team Parlay | -30.0% | 0.2 | 1% | raw | math |  |
-| 22 | 10-Team Parlay | -35.0% | 0.1 | 0.5% | raw | math |  |
+| 20 | 6-Team Parlay | -24.36% | 0.3 | 1% | raw | math | ✓ |
+| 21 | 8-Team Parlay | -31.08% | 0.2 | 1% | raw | math | ✓ |
+| 22 | 10-Team Parlay | -37.2% | 0.1 | 0.5% | raw | math | ✓ |
 
 ## 11. Horse Racing & Pari-Mutuel
 
@@ -335,48 +335,48 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
 | 1 | Blackjack Card Counting (Skilled) | 1.0% | 60 | 2% | raw | estimate | ✓ |
 | 2 | Spanish 21 (Dealer Stands Soft 17) | -0.4% | 60 | 2% | raw | math | ✓ |
-| 3 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw | math |  |
-| 4 | Blackjack 3:2 Basic Strategy | -0.5% | 60 | 2% | raw | math |  |
+| 3 | Video Poker 9/6 JoB | -0.46% | 80 | 1% | raw | math | ✓ |
+| 4 | Blackjack 3:2 Basic Strategy | -0.43% | 60 | 2% | raw | math | ✓ |
 | 5 | Craps Place 6 / Place 8 | -1.52% | 40 | 2% | raw | math | ✓ |
 | 6 | Craps Place 5 / Place 9 | -4.0% | 40 | 2% | raw | math | ✓ |
 | 7 | Craps Place 4 / Place 10 | -6.67% | 40 | 2% | raw | math | ✓ |
-| 8 | Baccarat Banker | -1.06% | 50 | 3% | raw | math |  |
-| 9 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw | math |  |
-| 10 | Baccarat Player | -1.24% | 50 | 3% | raw | math |  |
+| 8 | Baccarat Banker | -1.06% | 50 | 3% | raw | math | ✓ |
+| 9 | Crypto Dice (1% House Edge) | -1.0% | 1000 | 0.5% | raw | math | ✓ |
+| 10 | Baccarat Player | -1.24% | 50 | 3% | raw | math | ✓ |
 | 11 | Roulette Single Zero La Partage | -1.35% | 40 | 3% | raw | math | ✓ |
 | 12 | Craps Big 6 / Big 8 | -9.09% | 40 | 1% | raw | math | ✓ |
 | 13 | Craps Hard 6 / Hard 8 | -9.09% | 40 | 1% | raw | math | ✓ |
 | 14 | Three Card Poker Pair Plus | -7.28% | 40 | 3% | raw | math | ✓ |
 | 15 | Craps Any Craps | -11.11% | 40 | 1% | raw | math | ✓ |
 | 16 | Roulette Five-Number Bet (0-00-1-2-3) | -7.89% | 40 | 3% | raw | math | ✓ |
-| 17 | Craps Don't Pass | -1.36% | 40 | 2% | raw | math |  |
-| 18 | Craps Pass Line | -1.41% | 40 | 2% | raw | math |  |
-| 19 | Blackjack 6:5 | -2.0% | 60 | 2% | raw | math |  |
+| 17 | Craps Don't Pass | -1.36% | 40 | 2% | raw | math | ✓ |
+| 18 | Craps Pass Line | -1.41% | 40 | 2% | raw | math | ✓ |
+| 19 | Blackjack 6:5 | -1.82% | 60 | 2% | raw | math | ✓ |
 | 20 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw | math | ✓ |
 | 21 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw | math | ✓ |
 | 22 | Craps Lay 4 / Lay 10 (Commission on Win) | -1.67% | 40 | 2% | raw | math | ✓ |
 | 23 | Pai Gow Poker Emperor's Challenge | -4.17% | 30 | 1% | raw | math | ✓ |
 | 24 | Craps Hard 4 / Hard 10 | -11.11% | 40 | 1% | raw | math | ✓ |
-| 25 | Pai Gow Poker | -2.5% | 30 | 3% | raw | math |  |
-| 26 | Roulette Single Zero | -2.7% | 40 | 3% | raw | math |  |
+| 25 | Pai Gow Poker | -2.51% | 30 | 3% | raw | math | ✓ |
+| 26 | Roulette Single Zero | -2.7% | 40 | 3% | raw | math | ✓ |
 | 27 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw | math | ✓ |
 | 28 | Four Card Poker Ante | -2.79% | 30 | 3% | raw | math | ✓ |
 | 29 | Casino War | -2.88% | 50 | 2% | raw | math | ✓ |
-| 30 | Three Card Poker | -3.4% | 40 | 3% | raw | math |  |
-| 31 | Let It Ride | -3.5% | 30 | 3% | raw | math |  |
+| 30 | Three Card Poker | -3.37% | 40 | 3% | raw | math | ✓ |
+| 31 | Let It Ride | -3.51% | 30 | 3% | raw | math | ✓ |
 | 32 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw | math | ✓ |
-| 33 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw | math |  |
+| 33 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw | math | ✓ |
 | 34 | Mississippi Stud | -4.91% | 30 | 3% | raw | math | ✓ |
-| 35 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw | math |  |
-| 36 | Caribbean Stud | -5.2% | 30 | 3% | raw | math |  |
-| 37 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math |  |
+| 35 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw | math | ✓ |
+| 36 | Caribbean Stud | -5.22% | 30 | 3% | raw | math | ✓ |
+| 37 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math | ✓ |
 | 38 | Slots Average 92% | -8.0% | 500 | 0.5% | raw | published |  |
-| 39 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math |  |
+| 39 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math | ✓ |
 | 40 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
-| 41 | Big Six Wheel | -16.0% | 20 | 2% | raw | math |  |
+| 41 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
 | 42 | Craps Any Seven | -16.67% | 40 | 2% | raw | math | ✓ |
-| 43 | Keno 4-Spot | -28.0% | 10 | 1% | raw | math |  |
-| 44 | Keno 10-Spot | -35.0% | 10 | 1% | raw | math |  |
+| 43 | Keno 4-Spot | -25.94% | 10 | 1% | raw | math | ✓ |
+| 44 | Keno 10-Spot | -27.71% | 10 | 1% | raw | math | ✓ |
 
 ## 13. Poker & Skill-Based
 
@@ -433,11 +433,11 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 6 | Keno State-Run | -40.0% | 2 | 0.5% | raw | published |  |
 | 7 | Daily Numbers Game | -42.0% | 1 | 0.5% | raw | published |  |
 | 8 | State Pick 6 / Lotto | -45.0% | 0.15 | 0.1% | raw | published |  |
-| 9 | State Lottery Pick 3/4 | -50.0% | 0.5 | 0.3% | raw | math |  |
+| 9 | State Lottery Pick 3/4 | -50.0% | 0.5 | 0.3% | raw | math | ✓ |
 | 10 | EuroMillions | -50.0% | 0.1 | 0.1% | raw | math | ✓ |
-| 11 | Charity 50/50 Raffle | -50.0% | 0.05 | 0.5% | raw | math |  |
-| 12 | Powerball / Mega Millions | -52.0% | 0.1 | 0.1% | raw | math |  |
-| 13 | Multi-State Cash4Life | -55.0% | 0.1 | 0.1% | raw | math |  |
+| 11 | Charity 50/50 Raffle | -50.0% | 0.05 | 0.5% | raw | math | ✓ |
+| 12 | Powerball / Mega Millions | -50.0% | 0.1 | 0.1% | raw | math | ✓ |
+| 13 | Multi-State Cash4Life | -45.0% | 0.1 | 0.1% | raw | math | ✓ |
 
 <p align="center">
   <a href="../docs/ROADMAP.md">Roadmap</a> ·

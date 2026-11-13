@@ -31,7 +31,7 @@ function section(from: string, to: string): string {
 
 type Row = {
   n: string; cat: string; m: 'i' | 'g';
-  a?: number; e?: number; du?: number; ced?: number; pay?: number; src?: string; asOf?: string;
+  a?: number; e?: number; du?: number; ced?: number; pay?: number; src?: string; asOf?: string; how?: string; b?: 'math';
 };
 type Page = {
   RAW: Row[];
@@ -206,6 +206,11 @@ if (!isStale({ n: 'x', cat: 'x', m: 'i' }, NOW)) fail('isStale: a row with no as
 if (isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2026-10-19' }, NOW)) fail('isStale: a figure verified today was flagged');
 if (isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2025-10-19' }, NOW)) fail('isStale: a figure exactly a year old was flagged');
 if (!isStale({ n: 'x', cat: 'x', m: 'i', asOf: '2025-10-19' }, NOW + DAY)) fail('isStale: a figure a year and a day old was not flagged');
+// A math row with a derivation is never badged, however old its date (audit PROD-07).
+const DECADE = NOW + 3650 * DAY;
+if (isStale({ n: 'x', cat: 'x', m: 'g', b: 'math', how: 'rule', asOf: '2025-10-19' }, DECADE)) fail('isStale: a math row with a derivation was flagged');
+if (!isStale({ n: 'x', cat: 'x', m: 'g', b: 'math' }, NOW)) fail('isStale: a math row with no derivation must still be flagged');
+for (const r of RAW.filter((x) => x.b === 'math' && isStale(x, DECADE))) fail(`${r.n}: a math row the page would badge "verify"`);
 for (const r of RAW.filter((x) => x.src && !(x.asOf && Number.isFinite(Date.parse(x.asOf))))) {
   fail(`${r.n}: cites a source but has no valid asOf date, so the page would flag it forever`);
 }

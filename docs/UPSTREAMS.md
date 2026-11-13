@@ -17,7 +17,7 @@ source. `—` means never checked.
 |:---|:---|:---|:---|:---|
 | **ESPN site API** *(unofficial, undocumented, no key)* | Server-side `GET site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?limit=100[&dates=YYYYMMDD]` for football/nfl, basketball/nba, baseball/mlb, hockey/nhl. Reads `events[].id/date/shortName/name`, `status.type.name/detail`, `competitions[0].competitors[]` (`homeAway`, `team.displayName/abbreviation/logo`, `score`, `winner`), `competitions[0].odds[0]` (`details`, `overUnder`, `spread`), `day.date` | `site/src/server/espn.ts`, `site/api/espn-scoreboard.ts`, `site/src/components/EspnFeed.tsx` | No official docs. One live unauthenticated GET per league, compared against the keys above | 2026-10-21 |
 | **ESPN terms of use** | The endpoint above is unofficial and Disney's terms restrict automated collection. The project's position: server-side proxy for the live scoreboard, a collector users run themselves at low volume for personal use, a notice in the README and both Cronsole templates, and no captured lines published by this repo or its site (roadmap Action 5.4 grades locally). Not legal advice; the owner reads the terms at the source | `README.md`, `site/scripts/build-registry.mjs` | disneytermsofuse.com (Terms of Use, section 2) | 2026-11-11 (audit, summarised reading) |
-| **Gemini API via `@google/genai`** | `^2.32.0`; `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-3.5-flash-lite` by default, overridable with `GEMINI_MODEL` (no shutdown date announced; `gemini-2.5-flash`, used until 2026-11-12, is routed to it from 2026-12-01). The call sends no `temperature`, `top_p`, `top_k`, `candidate_count` or thinking budget, the parameters the 3.x migration guide changes | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-11-12 |
+| **Gemini API via `@google/genai`** | major 2 (latest 3, see *Framework majors*); `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-3.5-flash-lite` by default, overridable with `GEMINI_MODEL` (no shutdown date announced; `gemini-2.5-flash`, used until 2026-11-12, is routed to it from 2026-12-01). The call sends no `temperature`, `top_p`, `top_k`, `candidate_count` or thinking budget, the parameters the 3.x migration guide changes | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-11-12 |
 
 ## Static page CDN assets
 
@@ -36,14 +36,20 @@ source. `—` means never checked.
 
 ## Framework majors
 
-| Upstream | Declared in `site/package.json` | Check at | Last checked |
-|:---|:---|:---|:---|
-| React / react-dom | `^19.3.0` | react.dev/blog | 2026-10-21 |
-| react-router-dom | `^7.18.4` | github.com/remix-run/react-router/releases | 2026-10-21 |
-| Vite, @vitejs/plugin-react | `^6.4.4`, `^5.0.4` (latest 8.3.5, 6.1.2; roadmap Action 2.14) | github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md | 2026-10-21 |
-| Tailwind CSS v4 | `^4.1.14` (`@tailwindcss/vite` `^4.3.3`) | github.com/tailwindlabs/tailwindcss/releases | 2026-10-21 |
-| TypeScript | `~5.9.3` (latest 7.0.2; roadmap Action 2.14) | devblogs.microsoft.com/typescript | 2026-10-21 |
-| zod, recharts, motion, react-markdown, express (dev only) | see `package.json` (zod 3 vs latest 4.6.7, express 4 vs 5.3.0, motion 12 vs 14.5.0; roadmap Action 2.14) | each package's GitHub releases | 2026-10-21 |
+Majors only: a patch or minor bump is Dependabot's job and never makes this table wrong. The
+exact ranges are in `site/package.json`. *Latest* is the npm registry's on the *Last checked* date.
+
+| Upstream | Major in `site/package.json` | Latest | Check at | Last checked |
+|:---|:---|:---|:---|:---|
+| React / react-dom | 19 | 19 | react.dev/blog | 2026-11-12 |
+| react-router-dom | 7 | 7 | github.com/remix-run/react-router/releases | 2026-11-12 |
+| Vite, @vitejs/plugin-react | 6, 5 | 8, 6 (roadmap Action 2.14) | github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md | 2026-11-12 |
+| Tailwind CSS, @tailwindcss/vite | 4, 4 | 4, 4 | github.com/tailwindlabs/tailwindcss/releases | 2026-11-12 |
+| TypeScript | 5.9 (`~`, minor pinned) | 7 (roadmap Action 2.14) | devblogs.microsoft.com/typescript | 2026-11-12 |
+| @google/genai | 2 | 3 (roadmap Action 2.14) | github.com/googleapis/js-genai/releases | 2026-11-12 |
+| motion | 12 | 14 (roadmap Action 2.14) | github.com/motiondivision/motion/releases | 2026-11-12 |
+| express (local dev server only) | 4 | 5 (roadmap Action 2.14) | github.com/expressjs/express/releases | 2026-11-12 |
+| zod, recharts, react-markdown | 4, 3, 10 | 4, 3, 10 | each package's GitHub releases | 2026-11-12 |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are
 Dependabot's job.
