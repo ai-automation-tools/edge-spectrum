@@ -70,6 +70,8 @@ backtest engine as the Vercel functions.
 
 For a production Node host, build with `npm run build`, set `NODE_ENV=production`
 in the hosting environment, and run `npm start` from `site`. Use HTTPS for a hosted instance.
+The built server refuses to start without `NODE_ENV=production`, and at runtime it needs only the
+packages under `dependencies`: Vite and its plugins are build-time `devDependencies`.
 
 ## What full mode enables
 

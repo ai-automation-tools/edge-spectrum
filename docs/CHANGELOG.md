@@ -2,6 +2,19 @@
 
 ---
 
+## November 13, 2026 — Docs caught up with the day's merges
+
+- **Roadmap.** The audit follow-ups note covers #125 to #131 and says #131's production deploy was
+  rate-limited by Vercel (redeploy `main` from the dashboard). The last three audit items, advisor call
+  logging (AI-06), template versioning (OPS-12) and labelled sweep merges (AI-13), are open lines with
+  the audit's done-when.
+- **`AGENTS.md`** points at `docs/decisions.md` and notes that Vite is dev-only and the built server needs
+  `NODE_ENV=production`. **`docs/self-hosting.md`** says the same for self-hosters.
+- **`docs/README.md`**'s check list covers the theme-script guard in `check:spectrum` and the Spectrum
+  headings, focus and phone layout in `check:spectrum-browser`.
+
+---
+
 ## November 13, 2026 — Spectrum page: headings, focus and a phone layout
 
 Audit UX-18.
