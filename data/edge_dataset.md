@@ -5,7 +5,13 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 240 · **Categories:** 15 · **Layers:** 212 raw · 9 fee · 19 tax
+**Records:** 239 · **Categories:** 15 · **Layers:** 211 raw · 9 fee · 19 tax
+
+**Licence:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (`CC-BY-4.0`). Credit "Edge Spectrum" and keep each
+record's `source`: the figures are facts compiled from the publishers named there. The code is Apache-2.0.
+**Download:** [`edges.csv`](../site/public/spectrum/edges.csv), with its schema, version and licence in
+[`datapackage.json`](../site/public/spectrum/datapackage.json); both are served beside the Spectrum page and
+attached to each `dataset-*` release on GitHub.
 
 ## What is here, and what is deliberately not
 
@@ -26,7 +32,7 @@ data. One place computes them, one guard checks them.
 `published` is a rate, price, index or takeout someone publishes, `estimate` is a typical
 outcome no one publishes as one figure. **Cited** means the record names a `source`.
 `npm run check:edges` holds each category's cited count, and no record may be added while a
-category cites under 50% of its rows (bold below). **The dataset is frozen:** 4 of 15 categories are under it.
+category cites under 50% of its rows (bold below). No category is under it.
 
 | Category | Records | Cited | Share | math | published | estimate |
 |----------|--------:|------:|------:|-----:|----------:|---------:|
@@ -35,15 +41,15 @@ category cites under 50% of its rows (bold below). **The dataset is frozen:** 4 
 | Bonds | 17 | 17 | 100% | 0 | 17 | 0 |
 | Real Estate | 12 | 6 | 50% | 0 | 6 | 6 |
 | Cryptocurrency | 13 | 7 | 54% | 0 | 7 | 6 |
-| Collectibles | 10 | 0 | **0%** | 0 | 0 | 10 |
+| Collectibles | 10 | 6 | 60% | 0 | 6 | 4 |
 | Precious Metals | 12 | 11 | 92% | 0 | 11 | 1 |
-| Insurance & Annuities | 11 | 2 | **18%** | 0 | 2 | 9 |
+| Insurance & Annuities | 11 | 8 | 73% | 0 | 8 | 3 |
 | Trading & Derivatives | 10 | 7 | 70% | 0 | 5 | 5 |
 | Sports Betting | 22 | 12 | 55% | 12 | 0 | 10 |
 | Horse Racing & Pari-Mutuel | 6 | 6 | 100% | 0 | 6 | 0 |
 | Casino Gambling | 44 | 44 | 100% | 42 | 1 | 1 |
-| Poker & Skill-Based | 9 | 0 | **0%** | 0 | 0 | 9 |
-| Prediction Markets | 12 | 0 | **0%** | 0 | 0 | 12 |
+| Poker & Skill-Based | 9 | 5 | 56% | 0 | 5 | 4 |
+| Prediction Markets | 11 | 11 | 100% | 0 | 11 | 0 |
 | Lottery | 13 | 12 | 92% | 5 | 7 | 1 |
 
 ## Model reference
@@ -204,15 +210,15 @@ section 8 for why the two measures are no longer plotted on one axis.
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Vintage Sports Cards (PSA 10) | 6.0% | raw | estimate |  |
-| 2 | Fine Art (Blue Chip / Old Masters) | 5.0% | raw | estimate |  |
-| 3 | Fine Wine (Investment Grade) | 4.0% | raw | estimate |  |
-| 4 | Classic Cars (Pre-1970) | 3.5% | raw | estimate |  |
-| 5 | Luxury Watches (Rolex/Patek) | 3.0% | raw | estimate |  |
+| 2 | Fine Art (Blue Chip / Old Masters) | 1.9% | raw | published | ✓ |
+| 3 | Fine Wine (Investment Grade) | 2.98% | raw | published | ✓ |
+| 4 | Classic Cars (Pre-1970) | 2.76% | raw | published | ✓ |
+| 5 | Luxury Watches (Rolex/Patek) | 9.06% | raw | published | ✓ |
 | 6 | Sneaker Reselling (Retail Avg) | -5.0% | raw | estimate |  |
 | 7 | Modern Art Speculation | -10.0% | raw | estimate |  |
 | 8 | Non-Vintage Trading Cards | -15.0% | raw | estimate |  |
-| 9 | NFT Art & Digital Collectibles | -50.0% | raw | estimate |  |
-| 10 | Collectibles After 28% Tax Rate | 4.32% | tax | estimate |  |
+| 9 | NFT Art & Digital Collectibles | -39.9% | raw | published | ✓ |
+| 10 | Collectibles After 28% Tax Rate | 2.39% | tax | published | ✓ |
 
 ## 7. Precious Metals
 
@@ -243,17 +249,17 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | Variable Annuity (Equity Sub-Accounts) | 5.0% | raw | estimate |  |
+| 1 | Variable Annuity (Equity Sub-Accounts) | 7.49% | raw | published | ✓ |
 | 2 | Indexed Universal Life (IUL) | 4.5% | raw | estimate |  |
 | 3 | Fixed Annuity (MYGA 5-Year) | 6.3% | raw | published | ✓ |
 | 4 | Single Premium Immediate Annuity (SPIA) | 4.92% | raw | published | ✓ |
-| 5 | Whole Life — Top Mutual Co. (NWM/MassMutual) | 3.5% | raw | estimate |  |
-| 6 | Fixed Indexed Annuity (FIA) | 3.5% | raw | estimate |  |
-| 7 | Universal Life (Current Rate) | 3.0% | raw | estimate |  |
+| 5 | Whole Life — Top Mutual Co. (NWM/MassMutual) | 4.5% | raw | published | ✓ |
+| 6 | Fixed Indexed Annuity (FIA) | 3.23% | raw | published | ✓ |
+| 7 | Universal Life (Current Rate) | 4.19% | raw | published | ✓ |
 | 8 | Variable Universal Life (VUL After Fees) | 3.0% | raw | estimate |  |
 | 9 | Whole Life — Average Company | 2.0% | raw | estimate |  |
-| 10 | Annuity Gains After Ordinary Income Tax (37%) | 2.65% | tax | estimate |  |
-| 11 | Whole Life Cash Value (Tax-Free via Policy Loans) | 3.5% | tax | estimate |  |
+| 10 | Annuity Gains After Ordinary Income Tax (37%) | 4.72% | tax | published | ✓ |
+| 11 | Whole Life Cash Value (Tax-Free via Policy Loans) | 1.9% | tax | published | ✓ |
 
 ## 9. Trading & Derivatives
 
@@ -387,35 +393,34 @@ section 8 for why the two measures are no longer plotted on one axis.
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
 | 1 | DFS Top 5% | 5.0% | 5 | 5% | raw | estimate |  |
-| 2 | Poker Skilled Tournaments | 2.0% | 5 | 10% | raw | estimate |  |
+| 2 | Poker Skilled Tournaments | 9.8% | 5 | 10% | raw | published | ✓ |
 | 3 | Poker Mid-Stakes Reg | 1.5% | 40 | 2% | raw | estimate |  |
 | 4 | Poker Average Live Cash | -5.0% | 25 | 3% | raw | estimate |  |
-| 5 | Poker Average Online | -8.0% | 40 | 2% | raw | estimate |  |
+| 5 | Poker Average Online | -5.0% | 40 | 2% | raw | published | ✓ |
 | 6 | Poker Recreational Live | -10.0% | 25 | 3% | raw | estimate |  |
-| 7 | DFS Average | -12.0% | 5 | 5% | raw | estimate |  |
-| 8 | Poker Sit & Go Average | -15.0% | 5 | 5% | raw | estimate |  |
-| 9 | DFS Casual | -20.0% | 3 | 5% | raw | estimate |  |
+| 7 | DFS Average | -14.31% | 5 | 5% | raw | published | ✓ |
+| 8 | Poker Sit & Go Average | -7.0% | 5 | 5% | raw | published | ✓ |
+| 9 | DFS Casual | -51.0% | 3 | 5% | raw | published | ✓ |
 
 ## 14. Prediction Markets
 
-**Records:** 12
+**Records:** 11
 
 ### Games — linear model
 
 | # | Name | Edge | DU/day | CED | Layer | Basis | Cited |
 |---|------|-----:|-------:|----:|-------|-------|:-----:|
-| 1 | Polymarket Elections | -3.0% | 1 | 5% | raw | estimate |  |
-| 2 | Polymarket SCOTUS | -3.0% | 0.5 | 5% | raw | estimate |  |
-| 3 | Metaculus Scientific | -3.5% | 1 | 3% | raw | estimate |  |
-| 4 | Polymarket Oscars | -4.0% | 0.5 | 3% | raw | estimate |  |
-| 5 | Polymarket Geopolitics | -4.0% | 0.5 | 3% | raw | estimate |  |
-| 6 | Polymarket Sports/Entertainment | -4.5% | 1 | 3% | raw | estimate |  |
-| 7 | Polymarket Crypto Prices | -5.0% | 2 | 3% | raw | estimate |  |
-| 8 | Kalshi Economic | -5.5% | 0.5 | 3% | raw | estimate |  |
-| 9 | Kalshi Fed Rate | -5.5% | 0.2 | 5% | raw | estimate |  |
-| 10 | Kalshi GDP | -6.0% | 0.2 | 5% | raw | estimate |  |
-| 11 | Kalshi Weather | -7.0% | 0.5 | 2% | raw | estimate |  |
-| 12 | PredictIt US Politics | -10.0% | 1 | 5% | raw | estimate |  |
+| 1 | Polymarket Elections | -4.0% | 1 | 5% | raw | published | ✓ |
+| 2 | Polymarket SCOTUS | -4.0% | 0.5 | 5% | raw | published | ✓ |
+| 3 | Polymarket Oscars | -4.5% | 0.5 | 3% | raw | published | ✓ |
+| 4 | Polymarket Geopolitics | -2.0% | 0.5 | 3% | raw | published | ✓ |
+| 5 | Polymarket Sports/Entertainment | -4.5% | 1 | 3% | raw | published | ✓ |
+| 6 | Polymarket Crypto Prices | -5.5% | 2 | 3% | raw | published | ✓ |
+| 7 | Kalshi Economic | -3.5% | 0.5 | 3% | raw | published | ✓ |
+| 8 | Kalshi Fed Rate | -3.5% | 0.2 | 5% | raw | published | ✓ |
+| 9 | Kalshi GDP | -3.5% | 0.2 | 5% | raw | published | ✓ |
+| 10 | Kalshi Weather | -3.5% | 0.5 | 2% | raw | published | ✓ |
+| 11 | PredictIt US Politics | -5.0% | 1 | 5% | raw | published | ✓ |
 
 ## 15. Lottery
 

@@ -17,6 +17,7 @@
  * script just owns the block. That keeps `npm run check:spectrum`, which lifts
  * `RAW` straight out of the HTML, testing the page that actually ships.
  */
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -80,6 +81,77 @@ function edgesJson(): string {
   return `[\n${EDGES.map((r) => `  ${JSON.stringify(toSpectrumRow(r))}`).join(',\n')}\n]\n`;
 }
 
+// ── The published dataset: CSV plus a Frictionless Data Package (audit INT-07, GOV-03) ──
+// The records are compiled facts, each crediting its own source; the compilation is CC BY 4.0.
+const LICENCE = { name: 'CC-BY-4.0', title: 'Creative Commons Attribution 4.0 International', path: 'https://creativecommons.org/licenses/by/4.0/' };
+type Cell = string | number | undefined;
+const COLUMNS: Array<{ name: string; type: string; description: string; get: (r: EdgeRecord) => Cell; constraints?: object }> = [
+  { name: 'name', type: 'string', description: 'The activity. Unique.', get: (r) => r.n, constraints: { required: true, unique: true } },
+  { name: 'category', type: 'string', description: 'The category it is grouped under.', get: (r) => r.cat, constraints: { required: true, enum: [...EDGE_CATEGORIES] } },
+  { name: 'model', type: 'string', description: '"i": a held asset whose return compounds. "g": a repeated wager whose edge accrues per decision.', get: (r) => r.m, constraints: { required: true, enum: ['i', 'g'] } },
+  { name: 'layer', type: 'string', description: '"raw", or the same activity after a "fee" or "tax".', get: (r) => r.ly, constraints: { required: true, enum: ['raw', 'fee', 'tax'] } },
+  { name: 'basis', type: 'string', description: '"math": follows from the rules and payouts. "published": a rate, price, index or takeout someone publishes. "estimate": a typical outcome no one publishes as one figure.', get: (r) => r.basis, constraints: { required: true, enum: ['math', 'published', 'estimate'] } },
+  { name: 'annual_return_pct', type: 'number', description: 'Model "i" only: annual return, percent.', get: (r) => (r.m === 'i' ? r.a : undefined) },
+  { name: 'edge_pct', type: 'number', description: 'Model "g" only: expected return per decision, percent of the stake. Negative for the player on most rows.', get: (r) => (r.m === 'g' ? r.e : undefined) },
+  { name: 'decisions_per_day', type: 'number', description: 'Model "g" only: decisions per day at typical play.', get: (r) => (r.m === 'g' ? r.du : undefined) },
+  { name: 'capital_exposed_pct', type: 'number', description: 'Model "g" only: capital exposed per decision, percent of bankroll.', get: (r) => (r.m === 'g' ? r.ced : undefined) },
+  { name: 'payout', type: 'number', description: 'Model "g", positive-edge rows only: average net win per unit staked on a winning decision. Empty means even money.', get: (r) => (r.m === 'g' ? r.payout : undefined) },
+  { name: 'source', type: 'string', description: 'Where the figure comes from. Empty means uncited.', get: (r) => r.source },
+  { name: 'as_of', type: 'date', description: 'The date the figure was last checked against its source.', get: (r) => r.asOf },
+  { name: 'window', type: 'string', description: 'The period the figure covers.', get: (r) => r.window },
+  { name: 'methodology', type: 'string', description: 'How the figure was derived.', get: (r) => r.methodology },
+];
+
+const csvCell = (v: Cell) => (v === undefined ? '' : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+// LF line endings, so `--check` (which reads LF-normalised) can compare it; the dialect says so.
+function edgesCsv(): string {
+  return [COLUMNS.map((c) => c.name).join(','), ...EDGES.map((r) => COLUMNS.map((c) => csvCell(c.get(r))).join(','))].join('\n') + '\n';
+}
+
+const sha256 = (s: string) => `sha256:${createHash('sha256').update(s, 'utf8').digest('hex')}`;
+function dataPackage(csv: string, json: string): string {
+  // The version is the newest check date, so it moves whenever a figure is re-checked or changed.
+  const version = EDGES.map((r) => r.asOf ?? '').sort().at(-1);
+  const pkg = {
+    $schema: 'https://datapackage.org/profiles/2.0/datapackage.json',
+    name: 'edge-spectrum',
+    title: 'Edge Spectrum: returns and house edges across investing and gambling',
+    description:
+      `${EDGES.length} activities, from index funds to keno, each with an annual return (held assets) or an edge per decision ` +
+      '(wagers), the evidence behind it, and where cited, its source, check date, window and method. Education only, not advice.',
+    version,
+    licenses: [LICENCE],
+    sources: [{ title: 'The publishers named in each record\'s source field' }],
+    resources: [
+      {
+        name: 'edges',
+        path: 'edges.csv',
+        format: 'csv',
+        mediatype: 'text/csv',
+        encoding: 'utf-8',
+        hash: sha256(csv),
+        dialect: { delimiter: ',', lineTerminator: '\n', header: true },
+        schema: {
+          fields: COLUMNS.map(({ name, type, description, constraints }) => ({ name, type, description, ...(constraints ? { constraints } : {}) })),
+          primaryKey: ['name'],
+        },
+      },
+      {
+        name: 'edges-spectrum',
+        path: 'edges.json',
+        format: 'json',
+        mediatype: 'application/json',
+        encoding: 'utf-8',
+        hash: sha256(json),
+        description:
+          'The same records in the short-key shape the Spectrum page uses: n, cat, m, a (or e, du, ced, pay), ly, type, ' +
+          'src, asOf, win, how, and b on math rows. Prefer edges.csv; this shape may change with the page.',
+      },
+    ],
+  };
+  return JSON.stringify(pkg, null, 2) + '\n';
+}
+
 // ── The human-readable tables under data/ ────────────────────────────────────
 function datasetMarkdown(): string {
   const layers = { raw: 0, fee: 0, tax: 0 };
@@ -133,6 +205,12 @@ function datasetMarkdown(): string {
     '',
     `**Records:** ${EDGES.length} · **Categories:** ${EDGE_CATEGORIES.length} · ` +
       `**Layers:** ${layers.raw} raw · ${layers.fee} fee · ${layers.tax} tax`,
+    '',
+    `**Licence:** [${LICENCE.title}](${LICENCE.path}) (\`${LICENCE.name}\`). Credit "Edge Spectrum" and keep each`,
+    "record's `source`: the figures are facts compiled from the publishers named there. The code is Apache-2.0.",
+    '**Download:** [`edges.csv`](../site/public/spectrum/edges.csv), with its schema, version and licence in',
+    '[`datapackage.json`](../site/public/spectrum/datapackage.json); both are served beside the Spectrum page and',
+    'attached to each `dataset-*` release on GitHub.',
     '',
     '## What is here, and what is deliberately not',
     '',
@@ -188,6 +266,8 @@ const artifacts: Array<[string, string]> = [
     splice('site/public/spectrum/index.html', 'const RAW = [', '\nconst AR_DEFAULT', spectrumBlock()),
   ],
   ['site/public/spectrum/edges.json', edgesJson()],
+  ['site/public/spectrum/edges.csv', edgesCsv()],
+  ['site/public/spectrum/datapackage.json', dataPackage(edgesCsv(), edgesJson())],
   ['data/edge_dataset.md', datasetMarkdown()],
 ];
 
