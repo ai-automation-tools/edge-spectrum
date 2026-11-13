@@ -11,6 +11,7 @@ import { parseEspnScoreboard } from '../src/server/espn';
 import { appendRecords, dayFiles, dayName, readRecords, seenIds, toRecords, type LineRecord } from './capture-lines';
 import { digestGames, readDay, renderDigest, spreadMove } from './digest-lines';
 import { gradeBet, parseBets, renderGrades } from './grade-lines';
+import { fetchOddsApi, parseOddsApi } from './odds-api';
 
 const team = (homeAway: string, abbreviation: string, displayName: string, score: string) =>
   ({ homeAway, score, team: { abbreviation, displayName } });
@@ -187,4 +188,38 @@ const report = renderGrades(graded, '/lines');
 assert.match(report, /Beat the close:\*\* 2 of 4/); // +0.5 and +2 points; the moneyline and the at-close spread lose to the vig
 assert.match(report, /no close capture/);
 
-console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest, closing-line grading');
+// ── The Odds API as a second provider (scripts/odds-api.ts, audit INT-06) ──
+// Shapes from the v4 docs: an odds event at one bookmaker, and a finished game in `scores`.
+const oddsEvent = {
+  id: 'oa1', sport_key: 'basketball_nba', commence_time: '2026-11-11T00:30:00Z', home_team: 'New York Knicks', away_team: 'Milwaukee Bucks',
+  bookmakers: [
+    { key: 'fanduel', title: 'FanDuel', markets: [{ key: 'h2h', outcomes: [{ name: 'New York Knicks', price: -900 }, { name: 'Milwaukee Bucks', price: 600 }] }] },
+    { key: 'draftkings', title: 'DraftKings', markets: [
+      { key: 'h2h', outcomes: [{ name: 'Milwaukee Bucks', price: 670 }, { name: 'New York Knicks', price: -1040 }] },
+      { key: 'spreads', outcomes: [{ name: 'Milwaukee Bucks', price: 100, point: 15.5 }, { name: 'New York Knicks', price: -105, point: -15.5 }] },
+      { key: 'totals', outcomes: [{ name: 'Over', price: -110, point: 222.5 }, { name: 'Under', price: -110, point: 222.5 }] },
+    ] },
+  ],
+};
+const finished = { id: 'oa2', sport_key: 'basketball_nba', commence_time: '2026-11-10T19:00:00Z', completed: true, home_team: 'Boston Celtics', away_team: 'Miami Heat', scores: [{ name: 'Boston Celtics', score: '112' }, { name: 'Miami Heat', score: '104' }] };
+const boards = parseOddsApi([oddsEvent], [finished], 'draftkings', new Date('2026-11-10T22:00:00Z'));
+// 00:30 UTC on the 11th is 19:30 Eastern on the 10th: both games sit on the 10th's board, as on ESPN's.
+assert.deepEqual(boards.map((b) => [b.date, b.games.map((g) => g.id)]), [['2026-11-10', ['oa1', 'oa2']]]);
+const [pre, post] = boards[0].games;
+assert.deepEqual(pre.odds, { provider: 'DraftKings', spread: -15.5, spreadOdds: { home: -105, away: 100 }, overUnder: 222.5, moneyline: { home: -1040, away: 670 } }, 'the chosen bookmaker, home side first');
+assert.deepEqual([pre.state, post.state, post.homeTeam.score, post.awayTeam.score, post.odds.provider], ['pre', 'post', 112, 104, null]);
+// Same record shape from either provider: the keys toRecords writes are identical.
+const fromOdds = toRecords('NBA', boards[0].games, new Date('2026-11-10T22:00:00Z'), new Map(), 3);
+const fromEspn = toRecords('NBA', board.games, new Date('2026-11-10T22:00:00Z'), new Map(), 3);
+assert.deepEqual(Object.keys(fromOdds[0]).sort(), Object.keys(fromEspn[0]).sort());
+assert.deepEqual([fromOdds[0].linePhase, fromOdds[1].linePhase, fromOdds[1].state], ['open', null, 'post'], 'first sight is the opener');
+assert.deepEqual(parseOddsApi([{ id: 'x', home_team: 'A', away_team: 'B' }], [], 'draftkings', new Date()), [], 'no start time, no game');
+// A failed call names the status, never the key.
+{
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () => new Response('nope', { status: 401 })) as typeof fetch;
+  await assert.rejects(fetchOddsApi('NBA', 'secret-key-123', 'draftkings'), (e: Error) => /401/.test(e.message) && !e.message.includes('secret-key-123'));
+  globalThis.fetch = realFetch;
+}
+
+console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest, closing-line grading, The Odds API provider');
