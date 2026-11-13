@@ -72,7 +72,8 @@ Every record declares its `basis` and may carry a citation. A minority are cited
 [`data/edge_dataset.md`](../data/edge_dataset.md)): the casino and racing math (including the craps and Three Card Poker rows added 2026-10-21), and since
 Action 2.10 the S&P 500 and its fee/tax rows, gold, and the money-market, savings and deposit-average
 rows. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
-row whose `asOf` is missing or more than a year old.
+row whose `asOf` is missing or more than a year old, except a `math` row with a methodology: a
+figure that follows from the rules does not age. Every `math` row is cited (2026-11-12).
 
 ```typescript
 export type Provenance = {
