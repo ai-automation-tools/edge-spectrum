@@ -108,7 +108,8 @@ elsewhere) and applies the original's site and org links only to `ai-automation-
 A copy built anywhere else ships with:
 
 - no canonical URL, `og:url` or share image naming the original, and no sitemap entries;
-- no org consent script, and no org, cookie-notice or Cronsole-gallery links.
+- no org consent script, and no org, cookie-notice or Cronsole-gallery links. Without the consent
+  script, `counting.js` never loads Vercel Web Analytics either.
 
 `npm run check:fork` builds the site as a fork and fails if any output file names the org domain.
 

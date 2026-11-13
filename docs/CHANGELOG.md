@@ -2,14 +2,35 @@
 
 ---
 
+## November 12, 2026 — Opt-in page counts
+
+From the 2026-11-11 project audit's long-term list (PROD-14), which says to learn whether the "Where
+do I sit?" form is used before building the multi-activity audit (Action 6.4).
+
+- **Nothing is counted unless the visitor accepts the org banner.** `site/public/counting.js` loads
+  Vercel Web Analytics (cookieless, served from this site) only from `AILConsent.whenGranted`. A
+  decline, Global Privacy Control, Do Not Track or no answer loads nothing, and withdrawing stops
+  sending at once, without a reload.
+- **Only the path leaves the browser.** Every URL is cut to its path first: the Spectrum page keeps a
+  reader's bankroll, stake and edge in its query string.
+- **Two steps are counted on the Spectrum page:** opening the form (`/spectrum/where-do-i-sit`) and
+  placing a row (`/spectrum/where-do-i-sit/placed`), sent as page views because custom events need a
+  paid Vercel plan.
+- The Spectrum page now loads the consent banner and has a **Cookie settings** link in its footer. An
+  embed (`?embed=1`) loads neither: a banner has no place inside someone else's page.
+- Forks are unaffected: the consent script is dropped from a fork's build, so the counter never loads.
+- `check:deployment` holds the gate: nothing before consent, no query string, nothing after a withdrawal.
+- **Counting starts once Web Analytics is enabled on the Vercel project** (Analytics tab). Until then
+  the script it loads answers 404 and nothing is sent.
+
 ## November 12, 2026 — Historical line licences recorded
 
 From the 2026-11-11 project audit's long-term list (PROD-12). Before any real historical lines go into
 the backtester, the licences of 16 candidate datasets were read and recorded in `docs/UPSTREAMS.md`.
 Only nflverse's NFL schedules (CC BY 4.0) could be committed and served, and even that has an open
 question about where its lines come from. Every multi-season NBA, MLB and NHL set is either
-personal-use only or scraped from sites that forbid it, whatever its label says. Roadmap 7.1 now
-waits on the owner's decision; the seasons stay simulated.
+personal-use only or scraped from sites that forbid it, whatever its label says. The owner decided
+to keep every sport simulated, so Roadmap 7.1 is closed and no historical lines will be committed.
 
 ## November 12, 2026 — Ask the advisor about the dataset
 

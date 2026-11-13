@@ -254,6 +254,7 @@ The public demo is hosted on **Vercel** (`edge-spectrum.ai-automation-tools.dev`
 - **After a deploy:** the *Registry drift* workflow smoke-checks the live site (routes, 404s, the dataset, a backtest, and that the demo is still in demo mode). It also runs daily. Run it yourself with `node site/scripts/check-live.mjs [url]`.
 - **Rolling back:** [three steps](docs/self-hosting.md#rolling-back).
 - **Unknown paths are a 404**, not the home page: only the app's own routes are rewritten to the SPA.
+- **Page counts are opt-in:** Vercel Web Analytics loads only after a visitor accepts the org's cookie banner, and only paths are sent ([what is sent](docs/data-architecture.md#-5-opt-in-page-counts-audit-prod-14-2026-11-12)). It needs Web Analytics enabled on the Vercel project.
 
 ---
 

@@ -245,3 +245,39 @@ try {
   assert.equal(embed['X-Content-Type-Options'], 'nosniff', 'the Spectrum embed lost nosniff');
   console.log('Framing: only /spectrum/?embed can be framed elsewhere; every other route sends SAMEORIGIN.');
 }
+
+{
+  // Opt-in counting (audit PROD-14): nothing loads before consent, URLs leave without their query,
+  // and withdrawing stops sending at once.
+  const { readFileSync } = await import('node:fs');
+  const { runInNewContext } = await import('node:vm');
+  const source = readFileSync(new URL('../public/counting.js', import.meta.url), 'utf8');
+  const run = (consent?: object) => {
+    const added: { src: string }[] = [];
+    const window: Record<string, any> = { AILConsent: consent };
+    window.window = window;
+    const document = { createElement: () => ({}), head: { appendChild: (s: { src: string }) => added.push(s) } };
+    runInNewContext(source, Object.assign(window, { document, location: { href: 'https://x.test/spectrum/index.html' }, URL }));
+    return { window, added };
+  };
+  assert.doesNotThrow(() => run(), 'counting.js broke without the consent script (a fork, or locally)');
+  assert.equal(run().window.va, undefined, 'counting.js loaded without the consent script');
+
+  let status = 'unset';
+  const waiting: (() => void)[] = [];
+  const consent = { granted: () => status === 'granted', whenGranted: (fn: () => void) => (status === 'granted' ? fn() : waiting.push(fn)) };
+  const { window, added } = run(consent);
+  window.countStep('/spectrum/where-do-i-sit');
+  assert.equal(added.length, 0, 'counting.js loaded before consent');
+  assert.equal(window.va, undefined, 'a step was queued before consent');
+  status = 'granted';
+  waiting.forEach((fn) => fn());
+  assert.deepEqual(added.map((s) => s.src), ['/_vercel/insights/script.js'], 'consent did not load the counter');
+  const clean = window.vaq.find((args: unknown[]) => args[0] === 'beforeSend')[1];
+  assert.equal(clean({ type: 'pageview', url: 'https://x.test/spectrum/index.html?yb=5000&ye=-2#x' }).url, 'https://x.test/spectrum/index.html', 'a query string would leave the browser');
+  window.countStep('/spectrum/where-do-i-sit/placed');
+  assert.equal(JSON.stringify(window.vaq.at(-1)), '{"0":"pageview","1":{"route":"/spectrum/where-do-i-sit/placed","path":"/spectrum/where-do-i-sit/placed"}}', 'a step is not sent as a view of its path');
+  status = 'denied';
+  assert.equal(clean({ type: 'pageview', url: 'https://x.test/' }), null, 'withdrawing consent did not stop sending');
+  console.log('Counting: loads only after consent, sends paths without their query, and stops when consent is withdrawn.');
+}

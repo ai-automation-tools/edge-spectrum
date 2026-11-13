@@ -233,3 +233,20 @@ To transition from synthetic simulations to observed historical tracking, forwar
   <a href="ROADMAP.md">Roadmap</a> ·
   <a href="methodology.md">Methodology</a>
 </p>
+
+---
+
+## 📈 5. Opt-in Page Counts (audit PROD-14; 2026-11-12)
+
+The site's only visitor data, and only after the visitor accepts the org banner. `site/public/counting.js`
+loads Vercel Web Analytics from `AILConsent.whenGranted`; nothing loads on a decline, under Global Privacy
+Control or Do Not Track, without an answer, on a fork, locally, or in an embed.
+
+| Sent | Not sent |
+| --- | --- |
+| The page's origin and path, and the referrer on the first view | The query string (the Spectrum page keeps a reader's bankroll, stake and edge there), the hash, any cookie or identifier |
+
+Two Spectrum steps are counted as views of paths that do not exist: `/spectrum/where-do-i-sit` (the
+form opened) and `/spectrum/where-do-i-sit/placed` (a row placed). They answer Action 6.4's question:
+whether the single-activity form is used enough to build the multi-activity audit. The counts live in the
+Vercel project's Analytics tab and nowhere in this repository.
