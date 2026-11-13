@@ -69,11 +69,10 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
                       #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
   index.html, server.ts, package.json, vite.config.ts, vercel.json, tsconfig.json
-data/ docs/ images/   # preserved Edge Spectrum archives & screenshots (repo root, not deployed)
+data/ docs/ images/   # dataset doc, one frozen catalog, docs, the README logo (repo root, not deployed)
 docs/diagrams/        # code-pinned Archify diagram; hub-data-flow.json is the only file to edit
 scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diagram/ (never edit
                       #   those copies); --check = drift. Re-pin with --pin-head after cited code changes
-images/favicon.svg    # archived copy of the app icon (the served icon is site/public/favicon.svg)
 ```
 
 ## Adding a new tool (the whole recipe)
@@ -161,8 +160,8 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   and `data/edge_dataset.md`. Edit `edges.ts`, run the script, commit the result; editing an
   artifact by hand is reverted by the next run and fails CI (`npm run gen:edges -- --check`).
   The page's data stays **inlined** rather than fetched, deliberately — that is what keeps
-  `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
-  archives, not inputs.
+  `check:spectrum` testing the file that actually deploys. `data/edge_analysis12.md` is a frozen
+  archive, not an input.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
   CI (`.github/workflows/ci.yml`) runs `npm run verify` on every PR. That script in `site/package.json` is the
   one ordered list of checks; [`docs/README.md`](docs/README.md#-testing--validation-invariants) says what each holds.
