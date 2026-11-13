@@ -7,7 +7,7 @@
     },
     "Cash & Savings": {
       "records": 17,
-      "cited": 15
+      "cited": 17
     },
     "Bonds": {
       "records": 17,
@@ -15,11 +15,11 @@
     },
     "Real Estate": {
       "records": 12,
-      "cited": 0
+      "cited": 6
     },
     "Cryptocurrency": {
       "records": 13,
-      "cited": 0
+      "cited": 7
     },
     "Collectibles": {
       "records": 10,
@@ -31,11 +31,11 @@
     },
     "Insurance & Annuities": {
       "records": 11,
-      "cited": 0
+      "cited": 2
     },
     "Trading & Derivatives": {
       "records": 10,
-      "cited": 2
+      "cited": 7
     },
     "Sports Betting": {
       "records": 22,
@@ -43,11 +43,11 @@
     },
     "Horse Racing & Pari-Mutuel": {
       "records": 6,
-      "cited": 3
+      "cited": 6
     },
     "Casino Gambling": {
       "records": 44,
-      "cited": 43
+      "cited": 44
     },
     "Poker & Skill-Based": {
       "records": 9,
@@ -59,7 +59,7 @@
     },
     "Lottery": {
       "records": 13,
-      "cited": 5
+      "cited": 12
     }
   }
 }
