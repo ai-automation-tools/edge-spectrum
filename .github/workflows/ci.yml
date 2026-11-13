@@ -45,6 +45,7 @@ jobs:
       - run: npm run check:deployment
       - run: npm run build
       - run: npm run check:bundle
+      - run: npm run check:fork
       # Browser smoke test of the built Spectrum page (Action 2.9); needs dist/ from build.
       - run: npx playwright install --with-deps chromium
       - run: npm run check:spectrum-browser

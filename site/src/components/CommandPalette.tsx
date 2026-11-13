@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { TOOLS } from '../tools';
-import { REPOSITORY_URL, SETUP_GUIDE_URL } from '../projectLinks';
+import { ORG_URL, REPOSITORY_URL, SETUP_GUIDE_URL } from '../projectLinks';
 import { ACCENT_COLOR } from './ui';
 
 interface Item { g: string; label: string; hint: string; c?: string; go: () => void }
@@ -28,7 +28,8 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
       { g: 'Docs', label: 'Change log', hint: 'docs/CHANGELOG.md', go: ext(`${REPOSITORY_URL}/blob/main/docs/CHANGELOG.md`) },
       { g: 'Docs', label: 'Self-hosting guide', hint: 'docs/self-hosting.md', go: ext(SETUP_GUIDE_URL) },
       { g: 'Links', label: 'Source on GitHub', hint: 'ai-automation-tools/edge-spectrum', go: ext(REPOSITORY_URL) },
-      { g: 'Links', label: 'ai-automation-tools.dev', hint: 'the org landing page', go: ext('https://ai-automation-tools.dev') },
+      // A fork's build has no org (projectLinks.ts), so it gets no org link.
+      ...(ORG_URL ? [{ g: 'Links', label: new URL(ORG_URL).host, hint: 'the org landing page', go: ext(ORG_URL) }] : []),
     ];
   }, [navigate]);
 
