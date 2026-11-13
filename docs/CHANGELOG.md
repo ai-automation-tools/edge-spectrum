@@ -2,6 +2,23 @@
 
 ---
 
+## November 13, 2026 — Workflow limits and branch cleanup
+
+Audit OPS-10 and OPS-09.
+
+- **CI runs the production Node.** The Vercel project runs Node 24.x; CI and the registry-drift job pinned 22.
+  Both pin 24 now.
+- **Timeouts.** Both jobs stop after 10 minutes instead of GitHub's default six hours. A full CI run takes
+  about a minute.
+- **One CI run per PR.** A newer push to a pull request cancels the run it replaces. Runs on `main` always
+  finish. The registry-drift job has no concurrency group, because every preview deploy fires it too
+  (the job skips those) and a shared group would let a skipped run cancel a production check.
+- **Merged branches delete themselves.** The repo now has *Automatically delete head branches* on, and
+  a repo ruleset, *Keep mike_desktop*, blocks deleting `mike_desktop`, so the owner's PR branch survives
+  its merges. Only `main` and `mike_desktop` were left on the remote, so there was nothing to prune.
+
+---
+
 ## November 13, 2026 — Archive cleanup
 
 Files nobody reads, cut down to the ones something links (audit PROD-18, PROD-19, PROD-20, DOC-12).
