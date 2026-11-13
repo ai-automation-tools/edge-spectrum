@@ -2,6 +2,19 @@
 
 ---
 
+## November 12, 2026 — motion 14, lucide-react 1, dotenv 18
+
+The last of roadmap Action 2.14's majors.
+
+- **lucide-react 0.x → 1** dropped brand icons, `Github` among them, so the "View source" bar inlines
+  the GitHub octicon, as the org's static sites do.
+- **motion 12 → 14** added about 4 kB gzip to the first load, putting it at 148 of the 150 kB
+  budget. `LazyMotion` now loads its animation features as their own chunk (motion's documented
+  async form), so the home page's first-load JS is **132.2 kB**, down from 142.9 before this batch.
+- **dotenv 17 → 18** needed nothing: `import 'dotenv/config'` in `server.ts` still exists; 18 drops
+  the vault and `-r` preloading, which the repo never used.
+- Roadmap Action 2.14 is done: every framework major is current, listed in `docs/UPSTREAMS.md`.
+
 ## November 12, 2026 — @google/genai 3
 
 Roadmap Action 2.14, fourth of the batch: `@google/genai` 2 → 3. The breaking change that reaches
