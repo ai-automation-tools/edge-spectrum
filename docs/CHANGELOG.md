@@ -12,7 +12,7 @@ Audit PERF-05 and AI-17.
   every section at once. The home page's first-load JS falls from 134.6 kB to 120.9 kB gzip, and
   `check:spectrum-browser` scrolls the hub and requires every faded section to finish visible.
 - **`AGENTS.md` matches the code again.** It now lists every `src/` module, server module, script and
-  generated public folder, names `PAGE_META` as a route's fourth place, gives the three places a new
+  generated public folder, lists all five places a route is named (`PAGE_META` and `404.html` were missing), gives the three places a new
   accent colour goes (the old `Home.tsx` map is long gone), says the built server also serves
   self-hosted copies, notes the open-endpoint cap and the season cache, drops the React port of the
   Spectrum page (roadmap 4.6, dropped 2026-11-12), and states the noreply commit identity actually in use.
