@@ -2,6 +2,26 @@
 
 ---
 
+## November 12, 2026 — Stock, bond, cash and metals rows cited
+
+From the 2026-11-11 project audit (PROD-07). 52 `published` rows in four categories now cite a
+source read on 2026-11-12; 137 of 240 records are cited (was 85). Stock Market, Cash & Savings,
+Bonds and Precious Metals are all over the 50% line now.
+
+- **Funds and indexes use the issuer's NAV total return since inception**, with the window on each
+  row. Windows differ by fund, so rows that start near the 2000 peak read low; the methodology gives
+  the 10-year figure where it differs sharply.
+- **35 figures changed** to match their source. The largest moves: Convertible Bonds 5.0 → 11.44,
+  Emerging Markets 4.0 → 9.94, Nasdaq 100 12.5 → 10.57, S&P 500 Growth 12.0 → 8.92, Private Credit /
+  BDC 9.0 → 6.38, US Treasury Bills 4.3 → 1.40 (since 2007; the old figure was today's yield),
+  TIPS 1.5 → 3.34, Silver 4.5 → 7.64, Platinum 2.0 → 0.01, and the 2- and 5-year CDs 3.8 / 3.5 →
+  4.80 / 5.00 (today's top rates). The DAX, Nikkei 225 and FTSE 100 are in local currency.
+- **Fee and tax rows follow their base row**: the bond fee and tax rows, muni, Treasury after tax,
+  gold miners after tax. "Qualified Dividends (SPYD) After 15% Tax" now taxes only the
+  distribution (8.81 − 0.15 × 4.12 = 8.19%) instead of the whole return.
+- Two rows stay uncited: 3-Month CD (no current top-rate page) and No-Penalty CD (the page dates its
+  rates two ways).
+
 ## November 12, 2026 — One command for every check, an API reference, and contributor files
 
 From the 2026-11-11 project audit (DOC-15, DOC-16, DOC-17).
