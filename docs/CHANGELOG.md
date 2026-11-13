@@ -2,6 +2,23 @@
 
 ---
 
+## November 13, 2026 — Content-Security-Policy enforced
+
+The full policy had shipped report-only on November 12; `site/vercel.json` now enforces it.
+
+- **Checked first.** A pass over the live site with the cookie banner accepted (every route, a backtest, the
+  ESPN tab, the Spectrum form, embed mode, the diagram) logged zero violations. The only outside origins the
+  pages load, Google Fonts, the org's consent script and ESPN's logo CDN, are all in the policy.
+- **The embed stays frameable.** The `/spectrum/` and `/diagram/` policy listed `frame-ancestors 'self'`, which
+  browsers ignore in report-only mode. Enforced, it would have blocked `/spectrum/?embed` on every other site,
+  so it is gone from that policy. The existing `X-Frame-Options` and `frame-ancestors` rules still keep every
+  other route, the plain Spectrum page included, same-origin.
+- **Held by `check:deployment`.** It replays the header rules for each route and asserts the enforced policy,
+  same-origin framing everywhere but the embed, and no `frame-ancestors` on the embed. The asserts hold
+  whether Vercel sends both of two matching CSP headers or only the last.
+
+---
+
 ## November 13, 2026 — Build stamp and a roadmap link
 
 Two items from the org's site-upkeep list.

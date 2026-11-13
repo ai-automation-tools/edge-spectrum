@@ -234,26 +234,35 @@ try {
   type Rule = { source: string; missing?: { type: string; key: string }[]; headers: { key: string; value: string }[] };
   const { readFileSync } = await import('node:fs');
   const rules: Rule[] = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8')).headers;
+  // Every value each matching rule sets, per header. Two rules set Content-Security-Policy on some
+  // routes; the asserts hold whether Vercel sends both or only the last, so they don't depend on which.
   const headersFor = (url: string) => {
     const { pathname, searchParams } = new URL(url, 'https://x.test');
-    const out: Record<string, string> = {};
+    const out: Record<string, string[]> = {};
     for (const r of rules) {
       if (!new RegExp(`^${r.source}$`).test(pathname)) continue;
       if (r.missing?.some((m) => m.type === 'query' && searchParams.has(m.key))) continue;
-      for (const h of r.headers) out[h.key] = h.value;
+      for (const h of r.headers) (out[h.key] ??= []).push(h.value);
     }
     return out;
   };
+  const csp = (h: Record<string, string[]>) => h['Content-Security-Policy'] ?? [];
   for (const url of ['/', '/backtester', '/backtester?embed=1', '/?embed=1', '/spectrum/index.html', '/diagram/hub-data-flow.html?embed=1']) {
     const h = headersFor(url);
-    assert.equal(h['X-Frame-Options'], 'SAMEORIGIN', `${url} can be framed`);
-    assert.equal(h['Content-Security-Policy'], "frame-ancestors 'self'", `${url} lost frame-ancestors`);
+    assert.deepEqual(h['X-Frame-Options'], ['SAMEORIGIN'], `${url} can be framed`);
+    assert.ok(csp(h).some((v) => v.includes("frame-ancestors 'self'")), `${url} lost frame-ancestors`);
+    // The full policy is enforced (it was report-only until 2026-11-13), and the last rule to set it is a full one.
+    assert.ok(csp(h).at(-1)!.startsWith("default-src 'self'"), `${url} has no enforced Content-Security-Policy`);
+    assert.equal(h['Content-Security-Policy-Report-Only'], undefined, `${url} still sends the report-only policy`);
   }
+  // The app's own policy keeps frame-ancestors even if Vercel sends only the last header.
+  assert.ok(csp(headersFor('/backtester')).at(-1)!.includes("frame-ancestors 'self'"), "the app's policy lost frame-ancestors");
   const embed = headersFor('/spectrum/index.html?embed=1');
   assert.equal(embed['X-Frame-Options'], undefined, 'the Spectrum embed still sends X-Frame-Options');
-  assert.equal(embed['Content-Security-Policy'], undefined, 'the Spectrum embed still sends frame-ancestors');
-  assert.equal(embed['X-Content-Type-Options'], 'nosniff', 'the Spectrum embed lost nosniff');
-  console.log('Framing: only /spectrum/?embed can be framed elsewhere; every other route sends SAMEORIGIN.');
+  assert.ok(!csp(embed).some((v) => v.includes('frame-ancestors')), 'the Spectrum embed still sends frame-ancestors');
+  assert.ok(csp(embed).at(-1)?.startsWith("default-src 'self'"), 'the Spectrum embed lost its Content-Security-Policy');
+  assert.deepEqual(embed['X-Content-Type-Options'], ['nosniff'], 'the Spectrum embed lost nosniff');
+  console.log('Framing: only /spectrum/?embed can be framed elsewhere; every other route sends SAMEORIGIN; the Content-Security-Policy is enforced everywhere.');
 }
 
 {

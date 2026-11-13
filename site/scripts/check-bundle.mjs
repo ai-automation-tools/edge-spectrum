@@ -26,8 +26,8 @@ const entryGzip = initial.reduce((sum, file) => sum + size(file).gzip, 0);
 if (!initial.length) failures.push('no entry script found in dist/index.html');
 if (entryGzip > MAX_ENTRY_GZIP) failures.push(`initial JS is ${entryGzip} bytes gzip, over ${MAX_ENTRY_GZIP}`);
 
-// The report-only CSP in vercel.json allows the page's inline theme script by hash. Editing that
-// script without updating the hash would turn into a blank-theme page the day the policy is enforced.
+// The CSP in vercel.json (enforced since 2026-11-13) allows the page's inline theme script by hash.
+// Editing that script without updating the hash blocks it in production: a page with no theme.
 const policy = JSON.parse(readFileSync(join(dist, '..', 'vercel.json'), 'utf8')).headers
   .flatMap((h) => h.headers).filter((h) => h.key.startsWith('Content-Security-Policy')).map((h) => h.value).join(' ');
 for (const [, body] of html.matchAll(/<script>([\s\S]*?)<\/script>/gi)) {

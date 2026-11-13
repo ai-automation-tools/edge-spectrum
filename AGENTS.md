@@ -136,10 +136,12 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, and `site/public/sitemap.xml`. A
   route missing from the rewrite is a 404 in production while working in dev. Tool pages are `lazy()`
   chunks; `npm run check:bundle` (after `build`) holds the home page's JS under 150 kB gzip.
-- **Content-Security-Policy is report-only** (`site/vercel.json`, since 2026-11-12): a strict policy for
-  the app and a looser one for `/spectrum/` and `/diagram/`, whose scripts are inline. The app's inline
-  theme script is allowed by hash and `check:bundle` fails if the two drift. Enforcing it is a one-word
-  header rename once production shows no reports; a new third-party origin goes in the policy first.
+- **Content-Security-Policy is enforced** (`site/vercel.json`, report-only 2026-11-12, enforced 2026-11-13):
+  a strict policy for the app and a looser one for `/spectrum/` and `/diagram/`, whose scripts are inline.
+  The looser one has no `frame-ancestors`, so `/spectrum/?embed` stays frameable; the separate
+  `X-Frame-Options` / `frame-ancestors` rules keep every other route same-origin, and `check:deployment`
+  replays the rules to prove both. The app's inline theme script is allowed by hash and `check:bundle`
+  fails if the two drift. A new third-party origin goes in the policy in the same PR, or the browser blocks it.
 - Muted text uses `text-zinc-500` / `text-zinc-600`, which `index.css` lightens on dark so they clear
   4.5:1. Do not reach for a dimmer colour for body-size text.
 - Untrusted request bodies get a Zod schema in `site/src/server/`, reached through the shared
