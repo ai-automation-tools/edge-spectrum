@@ -26,17 +26,17 @@ data. One place computes them, one guard checks them.
 `published` is a rate, price, index or takeout someone publishes, `estimate` is a typical
 outcome no one publishes as one figure. **Cited** means the record names a `source`.
 `npm run check:edges` holds each category's cited count, and no record may be added while a
-category cites under 50% of its rows (bold below). **The dataset is frozen:** 12 of 15 categories are under it.
+category cites under 50% of its rows (bold below). **The dataset is frozen:** 8 of 15 categories are under it.
 
 | Category | Records | Cited | Share | math | published | estimate |
 |----------|--------:|------:|------:|-----:|----------:|---------:|
-| Stock Market | 32 | 10 | **31%** | 0 | 29 | 3 |
-| Cash & Savings | 17 | 8 | **47%** | 0 | 17 | 0 |
-| Bonds | 17 | 0 | **0%** | 0 | 17 | 0 |
+| Stock Market | 32 | 29 | 91% | 0 | 29 | 3 |
+| Cash & Savings | 17 | 15 | 88% | 0 | 17 | 0 |
+| Bonds | 17 | 17 | 100% | 0 | 17 | 0 |
 | Real Estate | 12 | 0 | **0%** | 0 | 6 | 6 |
 | Cryptocurrency | 13 | 0 | **0%** | 0 | 7 | 6 |
 | Collectibles | 10 | 0 | **0%** | 0 | 0 | 10 |
-| Precious Metals | 12 | 2 | **17%** | 0 | 11 | 1 |
+| Precious Metals | 12 | 11 | 92% | 0 | 11 | 1 |
 | Insurance & Annuities | 11 | 0 | **0%** | 0 | 2 | 9 |
 | Trading & Derivatives | 10 | 2 | **20%** | 0 | 5 | 5 |
 | Sports Betting | 22 | 12 | 55% | 12 | 0 | 10 |
@@ -67,25 +67,25 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | NASDAQ 100 (QQQ) | 12.5% | raw | published |  |
-| 2 | S&P 500 Growth (IVW) | 12.0% | raw | published |  |
-| 3 | Small-Cap Value (VBR) | 11.5% | raw | published |  |
-| 4 | S&P MidCap 400 (MDY) | 11.0% | raw | published |  |
-| 5 | Dividend Aristocrats (NOBL) | 10.5% | raw | published |  |
-| 6 | Total US Stock Market (VTI) | 10.2% | raw | published |  |
+| 1 | NASDAQ 100 (QQQ) | 10.57% | raw | published | ✓ |
+| 2 | S&P 500 Growth (IVW) | 8.92% | raw | published | ✓ |
+| 3 | Small-Cap Value (VBR) | 9.18% | raw | published | ✓ |
+| 4 | S&P MidCap 400 (MDY) | 11.11% | raw | published | ✓ |
+| 5 | Dividend Aristocrats (NOBL) | 10.22% | raw | published | ✓ |
+| 6 | Total US Stock Market (VTI) | 9.44% | raw | published | ✓ |
 | 7 | S&P 500 Index (SPY/VOO) | 10.0% | raw | published | ✓ |
-| 8 | S&P 500 Equal Weight (RSP) | 10.0% | raw | published |  |
-| 9 | Dow Jones Industrial (DIA) | 9.5% | raw | published |  |
-| 10 | S&P 500 Value (IVE) | 9.5% | raw | published |  |
-| 11 | Russell 2000 Small Cap (IWM) | 8.5% | raw | published |  |
-| 12 | REIT Index ETF (VNQ) | 8.0% | raw | published |  |
-| 13 | S&P 500 High Dividend (SPYD) | 8.0% | raw | published |  |
-| 14 | DAX Germany Index | 7.5% | raw | published |  |
-| 15 | Nikkei 225 Japan Index | 7.0% | raw | published |  |
-| 16 | MSCI EAFE Intl Developed (EFA) | 5.5% | raw | published |  |
-| 17 | FTSE 100 UK Index | 5.0% | raw | published |  |
-| 18 | MSCI Emerging Markets (EEM) | 4.0% | raw | published |  |
-| 19 | Commodity Index (DJP) | 1.0% | raw | published |  |
+| 8 | S&P 500 Equal Weight (RSP) | 11.3% | raw | published | ✓ |
+| 9 | Dow Jones Industrial (DIA) | 9.02% | raw | published | ✓ |
+| 10 | S&P 500 Value (IVE) | 7.49% | raw | published | ✓ |
+| 11 | Russell 2000 Small Cap (IWM) | 8.35% | raw | published | ✓ |
+| 12 | REIT Index ETF (VNQ) | 7.25% | raw | published | ✓ |
+| 13 | S&P 500 High Dividend (SPYD) | 8.81% | raw | published | ✓ |
+| 14 | DAX Germany Index | 5.28% | raw | published | ✓ |
+| 15 | Nikkei 225 Japan Index | 8.34% | raw | published | ✓ |
+| 16 | MSCI EAFE Intl Developed (EFA) | 6.41% | raw | published | ✓ |
+| 17 | FTSE 100 UK Index | 5.53% | raw | published | ✓ |
+| 18 | MSCI Emerging Markets (EEM) | 9.94% | raw | published | ✓ |
+| 19 | Commodity Index (DJP) | -0.18% | raw | published | ✓ |
 | 20 | Individual Stock Picking (Retail) | -2.0% | raw | estimate |  |
 | 21 | Penny Stocks (Retail Avg) | -30.0% | raw | estimate |  |
 | 22 | S&P 500 After 0.03% Index Fee | 9.97% | fee | published | ✓ |
@@ -98,7 +98,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 29 | S&P 500 After LTCG Tax (20%) | 8.0% | tax | published | ✓ |
 | 30 | S&P 500 After STCG Tax (37%) | 6.3% | tax | published | ✓ |
 | 31 | S&P 500 After 1% Fee + LTCG Tax | 7.2% | tax | published | ✓ |
-| 32 | Qualified Dividends (SPYD) After 15% Tax | 6.8% | tax | published |  |
+| 32 | Qualified Dividends (SPYD) After 15% Tax | 8.19% | tax | published | ✓ |
 
 ## 2. Cash & Savings
 
@@ -110,19 +110,19 @@ section 8 for why the two measures are no longer plotted on one axis.
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Money Market Fund (SPAXX/VMFXX) | 3.7% | raw | published | ✓ |
 | 2 | High-Yield Savings Account (Online) | 4.2% | raw | published | ✓ |
-| 3 | 1-Year CD (Top Rate) | 4.5% | raw | published |  |
-| 4 | 6-Month CD | 4.3% | raw | published |  |
-| 5 | High-Yield Money Market Account | 4.3% | raw | published |  |
-| 6 | Cash Management Account (SoFi/Wealthfront) | 4.0% | raw | published |  |
+| 3 | 1-Year CD (Top Rate) | 4.65% | raw | published | ✓ |
+| 4 | 6-Month CD | 4.4% | raw | published | ✓ |
+| 5 | High-Yield Money Market Account | 4.05% | raw | published | ✓ |
+| 6 | Cash Management Account (SoFi/Wealthfront) | 3.55% | raw | published | ✓ |
 | 7 | No-Penalty CD | 4.0% | raw | published |  |
 | 8 | 3-Month CD | 4.0% | raw | published |  |
-| 9 | 2-Year CD | 3.8% | raw | published |  |
-| 10 | 5-Year CD | 3.5% | raw | published |  |
+| 9 | 2-Year CD | 4.8% | raw | published | ✓ |
+| 10 | 5-Year CD | 5.0% | raw | published | ✓ |
 | 11 | Bank Money Market (Traditional) | 0.63% | raw | published | ✓ |
 | 12 | Credit Union Savings | 0.19% | raw | published | ✓ |
 | 13 | National Average Savings Rate | 0.38% | raw | published | ✓ |
 | 14 | Big Bank Savings (Chase/BofA) | 0.01% | raw | published | ✓ |
-| 15 | Regular Checking Account | 0.01% | raw | published |  |
+| 15 | Regular Checking Account | 0.07% | raw | published | ✓ |
 | 16 | HYSA After Income Tax (24%) | 3.19% | tax | published | ✓ |
 | 17 | HYSA After Income Tax (37%) | 2.65% | tax | published | ✓ |
 
@@ -134,23 +134,23 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
-| 1 | High-Yield Corporate (HYG/JNK) | 5.5% | raw | published |  |
-| 2 | Convertible Bond ETF (CWB) | 5.0% | raw | published |  |
-| 3 | Investment Grade Corporate (LQD) | 4.5% | raw | published |  |
-| 4 | US Treasury Bills (BIL) | 4.3% | raw | published |  |
-| 5 | Long-Term Treasury 20+ Yr (TLT) | 4.0% | raw | published |  |
-| 6 | US Treasury 10-Year | 3.8% | raw | published |  |
-| 7 | Total US Bond Market (BND/AGG) | 3.5% | raw | published |  |
-| 8 | Municipal Bond Index (MUB) | 3.5% | raw | published |  |
-| 9 | Aggregate Bond ETF (AGG) | 3.0% | raw | published |  |
-| 10 | International Bond (BNDX) | 2.5% | raw | published |  |
-| 11 | Short-Term Treasury (SHY) | 2.5% | raw | published |  |
-| 12 | TIPS Inflation-Protected (TIP) | 1.5% | raw | published |  |
-| 13 | Private Credit / BDC Index (BIZD) | 9.0% | raw | published |  |
-| 14 | Bond Fund After 1% Advisory Fee | 2.5% | fee | published |  |
-| 15 | Bond Interest After Income Tax (37%) | 2.21% | tax | published |  |
-| 16 | Muni Bonds Tax-Exempt (Effective) | 3.5% | tax | published |  |
-| 17 | Treasury Interest After Federal Tax (24%) | 2.89% | tax | published |  |
+| 1 | High-Yield Corporate (HYG/JNK) | 4.89% | raw | published | ✓ |
+| 2 | Convertible Bond ETF (CWB) | 11.44% | raw | published | ✓ |
+| 3 | Investment Grade Corporate (LQD) | 4.47% | raw | published | ✓ |
+| 4 | US Treasury Bills (BIL) | 1.4% | raw | published | ✓ |
+| 5 | Long-Term Treasury 20+ Yr (TLT) | 3.24% | raw | published | ✓ |
+| 6 | US Treasury 10-Year | 4.54% | raw | published | ✓ |
+| 7 | Total US Bond Market (BND/AGG) | 2.86% | raw | published | ✓ |
+| 8 | Municipal Bond Index (MUB) | 2.84% | raw | published | ✓ |
+| 9 | Aggregate Bond ETF (AGG) | 2.95% | raw | published | ✓ |
+| 10 | International Bond (BNDX) | 2.2% | raw | published | ✓ |
+| 11 | Short-Term Treasury (SHY) | 1.94% | raw | published | ✓ |
+| 12 | TIPS Inflation-Protected (TIP) | 3.34% | raw | published | ✓ |
+| 13 | Private Credit / BDC Index (BIZD) | 6.38% | raw | published | ✓ |
+| 14 | Bond Fund After 1% Advisory Fee | 1.86% | fee | published | ✓ |
+| 15 | Bond Interest After Income Tax (37%) | 1.8% | tax | published | ✓ |
+| 16 | Muni Bonds Tax-Exempt (Effective) | 2.84% | tax | published | ✓ |
+| 17 | Treasury Interest After Federal Tax (24%) | 3.45% | tax | published | ✓ |
 
 ## 4. Real Estate
 
@@ -223,17 +223,17 @@ section 8 for why the two measures are no longer plotted on one axis.
 | # | Name | Annual return | Layer | Basis | Cited |
 |---|------|--------------:|-------|-------|:-----:|
 | 1 | Gold Bullion (Physical / GLD) | 7.1% | raw | published | ✓ |
-| 2 | Rhodium (Physical) | 6.0% | raw | published |  |
-| 3 | Gold Mining Stocks (GDX) | 5.0% | raw | published |  |
-| 4 | Silver Bullion (Physical / SLV) | 4.5% | raw | published |  |
-| 5 | Copper Futures (CPER) | 4.0% | raw | published |  |
-| 6 | Palladium Bullion (PALL) | 3.5% | raw | published |  |
-| 7 | Silver Mining Stocks (SIL) | 3.0% | raw | published |  |
-| 8 | Platinum Bullion (PPLT) | 2.0% | raw | published |  |
+| 2 | Rhodium (Physical) | 4.35% | raw | published | ✓ |
+| 3 | Gold Mining Stocks (GDX) | 4.12% | raw | published | ✓ |
+| 4 | Silver Bullion (Physical / SLV) | 7.64% | raw | published | ✓ |
+| 5 | Copper Futures (CPER) | 3.16% | raw | published | ✓ |
+| 6 | Palladium Bullion (PALL) | 5.86% | raw | published | ✓ |
+| 7 | Silver Mining Stocks (SIL) | 4.13% | raw | published | ✓ |
+| 8 | Platinum Bullion (PPLT) | 0.01% | raw | published | ✓ |
 | 9 | Precious Coins (Numismatic) | 1.5% | raw | estimate |  |
-| 10 | Junior Mining Stocks (GDXJ) | 1.0% | raw | published |  |
+| 10 | Junior Mining Stocks (GDXJ) | 1.82% | raw | published | ✓ |
 | 11 | Gold After Collectibles Tax (28%) | 5.11% | tax | published | ✓ |
-| 12 | Gold Mining After LTCG Tax (20%) | 4.0% | tax | published |  |
+| 12 | Gold Mining After LTCG Tax (20%) | 3.3% | tax | published | ✓ |
 
 ## 8. Insurance & Annuities
 

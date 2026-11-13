@@ -3,15 +3,15 @@
   "categories": {
     "Stock Market": {
       "records": 32,
-      "cited": 10
+      "cited": 29
     },
     "Cash & Savings": {
       "records": 17,
-      "cited": 8
+      "cited": 15
     },
     "Bonds": {
       "records": 17,
-      "cited": 0
+      "cited": 17
     },
     "Real Estate": {
       "records": 12,
@@ -27,7 +27,7 @@
     },
     "Precious Metals": {
       "records": 12,
-      "cited": 2
+      "cited": 11
     },
     "Insurance & Annuities": {
       "records": 11,
