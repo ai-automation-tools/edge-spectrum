@@ -271,7 +271,7 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
    - **Feature:** Ingest trailing adjusted closes for stable investment instruments (`SPY`, `QQQ`, `GLD`, `HYG`) from keyless market data sources to supply timestamped as-of returns for investing rows.
    - **Done when:** the collector runs on a schedule set by the Cronsole template `edge-spectrum-market-close`, in the catalog via `npm run build:registry`, like 5.2 and 5.2a.
 
-- [ ] 🟠 **Action 5.4 — Closing Line Value (CLV) Skill Grading Engine**
+- [ ] 🟠 **Action 5.4 — Closing Line Value (CLV) Skill Grading Engine** *(local half done 2026-11-12, audit PROD-10: `npm run grade:lines` grades a CSV of bets against the user's own archive and writes a markdown report with the beat-the-close rate and EV at the de-vigged close. A site feature waits until the script is used.)*
    - **Feature:** Allow users to log hypothetical or placed wagers, fetch the true closing line from captured data, and calculate CLV beat rate (the primary mathematical indicator of betting edge).
    - **Constraint (2026-11-12, audit GOV-01):** grading runs on the user's own archive, locally. The site does not host or republish lines captured from ESPN.
 
