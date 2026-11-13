@@ -12,7 +12,7 @@ tool is roughly *one registry entry + one page*.
 
 ## Stack & hosting
 
-- **Vite + React 19 + TS**, Tailwind v4 (`@tailwindcss/vite`), Recharts + D3, `@google/genai` (Gemini),
+- **Vite + React 19 + TS**, Tailwind v4 (`@tailwindcss/vite`), Recharts, `@google/genai` (Gemini),
   `zod` (request validation, server-side only — keep it out of the client bundle).
 - **The entire web app lives in `site/`.** The repo root holds only docs/archives (`README.md`,
   `AGENTS.md`, `CLAUDE.md`, `data/`, `docs/`, `images/`, plus `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands

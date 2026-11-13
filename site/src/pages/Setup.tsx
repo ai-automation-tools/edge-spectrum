@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowUpRight, Rocket, KeyRound, SlidersHorizontal } from 'lucide-react';
 import { DEPLOY_URL, REPOSITORY_URL, SETUP_GUIDE_URL } from '../projectLinks';
 import { Card, Reveal, Eyebrow, GithubMark } from '../components/ui';

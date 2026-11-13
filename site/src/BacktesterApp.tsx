@@ -10,7 +10,7 @@ import EspnFeed from './components/EspnFeed';
 import { Strategy, BacktestResponse, StrategyTemplate } from './types';
 import { strategyFromQuery, strategyToQuery } from './strategyUrl';
 import { rangeIssues } from './strategyBounds';
-import { AlertCircle, RotateCcw, LineChart, Table, Info, BookOpen } from 'lucide-react';
+import { AlertCircle, LineChart, Table, BookOpen } from 'lucide-react';
 import SiteFooter from './components/SiteFooter';
 
 // Keystroke-to-request grace period for the auto-rerun effect.
