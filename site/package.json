@@ -25,7 +25,8 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:fork": "tsx scripts/check-fork-build.ts",
     "check:deployment": "tsx scripts/check-deployment.ts",
-    "check:spectrum-browser": "tsx scripts/check-spectrum-browser.ts"
+    "check:spectrum-browser": "tsx scripts/check-spectrum-browser.ts",
+    "verify": "npm run lint && npm run gen:edges -- --check && npm run check:market && npm run check:engine && npm run check:edges && npm run check:spectrum && npm run check:odds && npm run check:stats && npm run check:strategy-url && npm run check:calc-url && npm run check:lines && npm run check:live-grading && npm run build:registry -- --check && npm run check:deployment && npm run build && npm run check:bundle && npm run check:fork && npm run check:spectrum-browser"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",
