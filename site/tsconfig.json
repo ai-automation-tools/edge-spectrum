@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "strict": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "module": "ESNext",
     "lib": [
       "ES2022",
@@ -16,11 +16,6 @@
     "moduleDetection": "force",
     "allowJs": true,
     "jsx": "react-jsx",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
     "allowImportingTsExtensions": true,
     "noEmit": true
   }

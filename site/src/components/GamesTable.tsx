@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SimulatedBetGame } from '../types';
-import { CheckCircle2, XCircle, Slash, Calendar, Info } from 'lucide-react';
+import { CheckCircle2, XCircle, Slash, Info } from 'lucide-react';
 
 interface GamesTableProps {
   /** The truncated tail of the ledger — `gamesPreview` from the API. */
@@ -65,7 +65,7 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
 
         {/* Filters */}
         <div role="group" aria-label="Show" className="flex p-0.5 bg-(--bg-2) rounded-lg border border-zinc-800/70 self-start sm:self-center">
-          {(['all', 'win', 'loss'] as const).map((type) => (
+          {(['all', 'win', 'loss', 'push'] as const).map((type) => (
             <button
               key={type}
               type="button"

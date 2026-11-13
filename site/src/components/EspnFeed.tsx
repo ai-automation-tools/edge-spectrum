@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Strategy, SportType } from '../types';
 import { RefreshCw, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Info, Sparkles } from 'lucide-react';
 import { gradeBet, scoreboardDate, toScoreboardDay, type LiveGame } from '../liveGrading';

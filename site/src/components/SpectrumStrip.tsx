@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { EDGES, type EdgeRecord } from '../data/edges';
 import { useTheme, type Theme } from '../theme';

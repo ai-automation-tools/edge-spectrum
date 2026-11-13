@@ -8,10 +8,9 @@
  * The remaining copies all come from here — run `npm run gen:edges` after editing this
  * file, and CI runs `npm run gen:edges -- --check` to fail on drift.
  *
- * Only the fields that carry information live here. `g`, `type`, `vol`,
- * `wp` and `sk` are pure functions of `cat` and `m`, so
- * `toSpectrumRow()` re-expands them for the visualizer rather than storing
- * hundreds of copies of the string "Varies".
+ * Only the fields that carry information live here. `type` is a pure function
+ * of `m`, so `toSpectrumRow()` adds it for the visualizer. The `g`, `vol`, `wp`
+ * and `sk` it once added too were never read and are gone (audit ARCH-07).
  */
 
 /** Projection layer: gross, after fees, or after tax. */
@@ -98,8 +97,8 @@ export function toSpectrumRow(r: EdgeRecord) {
     ...(r.methodology ? { how: r.methodology } : {}),
   };
   return r.m === 'i'
-    ? { n: r.n, cat: r.cat, g: r.cat, m: r.m, a: r.a, ly: r.ly, type: 'Asset', vol: 'Varies', wp: 'Market Rate', sk: 'Passive', ...cite }
-    : { n: r.n, cat: r.cat, g: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ...(r.payout ? { pay: r.payout } : {}), ly: r.ly, type: 'Game', vol: 'Varies', wp: 'EV Calculated', sk: 'Varies', ...cite };
+    ? { n: r.n, cat: r.cat, m: r.m, a: r.a, ly: r.ly, type: 'Asset', ...cite }
+    : { n: r.n, cat: r.cat, m: r.m, e: r.e, du: r.du, ced: r.ced, ...(r.payout ? { pay: r.payout } : {}), ly: r.ly, type: 'Game', ...cite };
 }
 
 export const EDGES: readonly EdgeRecord[] = [
