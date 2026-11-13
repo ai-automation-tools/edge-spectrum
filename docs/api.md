@@ -114,7 +114,9 @@ required and at most 1,000 characters. `lastRun` is the run on screen; only its 
 model, rounded (`runContext`).
 
 **200:** `{ analysis: string, suggestedTemplates: StrategyTemplate[] }`, validated by `parseAdvice`
-before it is sent; a template the backtest schema would reject is dropped.
+before it is sent; a template the backtest schema would reject is dropped. Each answered call writes one
+JSON line to the function log (`event: "advisor_call"`, model, latency in ms, prompt, output and total
+tokens, template count, whether dataset rows went in) and never the prompt or reply text (audit AI-06).
 
 | Status | When |
 |:---|:---|

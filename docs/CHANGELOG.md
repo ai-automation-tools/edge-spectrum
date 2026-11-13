@@ -2,6 +2,21 @@
 
 ---
 
+## November 13, 2026 — Advisor call log, versioned templates
+
+Audit AI-06 and OPS-12.
+
+- **Advisor call log.** Each answered advisor call writes one JSON line to the function log: model,
+  latency, prompt, output and total tokens, how many templates came back and whether dataset rows went
+  in. Never the prompt or the reply. `check:deployment` holds it, including that no text leaks in.
+- **Versioned templates.** `build:registry` refuses a template whose `commandTemplate` differs from its
+  committed copy unless its `version` moved, so a self-hoster comparing versions sees every command
+  change. The `edge-spectrum-registry` skill says so (agent-skills #116).
+- **Sweep merges are labelled** (AI-13, routines repo): the PR sweep adds `merged-by-sweep` to each PR
+  it merged, so they stand apart from the owner's merges on GitHub.
+
+---
+
 ## November 13, 2026 — A request cap on the open endpoints, and the presets under test
 
 Audit SEC-08 and ARCH-06.
