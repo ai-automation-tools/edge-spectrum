@@ -431,6 +431,7 @@
         The dataset: <a href="edges.csv" download>edges.csv</a> &middot;
         <a href="datapackage.json">schema, version and licence</a> &middot;
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
+        &middot; <a href="https://ai-automation-tools.dev/cookies.html" data-ail-consent="manage">Cookie settings</a>
     </div>
     <div class="footer-rg" style="flex-basis: 100%; font-weight: 500; letter-spacing: 0.02em; line-height: 1.6;">
         For education only &mdash; not investment, financial or betting advice. Gambling is for adults (18+ or 21+ where you live).
@@ -1422,6 +1423,7 @@ function renderForm() {
             : { n, m: 'i', a: num(f.a), bank: num(f.amt) || null };
         if (!validYou(yv)) { document.getElementById('formErr').textContent = kind === 'g' ? 'Check the numbers: the stake must be between $0.01 and the whole bankroll, and the edge between -100% and +100%.' : 'The annual return must be above -100%.'; return; }
         setYou(yv); S.form = false; S.pin = YOU.n; update();
+        window.countStep?.('/spectrum/where-do-i-sit/placed');
     };
 }
 
@@ -1445,7 +1447,7 @@ function buildChips() {
         else if (S.cats.has(c)) S.cats.delete(c); else S.cats.add(c);
         update();
     });
-    document.getElementById('addYou').onclick = () => { S.form = true; update(); if (window.innerWidth <= 1100) inspEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    document.getElementById('addYou').onclick = () => { S.form = true; update(); window.countStep?.('/spectrum/where-do-i-sit'); if (window.innerWidth <= 1100) inspEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     box.querySelectorAll('[data-quick]').forEach(b => b.onclick = () => {
         const q = b.dataset.quick;
         S.cats = new Set(q === 'all' ? ALL_CATS : q === 'none' ? [] : ALL_CATS.filter(c => D.some(d => d.cat === c && d.m === q)));
@@ -1606,5 +1608,7 @@ document.querySelectorAll('.theme-toggle [data-theme]').forEach(btn => {
 });
 syncTheme();
 </script>
+<!-- Consent gate and opt-in page counts (audit PROD-14). Not inside someone else's page (?embed=1): the banner has no place there. -->
+<script>if (!document.documentElement.classList.contains('embed')) ['https://ai-automation-tools.dev/consent.js', '/counting.js'].forEach(function (src) { var s = document.createElement('script'); s.src = src; s.async = false; document.body.appendChild(s); });</script>
 </body>
 </html>
