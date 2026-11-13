@@ -2,6 +2,14 @@
 
 ---
 
+## November 12, 2026 — Vite 8
+
+Roadmap Action 2.14 (audit: toolchain majors), first of the batch: Vite 6 → 8 and
+`@vitejs/plugin-react` 5 → 6. Vite 8 bundles with Rolldown; the build, every check and the dev
+server (Vite in middleware mode under `server.ts`) pass unchanged. `vite.config.ts` imports
+`./src/projectLinks.ts` with its extension, which the native config loader Vite plans to make the
+default needs. The home page's JS fell from 147.1 to 142.9 kB gzip.
+
 ## November 12, 2026 — Embeds anywhere, a backtest CSV, a Kelly calculator, a shorter roadmap
 
 From the 2026-11-11 project audit (INT-01, PROD-06, PROD-11, PROD-22).
