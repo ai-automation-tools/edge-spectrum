@@ -2,6 +2,18 @@
 
 ---
 
+## November 12, 2026 — A registry skill, and job prompts that match the repo
+
+From the 2026-11-11 project audit (AI-07, AI-09, AI-10, AI-15).
+
+- A fourth project skill, `edge-spectrum-registry`, covers the Cronsole templates, the line
+  capture and digest scripts, and the registry-drift check; `AGENTS.md` lists it. The other three
+  skills now describe the code after the audit fixes (agent-skills #104).
+- The weekly roadmap, content and upstream jobs verify by running every `npm run` step in
+  `.github/workflows/ci.yml` instead of a shorter list, read the project skill their work touches,
+  and no longer cite PR #46, a `Versions/` folder or CDN Plotly. The roadmap job no longer
+  installs packages into the shared `site/node_modules`.
+
 ## November 12, 2026 — Every math row cited, and none of them ages
 
 From the 2026-11-11 project audit (PROD-07 steps 2 and 3, OPS-04, OPS-08).

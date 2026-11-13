@@ -7,7 +7,7 @@ to Claude Code.
 
 ## Installed project skills
 
-The three project skills listed in `AGENTS.md` are installed into `.claude/skills/`. `.claude/` is
+The four project skills listed in `AGENTS.md` are installed into `.claude/skills/`. `.claude/` is
 **gitignored here**, so the installed copies are local to your clone and a fresh clone starts without
 them. Re-install after cloning, and after editing them upstream:
 
