@@ -807,7 +807,8 @@ function passesFilters(strategy: Strategy, game: Game, side: BetSide, odds: numb
   }
 }
 
-export function runBacktest(strategy: Strategy): BacktestResponse {
+/** `ledgerLimit` caps `gamesPreview`; the CSV download passes `Infinity` for every wager (audit PROD-06). */
+export function runBacktest(strategy: Strategy, ledgerLimit = LEDGER_PREVIEW_LIMIT): BacktestResponse {
   const allGames: Game[] = [];
   for (let yr = strategy.startYear; yr <= strategy.endYear; yr++) {
     allGames.push(...generateGamesDatabase(strategy.sport, yr));
@@ -866,7 +867,7 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
     // Against the peak in force at the time, not whatever peak the run ends on.
     if (peakBankroll > 0 && dd / peakBankroll > maxDrawdownPct) maxDrawdownPct = dd / peakBankroll;
     simulatedGames.push({
-      id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), status: isWinOutcome
+      id: game.id, date: game.date, matchup: `${game.awayTeam} @ ${game.homeTeam}`, sport: game.sport, season: game.season, homeTeam: game.homeTeam, awayTeam: game.awayTeam, homeScore: game.homeScore, awayScore: game.awayScore, homeSpread: game.homeSpread, overUnder: game.overUnder, homeMoneyline: game.homeMoneyline, awayMoneyline: game.awayMoneyline, betPlaced: betPlacedText, oddsDecimal: parseFloat(decimalOdds.toFixed(3)), stake, returnVal: parseFloat(returnVal.toFixed(2)), netResult: parseFloat(netResult.toFixed(2)), bankroll: parseFloat(currentBankroll.toFixed(2)), status: isWinOutcome
     });
     profitHistory.push({
       index: totalBets, date: game.date, netProfit: parseFloat(netResult.toFixed(2)), cumulativeProfit: parseFloat((currentBankroll - strategy.startingBankroll).toFixed(2)), currentBankroll: parseFloat(currentBankroll.toFixed(2))
@@ -899,8 +900,8 @@ export function runBacktest(strategy: Strategy): BacktestResponse {
   return {
     summary,
     profitHistory: sampleHistory(profitHistory),
-    gamesPreview: simulatedGames.slice(-LEDGER_PREVIEW_LIMIT),
-    previewLimit: LEDGER_PREVIEW_LIMIT,
+    gamesPreview: simulatedGames.slice(-ledgerLimit),
+    previewLimit: ledgerLimit,
     totalGames: simulatedGames.length,
   };
 }

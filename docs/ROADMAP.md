@@ -191,6 +191,10 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 - [x] 🟠 **Cite the remaining `published` rows** *(Product, PROD-07)* — done 2026-11-12: the last 33 cite a source read on the day (Nareit sector returns, FRED, issuer NAV, NYRA and West Virginia takeout, the Nevada Gaming Control Board, and the Minnesota, Michigan, New Hampshire and Florida lottery reports and rules); 32 figures moved. Every `math` and `published` row is cited: 170 of 240.
 - [x] 🟡 **Source or retire the `estimate` rows in the frozen categories** *(Product, PROD-07, PROD-08)* — done 2026-11-12: 28 `estimate` rows in Collectibles, Insurance & Annuities, Poker & Skill-Based and Prediction Markets found a published figure and are `published` now (Knight Frank, CKGSB, LIMRA, a Principal 10-Q, NBER, the Massachusetts Gaming Commission, the Polymarket, Kalshi and PredictIt fee schedules); Metaculus Scientific was cut, as it takes no stakes. 198 of 239 records are cited, no category is under 50%, and growth is open again.
 - [x] 🟡 **Publish the dataset with a schema, version and licence** *(Integration, INT-07, GOV-03, PROD-16)* — done 2026-11-12: `gen:edges` writes `edges.csv` and a Frictionless `datapackage.json` (schema, version, sha256, CC BY 4.0), `--check` covers both, the Spectrum footer links them, and each `dataset-<version>` GitHub release attaches them. See `docs/data-architecture.md`.
+- [x] `small` 🟠 **Let other sites frame the Spectrum embed** *(Integration, INT-01)* — done 2026-11-12: `X-Frame-Options` and `frame-ancestors` now skip `/spectrum/…?embed=…` only; every other route, `/backtester?embed=1` included, still sends `SAMEORIGIN`. `check:deployment` replays `vercel.json`'s header rules to hold it.
+- [x] `small` 🟡 **Download a backtest's every wager** *(Product, PROD-06)* — done 2026-11-12: a **CSV** button on the game log; see Action 3.2.
+- [x] 🟡 **Kelly and bankroll calculator** *(Product, PROD-11)* — done 2026-11-12: `/kelly`; see Action 6.3.
+- [x] `small` 🟡 **Prune the roadmap** *(Product, PROD-22)* — done 2026-11-12: 4.6 (React port of the Spectrum page) and 7.2 (accounts) dropped; 3.2 shrunk to the CSV plus a `strategy.json`; 7.4 done as static files; 6.5, 6.7 and 6.8 deferred behind the provenance programme. 7.1 had no enterprise feed left to remove.
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*
@@ -198,12 +202,9 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 - [x] 🟠 **Action 3.1 — Explicit Ledger Response Contract (Audit E3)** — done 2026-09-21
    - **Implementation:** `/api/backtest` returned a field called `games` that was in fact `simulatedGames.slice(-250)`, alongside a complete `profitHistory` — so the response gave a caller no way to tell a 250-bet run from a 7,072-bet one, and `GamesTable`'s own heading read "250 Matches Analyzed" for both. Measured against the dev server: NFL moneyline/favorites 2000–2025 places **7,072** wagers and returned exactly 250 of them under the name `games`. `BacktestResponse` now carries `gamesPreview`, `previewLimit` (the exported `LEDGER_PREVIEW_LIMIT = 250` in `dataGenerator.ts`) and `totalGames`; the same run now reports `totalGames: 7072`, `previewLimit: 250`, `gamesPreview.length: 250`, with `profitHistory.length` and `summary.totalBets` both 7,072, and the preview verified to be the ledger's tail. The heading reads "Last 250 of 1,360 Wagers" and the footnote names both figures; a run under the cap (NFL spread/home 2020–2024 hot-streak, **85** bets / +5.52% ROI — the same fixture Action 2.4 measured) takes the untruncated branch and says so. No compatibility shim: `result.games` was read in exactly one place, and `tsc --noEmit` catches any other reader. The full unsliced ledger is **not** part of this item — it is Action 3.2's `ledger.csv`, which is where that bullet now lives.
 
-- [ ] 🟠 **Action 3.2 — Reproducible Export Bundle Architecture (Audit Track B)**
-   - **Feature:** A complete, downloadable research archive (`site/src/server/report.ts`):
-     - `report.md` — Parameters, summary metrics, statistical confidence intervals, methodology notes, and disclaimer headers.
-     - `ledger.csv` — Full, unsliced history of every wager placed. *(This is the export path Action 3.1's contract points at: the API deliberately ships only `gamesPreview`, so the bundle is the only place the complete ledger is available.)*
-     - `strategy.json` — Exact configuration payload for deterministic reproduction.
-     - `manifest.json` — Execution metadata (`generatedAt`, engine version, git commit, and SHA-256 hashes of all bundle files).
+- [ ] 🟡 **Action 3.2 — Export a Run** *(shrunk 2026-11-12, audit PROD-22)*
+   - **Done:** the game log's **CSV** button downloads every wager of the run with the bankroll after each (audit PROD-06). The API still ships only the last 250; the browser replays the same seeded run and refuses if the row count disagrees with the summary.
+   - **Left:** a `strategy.json` download beside it. `report.md` and `manifest.json` are dropped: the share URL and the seeded engine already reproduce a run exactly.
 
 - [x] 🟠 **Action 3.3 — First-Tier Statistical Inference (Audit E1 · Track B)** — done 2026-09-28
    - **Implementation:** The backtester reported a win rate with nothing to read it against — no breakeven, no uncertainty — so an 85-bet run returning +5.52% looked like an edge. `site/src/stats.ts` (pure, no imports) adds `breakevenRate()` (n / Σ decimal over decided wagers — exact for flat stakes, 52.38% at −110), `wilsonInterval()` and an exact log-space `binomialUpperTail()`; `runBacktest()` puts `breakevenWinRate`, `winRateLow`/`winRateHigh` and `pValue` on `BacktestSummary`, over decided wagers only, from unrounded prices. A **Statistical Significance** panel under the six summary cards shows all three with a verdict (below breakeven / indistinguishable from noise / significant at 5%), a small-sample badge under 250 wagers, and a multiple-testing caveat. Measured against the dev server: that NFL spread/home 2020–2024 hot-streak fixture reads **55.42% vs 52.45% breakeven, 95% CI 44.73–65.64%, p = 0.333** — noise; NFL moneyline/favorites 2000–2025 reads **56.21% vs 58.05%, p = 0.999** over 7,072 wagers. Held by `npm run check:stats` in CI. The breakeven is `1/mean(decimal)` over the ledger, consistent with `odds.ts`'s `1/decimal` convention. *Not done: "include them in exported reports" — there is no export yet; the fields are on the summary, so Action 3.2's `report.md` reads them rather than recomputing.*
@@ -243,8 +244,6 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 - [x] 🟠 **Action 4.5 — Bundle Optimization & Code Splitting** — done 2026-11-12: tool pages and the markdown parser are `lazy()` chunks and the fade uses the slim motion build. The home page loads **138 kB** gzip of JS (was 324 kB in one 1,068 kB chunk); `npm run check:bundle` fails CI over 150 kB or on any chunk over 500 kB. Each new tool page must be a `lazy()` import.
    - **Feature:** Lazy-load secondary routes (`/backtester`, `/odds`, `/parlay`, and each later calculator) with `React.lazy` and split vendor chunks (`recharts`, `react-markdown`) to reduce initial JS payload to <150 kB. Measured 2026-09-03: a single **799 kB** chunk (was ~776 kB before the two calculators; the calculators themselves are small — the weight is the backtester's `recharts` + `react-markdown` + `dataGenerator`, which the hub landing and the calculators never use). Each new Phase 6 tool that lands before this makes the case for it stronger.
 
-- [ ] 🟡 **Action 4.6 — Native React Port of Spectrum Visualizer**
-   - **Feature:** Migrate `site/public/spectrum/index.html` into a native React page (`site/src/pages/Spectrum.tsx`), unifying navigation, theme state, and data loading. *(V21, 2026-10-12, rebuilt the page in place rather than porting it; the inspector, controls bar, URL state and "You" row are the component boundaries a port would keep.)*
 
 - [x] 🟡 **Action 4.7 — Compare Mode on the Spectrum Page** — done 2026-10-13: a pinned bar's **Compare +** adds it to a set of up to three, kept in the URL as `cmp=` (names joined by `|`); the inspector then plots return on capital by horizon as one line each, with a ✕ at the first horizon each bankroll is gone, honours the Real $ toggle, and outlines the compared bars on the main chart. The single-event horizon is left off the x-axis so a wager and a trading day are not drawn as one unit. Linear y-axis: a 10-year crypto line still flattens the rest.
    - **Feature:** Pin up to three activities and show return on capital by horizon as lines in the inspector, with the ruin horizon marked on each. The per-horizon values are already precomputed (`v`, `vr`, `t` on every row); this is one Plotly line chart and a multi-pin URL key.
@@ -287,32 +286,30 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
    - **Tool:** Compares true joint probability against bookmaker parlay payouts to expose compounding bookmaker margin across multi-leg wagers.
    - **Shipped:** `/parlay` — `parlay()` in `site/src/odds.ts` + `site/src/pages/ParlayCalculator.tsx`; legs assumed independent (correlation input deferred). Covered by `npm run check:odds`.
 
-- [ ] 🟡 **Action 6.3 — Standalone Kelly & Bankroll Sizing Calculator**
+- [x] 🟡 **Action 6.3 — Standalone Kelly & Bankroll Sizing Calculator** — done 2026-11-12 (audit PROD-11): `/kelly` sizes one bet, or up to eight independent bets settled together, at full, half, quarter or tenth Kelly, with growth per bet, bets to double, and Thorp's odds of the bankroll ever falling to 75%, 50% or 25%. The math is `site/src/kelly.ts` (pure), held by `check:odds`.
    - **Tool:** Single and simultaneous multi-event Kelly sizing with risk-of-ruin curves and fractional sizing recommendations.
 
 - [ ] 🟡 **Action 6.4 — Personal Edge Audit Tool** 🟡 *(first step shipped 2026-10-12: the Spectrum page's "Where do I sit?" form places one activity — a wager from any game or a custom edge with bankroll, stake and frequency, or a holding — on the chart as a "You" bar and reports it in dollars, kept in the URL. The blended multi-activity audit remains.)*
    - **Tool:** User enters their personal activities (401k index funds, sports betting volume, poker hours, lottery tickets) and receives a blended annualized return and expected drag calculation.
 
-- [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender**
+- [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender** *(deferred until the provenance programme closes, audit PROD-07 and PROD-22: it puts dataset figures in front of more people)*
    - **Tool:** Interactive game prompting users to estimate mathematical edges on common wagers and investments, followed by a portfolio blender tool combining positive and negative edge assets.
 
-- [x] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page** — done 2026-10-13: `?embed=1` hides everything but the chart and a caption carrying the helpline and an "open the full tool" link to the same view; the chart fills the iframe's height instead of growing past it. Checked at 700×450 with no scroll. Bars carry no name labels, so a reader identifies them by hover — pair an embed with a narrow `q` filter.
+- [x] 🟡 **Action 6.6 — Embed Mode for the Spectrum Page** — done 2026-10-13, and other sites may frame it since 2026-11-12 (INT-01): `?embed=1` hides everything but the chart and a caption carrying the helpline and an "open the full tool" link to the same view; the chart fills the iframe's height instead of growing past it. Checked at 700×450 with no scroll. Bars carry no name labels, so a reader identifies them by hover — pair an embed with a narrow `q` filter.
    - **Tool:** `?embed=1` hides the hub nav, header, controls and footer and shows the chart plus a one-line caption, so a preset view can sit in an iframe on a blog post or a partner page. The view is already a URL (V21), so this is a CSS class and a "open the full tool" link.
 
-- [ ] 🟡 **Action 6.7 — Share Card per Activity**
+- [ ] 🟡 **Action 6.7 — Share Card per Activity** *(deferred until the provenance programme closes, audit PROD-07 and PROD-22: it puts dataset figures in front of more people)*
    - **Tool:** A PNG per pinned activity (name, category, the return at the chosen horizon, the ruin figure, the helpline line) sized for social, generated client-side from the inspector or via `@vercel/og` alongside Action 7.3. The "Where do I sit?" row is the obvious first card: "my Sunday parlays reach $0 in 13 months".
 
-- [ ] 🔵 **Action 6.8 — Regional Variants**
+- [ ] 🔵 **Action 6.8 — Regional Variants** *(deferred until the provenance programme closes, audit PROD-07 and PROD-22: it puts dataset figures in front of more people)*
    - **Tool:** UK and Australian lottery rows (Lotto, EuroMillions is in; Oz Lotto, Powerball AU), European single-zero roulette as the default casino row, bookmaker margins by market (Betfair vs. a UK high-street book), and non-US tax layers (UK ISA, CGT allowances). The helplines are already regional; the dataset is not.
 
-### 💰 Phase 7: Public Launch, Data Licensing & Monetization ⚪
-*Expands data coverage through commercial partnerships and adds premium features.*
+### 💰 Phase 7: Public Launch & Data Coverage ⚪
+*Real closing lines, share cards and the published dataset. Accounts are dropped (audit PROD-22): every tool keeps its state in the URL instead.*
 
 - [ ] 🟠 **Action 7.1 — Commercial Historical Odds Integration**
    - **Integration:** Integrate verified historical closing lines and injury reports from commercial feeds (The Odds API / Sportradar) stored as static Parquet/JSON files for instant loading.
 
-- [ ] 🟡 **Action 7.2 — User Accounts & Saved Portfolios**
-   - **Feature:** Optional user authentication for saving custom backtests, personal edge audits, and tracking CLV records over time.
 
 - [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop** *(the static half shipped 2026-11-12: `robots.txt`, `sitemap.xml`, one share image, per-route titles and descriptions, real 404s. Per-result cards are what is left.)*
    - **Feature:** Implement `@vercel/og` to generate dynamic social sharing cards for backtest equity curves and calculator results, with automated sitemaps and meta tags.

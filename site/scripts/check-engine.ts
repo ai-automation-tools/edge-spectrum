@@ -6,6 +6,7 @@
  */
 import assert from 'node:assert/strict';
 import { generateGamesDatabase, nextStreak, PROFIT_HISTORY_LIMIT, runBacktest } from '../src/dataGenerator';
+import { ledgerCsv } from '../src/ledgerCsv';
 import { MAX_SEASON, MIN_SEASON, SPORTS } from '../src/strategyBounds';
 import type { Strategy } from '../src/types';
 
@@ -82,6 +83,12 @@ for (const sideSelection of ['favorites', 'underdogs'] as const) {
   assert.equal(profitHistory.at(-1)!.currentBankroll, summary.finalBankroll);
   const bytes = JSON.stringify(big).length;
   assert.ok(bytes <= 300_000, `largest response is ${bytes} bytes, budget 300,000`);
+
+  // The CSV download: one row per wager, the same run the server summarised, ending on its bankroll (PROD-06).
+  const strategy = { ...base, sport: 'MLB', sideSelection: 'home', startingBankroll: 10_000_000 } as Strategy;
+  const csv = ledgerCsv(runBacktest(strategy, Infinity).gamesPreview).trimEnd().split('\n');
+  assert.equal(csv.length - 1, summary.totalBets, 'CSV rows vs totalBets');
+  assert.equal(Number(csv.at(-1)!.split(',').at(-1)), summary.finalBankroll, 'CSV ends on the final bankroll');
 }
 
 // A favourite is the favourite of the market being bet: the side laying points
@@ -109,4 +116,4 @@ for (const sport of SPORTS) {
 }
 assert.ok(ledgerRows > 5000, `only ${ledgerRows} ledger rows read`);
 
-console.log(`Engine check passed: ${games} games in date order with replayable streaks; bust and drawdown hold; ${ledgerRows} favourite and underdog bets on the right side.`);
+console.log(`Engine check passed: ${games} games in date order with replayable streaks; bust and drawdown hold; ${ledgerRows} favourite and underdog bets on the right side; the CSV ledger has one row per wager.`);
