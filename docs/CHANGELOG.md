@@ -2,6 +2,18 @@
 
 ---
 
+## November 13, 2026 — The audit's remaining work leads the roadmap
+
+- **Audit follow-ups first.** The section now opens *After public release*, and its open lines come
+  before the ticked ones, in the order the roadmap routine should take them: re-pin the data-flow
+  diagram (OPS-08), the last estimate rows and a refresh rule (PROD-07), confirm roadmap runs leave
+  `site/` alone (AI-15), and late finals in the line archive (BUG-32, not before 2026-11-15). The
+  owner's lines follow: required CI and code-owner review (SEC-02), ESPN's terms (GOV-01), a durable
+  store for the advisor limits, finishing the history purge (SEC-01) and reading the form counts (PROD-14).
+  OPS-08, PROD-07, AI-15, SEC-01 and PROD-14 had no line before.
+
+---
+
 ## November 13, 2026 — No animation library; AGENTS.md checked line by line
 
 Audit PERF-05 and AI-17.
