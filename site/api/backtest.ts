@@ -1,9 +1,15 @@
 import type { ApiRequest, ApiResponse } from '../src/server/httpTypes.js';
 import { backtestRoute } from '../src/server/backtest.js';
+import { publicLimit, retryAfter } from '../src/server/publicLimit.js';
 
 export default function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+  const limited = publicLimit('backtest', req);
+  if (limited) {
+    res.setHeader('Retry-After', retryAfter());
+    return res.status(limited.status).json(limited.body);
   }
   // Vercel parses the body lazily, so malformed JSON throws on this read. That
   // is the caller's mistake, not an engine failure.

@@ -2,6 +2,21 @@
 
 ---
 
+## November 13, 2026 — A request cap on the open endpoints, and the presets under test
+
+Audit SEC-08 and ARCH-06.
+
+- **Request cap.** `/api/backtest` and `/api/espn-scoreboard` answer **429** with `Retry-After` once one
+  client passes 60 requests a minute, on Vercel and in the Express server alike
+  (`src/server/publicLimit.ts`). The count is per instance on Vercel, so it damps one client rather
+  than capping the site; a Vercel Firewall rule on `/api/*` would be the cross-instance layer.
+  `check:deployment` holds the cap, the header, and that another client or endpoint isn't affected.
+- **Presets.** The backtester's Quick Presets moved from `StrategyBuilder.tsx` to `src/presets.ts`, with
+  `applyPreset` as a pure function. `check:strategy-url` runs each one: the schema accepts it, no range
+  is inverted, it places bets, its share link round-trips, and the form gets a copy with only its fields.
+
+---
+
 ## November 13, 2026 — Docs caught up with the day's merges
 
 - **Roadmap.** The audit follow-ups note covers #125 to #131 and says #131's production deploy was

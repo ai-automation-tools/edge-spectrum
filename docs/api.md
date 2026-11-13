@@ -20,6 +20,11 @@ On Vercel each function answers **405** to any other method. Locally, Express se
 has no route for to the SPA instead, and answers malformed JSON with its own 400 page rather than
 the JSON error below.
 
+The two open endpoints, `/api/backtest` and `/api/espn-scoreboard`, each take at most 60 requests a
+minute from one client (`publicLimit` in `src/server/publicLimit.ts`). Past that they answer **429**
+with a `Retry-After` header in seconds. The count lives in process memory, so on Vercel each warm
+instance keeps its own.
+
 ---
 
 ## `POST /api/backtest`
@@ -53,6 +58,7 @@ and `totalGames`.
 | Status | When |
 |:---|:---|
 | 400 | Body is not valid JSON, or fails the schema. `details` lists each issue |
+| 429 | Over 60 calls in a minute from this client |
 | 500 | The engine failed |
 
 ## `GET /api/espn-scoreboard`
@@ -69,6 +75,7 @@ spread, total and moneylines where ESPN sends them. On Vercel the 200 carries
 | Status | When |
 |:---|:---|
 | 400 | Unknown sport, malformed date, or a parameter given twice |
+| 429 | Over 60 calls in a minute from this client; cached 200s don't count |
 | 504 | ESPN did not answer within 8 seconds |
 | 500 | ESPN answered with an error or something unreadable |
 

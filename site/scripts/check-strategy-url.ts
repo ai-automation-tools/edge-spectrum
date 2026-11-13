@@ -8,6 +8,8 @@ import { DEFAULT_STRATEGY, strategyFromQuery, strategyToQuery } from '../src/str
 import { validateStrategy } from '../src/server/strategySchema';
 import { rangeIssues } from '../src/strategyBounds';
 import type { Strategy } from '../src/types';
+import { PRESETS, applyPreset } from '../src/presets';
+import { runBacktest } from '../src/dataGenerator';
 
 const accepted = (s: Strategy, label: string) => {
   const v = validateStrategy(s);
@@ -80,4 +82,18 @@ for (let i = 0; i < 5000; i++) {
   accepted(strategyFromQuery(q), q.toString());
 }
 
-console.log('check:strategy-url — round trip, degradation and 5,000 fuzzed links OK');
+// ── Quick Presets (audit ARCH-06) ── each one is a valid strategy with no inverted range that
+// places bets, survives a share link, and replaces the form rather than merging into it (BUG-05).
+assert.ok(PRESETS.length > 0);
+for (const p of PRESETS) {
+  const s = applyPreset(p);
+  accepted(s, p.name);
+  assert.deepEqual(rangeIssues(s), [], `${p.name}: inverted range`);
+  assert.ok(runBacktest(s).summary.totalBets > 0, `${p.name}: places no bets`);
+  assert.equal(strategyToQuery(strategyFromQuery(strategyToQuery(s))), strategyToQuery(s), `${p.name}: share link`);
+  // Exactly the preset's fields: nothing from the strategy on screen before it survives.
+  assert.deepEqual(s, p.strategy, `${p.name}: merged`);
+  assert.notEqual(s, p.strategy, `${p.name}: the form must get a copy`);
+}
+
+console.log(`check:strategy-url — round trip, degradation, 5,000 fuzzed links and ${PRESETS.length} presets OK`);
