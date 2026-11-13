@@ -202,6 +202,12 @@ To transition from synthetic simulations to observed historical tracking, forwar
 - **Held by:** `npm run check:lines` (in CI), which runs a recorded ESPN response through the real
   parser and asserts the fields, the phase rule, that a second run only appends, that a game has one opener
   across two day files, and that a broken line, an undated game and a non-date day are handled.
+- **Closing-line grading:** `site/scripts/grade-lines.ts` (`npm run grade:lines -- --archive <folder> --bets <csv>`,
+  audit PROD-10) grades a CSV of the user's bets against the same `close` capture the digest uses:
+  EV at the de-vigged closing price for a moneyline (and for a spread taken at the closing number),
+  points gained for spreads and totals, and the result from the final. A game with no `close` capture
+  is listed and not graded. Local only: it reads the user's archive and writes a markdown report next
+  to the CSV. Held by `npm run check:lines`.
 - **Daily digest:** `site/scripts/digest-lines.ts` (`npm run digest:lines -- --archive <folder>`),
   scheduled daily at 12:30 UTC as the Cronsole template
   [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest).

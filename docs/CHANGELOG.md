@@ -2,6 +2,21 @@
 
 ---
 
+## November 12, 2026 — Grade your bets against the close; sample prediction-market spreads
+
+From the 2026-11-11 project audit's long-term list (PROD-10, INT-10).
+
+- **`npm run grade:lines`** grades a CSV of your own bets against your own line archive: each game's
+  `close` capture, the same one the daily digest uses. It reports how many bets beat the closing line,
+  the EV of a moneyline (or a spread taken at the closing number) at the de-vigged closing price, the
+  points gained on spreads and totals, and each result from the final. A game with no close capture
+  is listed, never graded against a pre-game line. Local only (audit GOV-01): it reads your archive and
+  writes a markdown report next to the CSV. `check:lines` holds it. Roadmap 5.4's site feature waits
+  until the script is used.
+- **`npm run sample:spreads`** samples the public Kalshi and Polymarket order books once, by hand, for
+  the median half-spread of each prediction-market row's markets near 50c, weighted by 24-hour volume
+  so idle 1c / 99c books do not swamp it. No feed and no key; the rows cite its output and date.
+
 ## November 12, 2026 — motion 14, lucide-react 1, dotenv 18
 
 The last of roadmap Action 2.14's majors.
