@@ -5,6 +5,7 @@ import {
 } from '../src/server/auth';
 import { AdviceFormatError, generateAdvice, parseAdvice } from '../src/server/advisor';
 import { fetchEspnScoreboard } from '../src/server/espn';
+import { PUBLIC_REQUESTS_PER_MINUTE, resetPublicLimit } from '../src/server/publicLimit';
 import advisorHandler from '../api/strategy-advisor';
 import backtestHandler from '../api/backtest';
 import espnHandler from '../api/espn-scoreboard';
@@ -147,6 +148,18 @@ try {
   } });
   assert.equal(ran.status, 200);
   assert.ok(ran.body.summary.totalBets > 0);
+
+  // Each open endpoint caps a client at PUBLIC_REQUESTS_PER_MINUTE (audit SEC-08); a refused call never
+  // reaches the handler, and the cap is per client and per endpoint.
+  resetPublicLimit();
+  const client = (ip: string, query: object) => ({ method: 'GET', headers: {}, socket: { remoteAddress: ip }, query });
+  for (let i = 0; i < PUBLIC_REQUESTS_PER_MINUTE; i++) assert.equal((await call(espnHandler, client('198.51.100.1', { sport: 'zzz' }))).status, 400);
+  const throttled = await call(espnHandler, client('198.51.100.1', { sport: 'zzz' }));
+  assert.equal(throttled.status, 429);
+  assert.ok(Number(throttled.headers['Retry-After']) >= 1, 'a 429 says when to retry');
+  assert.equal((await call(espnHandler, client('198.51.100.2', { sport: 'zzz' }))).status, 400, 'another client is not limited');
+  assert.equal((await call(backtestHandler, { ...client('198.51.100.1', {}), method: 'POST', body: { sport: 'NFL' } })).status, 400, 'nor is the other endpoint');
+  resetPublicLimit();
   assert.equal(networkCalls, 0);
 
   // A stalled ESPN is cut off and reported as a gateway timeout.
@@ -194,7 +207,7 @@ try {
   assert.equal(runContext(undefined), '', 'no run, no backtest section');
   const { relevantEdges } = await import('../src/server/edgeContext');
   assert.deepEqual(relevantEdges('How should I size my NFL underdog bets?'), [], 'a strategy question carries no dataset rows');
-  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; advisor limits, lockout and reply validation hold; dataset questions carry their rows, and the run on screen reaches the model as numbers only.');
+  console.log('Deployment checks passed: demo rejects live AI and old sessions; full mode preserves authentication; zero network calls; bad input is a 400 and a stalled ESPN a 504; the open endpoints cap each client; advisor limits, lockout and reply validation hold; dataset questions carry their rows, and the run on screen reaches the model as numbers only.');
 } finally {
   for (const key of keys) {
     if (previous[key] === undefined) delete process.env[key];

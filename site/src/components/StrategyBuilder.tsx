@@ -5,6 +5,7 @@ import {
   MAX_AMERICAN_ODDS, MAX_SPREAD_POINTS, MAX_TOTAL_POINTS, rangeIssues,
 } from '../strategyBounds';
 import { strategyToQuery } from '../strategyUrl';
+import { PRESETS, applyPreset, type Preset } from '../presets';
 import {
   Play, AlertTriangle, Lightbulb, Sliders, DollarSign,
   ChevronDown, Globe, Target, Wallet, ArrowRight, Activity, Link2, Check,
@@ -142,69 +143,6 @@ const SPORT_DOT: Record<SportType, string> = {
   NFL: 'bg-emerald-400', NBA: 'bg-amber-400', MLB: 'bg-sky-400', NHL: 'bg-violet-400',
 };
 
-const PRESETS: { name: string; strategy: Strategy }[] = [
-  {
-    name: 'NFL Underdog Trend Model',
-    strategy: {
-      sport: 'NFL',
-      startYear: 2020,
-      endYear: 2024,
-      betType: 'moneyline',
-      sideSelection: 'underdogs',
-      streakFilter: 'any',
-      oddsMin: 120,
-      oddsMax: 350,
-      unitSize: 100,
-      startingBankroll: 10005 // standard baseline
-    }
-  },
-  {
-    name: 'NBA Cover Favorite Model',
-    strategy: {
-      sport: 'NBA',
-      startYear: 2021,
-      endYear: 2024,
-      betType: 'spread',
-      sideSelection: 'favorites',
-      streakFilter: 'after_win',
-      spreadMin: 3,
-      spreadMax: 10,
-      unitSize: 150,
-      startingBankroll: 10000
-    }
-  },
-  {
-    name: 'MLB Underdog Moneyline Model',
-    strategy: {
-      sport: 'MLB',
-      startYear: 2018,
-      endYear: 2023,
-      betType: 'moneyline',
-      sideSelection: 'away_underdogs',
-      streakFilter: 'any',
-      oddsMin: 100,
-      oddsMax: 220,
-      unitSize: 100,
-      startingBankroll: 10000
-    }
-  },
-  {
-    name: 'NHL Totals Over Model',
-    strategy: {
-      sport: 'NHL',
-      startYear: 2015,
-      endYear: 2024,
-      betType: 'totals',
-      sideSelection: 'over',
-      streakFilter: 'any',
-      totalMin: 5,
-      totalMax: 6.5,
-      unitSize: 100,
-      startingBankroll: 10000
-    }
-  }
-];
-
 export default function StrategyBuilder({ currentStrategy, onChange, onRunBacktest, isLoading, }: StrategyBuilderProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -233,11 +171,7 @@ export default function StrategyBuilder({ currentStrategy, onChange, onRunBackte
     });
   };
 
-  const handlePresetSelect = (preset: typeof PRESETS[0]) => {
-    // Replace, never merge: a preset that sets no odds filter must not inherit
-    // the last preset's, which left the next one with zero bets (audit BUG-05).
-    onChange({ ...preset.strategy });
-  };
+  const handlePresetSelect = (preset: Preset) => onChange(applyPreset(preset));
 
   // Keep year options clean — driven by the schema's season bounds
   const years = Array.from({ length: MAX_SEASON - MIN_SEASON + 1 }, (_, i) => MIN_SEASON + i);

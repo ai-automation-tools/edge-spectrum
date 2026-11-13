@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { backtestRoute } from './src/server/backtest';
 import { espnScoreboardRoute } from './src/server/espn';
 import { advisorRoute } from './src/server/advisor';
+import { publicLimit, retryAfter } from './src/server/publicLimit';
 import {
   attemptUnlock,
   clientIp,
@@ -17,17 +18,25 @@ const PORT = Number(process.env.PORT) || 3001;
 
 app.use(express.json());
 
+// The per-client cap on the two open endpoints (audit SEC-08), ahead of their handlers.
+const limit = (route: string): express.RequestHandler => (req, res, next) => {
+  const limited = publicLimit(route, req);
+  if (!limited) return next();
+  res.setHeader('Retry-After', retryAfter());
+  res.status(limited.status).json(limited.body);
+};
+
 // API Routes — these mirror the Vercel serverless functions in `api/`.
 // Shared request logic lives in `src/server/*` so the two stay in sync.
 
 // 1. Backtest Engine Endpoint
-app.post('/api/backtest', (req, res) => {
+app.post('/api/backtest', limit('backtest'), (req, res) => {
   const result = backtestRoute(req.body);
   res.status(result.status).json(result.body);
 });
 
 // 2. ESPN Live Scoreboard Proxied Endpoint
-app.get('/api/espn-scoreboard', async (req, res) => {
+app.get('/api/espn-scoreboard', limit('espn'), async (req, res) => {
   const result = await espnScoreboardRoute(req.query);
   res.status(result.status).json(result.body);
 });
