@@ -1,5 +1,5 @@
 {
-  "totalRecords": 240,
+  "totalRecords": 239,
   "categories": {
     "Stock Market": {
       "records": 32,
@@ -23,7 +23,7 @@
     },
     "Collectibles": {
       "records": 10,
-      "cited": 0
+      "cited": 6
     },
     "Precious Metals": {
       "records": 12,
@@ -31,7 +31,7 @@
     },
     "Insurance & Annuities": {
       "records": 11,
-      "cited": 2
+      "cited": 8
     },
     "Trading & Derivatives": {
       "records": 10,
@@ -51,11 +51,11 @@
     },
     "Poker & Skill-Based": {
       "records": 9,
-      "cited": 0
+      "cited": 5
     },
     "Prediction Markets": {
-      "records": 12,
-      "cited": 0
+      "records": 11,
+      "cited": 11
     },
     "Lottery": {
       "records": 13,

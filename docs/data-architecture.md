@@ -22,11 +22,13 @@ site/src/data/edges.ts (Typed canonical dataset)  ← edit only this
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
           ├──► site/public/spectrum/index.html  — the inlined `RAW` block the live page ships
-          ├──► site/public/spectrum/edges.json  — machine-readable copy for the React port (4.6)
+          ├──► site/public/spectrum/edges.json  — the page's short-key rows, for the React port (4.6)
+          ├──► site/public/spectrum/edges.csv   — the published dataset
+          ├──► site/public/spectrum/datapackage.json — its schema, version and licence
           └──► data/edge_dataset.md             — human-readable catalog of the inputs
 ```
 
-`npm run gen:edges -- --check` regenerates all three in memory and exits non-zero if any has
+`npm run gen:edges -- --check` regenerates all five in memory and exits non-zero if any has
 drifted from the source. It runs in CI on every pull request, so an artifact edited by hand fails
 the build instead of silently becoming a fourth version of the truth.
 
@@ -34,6 +36,24 @@ The Spectrum page keeps its data **inlined** rather than fetching `edges.json` �
 self-contained by design (Plotly self-hosted beside it, fonts by CDN, no build step), and inlining is what lets
 `npm run check:spectrum` lift the page's own `RAW` and math out of the HTML and test the file that
 actually deploys. The generator owns that block; the page still ships it.
+
+### The published dataset (audit INT-07, GOV-03; 2026-11-12)
+
+`edges.csv` and `datapackage.json` are served beside the Spectrum page, at
+`/spectrum/edges.csv` and `/spectrum/datapackage.json`, with `Access-Control-Allow-Origin: *`, and
+the page's footer links them. `datapackage.json` is a [Frictionless Data Package](https://datapackage.org/):
+
+- **Schema:** one field per CSV column, with its type, description and allowed values. The columns
+  are `EdgeRecord` with readable names (`annual_return_pct`, `edge_pct`, `decisions_per_day`, ...).
+  `edges.json` keeps the page's short keys and may change with the page; `edges.csv` is the stable
+  shape.
+- **Version:** the newest `asOf` in the data, so it moves whenever a figure is checked or changed.
+  Each resource carries a `sha256` hash.
+- **Licence:** CC BY 4.0 for the compilation. Every figure is a fact credited to the publisher in
+  its `source`; no publisher's table is reproduced. The code stays Apache-2.0.
+
+Each `dataset-<version>` release on GitHub attaches the three files (audit PROD-16). There is no
+`/api/edges`: the static files cover it (audit INT-07).
 
 ### TypeScript Schema (`EdgeRecord`)
 
@@ -70,8 +90,8 @@ export const EDGES: readonly EdgeRecord[];
 
 Every record declares its `basis` and may carry a citation. The coverage table in
 [`data/edge_dataset.md`](../data/edge_dataset.md) has the counts. Every `math` and `published` row
-cites a source (November 2026); the uncited rows are `estimate` rows, which is why Collectibles, Poker,
-Prediction Markets and most of Insurance stay under the freeze line. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
+cites a source (November 2026); the uncited rows are `estimate` rows, and every category cites at
+least half its rows, so the dataset is not frozen. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old, except a `math` row with a methodology: a
 figure that follows from the rules does not age. Every `math` row is cited (2026-11-12).
 
@@ -108,7 +128,7 @@ and asserted by `npm run check:edges` / `npm run check:spectrum`.
 | **🐎 Horse Racing & Pari-Mutuel** | `g` linear | Win/Place/Show, Exacta, Trifecta / Superfecta, Pick 4 / Pick 6, ADW Rebate, Greyhounds |
 | **🎰 Casino Gambling** | `g` linear | Card Counting (+1%), Spanish 21, 9/6 Video Poker, Ultimate Texas Hold'em, Sic Bo, Casino War, Online Slots, Crypto Dice, Keno |
 | **♠️ Poker & Skill-Based** | `g` linear | DFS Top 5%, Skilled Tournaments, Recreational Live, DFS Casual |
-| **🔮 Prediction Markets** | `g` linear | Polymarket Elections, Kalshi Economic, Metaculus, PredictIt |
+| **🔮 Prediction Markets** | `g` linear | Polymarket Elections, Kalshi Economic, Kalshi Weather, PredictIt |
 | **🎟️ Lottery** | `g` linear | Powerball / Mega Millions, EuroMillions, Scratch-Offs, Pull-Tabs, Bingo, 50/50 Raffle |
 
 > **Trading & Derivatives** returned on 2026-10-12. V11 had cut **Options & Derivatives** and

@@ -427,6 +427,11 @@
 <footer class="footer">
     <div>V21 &mdash; THE EDGE SPECTRUM &bull; OCTOBER 2026</div>
     <div style="letter-spacing: 0.05em;">RETURN ON CAPITAL FLOORS AT &minus;100% &bull; TURNOVER COST DOES NOT</div>
+    <div class="footer-data" style="flex-basis: 100%;">
+        The dataset: <a href="edges.csv" download>edges.csv</a> &middot;
+        <a href="datapackage.json">schema, version and licence</a> &middot;
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer license">CC BY 4.0</a>
+    </div>
     <div class="footer-rg" style="flex-basis: 100%; font-weight: 500; letter-spacing: 0.02em; line-height: 1.6;">
         For education only &mdash; not investment, financial or betting advice. Gambling is for adults (18+ or 21+ where you live).
         Gambling problem? Free, confidential help:
@@ -640,15 +645,15 @@ const RAW = [
 
   // --- COLLECTIBLES (Compound) ---
   {n:"Vintage Sports Cards (PSA 10)",cat:"Collectibles",m:"i",a:6.0,ly:"raw",type:"Asset"},
-  {n:"Fine Art (Blue Chip / Old Masters)",cat:"Collectibles",m:"i",a:5.0,ly:"raw",type:"Asset"},
-  {n:"Fine Wine (Investment Grade)",cat:"Collectibles",m:"i",a:4.0,ly:"raw",type:"Asset"},
-  {n:"Classic Cars (Pre-1970)",cat:"Collectibles",m:"i",a:3.5,ly:"raw",type:"Asset"},
-  {n:"Luxury Watches (Rolex/Patek)",cat:"Collectibles",m:"i",a:3.0,ly:"raw",type:"Asset"},
+  {n:"Fine Art (Blue Chip / Old Masters)",cat:"Collectibles",m:"i",a:1.9,ly:"raw",type:"Asset",src:"CKGSB and Bocconi, MM Art Indices 2025 Annual Report (Europe Art Price Index, released 2026-01-14)",asOf:"2026-11-12",win:"2000 to autumn 2025",how:"Auction price index of 5,578 European artists (Sotheby's, Christie's, Phillips) from 1 to 1.61: 1.9% a year. No fees, premiums or insurance; the Americas index is 4.1%."},
+  {n:"Fine Wine (Investment Grade)",cat:"Collectibles",m:"i",a:2.98,ly:"raw",type:"Asset",src:"Knight Frank, The Wealth Report 2026, Knight Frank Luxury Investment Index (10-year change, data to Q4 2025), Liv-ex Fine Wine 100",asOf:"2026-11-12",win:"2015-2025",how:"Price index up 34.1% in 10 years: 1.341^(1/10) - 1. No storage or dealer costs. Very window-sensitive: to Q4 2023 it was 9.4% a year."},
+  {n:"Classic Cars (Pre-1970)",cat:"Collectibles",m:"i",a:2.76,ly:"raw",type:"Asset",src:"Knight Frank, The Wealth Report 2026, Knight Frank Luxury Investment Index (10-year change, data to Q4 2025), HAGI collector-car index",asOf:"2026-11-12",win:"2015-2025",how:"Price index up 31.3% in 10 years: 1.313^(1/10) - 1. HAGI is not limited to pre-1970 cars; no storage, insurance or auction costs."},
+  {n:"Luxury Watches (Rolex/Patek)",cat:"Collectibles",m:"i",a:9.06,ly:"raw",type:"Asset",src:"Knight Frank, The Wealth Report 2024, Knight Frank Luxury Investment Index (watches, 10-year change, data to Q4 2023)",asOf:"2026-11-12",win:"2013-2023",how:"Price index up 138% in 10 years: 2.38^(1/10) - 1. Stops before the 2024-25 fall; Knight Frank's 2026 index has no 10-year watch figure."},
   {n:"Sneaker Reselling (Retail Avg)",cat:"Collectibles",m:"i",a:-5.0,ly:"raw",type:"Asset"},
   {n:"Modern Art Speculation",cat:"Collectibles",m:"i",a:-10.0,ly:"raw",type:"Asset"},
   {n:"Non-Vintage Trading Cards",cat:"Collectibles",m:"i",a:-15.0,ly:"raw",type:"Asset"},
-  {n:"NFT Art & Digital Collectibles",cat:"Collectibles",m:"i",a:-50.0,ly:"raw",type:"Asset"},
-  {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",m:"i",a:4.32,ly:"tax",type:"Asset"},
+  {n:"NFT Art & Digital Collectibles",cat:"Collectibles",m:"i",a:-39.9,ly:"raw",type:"Asset",src:"Cointelegraph, NFTs' utility, culture and price faded in 2025 (CoinGecko total NFT market cap, 2025-12-24)",asOf:"2026-11-12",win:"2022-04 to 2025-12-24",how:"Market cap from about $16.8B at the peak to $2.56B: (2.56 / 16.8)^(1/3.69) - 1. Starts at the peak; market cap is not a holder's return."},
+  {n:"Collectibles After 28% Tax Rate",cat:"Collectibles",m:"i",a:2.39,ly:"tax",type:"Asset",src:"Knight Frank, The Wealth Report 2026, Knight Frank Luxury Investment Index (10-year change, data to Q4 2025), overall index",asOf:"2026-11-12",win:"2015-2025",how:"The overall luxury index, up 38.6% in 10 years (3.32% a year), less the 28% collectibles capital gains rate: 3.32 x 0.72."},
 
   // --- PRECIOUS METALS (Compound) ---
   {n:"Gold Bullion (Physical / GLD)",cat:"Precious Metals",m:"i",a:7.1,ly:"raw",type:"Asset",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills, gold column",asOf:"2026-10-19",win:"1976-2025",how:"Compound annual growth of the gold price over the last 50 years: 7.11%. The series runs from 1928, but gold's price was fixed until 1971, so the full span understates a free market. Physical or GLD holding costs come off this."},
@@ -665,17 +670,17 @@ const RAW = [
   {n:"Gold Mining After LTCG Tax (20%)",cat:"Precious Metals",m:"i",a:3.3,ly:"tax",type:"Asset",src:"VanEck, Gold Miners ETF fact sheet (NAV since inception, as of 2026-10-31)",asOf:"2026-11-12",win:"2006-05-16 to 2026-10-31",how:"The Gold Mining Stocks row (4.12%) less 20% long-term capital gains tax: 4.12 x 0.8, the same method as the other after-tax rows."},
 
   // --- INSURANCE & ANNUITIES (Compound) ---
-  {n:"Variable Annuity (Equity Sub-Accounts)",cat:"Insurance & Annuities",m:"i",a:5.0,ly:"raw",type:"Asset"},
+  {n:"Variable Annuity (Equity Sub-Accounts)",cat:"Insurance & Annuities",m:"i",a:7.49,ly:"raw",type:"Asset",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills; Morningstar via Fox News, What's Wrong With Variable Annuities (average subaccount and insurance cost 2.3%, 2015-01-13)",asOf:"2026-11-12",win:"1928-2025",how:"The S&P 500 with dividends (10.02% a year) less a 2.3% yearly cost: 1.1002 x 0.977 - 1. Riders and surrender charges are extra; the cost figure is from 2015."},
   {n:"Indexed Universal Life (IUL)",cat:"Insurance & Annuities",m:"i",a:4.5,ly:"raw",type:"Asset"},
   {n:"Fixed Annuity (MYGA 5-Year)",cat:"Insurance & Annuities",m:"i",a:6.3,ly:"raw",type:"Asset",src:"Blueprint Income, Best Fixed Annuity Rates Today (top 5-year rate, Knighthead Life, AM Best A-, updated 2026-11-12)",asOf:"2026-11-12",how:"7.15% simple interest over 5 years as a compound rate: (1 + 0.0715 x 5)^(1/5) - 1. Several A- and A carriers pay 6.30% compound."},
   {n:"Single Premium Immediate Annuity (SPIA)",cat:"Insurance & Annuities",m:"i",a:4.92,ly:"raw",type:"Asset",src:"ImmediateAnnuities.com, life-only quote (male 65, $100,000, $690 a month, 2026-11-12); SSA Period Life Table 2023 (life expectancy 18.12 years)",asOf:"2026-11-12",how:"IRR of 217 monthly payments of $690 on $100,000: 0.401% a month, 4.92% a year. The 8.28% payout rate is not a return; a buyer who outlives the table does better."},
-  {n:"Whole Life — Top Mutual Co. (NWM/MassMutual)",cat:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset"},
-  {n:"Fixed Indexed Annuity (FIA)",cat:"Insurance & Annuities",m:"i",a:3.5,ly:"raw",type:"Asset"},
-  {n:"Universal Life (Current Rate)",cat:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset"},
+  {n:"Whole Life — Top Mutual Co. (NWM/MassMutual)",cat:"Insurance & Annuities",m:"i",a:4.5,ly:"raw",type:"Asset",src:"The Finance Buff, Whole Life Case Study (IRR of a MassMutual Whole Life Legacy 10 Pay illustration, 2016-11-30)",asOf:"2026-11-12",win:"20-year projection",how:"Cash-value IRR of one illustrated policy at non-guaranteed dividends (2.5% guaranteed). A projection, not history; a dividend interest rate (MassMutual 6.60% for 2026) is not this return."},
+  {n:"Fixed Indexed Annuity (FIA)",cat:"Insurance & Annuities",m:"i",a:3.23,ly:"raw",type:"Asset",src:"Retirement Income Journal, 2011-2020 FIA Returns Were Modest, Data Suggests (LIMRA industry data, 2021-10-07)",asOf:"2026-11-12",win:"2011-2020",how:"Average yearly credited return over average assets, before rider fees."},
+  {n:"Universal Life (Current Rate)",cat:"Insurance & Annuities",m:"i",a:4.19,ly:"raw",type:"Asset",src:"Principal Financial Group, Form 10-Q Q3 2026, Note 8 (universal life weighted-average crediting rate, as of 2026-09-30)",asOf:"2026-11-12",how:"The rate credited to account values, before cost-of-insurance and expense charges, so a policyholder nets less."},
   {n:"Variable Universal Life (VUL After Fees)",cat:"Insurance & Annuities",m:"i",a:3.0,ly:"raw",type:"Asset"},
   {n:"Whole Life — Average Company",cat:"Insurance & Annuities",m:"i",a:2.0,ly:"raw",type:"Asset"},
-  {n:"Annuity Gains After Ordinary Income Tax (37%)",cat:"Insurance & Annuities",m:"i",a:2.65,ly:"tax",type:"Asset"},
-  {n:"Whole Life Cash Value (Tax-Free via Policy Loans)",cat:"Insurance & Annuities",m:"i",a:3.5,ly:"tax",type:"Asset"},
+  {n:"Annuity Gains After Ordinary Income Tax (37%)",cat:"Insurance & Annuities",m:"i",a:4.72,ly:"tax",type:"Asset",src:"Damodaran (NYU Stern), Historical Returns on Stocks, Bonds and Bills; Morningstar via Fox News, What's Wrong With Variable Annuities (average subaccount and insurance cost 2.3%, 2015-01-13)",asOf:"2026-11-12",win:"1928-2025",how:"The Variable Annuity row (7.49%) taxed as ordinary income at 37%: 7.49 x 0.63, the convention of the other tax rows. Tax deferred 20 years gives 5.72%."},
+  {n:"Whole Life Cash Value (Tax-Free via Policy Loans)",cat:"Insurance & Annuities",m:"i",a:1.9,ly:"tax",type:"Asset",src:"The Finance Buff, Whole Life Case Study (IRR of a MassMutual Whole Life Legacy 10 Pay illustration, 2016-11-30)",asOf:"2026-11-12",win:"20-year projection",how:"The same illustration's 20-year IRR once policy loans are taken: loan interest cuts it from 4.5% to 1.9%."},
 
   // --- TRADING & DERIVATIVES (Mixed) ---
   {n:"Covered Call ETF (JEPI/QYLD)",cat:"Trading & Derivatives",m:"i",a:11.18,ly:"raw",type:"Asset",src:"J.P. Morgan Asset Management, JPMorgan Equity Premium Income ETF, product facts (NAV since inception, as of 2026-10-31)",asOf:"2026-11-12",win:"2020-05-20 to 2026-10-31",how:"NAV total return since inception, annualized, distributions reinvested. A short, mostly rising window; QYLD's figure is 8.72% since 2013."},
@@ -769,28 +774,27 @@ const RAW = [
 
   // --- POKER & SKILL-BASED (Linear) ---
   {n:"DFS Top 5%",cat:"Poker & Skill-Based",m:"g",e:5.0,du:5,ced:5,ly:"raw",type:"Game"},
-  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",m:"g",e:2.0,du:5,ced:10,pay:5.7,ly:"raw",type:"Game",how:"Payoff shape only: a tournament pays roughly the top 15% of the field (2023 WSOP Main Event: 1,507 of 10,043 entries), so a cash averages about 6.7x the buy-in, 5.7x net. The 2% ROI itself is uncited."},
+  {n:"Poker Skilled Tournaments",cat:"Poker & Skill-Based",m:"g",e:9.8,du:5,ced:10,pay:5.7,ly:"raw",type:"Game",src:"Levitt & Miles, The Role of Skill versus Luck in Poker: Evidence from the World Series of Poker (NBER Working Paper 17023, Table 3)",asOf:"2026-11-12",win:"2010 WSOP",how:"ROI of players rated skilled in advance, Main Event excluded: 32.89 / 29.97 - 1. With the Main Event it is 30.5%. Payoff shape: about the top 15% cash, at about 6.7x the buy-in (5.7x net)."},
   {n:"Poker Mid-Stakes Reg",cat:"Poker & Skill-Based",m:"g",e:1.5,du:40,ced:2,ly:"raw",type:"Game"},
   {n:"Poker Average Live Cash",cat:"Poker & Skill-Based",m:"g",e:-5.0,du:25,ced:3,ly:"raw",type:"Game"},
-  {n:"Poker Average Online",cat:"Poker & Skill-Based",m:"g",e:-8.0,du:40,ced:2,ly:"raw",type:"Game"},
+  {n:"Poker Average Online",cat:"Poker & Skill-Based",m:"g",e:-5.0,du:40,ced:2,ly:"raw",type:"Game",src:"PokerStars, Poker Table Rake (cash-game rake schedule, as of 2026-11-12)",asOf:"2026-11-12",how:"The posted 5% rake on No-Limit Hold'em pots at $0.25/$0.50 to $1/$2 is the most the average player can lose; caps, unraked pre-flop hands and rakeback make it lower."},
   {n:"Poker Recreational Live",cat:"Poker & Skill-Based",m:"g",e:-10.0,du:25,ced:3,ly:"raw",type:"Game"},
-  {n:"DFS Average",cat:"Poker & Skill-Based",m:"g",e:-12.0,du:5,ced:5,ly:"raw",type:"Game"},
-  {n:"Poker Sit & Go Average",cat:"Poker & Skill-Based",m:"g",e:-15.0,du:5,ced:5,ly:"raw",type:"Game"},
-  {n:"DFS Casual",cat:"Poker & Skill-Based",m:"g",e:-20.0,du:3,ced:5,ly:"raw",type:"Game"},
+  {n:"DFS Average",cat:"Poker & Skill-Based",m:"g",e:-14.31,du:5,ced:5,ly:"raw",type:"Game",src:"Massachusetts Gaming Commission, Total Fantasy Sports Wagering Tax Revenue (gross and adjusted gross receipts, 2022-08 to 2026-06)",asOf:"2026-11-12",win:"2022-08-10 to 2026-06-30",how:"Operators keep adjusted gross receipts (entries less prizes): 112,629,506 / 786,814,383. DraftKings alone keeps 11.45%, FanDuel 10.01%."},
+  {n:"Poker Sit & Go Average",cat:"Poker & Skill-Based",m:"g",e:-7.0,du:5,ced:5,ly:"raw",type:"Game",src:"Pokerfuse, PokerStars on FanDuel Rake: How it Compares to the Competition (Spin & Go fee, 2026-04-15)",asOf:"2026-11-12",how:"A flat 7% fee on every buy-in is the average player's loss; tournament fees run about 9%."},
+  {n:"DFS Casual",cat:"Poker & Skill-Based",m:"g",e:-51.0,du:3,ced:5,ly:"raw",type:"Game",src:"McKinsey & Company, For daily fantasy-sports operators, the curse of too much skill (player results by group, 2015-09-01)",asOf:"2026-11-12",win:"2015 MLB season, first half",how:"The bottom 80% of players lost $25 on $49 of entries: -25 / 49. One sport and season."},
 
   // --- PREDICTION MARKETS (Linear) ---
-  {n:"Polymarket Elections",cat:"Prediction Markets",m:"g",e:-3.0,du:1,ced:5,ly:"raw",type:"Game"},
-  {n:"Polymarket SCOTUS",cat:"Prediction Markets",m:"g",e:-3.0,du:0.5,ced:5,ly:"raw",type:"Game"},
-  {n:"Metaculus Scientific",cat:"Prediction Markets",m:"g",e:-3.5,du:1,ced:3,ly:"raw",type:"Game"},
-  {n:"Polymarket Oscars",cat:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game"},
-  {n:"Polymarket Geopolitics",cat:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:3,ly:"raw",type:"Game"},
-  {n:"Polymarket Sports/Entertainment",cat:"Prediction Markets",m:"g",e:-4.5,du:1,ced:3,ly:"raw",type:"Game"},
-  {n:"Polymarket Crypto Prices",cat:"Prediction Markets",m:"g",e:-5.0,du:2,ced:3,ly:"raw",type:"Game"},
-  {n:"Kalshi Economic",cat:"Prediction Markets",m:"g",e:-5.5,du:0.5,ced:3,ly:"raw",type:"Game"},
-  {n:"Kalshi Fed Rate",cat:"Prediction Markets",m:"g",e:-5.5,du:0.2,ced:5,ly:"raw",type:"Game"},
-  {n:"Kalshi GDP",cat:"Prediction Markets",m:"g",e:-6.0,du:0.2,ced:5,ly:"raw",type:"Game"},
-  {n:"Kalshi Weather",cat:"Prediction Markets",m:"g",e:-7.0,du:0.5,ced:2,ly:"raw",type:"Game"},
-  {n:"PredictIt US Politics",cat:"Prediction Markets",m:"g",e:-10.0,du:1,ced:5,ly:"raw",type:"Game"},
+  {n:"Polymarket Elections",cat:"Prediction Markets",m:"g",e:-4.0,du:1,ced:5,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"At a 50c price a taker pays 0.04 x (1 - 0.50) = 2.0% of stake on politics markets, plus half the published median spread (2.0%). Makers pay no fee."},
+  {n:"Polymarket SCOTUS",cat:"Prediction Markets",m:"g",e:-4.0,du:0.5,ced:5,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"At a 50c price a taker pays 0.04 x (1 - 0.50) = 2.0% of stake on politics markets, plus half the published median spread (2.0%). Makers pay no fee."},
+  {n:"Polymarket Oscars",cat:"Prediction Markets",m:"g",e:-4.5,du:0.5,ced:3,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"At a 50c price a taker pays 0.05 x (1 - 0.50) = 2.5% of stake on culture markets, plus half the published median spread (2.0%). Makers pay no fee."},
+  {n:"Polymarket Geopolitics",cat:"Prediction Markets",m:"g",e:-2.0,du:0.5,ced:3,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"Geopolitical markets carry no fee, so only half the published median spread (2.0%) is lost. Some markets tagged geopolitics charge the 4% politics rate (-4.0)."},
+  {n:"Polymarket Sports/Entertainment",cat:"Prediction Markets",m:"g",e:-4.5,du:1,ced:3,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"At a 50c price a taker pays 0.05 x (1 - 0.50) = 2.5% of stake on sports and culture markets, plus half the published median spread (2.0%). Makers pay no fee. NFL and college football run at 0.03 (-3.5)."},
+  {n:"Polymarket Crypto Prices",cat:"Prediction Markets",m:"g",e:-5.5,du:2,ced:3,ly:"raw",type:"Game",src:"Polymarket, Fees (taker rate by category, as of 2026-11-12); Dubach, Anatomy of a Decentralized Prediction Market (arXiv 2604.24366, median quoted spread)",asOf:"2026-11-12",how:"At a 50c price a taker pays 0.07 x (1 - 0.50) = 3.5% of stake on crypto markets, plus half the published median spread (2.0%). Makers pay no fee."},
+  {n:"Kalshi Economic",cat:"Prediction Markets",m:"g",e:-3.5,du:0.5,ced:3,ly:"raw",type:"Game",src:"Kalshi, Fee Schedule (taker fee 0.07 x C x P x (1 - P), effective 2026-07-07)",asOf:"2026-11-12",how:"Fee only, at a 50c price: 0.07 x 0.25 = $0.0175 a contract on a $0.50 stake. No settlement fee. Kalshi's spread is not included; no study publishes one."},
+  {n:"Kalshi Fed Rate",cat:"Prediction Markets",m:"g",e:-3.5,du:0.2,ced:5,ly:"raw",type:"Game",src:"Kalshi, Fee Schedule (taker fee 0.07 x C x P x (1 - P), effective 2026-07-07)",asOf:"2026-11-12",how:"Fee only, at a 50c price: 0.07 x 0.25 = $0.0175 a contract on a $0.50 stake. No settlement fee. Kalshi's spread is not included; no study publishes one."},
+  {n:"Kalshi GDP",cat:"Prediction Markets",m:"g",e:-3.5,du:0.2,ced:5,ly:"raw",type:"Game",src:"Kalshi, Fee Schedule (taker fee 0.07 x C x P x (1 - P), effective 2026-07-07)",asOf:"2026-11-12",how:"Fee only, at a 50c price: 0.07 x 0.25 = $0.0175 a contract on a $0.50 stake. No settlement fee. Kalshi's spread is not included; no study publishes one."},
+  {n:"Kalshi Weather",cat:"Prediction Markets",m:"g",e:-3.5,du:0.5,ced:2,ly:"raw",type:"Game",src:"Kalshi, Fee Schedule (taker fee 0.07 x C x P x (1 - P), effective 2026-07-07)",asOf:"2026-11-12",how:"Fee only, at a 50c price: 0.07 x 0.25 = $0.0175 a contract on a $0.50 stake. No settlement fee. Kalshi's spread is not included; no study publishes one. Temperature contracts often trade near 20c, where the fee is 5.6%."},
+  {n:"PredictIt US Politics",cat:"Prediction Markets",m:"g",e:-5.0,du:1,ced:5,ly:"raw",type:"Game",src:"PredictIt, How to Trade on PredictIt - Our Fees (10% fee on profit, no standard withdrawal fee, as of 2026-11-12)",asOf:"2026-11-12",how:"At a 50c price half of contracts win $0.50 and pay 10% of it: 0.5 x 0.05 / 0.50 = 5%. The old 5% withdrawal fee is gone."},
 
   // --- LOTTERY (Linear) ---
   {n:"Pull-Tab Tickets",cat:"Lottery",m:"g",e:-13.96,du:1,ced:0.3,ly:"raw",type:"Game",src:"Minnesota Gambling Control Board, FY2025 Annual Report (receipts by game type)",asOf:"2026-11-12",win:"2024-07-01 to 2025-06-30",how:"Net receipts over gross receipts, paper and electronic: 654,335,984 / 4,688,656,626. Minnesota's charitable pull-tabs pay unusually well."},

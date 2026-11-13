@@ -1,0 +1,167 @@
+{
+  "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
+  "name": "edge-spectrum",
+  "title": "Edge Spectrum: returns and house edges across investing and gambling",
+  "description": "239 activities, from index funds to keno, each with an annual return (held assets) or an edge per decision (wagers), the evidence behind it, and where cited, its source, check date, window and method. Education only, not advice.",
+  "version": "2026-11-12",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "The publishers named in each record's source field"
+    }
+  ],
+  "resources": [
+    {
+      "name": "edges",
+      "path": "edges.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "hash": "sha256:c06c1df3d000867d11fa4f1fc5b5e2fb0a329e0cb2bd76664b97da03773430e6",
+      "dialect": {
+        "delimiter": ",",
+        "lineTerminator": "\n",
+        "header": true
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "The activity. Unique.",
+            "constraints": {
+              "required": true,
+              "unique": true
+            }
+          },
+          {
+            "name": "category",
+            "type": "string",
+            "description": "The category it is grouped under.",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "Stock Market",
+                "Cash & Savings",
+                "Bonds",
+                "Real Estate",
+                "Cryptocurrency",
+                "Collectibles",
+                "Precious Metals",
+                "Insurance & Annuities",
+                "Trading & Derivatives",
+                "Sports Betting",
+                "Horse Racing & Pari-Mutuel",
+                "Casino Gambling",
+                "Poker & Skill-Based",
+                "Prediction Markets",
+                "Lottery"
+              ]
+            }
+          },
+          {
+            "name": "model",
+            "type": "string",
+            "description": "\"i\": a held asset whose return compounds. \"g\": a repeated wager whose edge accrues per decision.",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "i",
+                "g"
+              ]
+            }
+          },
+          {
+            "name": "layer",
+            "type": "string",
+            "description": "\"raw\", or the same activity after a \"fee\" or \"tax\".",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "raw",
+                "fee",
+                "tax"
+              ]
+            }
+          },
+          {
+            "name": "basis",
+            "type": "string",
+            "description": "\"math\": follows from the rules and payouts. \"published\": a rate, price, index or takeout someone publishes. \"estimate\": a typical outcome no one publishes as one figure.",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "math",
+                "published",
+                "estimate"
+              ]
+            }
+          },
+          {
+            "name": "annual_return_pct",
+            "type": "number",
+            "description": "Model \"i\" only: annual return, percent."
+          },
+          {
+            "name": "edge_pct",
+            "type": "number",
+            "description": "Model \"g\" only: expected return per decision, percent of the stake. Negative for the player on most rows."
+          },
+          {
+            "name": "decisions_per_day",
+            "type": "number",
+            "description": "Model \"g\" only: decisions per day at typical play."
+          },
+          {
+            "name": "capital_exposed_pct",
+            "type": "number",
+            "description": "Model \"g\" only: capital exposed per decision, percent of bankroll."
+          },
+          {
+            "name": "payout",
+            "type": "number",
+            "description": "Model \"g\", positive-edge rows only: average net win per unit staked on a winning decision. Empty means even money."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "Where the figure comes from. Empty means uncited."
+          },
+          {
+            "name": "as_of",
+            "type": "date",
+            "description": "The date the figure was last checked against its source."
+          },
+          {
+            "name": "window",
+            "type": "string",
+            "description": "The period the figure covers."
+          },
+          {
+            "name": "methodology",
+            "type": "string",
+            "description": "How the figure was derived."
+          }
+        ],
+        "primaryKey": [
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "edges-spectrum",
+      "path": "edges.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8",
+      "hash": "sha256:e7752ba5084d29a30ad6fdc7c83a7c38935ca0ec6defb0c61f58aee0203e6433",
+      "description": "The same records in the short-key shape the Spectrum page uses: n, cat, m, a (or e, du, ced, pay), ly, type, src, asOf, win, how, and b on math rows. Prefer edges.csv; this shape may change with the page."
+    }
+  ]
+}
