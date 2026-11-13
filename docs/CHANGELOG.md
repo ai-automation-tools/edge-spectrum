@@ -2,6 +2,23 @@
 
 ---
 
+## November 13, 2026 — No animation library; AGENTS.md checked line by line
+
+Audit PERF-05 and AI-17.
+
+- **`motion` is gone.** The one fade-and-rise (`Reveal`) is a CSS transition started by an
+  IntersectionObserver, the backtest numbers count up with `requestAnimationFrame`, and
+  `useReducedMotion` is a `matchMedia` hook in `components/ui.tsx`. Under reduced motion the CSS shows
+  every section at once. The home page's first-load JS falls from 134.6 kB to 120.9 kB gzip, and
+  `check:spectrum-browser` scrolls the hub and requires every faded section to finish visible.
+- **`AGENTS.md` matches the code again.** It now lists every `src/` module, server module, script and
+  generated public folder, lists all five places a route is named (`PAGE_META` and `404.html` were missing), gives the three places a new
+  accent colour goes (the old `Home.tsx` map is long gone), says the built server also serves
+  self-hosted copies, notes the open-endpoint cap and the season cache, drops the React port of the
+  Spectrum page (roadmap 4.6, dropped 2026-11-12), and states the noreply commit identity actually in use.
+
+---
+
 ## November 13, 2026 — Fonts served from the site
 
 Audit GOV-04 and SEC-06.

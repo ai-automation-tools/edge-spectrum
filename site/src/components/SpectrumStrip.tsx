@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'motion/react';
 import { EDGES, type EdgeRecord } from '../data/edges';
 import { useTheme, type Theme } from '../theme';
+import { useReducedMotion } from './ui';
 
 /**
  * The hero visual: every record in the dataset, drawn on two separate lanes.

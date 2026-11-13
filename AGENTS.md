@@ -15,7 +15,8 @@ tool is roughly *one registry entry + one page*.
 - **Vite + React 19 + TS**, Tailwind v4 (`@tailwindcss/vite`), Recharts, `@google/genai` (Gemini),
   `zod` (request validation, server-side only — keep it out of the client bundle).
 - **The entire web app lives in `site/`.** The repo root holds only docs/archives (`README.md`,
-  `AGENTS.md`, `CLAUDE.md`, `data/`, `docs/`, `images/`, plus `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands
+  `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `LICENSE`, `data/`, `docs/`, `images/`, plus
+  `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands
   (`npm install`, `npm run dev`, `npm run build`, `vercel …`) from **inside `site/`**.
 - **Host: Vercel** (project `edge-spectrum`). The Vercel project's **Root Directory is set to `site`**
   (dashboard → Settings → Build & Deployment → Root Directory), so `vercel.json` and `api/` inside
@@ -26,8 +27,8 @@ tool is roughly *one registry entry + one page*.
   the PR and CI. Rolling back is in `docs/self-hosting.md`.
 - `site/server.ts` imports Vite only in its dev branch; `vite` and its plugins are `devDependencies`, and the
   built `dist/server.cjs` exits unless `NODE_ENV=production` (self-hosting only).
-- `site/server.ts` (Express + Vite middleware) is **local dev only**; on Vercel the SPA is served from
-  `site/dist/` and `site/api/*` run as serverless functions. `vercel.json` has an SPA rewrite so client
+- `site/server.ts` (Express, with Vite middleware in dev) serves local dev and a self-hosted build, never
+  Vercel: there the SPA is served from `site/dist/` and `site/api/*` run as serverless functions. `vercel.json` has an SPA rewrite so client
   routes deep-link.
 
 ## Layout
@@ -36,9 +37,17 @@ tool is roughly *one registry entry + one page*.
 site/                 # ← the whole web app (Vercel Root Directory = site)
   src/
     tools.ts          # THE REGISTRY — single source of truth for every tool
-    App.tsx           # BrowserRouter shell + slim HubNav; routes derived from the tools
+    App.tsx           # BrowserRouter shell (Topbar, ⌘K CommandPalette, SiteFooter), PAGE_META titles,
+                      #   one lazy() <Route> per route tool
     pages/Home.tsx    # hub landing = tile grid, maps over tools.ts
     pages/OddsConverter.tsx, pages/ParlayCalculator.tsx, pages/KellyCalculator.tsx   # Phase 6 calculators
+    pages/Setup.tsx   # /setup: deploy your own copy (full mode, your own Gemini key)
+    deployment.tsx    # demo/full mode from /api/advisor-auth, and the "View source" bar
+    theme.ts          # Light | Dark switch; dark on a first visit (docs/decisions.md)
+    projectLinks.ts   # the original's site and org URLs, applied only when building the original repo
+    presets.ts        # the backtester's Quick Presets and pure applyPreset — held by check-strategy-url.ts
+    liveGrading.ts    # grades a pick against ESPN's live scoreboard — held by check-live-grading.ts
+    monteCarlo.ts     # resampled equity fan ("How much was luck") and the in/out-of-sample season split — held by check-engine.ts
     kelly.ts          # pure Kelly sizing: single, fractional, simultaneous, drawdown odds — held by
                       #   scripts/check-odds.ts
     ledgerCsv.ts      # the backtest game log's CSV download (every wager, bankroll after each)
@@ -54,22 +63,34 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
     BacktesterApp.tsx # the Backtest Simulator (mounted at /backtester)
     components/        # Backtester UI (Header, StrategyBuilder, ResultsDashboard, …)
     server/            # backtest / espn / advisor logic + strategySchema.ts (Zod request
-                       #   validation) — imported by BOTH server.ts and api/
+                       #   validation) — imported by BOTH server.ts and api/. Also auth.ts (advisor
+                       #   passcode gate and limits), publicLimit.ts (per-client cap on the two open
+                       #   endpoints), edgeContext.ts (dataset rows for the advisor), deployment.ts (mode)
     strategyBounds.ts  # the numeric limits and enum lists the schema enforces; no imports, so the strategy
                        #   form can clamp to them without pulling Zod into the client bundle
     data/edges.ts      # THE DATASET — the canonical edge records. Everything else that
                        #   holds this data is generated from it; see "Generated data" below
     dataGenerator.ts, types.ts
   scripts/            # not shipped: check-bundle.mjs (after build), check-live.mjs (the deployed site, run by the
-                      #   Registry drift workflow daily and after each production deploy), check-market.ts, check-engine.ts, check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts, check-edges.ts, check-spectrum-browser.ts, generate-edge-artifacts.ts
-                      #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts
+                      #   Registry drift workflow daily and after each production deploy), check-market.ts, check-engine.ts,
+                      #   check-spectrum.ts, check-odds.ts, check-stats.ts, check-strategy-url.ts, check-calc-url.ts,
+                      #   check-edges.ts, check-lines.ts, check-live-grading.ts, check-deployment.ts, check-fork-build.ts,
+                      #   check-spectrum-browser.ts, generate-edge-artifacts.ts (gen:edges)
+                      #   capture-lines.ts: the ESPN line collector (Actions 5.1/5.2), held by check-lines.ts;
+                      #   odds-api.ts is its opt-in The Odds API source
+                      #   digest-lines.ts: the daily line-movement digest (5.2a); grade-lines.ts: closing-line value
+                      #   for your own bets (5.4, local)
                       #   capture-closes.ts: the Tiingo market-close collector (Action 5.3), held by check-lines.ts
+                      #   sample-spreads.ts: a one-off prediction-market spread sample, run by hand
                       #   build-registry.mjs: GENERATES public/registry/ (the Cronsole catalog) — edit the
                       #   templates there, never the output; --check in CI. check-registry-published.mjs
                       #   is the daily drift check of the served copy
   api/                # Vercel serverless: backtest.ts, espn-scoreboard.ts, strategy-advisor.ts, advisor-auth.ts
   public/spectrum/    # the original Edge Spectrum Plotly viz, served static at /spectrum/index.html
-                      #   index.html's RAW block and edges.json are GENERATED — do not hand-edit
+                      #   index.html's RAW block, edges.json, edges.csv and datapackage.json are GENERATED — do not hand-edit
+  public/fonts/       # self-hosted Inter and JetBrains Mono (Fontsource WOFF2, OFL), shared by the hub and Spectrum
+  public/registry/    # GENERATED by build-registry.mjs; public/diagram/ is copied by scripts/build-diagram.mjs
+  public/counting.js  # opt-in page counts, loaded only after the org consent banner is accepted
   index.html, server.ts, package.json, vite.config.ts, vercel.json, tsconfig.json
 data/ docs/ images/   # dataset doc, one frozen catalog, docs, the README logo (repo root, not deployed)
 docs/diagrams/        # code-pinned Archify diagram; hub-data-flow.json is the only file to edit
@@ -82,13 +103,15 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 1. Add one entry to `TOOLS` in `site/src/tools.ts` (`slug`, `title`, `blurb`, `icon`, `href`, `kind`, `status`, `accent`).
 2. Then, by `kind`:
    - `route` → build the page component and add it to `site/src/App.tsx` as a `lazy()` import with its `<Route>`.
-     A new route is also listed in three more places,
-     or it is a 404 in production while it works in dev: 
-     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
+     Give it a `PAGE_META` title there too. A new route is also listed in four more places,
+     or it is a 404 in production while it works in dev:
+     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, `site/public/sitemap.xml` and the
+     list in `site/public/404.html`.
    - `static` → drop the page under `site/public/<slug>/` and point `href` at `/<slug>/index.html`
      (Vite dev does **not** auto-serve a `public/` directory index — always link the explicit file).
    - `external` → just the URL; opens in a new tab.
-3. New accent colors must be added to the literal `ACCENT` map in `site/src/pages/Home.tsx` (Tailwind JIT needs the literal classes).
+3. A new accent colour goes in three places: the `Accent` type in `site/src/tools.ts`, `ACCENT_COLOR` in
+   `site/src/components/ui.tsx`, and a `--a-<name>` token for each theme in `site/src/index.css`.
 
 ## Env / secrets
 
@@ -109,6 +132,8 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
   `ADVISOR_DAILY_LIMIT` (default 200) across everyone. They are in process memory, so on serverless
   they slow abuse rather than cap it; the quota on the Gemini key is the ceiling (roadmap 2.7b).
   Caller addresses come from forwarding headers only on Vercel or with `TRUST_PROXY=1`.
+- `/api/backtest` and `/api/espn-scoreboard` answer `429` past 60 requests a minute from one client
+  (`site/src/server/publicLimit.ts`), also in process memory and per instance on Vercel.
 
 ## Conventions
 
@@ -129,14 +154,15 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 - **Line capture reads the archive tolerantly.** `readRecords` (`site/scripts/capture-lines.ts`) skips
   and counts a line that does not parse; never `JSON.parse` a day file directly. A game is "seen"
   across the sport's recent day files, not per file, so it has one `open` record.
-- **The backtest engine runs in date order.** `generateGamesDatabase` sorts the schedule's dates
-  before it draws a game, because rest days, streaks and the prices set from them are carried from
+- **The backtest engine runs in date order.** Each season is built once per process and cached
+  (`seasonCache`); building it sorts the schedule's dates before it draws a game, because rest days, streaks and the prices set from them are carried from
   one game to the next. A run stops when the bankroll cannot cover a stake (`bustedAtBet`).
   `npm run check:engine` holds both; `check:market` only holds the ROI band.
 - Route input handling lives in `src/server/` (`backtestRoute`, `espnScoreboardRoute`), which return
   `{ status, body }`. `server.ts` and `api/*.ts` only pass the request through and send the result.
-- **Client routes are listed in four places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
-  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, and `site/public/sitemap.xml`. A
+- **Client routes are listed in five places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
+  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, `site/public/sitemap.xml`, and the
+  list in `site/public/404.html`. A
   route missing from the rewrite is a 404 in production while working in dev. Tool pages are `lazy()`
   chunks; `npm run check:bundle` (after `build`) holds the home page's JS under 150 kB gzip.
 - **Content-Security-Policy is enforced** (`site/vercel.json`, report-only 2026-11-12, enforced 2026-11-13):
@@ -152,7 +178,7 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 - The static `site/public/spectrum/` page is self-contained for serving (Plotly self-hosted as
   `plotly-basic-<version>.min.js` beside it, fonts from `site/public/fonts/`, shared with the hub);
   however, its mathematical models, DU/CED metrics, and dataset are subject to code, math, and data audits.
-  A future task may port it into a React route. Because it has no build step to hook,
+  It stays a static page: the React port (roadmap 4.6) was dropped on 2026-11-12. Because it has no build step to hook,
   **`npm run check:spectrum` reads its inlined `MATH & CONSTANTS` block and `RAW` dataset straight
   out of the HTML and runs the real functions** — so renaming those section banners, or the exported
   names the script destructures, breaks the guard. Its three measures are not interchangeable:
@@ -200,8 +226,9 @@ Do **not** push directly to `main`. Work on `mike_desktop`, then open a **PR →
 
 ## Commit identity
 
-Use the repository-local neutral commit identity (`Edge Spectrum Maintainers`,
-`noreply@github.com`). Do not reintroduce pre-cleanup history by merging old clones
+Commit with a GitHub noreply address (`<id>+<login>@users.noreply.github.com`), set as this clone's
+local `user.email`; a personal address is refused on push (GH007) and must never reach public history
+(audit SEC-01). Do not reintroduce pre-cleanup history by merging old clones
 or branches; start from a fresh clone or transplant reviewed file changes.
 
 History was rewritten again on 2026-11-13 (audit SEC-01): every commit hash before #119's merge

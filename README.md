@@ -216,7 +216,7 @@ The full application is included in this repository under [Apache-2.0](LICENSE).
 **Third-party code.** The Spectrum page ships a copy of
 [plotly.js](https://github.com/plotly/plotly.js) basic 4.2.0 (`site/public/spectrum/plotly-basic-4.2.0.min.js`,
 MIT, © Plotly, Inc.; the licence header is kept in the file). The app bundles its runtime dependencies from
-`site/package.json`, each under its own licence: MIT (React, React Router, Recharts, motion, Express,
+`site/package.json`, each under its own licence: MIT (React, React Router, Recharts, Express,
 react-markdown, zod), ISC (lucide-react), BSD-2-Clause (dotenv) and Apache-2.0 (`@google/genai`).
 The Inter and JetBrains Mono fonts are served from the site itself (`site/public/fonts/`, from Fontsource 5.3.0)
 under the SIL Open Font License; the licence texts sit beside the files.
