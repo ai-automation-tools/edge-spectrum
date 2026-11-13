@@ -158,7 +158,7 @@ images/favicon.svg    # archived copy of the app icon (the served icon is site/p
   `check:spectrum` testing the file that actually deploys. `data/edge_analysis*.md` are frozen
   archives, not inputs.
 - Local dev (from `site/`): `npm run dev` (binds `PORT`, default 3001). `npm run build` = `vite build` + esbuild-bundle `server.ts`.
-  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `check:live-grading` → `build:registry --check` → `check:deployment` → `build` → `check:bundle` → `check:spectrum-browser` on every PR.
+  CI (`.github/workflows/ci.yml`) runs `lint` → `gen:edges --check` → `check:market` → `check:engine` → `check:edges` → `check:spectrum` → `check:odds` → `check:stats` → `check:strategy-url` → `check:calc-url` → `check:lines` → `check:live-grading` → `build:registry --check` → `check:deployment` → `build` → `check:bundle` → `check:fork` → `check:spectrum-browser` on every PR.
   `check:spectrum-browser` is a Playwright smoke test of the *built* Spectrum page and the backtester
   form (`vite preview` on `dist/`, with `/api/backtest` answered by a real engine run), so run `npm run build` before it locally; first use needs `npx playwright install chromium`.
   If CI stops appearing on PRs while `npm`-equivalent manual runs still work, suspect the repository-level
