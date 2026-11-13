@@ -160,10 +160,10 @@ which of them may ship before Phase 2 closes.
 
 ### 🔎 Audit follow-ups (project audit, 2026-11-11)
 
-The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did the first ten items
-of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90, #92 and #94 to #96).
-The unticked items are what is left, in the audit's order; the IDs are the audit's. Next up:
-**Record count in one place**.
+The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did eleven items
+of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90, #92 and #94 to #97).
+The unticked items are what is left, in the audit's order; the IDs are the audit's. The durable store for the advisor
+limits is deferred by the owner. Next up: **Provenance programme and a dataset freeze**.
 
 - [ ] 🟠 **Require CI and code-owner review on `main`** *(Security, SEC-02)* — `.github/CODEOWNERS` exists but does nothing until the ruleset requires code-owner review, and the `check` job is still advisory. **Done when:** a PR with a failing `check` cannot be merged. 🔒 Needs owner
 - [ ] 🟠 **Remove the personal email from public history** *(Security, SEC-01)* — 30 commits on `main`. A history rewrite and force-push in a quiet window, then re-clone everywhere. **Done when:** `git log --all --format=%ae` lists only noreply addresses. 🔒 Needs owner
@@ -181,7 +181,7 @@ The unticked items are what is left, in the audit's order; the IDs are the audit
 - [x] `small` 🟡 **Remove unused dependencies and leftovers** *(ARCH-04, ARCH-05, ARCH-07)* — done 2026-11-12: `d3`, `@types/d3`, `autoprefixer`, the second `vite` entry and the broken `clean` script are gone; so are the `DISABLE_HMR` switch, the decorator flags and the unused `@/` alias; the dead game fields, the duplicate odds helper and 23 unused imports are removed, and `tsconfig.json` now sets `noUnusedLocals` and `noUnusedParameters`; the game log gains its Push filter; the Spectrum rows lose four keys nothing read (the page is 148,722 → 132,106 bytes). Lint, build and every check pass.
 - [x] 🟡 **A fork that does not point at the original** *(Product, PROD-04)* — done 2026-11-12: `vite.config.ts` reads which repository it is building and applies the original's site and org URLs (kept in `projectLinks.ts`) only to `ai-automation-tools/edge-spectrum`. A fork's build has no canonical URL, sitemap entries or share image naming the original, no consent script and no org links; `EDGE_SPECTRUM_SITE_URL` gives it its own. The self-hosting guide gained an *After you fork* list; the drift workflow was already guarded. Held by `npm run check:fork` in CI, which builds as a fork and fails if any output file names the org domain.
 - [ ] 🟡 **A durable store for the advisor limits** *(Security, SEC-03, SEC-05)* — the 2026-11-12 limits are in process memory. Only worth doing if the Gemini key quota (Action 2.7b) proves too coarse; picking the store is an owner decision. 🔒 Needs owner
-- [ ] `small` 🔵 **Record count in one place** *(AI-08)* — `check-spectrum.ts` and `check-spectrum-browser.ts` each pin the count; read it from `provenance-baseline.json`. **Done when:** a content PR changes the count in one code file.
+- [x] `small` 🔵 **Record count in one place** *(AI-08)* — done 2026-11-12: `check-spectrum.ts` and `check-spectrum-browser.ts` read `totalRecords` from `provenance-baseline.json`, and the Spectrum tool blurb in `tools.ts` is built from `EDGES.length` and `EDGE_CATEGORIES.length`. Adding a probe record changed only `edges.ts`, the generated files and the baseline that `check:edges -- --write-baseline` writes. The three Edge Spectrum skills in agent-skills drop their pinned counts (agent-skills #102).
 - [ ] 🟠 **Provenance programme and a dataset freeze** *(Product, PROD-07, PROD-08)* — most rows cite no source while the dataset grows weekly. Classify rows as math, published or estimate, ratchet cited coverage per category in `check:edges`, and add no row while a category is under its target. **Done when:** the per-category ratchet is in CI and the freeze rule is written here.
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡

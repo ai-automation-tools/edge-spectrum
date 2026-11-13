@@ -8,6 +8,7 @@
  * still come from Google's CDN.
  */
 import { spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { chromium, type Page } from 'playwright';
@@ -17,7 +18,8 @@ import { DEFAULT_STRATEGY } from '../src/strategyUrl';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PORT = 4317;
 const PAGE_URL = `http://127.0.0.1:${PORT}/spectrum/index.html`;
-const EXPECTED_RECORDS = 240;
+// The one record count, in the baseline `check:edges -- --write-baseline` writes (audit AI-08).
+const EXPECTED_RECORDS: number = JSON.parse(readFileSync(resolve(HERE, '../src/data/provenance-baseline.json'), 'utf8')).totalRecords;
 
 const failures: string[] = [];
 const check = (ok: unknown, msg: string) => { if (!ok) failures.push(msg); };
