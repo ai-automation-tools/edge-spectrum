@@ -2,6 +2,13 @@
 
 ---
 
+## November 12, 2026 — TypeScript 7
+
+Roadmap Action 2.14, second of the batch: TypeScript 5.9 → 7.0, the native compiler. `npm run
+lint` (`tsc --noEmit`) runs on it; the one new error was the `index.css` side-effect import, which
+TypeScript now checks, so `src/vite-env.d.ts` declares `*.css` modules. Vercel's functions and Vite
+do not use the project's TypeScript, and all four functions answered on the preview deployment.
+
 ## November 12, 2026 — Vite 8
 
 Roadmap Action 2.14 (audit: toolchain majors), first of the batch: Vite 6 → 8 and
