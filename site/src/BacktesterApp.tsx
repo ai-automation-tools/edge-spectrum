@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from './components/Header';
 import StrategyBuilder from './components/StrategyBuilder';
 import ResultsDashboard from './components/ResultsDashboard';
 import ProfitChart from './components/ProfitChart';
+
 import GamesTable from './components/GamesTable';
 import AiAdvisor from './components/AiAdvisor';
 import EspnFeed from './components/EspnFeed';
@@ -14,6 +15,9 @@ import { runBacktest as runEngine } from './dataGenerator';
 import { ledgerCsv } from './ledgerCsv';
 import { AlertCircle, LineChart, Table, BookOpen } from 'lucide-react';
 import SiteFooter from './components/SiteFooter';
+
+// Its chart pieces are a chunk of their own, so the backtester stays under the 500 kB chunk budget.
+const PathVariance = lazy(() => import('./components/PathVariance'));
 
 // Keystroke-to-request grace period for the auto-rerun effect.
 const RERUN_DEBOUNCE_MS = 300;
@@ -222,6 +226,11 @@ export default function App() {
             {activeTab === 'analytics' ? (
               <div className="flex flex-col gap-6 animate-fadeIn">
                 <ProfitChart data={result?.profitHistory || []} />
+                {result?.fan && (
+                  <Suspense fallback={null}>
+                    <PathVariance fan={result.fan} walkForward={result.walkForward} />
+                  </Suspense>
+                )}
                 
                 {/* Detailed Table */}
                 {result?.gamesPreview && (
