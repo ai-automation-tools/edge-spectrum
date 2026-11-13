@@ -163,7 +163,7 @@ which of them may ship before Phase 2 closes.
 The audit's immediate, 7-day and 30-day items shipped on 2026-11-12, and so did twelve items
 of its 60-day list, ticked below (changelog entries of that date; pull requests #84, #87 to #90, #92 and #94 to #98).
 The unticked items are what is left, in the audit's order; the IDs are the audit's. The durable store for the advisor
-limits is deferred by the owner. Next up: citing the `published` rows category by category.
+limits is deferred by the owner. Next up: **Cite the remaining `published` rows**.
 
 - [ ] 🟠 **Require CI and code-owner review on `main`** *(Security, SEC-02)* — `.github/CODEOWNERS` exists but does nothing until the ruleset requires code-owner review, and the `check` job is still advisory. **Done when:** a PR with a failing `check` cannot be merged. 🔒 Needs owner
 - [ ] 🟠 **Remove the personal email from public history** *(Security, SEC-01)* — 30 commits on `main`. A history rewrite and force-push in a quiet window, then re-clone everywhere. **Done when:** `git log --all --format=%ae` lists only noreply addresses. 🔒 Needs owner
@@ -187,6 +187,8 @@ limits is deferred by the owner. Next up: citing the `published` rows category b
 - [x] `small` 🟡 **Bring `UPSTREAMS.md` current, quiet the diagram warning** *(OPS-04, OPS-08)* — done 2026-11-12: the framework table quotes majors beside the npm registry's latest, so a Dependabot patch can't stale it; CI's diagram-drift warning step is gone and the weekly `--check` remains. The diagram itself is still pinned to `0b3c7583` and waits for the org upkeep re-pin.
 - [x] `small` 🟡 **Refresh the project skills and the job prompts** *(AI-07, AI-09, AI-10, AI-15)* — done 2026-11-12: a fourth skill, `edge-spectrum-registry`, covers the Cronsole templates and the line scripts; the other three caught up with the audit fixes (agent-skills #104), and the installed copies in `.claude/skills/` match. The three job prompts lost their stale facts (PR #46, `Versions/`, CDN Plotly), verify by running every `npm run` step in `ci.yml`, read their skill by path, and the roadmap job no longer installs packages (claude-routines).
 - [x] `small` 🔵 **One check command, an API reference, contributor files** *(DOC-15, DOC-16, DOC-17)* — done 2026-11-12: `npm run verify` is the one ordered list of checks and CI runs it; `docs/README.md` is the one description of them; `docs/api.md` covers every endpoint; `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, a PR template and two issue forms are in. Private vulnerability reporting is off, so there is no security link in the issue chooser. 🔒 Turning it on is a repo setting.
+- [x] 🟠 **Cite the stock, bond, cash and metals rows** *(Product, PROD-07)* — done 2026-11-12: 52 `published` rows cite the issuer's NAV total return since inception, a current Bankrate or FDIC rate, or Damodaran, with the window on each row; 35 figures moved to their source. 137 of 240 records are cited and those four categories are over 50%.
+- [ ] 🟠 **Cite the remaining `published` rows** *(Product, PROD-07)* — Real Estate, Cryptocurrency, Insurance & Annuities, Trading & Derivatives, Horse Racing, Lottery and one casino row (31 rows), plus the 3-Month and No-Penalty CDs. Same rule: a source read on the day, the window on the row, and the figure moves when the source disagrees. **Done when:** every `published` row is cited.
 
 ### 📊 Phase 3: Reproducible Reporting & Statistical Diagnostics 🟡
 *Enables exporting reproducible analysis bundles and provides honest statistical inference.*
