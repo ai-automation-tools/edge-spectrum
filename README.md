@@ -118,6 +118,17 @@ closing capture. It runs daily at 12:30 UTC and fails if the day has no capture 
 cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
 ```
 
+**Grade your own bets against the close.** Put your bets in a CSV (`date,sport,team,market,pick,line,price,stake`;
+the header and an example are at the top of `site/scripts/grade-lines.ts`) and run:
+
+```bash
+cd site && npm run grade:lines -- --archive ~/edge-lines --bets ~/my-bets.csv
+```
+
+It finds each game's closing capture in your archive and writes `my-bets.grades.md`: how many bets beat
+the closing line, the expected value of each at the de-vigged closing price, points gained on spreads and
+totals, and the result. It reads only your local archive and publishes nothing.
+
 ---
 
 ## 🏗️ Repository Architecture

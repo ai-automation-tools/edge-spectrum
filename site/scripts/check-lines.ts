@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { parseEspnScoreboard } from '../src/server/espn';
 import { appendRecords, dayFiles, dayName, readRecords, seenIds, toRecords, type LineRecord } from './capture-lines';
 import { digestGames, readDay, renderDigest, spreadMove } from './digest-lines';
+import { gradeBet, parseBets, renderGrades } from './grade-lines';
 
 const team = (homeAway: string, abbreviation: string, displayName: string, score: string) =>
   ({ homeAway, score, team: { abbreviation, displayName } });
@@ -159,4 +160,31 @@ assert.match(md, /\| Away B @ Home B \| \+2 → \+1\.5 \(-0\.5\)\* \|/, 'the las
 assert.match(md, /\| Away C @ Home C \| — \| — \| — \| 95–90 \| no pre-game capture \|/);
 assert.match(renderDigest('2026-11-10', '/lines', []), /hold no games/);
 
-console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest');
+// ── Closing-line grading (scripts/grade-lines.ts, audit PROD-10) over the same day ──
+const bets = parseBets([
+  'date,sport,team,market,pick,line,price,stake',
+  '2026-11-10,NBA,Home A,spread,Home A,-4.5,-110,100', // half a point better than the -5 close
+  '2026-11-10,NBA,A,moneyline,Away A,,+150,50', // short name finds the game
+  '2026-11-10,NBA,Home A,total,over,221,-110,', // two points under the 223 close
+  '2026-11-10,NBA,Home A,spread,Home A,-5,-105,', // the closing line, so priced against the close
+  '2026-11-10,NBA,Away B,moneyline,Away B,,+120,', // B has no close capture
+  '2026-11-10,NBA,Nobody,moneyline,Nobody,,+100,',
+].join('\n'));
+const graded = bets.map((b) => gradeBet(b, day));
+assert.deepEqual([graded[0].pointsClv, graded[0].result, graded[0].profit], [0.5, 'win', 90.91]);
+// Fair away probability from -200 / +130, de-vigged, times the +150 taken.
+const away = (1 / 2.3) / (1 / 1.5 + 1 / 2.3);
+assert.ok(Math.abs(graded[1].evAtClose! - (away * 2.5 - 1)) < 1e-9 && graded[1].evAtClose! < 0, 'moneyline EV at close');
+assert.deepEqual([graded[1].result, graded[1].profit], ['loss', -50]);
+assert.deepEqual([graded[2].pointsClv, graded[2].result, graded[2].evAtClose], [2, 'loss', null], 'a total two points better than the close');
+assert.ok(Math.abs(graded[3].evAtClose! - (0.5 * (1 + 100 / 105) - 1)) < 1e-9, 'at the closing line, EV is priced off the de-vigged close');
+assert.equal(graded[4].problem, 'no close capture', 'a last pre-game line is never graded as the close');
+assert.equal(graded[4].evAtClose, null);
+assert.equal(graded[5].problem, 'game not in the archive');
+assert.throws(() => parseBets('date,sport,team,market,pick,line,price\n2026-11-10,NBA,X,teaser,X,,-110'), /market must be/);
+assert.throws(() => parseBets('date,sport,team,market,pick,line,price\n2026-11-10,NBA,X,spread,X,,-110'), /needs the line/);
+const report = renderGrades(graded, '/lines');
+assert.match(report, /Beat the close:\*\* 2 of 4/); // +0.5 and +2 points; the moneyline and the at-close spread lose to the vig
+assert.match(report, /no close capture/);
+
+console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest, closing-line grading');
