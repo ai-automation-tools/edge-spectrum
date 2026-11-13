@@ -23,7 +23,7 @@
       "format": "csv",
       "mediatype": "text/csv",
       "encoding": "utf-8",
-      "hash": "sha256:c06c1df3d000867d11fa4f1fc5b5e2fb0a329e0cb2bd76664b97da03773430e6",
+      "hash": "sha256:1b93619df4729c5e3a86249ca3e0a9954f1b1df12039a7d02fa7a94127b17ee9",
       "dialect": {
         "delimiter": ",",
         "lineTerminator": "\n",
@@ -160,7 +160,7 @@
       "format": "json",
       "mediatype": "application/json",
       "encoding": "utf-8",
-      "hash": "sha256:e7752ba5084d29a30ad6fdc7c83a7c38935ca0ec6defb0c61f58aee0203e6433",
+      "hash": "sha256:9c676a7e63e46eb7c9971ce457d81f670db175860b9c23662550b2a52b2d2beb",
       "description": "The same records in the short-key shape the Spectrum page uses: n, cat, m, a (or e, du, ced, pay), ly, type, src, asOf, win, how, and b on math rows. Prefer edges.csv; this shape may change with the page."
     }
   ]
