@@ -150,7 +150,7 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 - Untrusted request bodies get a Zod schema in `site/src/server/`, reached through the shared
   `src/server/` module both entry points already call — not re-checked in each route handler.
 - The static `site/public/spectrum/` page is self-contained for serving (Plotly self-hosted as
-  `plotly-basic-<version>.min.js` beside it, fonts via CDN);
+  `plotly-basic-<version>.min.js` beside it, fonts from `site/public/fonts/`, shared with the hub);
   however, its mathematical models, DU/CED metrics, and dataset are subject to code, math, and data audits.
   A future task may port it into a React route. Because it has no build step to hook,
   **`npm run check:spectrum` reads its inlined `MATH & CONSTANTS` block and `RAW` dataset straight

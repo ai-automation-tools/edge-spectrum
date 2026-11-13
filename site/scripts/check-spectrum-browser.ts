@@ -54,6 +54,20 @@ try {
   // Plotly is self-hosted (Action 2.11); a request to its CDN means the script tag regressed.
   const plotlyCdn: string[] = [];
   page.on('request', (r) => { if (new URL(r.url()).hostname.endsWith('plot.ly')) plotlyCdn.push(r.url()); });
+  // Fonts are self-hosted too (audit GOV-04, SEC-06): the only other host either page may ask is the
+  // org's consent banner, which the CSP names; counting loads only after consent, which this run never gives.
+  const offsite: string[] = [];
+  const watchOffsite = (p: typeof page) => p.on('request', (r) => {
+    const { protocol, hostname } = new URL(r.url());
+    if (/^https?:$/.test(protocol) && hostname !== '127.0.0.1' && r.url() !== 'https://ai-automation-tools.dev/consent.js') offsite.push(r.url());
+  });
+  // No named function inside evaluate: tsx wraps those in a __name helper the page doesn't have.
+  const fontsLoaded = (p: typeof page) => p.evaluate(async () => {
+    await document.fonts.ready;
+    const families = [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/["']/g, ''));
+    return families.includes('Inter') && families.includes('JetBrains Mono');
+  });
+  watchOffsite(page);
 
   // ── 1. Loads with every record and no errors ───────────────────────────────
   // l=all: the default Gross layer hides the fee and tax rows.
@@ -173,6 +187,7 @@ try {
 
   check(errors.length === 0, `console errors: ${errors.slice(0, 3).join(' | ')}`);
   check(plotlyCdn.length === 0, `the page still fetches Plotly from its CDN: ${plotlyCdn[0]}`);
+  check(await fontsLoaded(page), 'the Spectrum page did not load its self-hosted Inter and JetBrains Mono');
   await page.close();
 
   // ── 8. Touch screens scroll past the chart instead of zooming it ───────────
@@ -326,12 +341,15 @@ try {
 
   // UX-13 on the hero strip and the Spectrum chart.
   const home = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  watchOffsite(home);
   await home.goto(`http://127.0.0.1:${PORT}/`);
+  check(await fontsLoaded(home), 'the hub did not load its self-hosted Inter and JetBrains Mono');
   check(await home.getByRole('img', { name: /^All \d+ records on two lanes/ }).count() === 1, 'the hero strip has no text alternative');
   await home.goto(PAGE_URL);
   await home.waitForFunction(() => /activities, from/.test(document.getElementById('chart')?.getAttribute('aria-label') ?? ''), null, { timeout: 30_000 })
     .catch(() => check(false, 'the Spectrum chart has no generated label'));
   check(await home.locator('.hdr-rg').isVisible(), 'the Spectrum page has no age and help-line line under its heading');
+  check(offsite.length === 0, `a page requested another host: ${offsite[0]}`);
   await home.close();
 } finally {
   await browser.close();
@@ -343,4 +361,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, keeps focus through pin and unpin, puts the chart first on a phone, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager, the luck panel draws the fan and the season split. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
+console.log('Browser check passed. Spectrum: loads clean with self-hosted fonts and no off-site request, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, keeps focus through pin and unpin, puts the chart first on a phone, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager, the luck panel draws the fan and the season split. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
