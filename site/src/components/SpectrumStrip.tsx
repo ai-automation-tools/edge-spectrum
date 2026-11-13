@@ -73,12 +73,13 @@ export default function SpectrumStrip({ href }: { href: string }) {
     dotsRef.current = dots;
     const ranges = LANES.map((_, li) => { const vs = dots.filter((d) => d.lane === li).map((d) => d.v); return { min: Math.min(...vs), max: Math.max(...vs) }; });
 
-    let W = 0, H = 0, raf = 0; const t0 = performance.now();
+    let W = 0, H = 0, raf = 0, visible = true; const t0 = performance.now();
     const size = () => { const r = box.getBoundingClientRect(); const dpr = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
     const laneGeom = (li: number) => { const padL = 16, padR = 16, top = 26, laneH = (H - top - 18) / 2; return { x0: padL, x1: W - padR, yc: top + laneH * li + laneH * 0.56, half: laneH * 0.26 }; };
     const xOf = (li: number, v: number) => { const g = laneGeom(li), { min, max } = ranges[li]; const lo = Math.min(min, 0), hi = Math.max(max, 0); return g.x0 + ((v - lo) / (hi - lo)) * (g.x1 - g.x0); };
 
     const draw = (now: number) => {
+      raf = 0;
       const t = reduced ? 0 : (now - t0) / 1000;
       ctx.clearRect(0, 0, W, H);
       LANES.forEach((l, li) => {
@@ -108,15 +109,21 @@ export default function SpectrumStrip({ href }: { href: string }) {
         ctx.fillStyle = rgba(c, h ? 1 : 0.78); ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI * 2); ctx.fill();
         if (h) { ctx.strokeStyle = ink.ring; ctx.lineWidth = 1.2; ctx.stroke(); }
       });
-      if (!reduced) raf = requestAnimationFrame(draw);
+      if (!reduced && visible) raf = requestAnimationFrame(draw);
     };
+    // The loop runs only while the strip is on screen (audit PERF-06); scrolling back restarts it.
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible && !reduced && !raf) raf = requestAnimationFrame(draw);
+    });
+    io.observe(box);
     const pick = (e: PointerEvent) => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let best: Dot | null = null, bd = 12; for (const d of dots) { const dist = Math.hypot(d.x - x, d.y - y); if (dist < bd) { bd = dist; best = d; } } return best; };
     const onMove = (e: PointerEvent) => { const d = pick(e); hoverRef.current = d; cv.style.cursor = d ? 'pointer' : 'default'; setTip(d ? { x: d.x, y: d.y, dot: d } : null); if (reduced) draw(performance.now()); };
     const onLeave = () => { hoverRef.current = null; setTip(null); if (reduced) draw(performance.now()); };
     const onResize = () => { size(); if (reduced) draw(performance.now()); };
     size(); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerleave', onLeave); addEventListener('resize', onResize);
     draw(performance.now());
-    return () => { cancelAnimationFrame(raf); cv.removeEventListener('pointermove', onMove); cv.removeEventListener('pointerleave', onLeave); removeEventListener('resize', onResize); };
+    return () => { cancelAnimationFrame(raf); io.disconnect(); cv.removeEventListener('pointermove', onMove); cv.removeEventListener('pointerleave', onLeave); removeEventListener('resize', onResize); };
   }, [reduced, theme]);
 
   return (

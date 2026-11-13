@@ -535,8 +535,23 @@ export function nextStreak(streak: number, won: boolean): number {
   return streak < 0 ? streak - 1 : -1;
 }
 
+/**
+ * Seasons already generated, by sport and year. Generation is seeded, so a season never changes; the
+ * backtester regenerated up to 26 of them on every request (audit PERF-04). Callers must not mutate
+ * the arrays or their games.
+ * ponytail: unbounded, but capped by the data: 4 sports x 26 seasons, about 17 MB of heap with every one cached (measured).
+ */
+const seasonCache = new Map<string, Game[]>();
+
 // Generate complete schedule of games for a sport and season
 export function generateGamesDatabase(sport: SportType, year: number): Game[] {
+  const key = `${sport}-${year}`;
+  let season = seasonCache.get(key);
+  if (!season) seasonCache.set(key, (season = buildSeason(sport, year)));
+  return season;
+}
+
+function buildSeason(sport: SportType, year: number): Game[] {
   const teams = TEAMS[sport];
   const rng = seedRandom(`${sport}-${year}`);
 
@@ -814,7 +829,8 @@ export function runBacktest(strategy: Strategy, ledgerLimit = LEDGER_PREVIEW_LIM
   for (let yr = strategy.startYear; yr <= strategy.endYear; yr++) {
     allGames.push(...generateGamesDatabase(strategy.sport, yr));
   }
-  allGames.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // ISO dates compare as strings; parsing two Dates per comparison was most of the sort's cost.
+  allGames.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
   let totalBets = 0;
   let wonBets = 0;

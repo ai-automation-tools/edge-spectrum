@@ -22,7 +22,8 @@
             if (new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
         })();
     </script>
-    <script src="plotly-basic-4.2.0.min.js"></script>
+    <!-- defer: 1.2 MB of Plotly no longer blocks the first paint (audit PERF-06). -->
+    <script src="plotly-basic-4.2.0.min.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -1597,8 +1598,10 @@ function init() {
 
     update();
 }
-// Plotly.react needs a plot to exist before .on() will bind, so seed an empty one.
-Plotly.newPlot(chartEl, [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' }, { displayModeBar: false, responsive: true }).then(init);
+// Plotly.react needs a plot to exist before .on() will bind, so seed an empty one. Plotly loads with
+// defer, which has run by DOMContentLoaded; nothing above this line touches Plotly at load.
+document.addEventListener('DOMContentLoaded', () =>
+    Plotly.newPlot(chartEl, [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' }, { displayModeBar: false, responsive: true }).then(init));
 
 // Theme switch: same localStorage key as the hub, so the choice carries both ways.
 const syncTheme = () => document.querySelectorAll('.theme-toggle [data-theme]').forEach(b =>
