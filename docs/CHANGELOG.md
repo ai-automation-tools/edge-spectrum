@@ -12,6 +12,8 @@ Audit AI-06 and OPS-12.
 - **Versioned templates.** `build:registry` refuses a template whose `commandTemplate` differs from its
   committed copy unless its `version` moved, so a self-hoster comparing versions sees every command
   change. The `edge-spectrum-registry` skill says so (agent-skills #116).
+- **Sweep merges are labelled** (AI-13, routines repo): the PR sweep adds `merged-by-sweep` to each PR
+  it merged, so they stand apart from the owner's merges on GitHub.
 
 ---
 
