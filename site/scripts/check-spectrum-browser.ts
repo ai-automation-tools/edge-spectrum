@@ -223,6 +223,11 @@ try {
   await a11y.getByText('Net profit (P/L)').waitFor({ timeout: 15_000 });
   // UX-12: the finished run is announced in one sentence.
   check(/^Backtest done: [\d,]+ bets/.test(await a11y.getByRole('status').filter({ hasText: 'Backtest done' }).innerText().catch(() => '')), 'a finished backtest is not announced');
+  // PROD-06: the CSV holds every wager of the run, not the 250-row preview.
+  const [download] = await Promise.all([a11y.waitForEvent('download'), a11y.getByRole('button', { name: 'CSV' }).click()]);
+  const csvRows = readFileSync((await download.path())!, 'utf8').trimEnd().split('\n').length - 1;
+  const wagers = (JSON.parse(run) as { summary: { totalBets: number } }).summary.totalBets;
+  check(csvRows === wagers, `the CSV has ${csvRows} rows for ${wagers} wagers`);
   // UX-06: 25 rows a page, newest first, and the sortable headers say how they are sorted.
   const rows = a11y.locator('table tbody tr');
   check((await rows.count()) === 25, `the game log shows ${await rows.count()} rows, not 25`);
@@ -274,7 +279,11 @@ try {
   const y = (t: string) => calc.getByText(t, { exact: true }).first().evaluate((el) => el.getBoundingClientRect().top + scrollY);
   const gap = (await y('Gemini Quant Advisor')) - (await y('Net profit (P/L)'));
   check(gap < 3 * 844, `on a phone the advisor starts ${Math.round(gap)}px below the results`);
-  for (const path of ['/backtester', '/odds', '/parlay']) {
+  // PROD-11: -110 at 55% is a 5.5% full-Kelly bet, so half Kelly stakes $27.50 of $1,000.
+  await calc.goto(`http://127.0.0.1:${PORT}/kelly`);
+  await calc.getByText('Your stake').waitFor({ timeout: 15_000 });
+  check((await calc.getByText('$27.50', { exact: true }).count()) === 1, 'the Kelly page does not stake $27.50 at -110, 55%, half Kelly');
+  for (const path of ['/backtester', '/odds', '/kelly', '/parlay']) {
     await calc.goto(`http://127.0.0.1:${PORT}${path}`);
     const rg = calc.locator('main p, header p').filter({ hasText: '18+ (21+ where you live)' }).first();
     await rg.waitFor({ timeout: 15_000 });
@@ -314,4 +323,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');

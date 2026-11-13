@@ -76,7 +76,7 @@ function splice(file: string, open: string, close: string | null, block: string)
   return src.slice(0, a) + block + src.slice(b);
 }
 
-// ── The machine-readable copy, for the eventual React port (Action 4.6) ──────
+// ── The page's short-key rows as JSON (the React port it was for is dropped, PROD-22) ──
 function edgesJson(): string {
   return `[\n${EDGES.map((r) => `  ${JSON.stringify(toSpectrumRow(r))}`).join(',\n')}\n]\n`;
 }

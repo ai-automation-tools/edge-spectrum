@@ -1,4 +1,4 @@
-import { Activity, LineChart, Calculator, Layers, type LucideIcon } from 'lucide-react';
+import { Activity, LineChart, Calculator, Layers, Scale, type LucideIcon } from 'lucide-react';
 import { EDGES, EDGE_CATEGORIES } from './data/edges';
 
 /**
@@ -84,6 +84,18 @@ export const TOOLS: Tool[] = [
     kind: 'route',
     status: 'live',
     accent: 'amber',
+    tag: 'Calculator',
+  },
+  {
+    slug: 'kelly',
+    title: 'Kelly & Bankroll Sizing Calculator',
+    blurb:
+      'Size a bet, or several settled together, from the price and your win probability: full and fractional Kelly stakes, growth per bet, and the odds of a halved bankroll.',
+    icon: Scale,
+    href: '/kelly',
+    kind: 'route',
+    status: 'live',
+    accent: 'teal',
     tag: 'Calculator',
   },
 ];
