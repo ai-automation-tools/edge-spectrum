@@ -3,7 +3,7 @@
   "categories": {
     "Stock Market": {
       "records": 32,
-      "cited": 29
+      "cited": 32
     },
     "Cash & Savings": {
       "records": 17,
@@ -15,11 +15,11 @@
     },
     "Real Estate": {
       "records": 12,
-      "cited": 6
+      "cited": 11
     },
     "Cryptocurrency": {
       "records": 13,
-      "cited": 7
+      "cited": 8
     },
     "Collectibles": {
       "records": 10,
@@ -27,7 +27,7 @@
     },
     "Precious Metals": {
       "records": 12,
-      "cited": 11
+      "cited": 12
     },
     "Insurance & Annuities": {
       "records": 11,
@@ -35,11 +35,11 @@
     },
     "Trading & Derivatives": {
       "records": 10,
-      "cited": 7
+      "cited": 8
     },
     "Sports Betting": {
       "records": 22,
-      "cited": 12
+      "cited": 20
     },
     "Horse Racing & Pari-Mutuel": {
       "records": 6,
@@ -59,7 +59,7 @@
     },
     "Lottery": {
       "records": 13,
-      "cited": 12
+      "cited": 13
     }
   }
 }
