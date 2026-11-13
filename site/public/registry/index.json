@@ -28,7 +28,7 @@
     {
       "id": "edge-spectrum-line-digest",
       "name": "Edge Spectrum: Daily Line Movement Digest",
-      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use.",
+      "description": "Reads yesterday's captures from the ESPN Line Capture archive and writes a markdown digest to <archive>/digests/<day>.md: each game's opening and closing spread, total and home moneyline, the final score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the archive, no keys, no network. Fails when the day has no capture file at all, which means the capture task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use. The digest is also the run's output: turn on Notify on success for this task under Settings, Run-outcome webhook and Cronsole posts it to ntfy, Discord, email (Resend) or your own endpoint.",
       "category": "monitoring",
       "tags": [
         "edge-spectrum",
@@ -47,7 +47,30 @@
         "macos"
       ],
       "path": "templates/edge-spectrum-line-digest.json",
-      "sha256": "4c4890eb226a5d6c86e30e9634cdc7ab79237e262610528dc41f518f6b7cfaed"
+      "sha256": "04d47edfd70aec810ec4e51bade3439d3917965873a611f2e1704f87e46de908"
+    },
+    {
+      "id": "edge-spectrum-market-close",
+      "name": "Edge Spectrum: Market Close Capture",
+      "description": "Fetches the last ten days of end-of-day prices for named tickers (SPY, QQQ, GLD and HYG by default) from Tiingo and appends each trading day not yet recorded to <output>/<TICKER>.jsonl: close, adjusted close, dividend and split factor, with the capture time. Append-only, one request per ticker. Needs your own free Tiingo key as TIINGO_API_KEY in site/.env, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. Tiingo's free plan is for personal use only: keep the archive to yourself.",
+      "category": "data-sync",
+      "tags": [
+        "edge-spectrum",
+        "investing",
+        "etf",
+        "market-data",
+        "data-capture"
+      ],
+      "runtime": "node",
+      "os": "cross-platform",
+      "compatibleTargets": [
+        "windows",
+        "cronsole-native",
+        "linux",
+        "macos"
+      ],
+      "path": "templates/edge-spectrum-market-close.json",
+      "sha256": "4729bc6041f8df08cb9b75e98d1b7293b9b66709cc2a343d94c08d8342d0334d"
     }
   ],
   "packs": [
@@ -60,7 +83,7 @@
         "edge-spectrum-line-digest"
       ],
       "path": "packs/edge-spectrum.json",
-      "sha256": "769e903210982406288ae03d40bde67117fbcbb1255c0c0c68d3eebabcda1745"
+      "sha256": "d7dcd6a1649f2c7eff47375d59bc1aeb4eac986a66de8ee4cc358f78ec255bd0"
     }
   ]
 }

@@ -119,10 +119,25 @@ is in [data-architecture.md](docs/data-architecture.md#a-append-only-scoreboard-
 [Daily Line Movement Digest template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest)
 reads yesterday's files and writes `<folder>/digests/<day>.md`: each game's opening and closing spread,
 total and home moneyline, the final score, the biggest spread moves, and every game missing an opening or
-closing capture. It runs daily at 12:30 UTC and fails if the day has no capture file at all.
+closing capture. It runs daily at 12:30 UTC and fails if the day has no capture file at all. The digest
+is also the run's output, so Cronsole can send it to you: under **Settings → Run-outcome webhook**, turn on
+**Notify on success** for this task and pick ntfy, Discord, email (Resend) or your own endpoint. Discord shows
+the first 500 characters; the file on disk is always complete.
 
 ```bash
 cd site && npm run digest:lines -- --archive ~/edge-lines [--date 2026-11-10]
+```
+
+**Market closes.** The
+[Market Close Capture template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-market-close)
+keeps a local archive of end-of-day prices for SPY, QQQ, GLD and HYG (or any tickers you name), for
+as-of returns on the Spectrum's investing rows. Each weekday at 23:30 UTC it fetches the last ten days from
+[Tiingo](https://www.tiingo.com/) and appends every trading day not yet recorded to `<folder>/<TICKER>.jsonl`:
+close, adjusted close, dividend and split factor. It needs your own free Tiingo key as `TIINGO_API_KEY` in
+`site/.env`. Tiingo's free plan is licensed for personal use only, so keep the archive to yourself.
+
+```bash
+cd site && npm run capture:closes -- --out ~/edge-closes [--tickers SPY,QQQ] [--days 10]
 ```
 
 **Grade your own bets against the close.** Put your bets in a CSV (`date,sport,team,market,pick,line,price,stake`;

@@ -78,7 +78,9 @@ const TEMPLATES = [
       + 'score, the biggest spread moves, and any game missing an opening or closing capture. Read-only over the '
       + 'archive, no keys, no network. Fails when the day has no capture file at all, which means the capture '
       + 'task did not run. Needs the line capture template running, Node 22 or 24 and a clone of edge-spectrum with '
-      + '`npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use.',
+      + '`npm ci` run in site/. The archive it reads comes from an unofficial ESPN endpoint: keep the digests for personal use. '
+      + "The digest is also the run's output: turn on Notify on success for this task under Settings, Run-outcome webhook "
+      + 'and Cronsole posts it to ntfy, Discord, email (Resend) or your own endpoint.',
     runtime: 'node',
     os: 'cross-platform',
     category: 'monitoring',
@@ -94,6 +96,42 @@ const TEMPLATES = [
       {
         key: 'archiveDir', label: 'Line archive folder', type: 'path', required: true,
         help: "The ESPN Line Capture template's output folder. Digests go to its digests/ subfolder.",
+      },
+    ],
+    compatibleTargets: ['windows', 'cronsole-native', 'linux', 'macos'],
+    execution: { timeoutSec: 120 },
+    author: 'ai-automation-tools',
+    version: '0.1.1',
+  },
+  {
+    schemaVersion: '1.0',
+    id: 'edge-spectrum-market-close',
+    name: 'Edge Spectrum: Market Close Capture',
+    description:
+      'Fetches the last ten days of end-of-day prices for named tickers (SPY, QQQ, GLD and HYG by default) from '
+      + 'Tiingo and appends each trading day not yet recorded to <output>/<TICKER>.jsonl: close, adjusted close, '
+      + 'dividend and split factor, with the capture time. Append-only, one request per ticker. Needs your own free '
+      + 'Tiingo key as TIINGO_API_KEY in site/.env, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in '
+      + "site/. Tiingo's free plan is for personal use only: keep the archive to yourself.",
+    runtime: 'node',
+    os: 'cross-platform',
+    category: 'data-sync',
+    tags: ['edge-spectrum', 'investing', 'etf', 'market-data', 'data-capture'],
+    icon: 'TrendingUp',
+    // 23:30 UTC on weekdays: after the US close and Tiingo's end-of-day update, in either daylight-saving season.
+    trigger: { kind: 'schedule', cron: '30 23 * * 1-5' },
+    commandTemplate:
+      'node "{{repoPath}}/site/node_modules/tsx/dist/cli.mjs" "{{repoPath}}/site/scripts/capture-closes.ts" '
+      + '--out "{{outputDir}}" --tickers "{{tickers}}"',
+    parameters: [
+      REPO_PARAM,
+      {
+        key: 'outputDir', label: 'Close archive folder', type: 'path', required: true,
+        help: 'Where the per-ticker JSONL files go. Files are only ever appended to.',
+      },
+      {
+        key: 'tickers', label: 'Tickers', type: 'text', default: 'SPY,QQQ,GLD,HYG', required: true,
+        help: 'Comma-separated symbols, no spaces. Each is one request a run; the free plan allows 50 an hour.',
       },
     ],
     compatibleTargets: ['windows', 'cronsole-native', 'linux', 'macos'],

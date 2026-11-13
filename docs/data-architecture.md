@@ -223,8 +223,22 @@ To transition from synthetic simulations to observed historical tracking, forwar
   with no capture file for any sport exits 1 (`LINE_DIGEST_EMPTY`). Held by `npm run check:lines`.
 - **Application:** Builds a historical closing-line archive used to calculate user **Closing Line Value (CLV)** without recurring commercial data feed costs.
 
-### B. Financial Instrument As-Of Updates
-- Ingest trailing 10-year and 20-year CAGRs for core benchmark tickers (`SPY`, `QQQ`, `GLD`, `HYG`) from keyless market data APIs to maintain timestamped, verified return benchmarks.
+### B. Financial Instrument As-Of Updates (roadmap 5.3, audit INT-08; built 2026-11-13)
+- **Collector:** `site/scripts/capture-closes.ts` (`npm run capture:closes -- --out <folder> [--tickers SPY,QQQ,GLD,HYG] [--days 10]`),
+  scheduled on weekdays at 23:30 UTC as the Cronsole template
+  [`edge-spectrum-market-close`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-market-close).
+- **Source:** Tiingo's end-of-day prices, with the self-hoster's own free key (`TIINGO_API_KEY` in `site/.env`),
+  sent in a header. No keyless source was usable: Stooq answers scripts with a bot check, and Yahoo's
+  endpoint is unofficial and its terms forbid automated access. Tiingo's free plan is for personal use, so the
+  archive stays local, like the line archive.
+- **Layout:** `<out>/<TICKER>.jsonl`, one line per trading day: `ticker`, `date`, `close`, `adjClose`, `divCash`,
+  `splitFactor`, `source`, `capturedAt`. Append-only: each run fetches the last `--days` calendar days and writes
+  only the days the file does not have, so a missed run is filled by the next one. `adjClose` is as of
+  `capturedAt`; a later dividend or split moves Tiingo's adjusted history, so a return over the archive uses
+  `close` with `divCash` and `splitFactor`.
+- **Held by:** `npm run check:lines`: row parsing, oldest-first order, one write per day, a cut-off line kept
+  apart, the key in the header and never in the URL or an error, and a ticker that is not a symbol rejected.
+- **Next:** the Spectrum's investing rows can cite these as-of returns once enough history is captured.
 
 ---
 

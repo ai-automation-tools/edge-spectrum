@@ -269,7 +269,7 @@ the audit's smaller polish, which has no line below. Next up: **Late finals in t
 
 - [x] 🟢 **Action 5.2a — Daily Line-Movement Digest** — done 2026-11-10: `site/scripts/digest-lines.ts` (`npm run digest:lines`) writes `<archive>/digests/<day>.md` with each game's open → close spread, total and moneyline, the biggest moves and every capture gap; scheduled daily by the Cronsole template [`edge-spectrum-line-digest`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-digest). Held by `npm run check:lines`. Its archive reader is what Action 5.4 builds on.
 
-- [ ] 🟡 **Action 5.3 — Market-Close Ingestion for Named Tickers (Audit C2 · Track C)**
+- [x] 🟡 **Action 5.3 — Market-Close Ingestion for Named Tickers (Audit C2 · Track C)** — done 2026-11-13 (audit INT-08): `site/scripts/capture-closes.ts` (`npm run capture:closes`) appends daily closes for SPY, QQQ, GLD and HYG from Tiingo, with the self-hoster's own free key, scheduled by the Cronsole template `edge-spectrum-market-close`. No keyless source was usable (Stooq's bot check, Yahoo's terms), so the owner chose Tiingo.
    - **Feature:** Ingest trailing adjusted closes for stable investment instruments (`SPY`, `QQQ`, `GLD`, `HYG`) from keyless market data sources to supply timestamped as-of returns for investing rows.
    - **Done when:** the collector runs on a schedule set by the Cronsole template `edge-spectrum-market-close`, in the catalog via `npm run build:registry`, like 5.2 and 5.2a.
 

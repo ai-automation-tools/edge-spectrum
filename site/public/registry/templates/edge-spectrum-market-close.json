@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0",
+  "id": "edge-spectrum-market-close",
+  "name": "Edge Spectrum: Market Close Capture",
+  "description": "Fetches the last ten days of end-of-day prices for named tickers (SPY, QQQ, GLD and HYG by default) from Tiingo and appends each trading day not yet recorded to <output>/<TICKER>.jsonl: close, adjusted close, dividend and split factor, with the capture time. Append-only, one request per ticker. Needs your own free Tiingo key as TIINGO_API_KEY in site/.env, Node 22 or 24 and a clone of edge-spectrum with `npm ci` run in site/. Tiingo's free plan is for personal use only: keep the archive to yourself.",
+  "runtime": "node",
+  "os": "cross-platform",
+  "category": "data-sync",
+  "tags": [
+    "edge-spectrum",
+    "investing",
+    "etf",
+    "market-data",
+    "data-capture"
+  ],
+  "icon": "TrendingUp",
+  "trigger": {
+    "kind": "schedule",
+    "cron": "30 23 * * 1-5"
+  },
+  "commandTemplate": "node \"{{repoPath}}/site/node_modules/tsx/dist/cli.mjs\" \"{{repoPath}}/site/scripts/capture-closes.ts\" --out \"{{outputDir}}\" --tickers \"{{tickers}}\"",
+  "parameters": [
+    {
+      "key": "repoPath",
+      "label": "edge-spectrum clone",
+      "type": "path",
+      "required": true,
+      "help": "Absolute path to your clone of ai-automation-tools/edge-spectrum, with `npm ci` run in its site/ folder."
+    },
+    {
+      "key": "outputDir",
+      "label": "Close archive folder",
+      "type": "path",
+      "required": true,
+      "help": "Where the per-ticker JSONL files go. Files are only ever appended to."
+    },
+    {
+      "key": "tickers",
+      "label": "Tickers",
+      "type": "text",
+      "default": "SPY,QQQ,GLD,HYG",
+      "required": true,
+      "help": "Comma-separated symbols, no spaces. Each is one request a run; the free plan allows 50 an hour."
+    }
+  ],
+  "compatibleTargets": [
+    "windows",
+    "cronsole-native",
+    "linux",
+    "macos"
+  ],
+  "execution": {
+    "timeoutSec": 120
+  },
+  "author": "ai-automation-tools",
+  "version": "0.1.0"
+}

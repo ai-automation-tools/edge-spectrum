@@ -12,6 +12,7 @@ import { appendRecords, dayFiles, dayName, readRecords, seenIds, toRecords, type
 import { digestGames, readDay, renderDigest, spreadMove } from './digest-lines';
 import { gradeBet, parseBets, renderGrades } from './grade-lines';
 import { fetchOddsApi, parseOddsApi } from './odds-api';
+import { appendNewDays, fetchTiingo, parseTiingo } from './capture-closes';
 
 const team = (homeAway: string, abbreviation: string, displayName: string, score: string) =>
   ({ homeAway, score, team: { abbreviation, displayName } });
@@ -222,4 +223,42 @@ assert.deepEqual(parseOddsApi([{ id: 'x', home_team: 'A', away_team: 'B' }], [],
   globalThis.fetch = realFetch;
 }
 
-console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest, closing-line grading, The Odds API provider');
+// Market closes (roadmap 5.3, audit INT-08): Tiingo rows in the documented shape, oldest first,
+// each trading day written once, the key in a header and never in an error.
+{
+  const at = new Date('2026-11-13T23:30:00Z');
+  const rows = [
+    { date: '2026-11-13T00:00:00.000Z', close: 601.2, adjClose: 601.2, divCash: 0, splitFactor: 1 },
+    { date: '2026-11-12T00:00:00.000Z', close: 598.5, adjClose: 598.5, divCash: 1.74, splitFactor: 1 },
+    { date: '2026-11-11T00:00:00.000Z', close: null, adjClose: null },
+    { close: 1, adjClose: 1 },
+  ];
+  const recs = parseTiingo('SPY', rows, at);
+  assert.deepEqual(recs.map((r) => [r.date, r.close, r.divCash]), [['2026-11-12', 598.5, 1.74], ['2026-11-13', 601.2, 0]], 'sorted, dated rows with a close only');
+  const dir = mkdtempSync(join(tmpdir(), 'closes-'));
+  const file = join(dir, 'SPY.jsonl');
+  assert.equal(appendNewDays(file, recs.slice(0, 1)).length, 1);
+  appendFileSync(file, '{"ticker":"SPY","date":"2026-11-1');
+  assert.deepEqual(appendNewDays(file, recs).map((r) => r.date), ['2026-11-13'], 'a recorded day is not written again');
+  assert.equal(appendNewDays(file, recs).length, 0, 'a second run adds nothing');
+  const lines = readFileSync(file, 'utf8').trim().split('\n');
+  assert.deepEqual([lines.length, JSON.parse(lines[0]).date, JSON.parse(lines[2]).date], [3, '2026-11-12', '2026-11-13'], 'the cut-off line stays apart from the new one');
+  rmSync(dir, { recursive: true });
+
+  const realFetch = globalThis.fetch;
+  let seen: { url: string; auth: string } = { url: '', auth: '' };
+  globalThis.fetch = (async (url: string, init?: RequestInit) => {
+    seen = { url: String(url), auth: String((init?.headers as Record<string, string>)?.Authorization) };
+    return new Response(JSON.stringify(rows.slice(0, 2)), { status: 200 });
+  }) as typeof fetch;
+  const fetched = await fetchTiingo('SPY', 'tiingo-secret', 10, at);
+  assert.equal(fetched.length, 2);
+  assert.ok(seen.url.startsWith('https://api.tiingo.com/tiingo/daily/spy/prices?startDate=2026-11-03') && !seen.url.includes('tiingo-secret'), 'the key is not in the URL');
+  assert.equal(seen.auth, 'Token tiingo-secret');
+  globalThis.fetch = (async () => new Response('no', { status: 401 })) as typeof fetch;
+  await assert.rejects(fetchTiingo('SPY', 'tiingo-secret', 10), (e: Error) => /401/.test(e.message) && !e.message.includes('tiingo-secret'));
+  await assert.rejects(fetchTiingo('spy; rm -rf', 'k', 10), /not a ticker/);
+  globalThis.fetch = realFetch;
+}
+
+console.log('check:lines OK: parser fields, linePhase rule, append-only file, one opener across day files, broken lines and undated games skipped, day-file names, daily digest, closing-line grading, The Odds API provider, Tiingo market closes');
