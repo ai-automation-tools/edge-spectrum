@@ -2,6 +2,18 @@
 
 ---
 
+## November 12, 2026 — The record count lives in one place
+
+From the 2026-11-11 project audit (AI-08).
+
+- `check:spectrum` and `check:spectrum-browser` read `totalRecords` from
+  `src/data/provenance-baseline.json` instead of each pinning 240. The Spectrum tool's blurb in
+  `src/tools.ts` counts `EDGES` and `EDGE_CATEGORIES` itself.
+- Adding a record now touches `edges.ts`, the files `gen:edges` writes, and the baseline that
+  `npm run check:edges -- --write-baseline` records; no check script.
+- The Edge Spectrum skills in agent-skills drop their pinned "234 records" and bundle size
+  (agent-skills #102).
+
 ## November 12, 2026 — A fork's build no longer points at the original site
 
 From the 2026-11-11 project audit (PROD-04).
