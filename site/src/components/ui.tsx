@@ -1,5 +1,4 @@
-import React, { useCallback } from 'react';
-import { m, useReducedMotion } from 'motion/react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Accent } from '../tools';
 
 /**
@@ -56,20 +55,38 @@ export function Card({
   );
 }
 
-/** Fade-and-rise into view once. Respects prefers-reduced-motion by rendering static. */
+const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
+const subscribeReduced = (onChange: () => void) => {
+  const mq = window.matchMedia(REDUCED_QUERY);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+};
+/** True while the reader asks for reduced motion; follows a change to the setting. */
+export function useReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED_QUERY).matches, () => false);
+}
+
+/**
+ * Fade-and-rise into view once: a CSS transition (`.reveal` in index.css) started by an
+ * IntersectionObserver, in place of the motion library (audit PERF-05). Under reduced motion the
+ * CSS shows it at once.
+ */
 export function Reveal({ delay = 0, className = '', children }: { delay?: number; className?: string; children: React.ReactNode }) {
-  const reduced = useReducedMotion();
-  if (reduced) return <div className={className}>{children}</div>;
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || shown) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setShown(true); io.disconnect(); }
+    }, { rootMargin: '0px 0px -60px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [shown]);
   return (
-    <m.div
-      className={className}
-      initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '0px 0px -60px 0px' }}
-      transition={{ duration: 0.55, ease: [0.2, 0.7, 0.2, 1], delay }}
-    >
+    <div ref={ref} className={`reveal${shown ? ' in' : ''} ${className}`} style={delay ? { transitionDelay: `${delay}s` } : undefined}>
       {children}
-    </m.div>
+    </div>
   );
 }
 

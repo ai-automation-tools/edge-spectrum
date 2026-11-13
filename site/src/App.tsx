@@ -1,15 +1,11 @@
 import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Link, Routes, Route, useLocation } from 'react-router-dom';
-import { LazyMotion } from 'motion/react';
 import Home from './pages/Home';
 import Topbar from './components/Topbar';
 import CommandPalette from './components/CommandPalette';
 import SiteFooter from './components/SiteFooter';
 import { DeploymentProvider, SourceBar } from './deployment';
 import { TOOLS } from './tools';
-
-// Motion's animation features arrive as their own chunk (motion's documented async LazyMotion).
-const loadMotionFeatures = () => import('./motionFeatures').then((m) => m.default);
 
 // Each tool is its own chunk: the hub page should not download the chart and
 // markdown libraries only the backtester uses.
@@ -163,10 +159,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <DeploymentProvider>
-        {/* `m` components plus this feature set, not `motion`: half the animation code for the one fade the pages use. */}
-        <LazyMotion features={loadMotionFeatures} strict>
-          <Shell />
-        </LazyMotion>
+        <Shell />
       </DeploymentProvider>
     </BrowserRouter>
   );

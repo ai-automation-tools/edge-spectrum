@@ -344,6 +344,12 @@ try {
   watchOffsite(home);
   await home.goto(`http://127.0.0.1:${PORT}/`);
   check(await fontsLoaded(home), 'the hub did not load its self-hosted Inter and JetBrains Mono');
+  // <Reveal> is a CSS fade started by an IntersectionObserver (audit PERF-05): scrolled through, every section shows.
+  await home.evaluate(async () => { for (let y = 0; y <= document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); } });
+  check(await home.locator('.reveal').count() > 0, 'the hub has no Reveal sections');
+  // The observer fires a frame later, and staggered delays run up to ~0.5 s before the 0.55 s fade.
+  await home.waitForFunction(() => [...document.querySelectorAll('.reveal')].every((e) => e.classList.contains('in') && getComputedStyle(e).opacity === '1'), null, { timeout: 5_000 })
+    .catch(() => check(false, 'a Reveal section never became visible after scrolling'));
   check(await home.getByRole('img', { name: /^All \d+ records on two lanes/ }).count() === 1, 'the hero strip has no text alternative');
   await home.goto(PAGE_URL);
   await home.waitForFunction(() => /activities, from/.test(document.getElementById('chart')?.getAttribute('aria-label') ?? ''), null, { timeout: 30_000 })

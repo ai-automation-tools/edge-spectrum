@@ -1,9 +1,8 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { animate, useReducedMotion } from 'motion/react';
 import { BacktestSummary } from '../types';
 import { TrendingUp, Award, HelpCircle, Activity, ShieldAlert, Sparkles, AlertCircle, Sigma, Wallet } from 'lucide-react';
 import { MIN_RELIABLE_SAMPLE } from '../stats';
-import { Card, alpha, money } from './ui';
+import { Card, alpha, money, useReducedMotion } from './ui';
 
 interface ResultsDashboardProps {
   summary: BacktestSummary;
@@ -16,9 +15,15 @@ function useCountUp(value: number, duration = 0.7) {
   const prev = useRef(value);
   useEffect(() => {
     if (reduced) { setShown(value); prev.current = value; return; }
-    const controls = animate(prev.current, value, { duration, ease: [0.2, 0.7, 0.2, 1], onUpdate: (v) => setShown(v) });
+    // Ease-out cubic over `duration` seconds, one frame at a time.
+    const from = prev.current, t0 = performance.now();
+    let raf = requestAnimationFrame(function step(now) {
+      const t = Math.min(1, (now - t0) / (duration * 1000));
+      setShown(from + (value - from) * (1 - (1 - t) ** 3));
+      if (t < 1) raf = requestAnimationFrame(step);
+    });
     prev.current = value;
-    return () => controls.stop();
+    return () => cancelAnimationFrame(raf);
   }, [value, duration, reduced]);
   return shown;
 }
