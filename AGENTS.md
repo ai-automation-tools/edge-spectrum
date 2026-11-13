@@ -103,9 +103,10 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 1. Add one entry to `TOOLS` in `site/src/tools.ts` (`slug`, `title`, `blurb`, `icon`, `href`, `kind`, `status`, `accent`).
 2. Then, by `kind`:
    - `route` → build the page component and add it to `site/src/App.tsx` as a `lazy()` import with its `<Route>`.
-     Give it a `PAGE_META` title there too. A new route is also listed in three more places,
+     Give it a `PAGE_META` title there too. A new route is also listed in four more places,
      or it is a 404 in production while it works in dev:
-     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts` and `site/public/sitemap.xml`.
+     the rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, `site/public/sitemap.xml` and the
+     list in `site/public/404.html`.
    - `static` → drop the page under `site/public/<slug>/` and point `href` at `/<slug>/index.html`
      (Vite dev does **not** auto-serve a `public/` directory index — always link the explicit file).
    - `external` → just the URL; opens in a new tab.
@@ -159,8 +160,9 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
   `npm run check:engine` holds both; `check:market` only holds the ROI band.
 - Route input handling lives in `src/server/` (`backtestRoute`, `espnScoreboardRoute`), which return
   `{ status, body }`. `server.ts` and `api/*.ts` only pass the request through and send the result.
-- **Client routes are listed in four places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
-  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, and `site/public/sitemap.xml`. A
+- **Client routes are listed in five places**: `PAGE_META` and the `<Route>`s in `site/src/App.tsx`, the
+  rewrite in `site/vercel.json`, `CLIENT_ROUTES` in `site/server.ts`, `site/public/sitemap.xml`, and the
+  list in `site/public/404.html`. A
   route missing from the rewrite is a 404 in production while working in dev. Tool pages are `lazy()`
   chunks; `npm run check:bundle` (after `build`) holds the home page's JS under 150 kB gzip.
 - **Content-Security-Policy is enforced** (`site/vercel.json`, report-only 2026-11-12, enforced 2026-11-13):
