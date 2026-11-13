@@ -233,7 +233,8 @@ try {
   check(/nine times in ten/.test(await a11y.getByText(/reshuffles of these/).innerText()), 'the fan chart has no text summary');
   check((await a11y.getByText(/\(out of sample\)/).count()) === 1, 'the walk-forward split is missing');
   // UX-06: 25 rows a page, newest first, and the sortable headers say how they are sorted.
-  const rows = a11y.locator('table tbody tr');
+  // The game log is the table with sortable headers; the luck panel has a table too.
+  const rows = a11y.locator('table:has(th[aria-sort]) tbody tr');
   check((await rows.count()) === 25, `the game log shows ${await rows.count()} rows, not 25`);
   const dateTh = a11y.locator('th[aria-sort]').filter({ hasText: 'Date' });
   check((await dateTh.getAttribute('aria-sort')) === 'descending', 'the game log is not sorted newest first');
