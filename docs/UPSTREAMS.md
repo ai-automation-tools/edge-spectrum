@@ -20,6 +20,26 @@ source. `—` means never checked.
 | **The Odds API v4** *(opt-in, the self-hoster's own key)* | `GET api.the-odds-api.com/v4/sports/{americanfootball_nfl,basketball_nba,baseball_mlb,icehockey_nhl}/odds?regions=us&markets=h2h,spreads,totals&oddsFormat=american&bookmakers={book}` (3 credits) and `/scores?daysFrom=1` (2 credits). Reads `id`, `commence_time`, `home_team`, `away_team`, `bookmakers[].markets[].outcomes[]` (`name`, `price`, `point`), `completed`, `scores[]`. Terms (read 2026-11-12): storing and own analysis allowed; no resale or redistribution as a raw data product (API, feed, downloadable files). So the archive stays local and nothing from it is committed | `site/scripts/odds-api.ts`, `site/scripts/capture-lines.ts --provider odds-api` | the-odds-api.com/liveapi/guides/v4/ ; the-odds-api.com/terms-and-conditions.html | 2026-11-12 |
 | **Gemini API via `@google/genai`** | major 3, Gemini Developer API `v1` (the SDK default since 3.0); `new GoogleGenAI({ apiKey })` → `models.generateContent({ model, contents, config: { systemInstruction, responseMimeType: 'application/json', responseSchema } })` with `Type.*` schema builders; model id `gemini-3.5-flash-lite` by default, overridable with `GEMINI_MODEL` (no shutdown date announced; `gemini-2.5-flash`, used until 2026-11-12, is routed to it from 2026-12-01). The call sends no `temperature`, `top_p`, `top_k`, `candidate_count` or thinking budget, the parameters the 3.x migration guide changes | `site/src/server/advisor.ts`, `site/api/strategy-advisor.ts` | github.com/googleapis/js-genai/releases; ai.google.dev/gemini-api/docs/changelog; ai.google.dev/gemini-api/docs/deprecations | 2026-11-12 |
 
+## Historical line data: licences (audit PROD-12)
+
+Read 2026-11-12, before any historical line data is committed or served. The backtester's seasons stay
+simulated until the owner decides; this table is what the decision rests on. A licence label is only
+as good as the publisher's right to grant it, so the source of the data counts as much as the label.
+
+| Dataset | Coverage | Licence or terms | Verdict |
+|:---|:---|:---|:---|
+| nflverse schedules (`github.com/nflverse/nflverse-data`, release `schedules`) | NFL 1999-2026: spread and total from 1999, moneylines and prices from 2006, final scores | CC BY 4.0 (`LICENSE.md`). The upstream `nflverse/nfldata` states no licence, and neither repo says where the lines come from | The only candidate that can be committed and served, with attribution. Ask nflverse about the lines' source first |
+| sportsbookreviewsonline.com archives | NFL, NBA, NHL 2007-2023; MLB 2010-2021 | "You may not use or reproduce any content ... without our express written consent" | Cannot be used |
+| aussportsbetting.com historical data | NFL from 2006 | "Personal use only. Do not make the data available elsewhere" | A user's own local file only |
+| Sports-Reference | Lines shown on pages | Licences "preclude any redistribution"; no tools built on scraped data | Cannot be used |
+| The Odds API historical endpoint | Mid-2020 on | No redistribution as a raw data product | A user's own key, at runtime only |
+| Kaggle spreadspoke (NFL) | NFL lines from 1979 | CC BY-NC-SA 4.0, and sourced partly from aussportsbetting | Cannot be used |
+| Kaggle and GitHub sets labelled CC0 / MIT / CC BY (NBA 2007-2026, MLB 2018-2026, NFL 2000-2019 and others) | Various | Labelled open, but scraped from SBRO, OddsPortal, covers.com or Yahoo, whose terms forbid it | Cannot be used: the label is not the publisher's to give |
+| Harvard Dataverse NHL sportsbook efficiency (doi:10.7910/DVN/39ZFRO) | NHL 2018-2022 | CC BY-NC 4.0 | Non-commercial, local only |
+
+Nothing openly licensed and lawfully sourced was found for NBA, MLB or NHL. Real lines for those would
+need a paid licence that permits public redistribution, and none of the paid sources read offers one.
+
 ## Static page CDN assets
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
