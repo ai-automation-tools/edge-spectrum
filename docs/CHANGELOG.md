@@ -2,6 +2,21 @@
 
 ---
 
+## November 12, 2026 — A per-category citation ratchet, and a dataset freeze
+
+From the 2026-11-11 project audit (PROD-07, PROD-08).
+
+- Every record in `site/src/data/edges.ts` declares a `basis`: `math` (follows from the rules and
+  payouts), `published` (a rate, price, index or takeout someone publishes) or `estimate`.
+  59, 108 and 73 records today.
+- `provenance-baseline.json` now holds each category's record and cited counts, and
+  `check:edges` fails if any category's cited count falls. The one global count it replaces let
+  new cited casino rows hide uncited rows elsewhere.
+- **The dataset is frozen:** `check:edges -- --write-baseline` refuses a new record while any
+  category cites under half its rows (`MIN_CITED_SHARE`). 13 of 15 categories are under it.
+- `data/edge_dataset.md` gains a coverage table and a basis and cited column on every row.
+- The weekly content job cites existing rows instead of adding new ones while the freeze holds.
+
 ## November 12, 2026 — The record count lives in one place
 
 From the 2026-11-11 project audit (AI-08).

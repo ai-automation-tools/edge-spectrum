@@ -1,4 +1,65 @@
 {
   "totalRecords": 240,
-  "withSource": 50
+  "categories": {
+    "Stock Market": {
+      "records": 32,
+      "cited": 10
+    },
+    "Cash & Savings": {
+      "records": 17,
+      "cited": 8
+    },
+    "Bonds": {
+      "records": 17,
+      "cited": 0
+    },
+    "Real Estate": {
+      "records": 12,
+      "cited": 0
+    },
+    "Cryptocurrency": {
+      "records": 13,
+      "cited": 0
+    },
+    "Collectibles": {
+      "records": 10,
+      "cited": 0
+    },
+    "Precious Metals": {
+      "records": 12,
+      "cited": 2
+    },
+    "Insurance & Annuities": {
+      "records": 11,
+      "cited": 0
+    },
+    "Trading & Derivatives": {
+      "records": 10,
+      "cited": 2
+    },
+    "Sports Betting": {
+      "records": 22,
+      "cited": 1
+    },
+    "Horse Racing & Pari-Mutuel": {
+      "records": 6,
+      "cited": 3
+    },
+    "Casino Gambling": {
+      "records": 44,
+      "cited": 23
+    },
+    "Poker & Skill-Based": {
+      "records": 9,
+      "cited": 0
+    },
+    "Prediction Markets": {
+      "records": 12,
+      "cited": 0
+    },
+    "Lottery": {
+      "records": 13,
+      "cited": 1
+    }
+  }
 }
