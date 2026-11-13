@@ -3,26 +3,29 @@
  *
  * Roadmap Action 2.3. Asserts the record count, that every category has at
  * least one record and no record carries an unlisted one, that names are
- * unique, and that each record's numbers are physically sane. Also enforces
- * a provenance citation ratchet: coverage recorded in provenance-baseline.json
- * may only go up, never regress.
+ * unique, that each record's numbers are physically sane and that each declares
+ * its basis. Also enforces a per-category citation ratchet (audit PROD-07): the
+ * cited count recorded in provenance-baseline.json may only go up, never regress,
+ * and a dataset freeze (PROD-08): no new record while any category cites fewer
+ * than MIN_CITED_SHARE of its rows.
  *
  *   npm run check:edges                  verify (CI)
- *   npm run check:edges -- --write-baseline   record newly-added citations
+ *   npm run check:edges -- --write-baseline   record new counts and citations
  */
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { EDGES, EDGE_CATEGORIES } from '../src/data/edges.ts';
+import { EDGES, EDGE_CATEGORIES, MIN_CITED_SHARE } from '../src/data/edges.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BASELINE_PATH = resolve(HERE, '../src/data/provenance-baseline.json');
 
 // ── Record count & category coverage ──
+type Coverage = { records: number; cited: number };
 const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) as {
   totalRecords: number;
-  withSource: number;
+  categories: Record<string, Coverage>;
 };
 const writeBaseline = process.argv.includes('--write-baseline');
 // `--write-baseline` exists to record a new count, so the count assertion must not block it.
@@ -63,21 +66,46 @@ for (const r of EDGES) {
   }
 }
 
-// ── Provenance citation ratchet ──
+// ── Basis, and the per-category citation ratchet and freeze ──
+for (const r of EDGES) {
+  assert.ok(['math', 'published', 'estimate'].includes(r.basis), `${r.n}: basis must be math, published or estimate`);
+}
+const now: Record<string, Coverage> = {};
+for (const c of EDGE_CATEGORIES) {
+  const rows = EDGES.filter((r) => r.cat === c);
+  now[c] = { records: rows.length, cited: rows.filter((r) => r.source).length };
+}
+const was = (c: string): Coverage => baseline.categories[c] ?? { records: 0, cited: 0 };
+const pct = (k: Coverage) => `${k.cited}/${k.records} (${Math.round((100 * k.cited) / k.records)}%)`;
+const thin = EDGE_CATEGORIES.filter((c) => now[c].cited < MIN_CITED_SHARE * now[c].records);
+
+for (const c of EDGE_CATEGORIES) {
+  assert.ok(
+    now[c].cited >= was(c).cited,
+    `${c}: ${now[c].cited} records cite a source, the baseline requires at least ${was(c).cited}`,
+  );
+  if (writeBaseline) {
+    // The freeze. Without it the weekly content job adds rows to whichever category is easy to
+    // cite and the uncited rows elsewhere never get looked at.
+    assert.ok(
+      now[c].records <= was(c).records || thin.length === 0,
+      `${c} gained a record, but the dataset is frozen until every category cites at least ` +
+        `${MIN_CITED_SHARE * 100}% of its rows. Below that: ${thin.map((t) => `${t} ${pct(now[t])}`).join(', ')}. ` +
+        'Cite existing rows instead.',
+    );
+  } else {
+    assert.equal(now[c].records, was(c).records, `${c}: the record count changed; run with --write-baseline if intended`);
+  }
+}
 const withSource = EDGES.filter((r) => r.source).length;
 
 if (writeBaseline) {
-  writeFileSync(BASELINE_PATH, JSON.stringify({ totalRecords: EDGES.length, withSource }, null, 2) + '\n');
+  writeFileSync(BASELINE_PATH, JSON.stringify({ totalRecords: EDGES.length, categories: now }, null, 2) + '\n');
   console.log(`provenance-baseline.json updated: ${withSource}/${EDGES.length} records cite a source.`);
-} else {
-  assert.ok(
-    withSource >= baseline.withSource,
-    `provenance coverage regressed: ${withSource} records cite a source, baseline requires at least ${baseline.withSource}`,
-  );
 }
 
 console.log(
-  `edges.ts: ${EDGES.length} records across ${byCategory.size} categories, ` +
-    `${withSource} cite a source (baseline ${baseline.withSource}).`,
+  `edges.ts: ${EDGES.length} records across ${byCategory.size} categories, ${withSource} cite a source; ` +
+    (thin.length ? `growth frozen, ${thin.length} categories below ${MIN_CITED_SHARE * 100}% cited.` : 'growth open.'),
 );
 console.log('edges.ts: all checks passed');
