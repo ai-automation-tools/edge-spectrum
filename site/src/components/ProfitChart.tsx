@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { ProfitHistoryPoint } from '../types';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useTheme } from '../theme';
+import { money } from './ui';
 
 /** Recharts writes these as SVG attributes, where CSS variables are not reliable, so they are picked per theme. */
 const CHART = {
@@ -35,7 +36,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
   // The text alternative (audit UX-13): where the curve ends, and its low and high points.
   const low = data.reduce((a, p) => (p.cumulativeProfit < a.cumulativeProfit ? p : a));
   const high = data.reduce((a, p) => (p.cumulativeProfit > a.cumulativeProfit ? p : a));
-  const usd = (v: number) => `${v < 0 ? '−' : '+'}$${Math.abs(v).toLocaleString()}`;
+  const usd = (v: number) => money(v, true);
   const summary =
     `Over ${last.index.toLocaleString()} bets, ${data[0].date} to ${last.date}, cumulative profit ends at ${usd(last.cumulativeProfit)}. ` +
     `Lowest ${usd(low.cumulativeProfit)} at bet ${low.index.toLocaleString()}, highest ${usd(high.cumulativeProfit)} at bet ${high.index.toLocaleString()}.`;
@@ -82,7 +83,7 @@ export default function ProfitChart({ data }: ProfitChartProps) {
               fontSize={10}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `$${v}`}
+              tickFormatter={(v: number) => `${v < 0 ? '-' : ''}$${Math.abs(v).toLocaleString()}`}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -92,23 +93,23 @@ export default function ProfitChart({ data }: ProfitChartProps) {
                     <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg shadow-xl font-sans text-xs">
                       <div className="text-[10px] uppercase text-sky-400 font-bold font-mono">Bet Record #{p.index}</div>
                       <div className="font-semibold text-zinc-200 mt-1">{p.date}</div>
-                      <div className="border-t border-zinc-850 my-2 pt-1.5 flex flex-col gap-1">
+                      <div className="border-t border-zinc-800 my-2 pt-1.5 flex flex-col gap-1">
                         <div className="flex items-center justify-between gap-6">
                           <span className="text-zinc-400 leading-none">This bet:</span>
                           <span className={`font-mono font-bold leading-none ${p.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {p.netProfit >= 0 ? '+' : ''}${p.netProfit.toLocaleString()}
+                            {money(p.netProfit, true)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-6">
                           <span className="text-zinc-400 leading-none">Cumulative:</span>
                           <span className={`font-mono font-bold leading-none ${p.cumulativeProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {p.cumulativeProfit >= 0 ? '+' : ''}${p.cumulativeProfit.toLocaleString()}
+                            {money(p.cumulativeProfit, true)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-6">
                           <span className="text-zinc-400 leading-none">Bankroll:</span>
                           <span className="font-mono text-zinc-200 font-bold leading-none">
-                            ${p.currentBankroll.toLocaleString()}
+                            {money(p.currentBankroll)}
                           </span>
                         </div>
                       </div>

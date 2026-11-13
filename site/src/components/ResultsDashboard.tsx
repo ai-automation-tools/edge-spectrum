@@ -3,7 +3,7 @@ import { animate, useReducedMotion } from 'motion/react';
 import { BacktestSummary } from '../types';
 import { TrendingUp, Award, HelpCircle, Activity, ShieldAlert, Sparkles, AlertCircle, Sigma, Wallet } from 'lucide-react';
 import { MIN_RELIABLE_SAMPLE } from '../stats';
-import { Card, alpha } from './ui';
+import { Card, alpha, money } from './ui';
 
 interface ResultsDashboardProps {
   summary: BacktestSummary;
@@ -22,8 +22,6 @@ function useCountUp(value: number, duration = 0.7) {
   }, [value, duration, reduced]);
   return shown;
 }
-
-const money = (v: number) => `${v < 0 ? '-' : ''}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function Metric({ label, accent, icon, value, sub, badge, title }: {
   label: string; accent: string; icon?: React.ReactNode; value: React.ReactNode; sub: React.ReactNode; badge?: React.ReactNode; title?: string;
@@ -77,12 +75,12 @@ export default function ResultsDashboard({ summary }: ResultsDashboardProps) {
           label="Net profit (P/L)" accent={pnlColor}
           badge={<span className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium" style={{ color: pnlColor, borderColor: alpha(pnlColor, 25), background: alpha(pnlColor, 8) }}>{isProfit ? '+' : ''}{roi.toFixed(1)}%</span>}
           value={money(net)}
-          sub={<>End bankroll ${summary.finalBankroll.toLocaleString()}</>}
+          sub={<>End bankroll {money(summary.finalBankroll)}</>}
         />
         <Metric label="Return on risk" accent={pnlColor} icon={<TrendingUp className="h-4 w-4 text-zinc-500" />} value={`${roi.toFixed(2)}%`} sub={<>ROI over {summary.totalBets} matches</>} />
         <Metric label="Win percentage" accent="var(--fg)" icon={<Award className="h-4 w-4 text-sky-400" />} value={`${win.toFixed(1)}%`} sub={<>W/L/P {summary.wonBets} - {summary.lostBets} - {summary.pushedBets}</>} />
-        <Metric label="Matches bet" accent="var(--fg)" icon={<Activity className="h-4 w-4 text-sky-400" />} value={Math.round(bets).toLocaleString()} sub={<>Staked ${summary.totalWagered.toLocaleString()}</>} />
-        <Metric label="Max drawdown" accent="var(--a-amber)" icon={<ShieldAlert className="h-4 w-4 text-amber-400" />} value={`-${dd.toFixed(1)}%`} sub={<>Max drop ${summary.maxDrawdown.toLocaleString()}</>} />
+        <Metric label="Matches bet" accent="var(--fg)" icon={<Activity className="h-4 w-4 text-sky-400" />} value={Math.round(bets).toLocaleString()} sub={<>Staked {money(summary.totalWagered)}</>} />
+        <Metric label="Max drawdown" accent="var(--a-amber)" icon={<ShieldAlert className="h-4 w-4 text-amber-400" />} value={`-${dd.toFixed(1)}%`} sub={<>Max drop {money(summary.maxDrawdown)}</>} />
         <Metric
           label="Kelly sizing" accent={summary.kellyPercentage > 0 ? 'var(--a-sky)' : 'var(--a-zinc)'}
           icon={<KellyHelp />}

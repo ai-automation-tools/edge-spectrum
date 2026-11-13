@@ -116,7 +116,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       </div>
 
       {/* Internal Sub-Nav for Sports */}
-      <div role="group" aria-label="Sport" className="flex flex-wrap items-center gap-2 bg-zinc-950/40 p-1.5 rounded-xl border border-zinc-850">
+      <div role="group" aria-label="Sport" className="flex flex-wrap items-center gap-2 bg-zinc-950/40 p-1.5 rounded-xl border border-zinc-800">
         {(['NFL', 'NBA', 'MLB', 'NHL'] as SportType[]).map((s) => (
           <button
             key={s}
@@ -169,7 +169,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
             return (
               <div 
                 key={game.id}
-                className="bg-zinc-950/60 border border-zinc-850 rounded-xl p-4 flex flex-col justify-between hover:border-zinc-750 transition-all duration-200"
+                className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between hover:border-zinc-700 transition-all duration-200"
               >
                 {/* Scoreboard line */}
                 <div>
@@ -301,7 +301,7 @@ export default function EspnFeed({ currentStrategy }: EspnFeedProps) {
       )}
 
       {/* Info Notice about live matches */}
-      <div className="flex items-center gap-1.5 p-3 bg-zinc-950 border border-zinc-850 rounded-xl text-[10px] text-zinc-400 leading-relaxed font-sans">
+      <div className="flex items-center gap-1.5 p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] text-zinc-400 leading-relaxed font-sans">
         <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
         <span>
           <strong>What is graded:</strong> your bet type, your side (home, away, favourite, underdog and the four combinations, over, under) and your line and odds ranges, against the line ESPN shows now, which may not be the closing line. Streak and rest selections and the streak filter are marked <em>not evaluated</em>: the scoreboard does not carry that history.

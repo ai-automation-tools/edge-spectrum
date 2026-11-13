@@ -24,6 +24,10 @@ export const ACCENT_COLOR: Record<Accent, string> = {
 /** `c` at `pct`% opacity; works for hexes and var() tokens alike. */
 export const alpha = (c: string, pct: number) => `color-mix(in srgb, ${c} ${pct}%, transparent)`;
 
+/** Dollars with two decimals and the minus before the sign; `signed` adds a + to gains (audit UX-24). */
+export const money = (v: number, signed = false) =>
+  `${v < 0 ? '-' : signed && v > 0 ? '+' : ''}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 /** Tracks the pointer inside an element so `.spot` can draw its ring where the cursor is. */
 export function useSpotlight() {
   return useCallback((e: React.PointerEvent<HTMLElement>) => {
