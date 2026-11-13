@@ -184,6 +184,10 @@ To transition from synthetic simulations to observed historical tracking, forwar
   and the run exits 1; a sport with no games is a success. A line that does not parse (a run killed
   mid-write) and a game with no usable start time are skipped with a warning and a count. The day in
   the file name is ESPN's only when it is a date; otherwise the capture date is used.
+  `--provider odds-api` (audit INT-06) reads The Odds API with the self-hoster's `ODDS_API_KEY`
+  through `site/scripts/odds-api.ts`, which shapes its odds and scores like `parseEspnScoreboard`'s
+  games, so the phase rule, files and record shape are the same code. Its board spans several days, so
+  each game is filed under its own Eastern date. The default stays ESPN, with no key.
 - **Schedule:** every 3 hours, as the Cronsole template
   [`edge-spectrum-line-capture`](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
   (or any scheduler running the same command).
