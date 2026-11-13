@@ -120,9 +120,15 @@ export interface ProfitHistoryPoint {
   currentBankroll: number;
 }
 
+import type { Fan, WalkForward } from './monteCarlo';
+
 export interface BacktestResponse {
   summary: BacktestSummary;
   profitHistory: ProfitHistoryPoint[];
+  /** 1,000 bootstrap resamples of the run's wagers: percentile paths and the share that bust (roadmap 4.2). */
+  fan: Fan;
+  /** The run split by season, earlier ~60% in sample, the rest out of sample (roadmap 4.3); null under two seasons. */
+  walkForward: WalkForward | null;
   /**
    * The tail of the wager ledger, at most `previewLimit` entries. Named for
    * what it is: the engine truncates this for payload size while `summary` is
