@@ -100,6 +100,13 @@ there are no keys, and nothing leaves your machine.
 cd site && npm run capture:lines -- --out ~/edge-lines
 ```
 
+**A second source, with your own key.** `--provider odds-api` reads lines from
+[The Odds API](https://the-odds-api.com/) instead of ESPN, using `ODDS_API_KEY` from `site/.env`, and writes
+the same records to the same folders (`--book draftkings` picks the bookmaker). Its terms allow storing the
+data for your own analysis, not redistributing it. Each run costs about 5 credits per sport, so every three
+hours for four sports needs a paid plan; the free plan's 500 credits a month cover one sport about three
+times a day.
+
 Schedule it with [Cronsole](https://cronsole.ai-automation-tools.dev/): download the
 [ESPN Line Capture template](https://cronsole.ai-automation-tools.dev/#/t/edge-spectrum-line-capture)
 (or the [Edge Spectrum pack](https://cronsole.ai-automation-tools.dev/#/collection/edge-spectrum)) and

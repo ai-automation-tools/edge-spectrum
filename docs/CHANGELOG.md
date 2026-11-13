@@ -2,6 +2,20 @@
 
 ---
 
+## November 12, 2026 — A second line source: The Odds API, with your own key
+
+From the 2026-11-11 project audit's long-term list (INT-06).
+
+- `npm run capture:lines -- --provider odds-api` reads lines from The Odds API with `ODDS_API_KEY`
+  from `site/.env` (`--book draftkings` by default) and writes the same records as the ESPN collector,
+  through the same phase rule and append-only files. `site/scripts/odds-api.ts` shapes its odds and
+  scores like ESPN's parsed games; its multi-day board is filed by each game's Eastern date.
+- The default is unchanged: ESPN, no key. The Cronsole templates still run the default.
+- Its terms, read before writing this: storing the data for your own analysis is allowed;
+  redistributing it as a raw data product is not. `docs/UPSTREAMS.md` has the row; `.env.example`
+  documents the key; `check:lines` covers the mapping, the identical record shape, and that an error
+  never prints the key.
+
 ## November 12, 2026 — The dataset version carries a content hash
 
 The data package's `version` was the newest check date alone, so the second dataset change of
