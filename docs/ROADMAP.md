@@ -30,6 +30,7 @@ verifies; `🔒 Needs owner` marks one only the owner can do. Each item carries 
 > - [README.md](README.md) — Documentation hub and navigation directory.
 > - [methodology.md](methodology.md) — Mathematical foundations of the DU/CED framework, metric semantics, and ruin formulas.
 > - [data-architecture.md](data-architecture.md) — Canonical dataset schema, provenance tracking, CI verification, and collection strategy.
+> - [decisions.md](decisions.md) — The standing decisions in one table.
 > - [ideas/hub_improvement_plan.md](ideas/hub_improvement_plan.md) — Archived review, and the ideas never scheduled.
 
 ## 🧮 Release gate and execution order

@@ -155,6 +155,18 @@ It finds each game's closing capture in your archive and writes `my-bets.grades.
 the closing line, the expected value of each at the de-vigged closing price, points gained on spreads and
 totals, and the result. It reads only your local archive and publishes nothing.
 
+### For agents and scripts
+
+Two static JSON files are the machine-readable side of the site. Both are served with
+`Access-Control-Allow-Origin: *` and change only when `main` deploys. There is no MCP server, by choice
+([decisions](docs/decisions.md)).
+
+- [`/spectrum/edges.json`](https://edge-spectrum.ai-automation-tools.dev/spectrum/edges.json): every
+  dataset record, with its source, as-of date and method. The same data as `edges.csv`, whose columns
+  are described in [`datapackage.json`](https://edge-spectrum.ai-automation-tools.dev/spectrum/datapackage.json).
+- [`/registry/index.json`](https://edge-spectrum.ai-automation-tools.dev/registry/index.json): the Cronsole
+  template catalog (line capture, line digest, market closes), with each template's schedule and parameters.
+
 ---
 
 ## 🏗️ Repository Architecture
