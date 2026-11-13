@@ -71,6 +71,16 @@ try {
   });
   check(li.border === '0px' && li.bg === 'rgba(0, 0, 0, 0)', `.li buttons lost their reset: border ${li.border}, background ${li.bg}`);
 
+  // ── 2b. Panels are headings, and pin / unpin by keyboard keep focus (audit UX-18) ──
+  check((await page.locator('h2.chart-title, #insp h2, #insp h3').count()) >= 3, 'the chart and inspector panels are not headings');
+  const focused = () => page.evaluate(() => document.activeElement?.classList.contains('insp-title') ?? false);
+  await page.locator('#insp [data-pin]').first().focus();
+  await page.keyboard.press('Enter');
+  check(await focused(), 'pinning from the list drops focus instead of moving it to the inspector heading');
+  await page.locator('#pinBtn').focus();
+  await page.keyboard.press('Enter');
+  check(await focused(), 'unpinning drops focus instead of moving it to the inspector heading');
+
   // ── 3. A real click on a bar pins it, and the pin survives a reload ────────
   const box = (await page.locator('#chart .bars .point path').first().boundingBox())!;
   await page.mouse.click(box.x + box.width / 2, box.y + Math.min(box.height / 2, 20));
@@ -169,6 +179,11 @@ try {
   const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await open(phone);
   check((await phone.evaluate(() => (document.getElementById('chart') as any).layout.dragmode)) === false, 'touch screens still get drag-zoom on the chart');
+  // UX-18: the chart is within the first screen and a bit, not 1,744px down; the rest waits behind a button.
+  const chartTop = await phone.evaluate(() => document.getElementById('chart')!.getBoundingClientRect().top + scrollY);
+  check(chartTop < 1000, `on a phone the chart starts ${Math.round(chartTop)}px down`);
+  await phone.locator('#ctlMore').tap();
+  check(await phone.getByRole('group', { name: 'Projection layer' }).isVisible(), '"More controls" does not open the hidden controls');
   await phone.close();
 
   // ── 9. Backtester: a failed run takes the old numbers down, and a min above its max is
@@ -328,4 +343,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager, the luck panel draws the fan and the season split. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
+console.log('Browser check passed. Spectrum: loads clean, pins, survives reload, re-themes, places "You" and keeps its form through hover and Play, shows a "You" name as text, compares, embeds, keeps focus through pin and unpin, puts the chart first on a phone, and leaves touch scrolling alone. Backtester: a failed run clears the old result, an inverted range is never sent, totals hide the streak filter, the CSV holds every wager, the luck panel draws the fan and the season split. Kelly: half Kelly at -110, 55% stakes $27.50. Accessibility: the run is announced, the game log pages and sorts, toggles and tabs expose their state, charts have text, the palette holds focus, calculator errors say why, and the help-line line sits by each tool.');
