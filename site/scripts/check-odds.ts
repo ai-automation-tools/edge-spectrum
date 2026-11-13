@@ -124,3 +124,28 @@ near(p2.legHolds[0], 1 / (21 / 11) - 0.5);
 assert.throws(() => parlay([]));
 
 console.log('parlay: all checks passed');
+
+// ── Kelly sizing (Action 6.3, audit PROD-11) ──
+import { kellyFraction, growthRate, drawdownChance, simultaneousKelly, edge } from '../src/kelly';
+
+const fav = { p: 0.55, d: 2 };
+near(kellyFraction(fav), 0.1); // (1 x 0.55 - 0.45) / 1
+near(edge(fav), 0.1);
+near(kellyFraction({ p: 0.5, d: 2 }), 0); // no edge, no bet
+near(kellyFraction({ p: 0.4, d: 2 }), 0); // negative edge is not a short
+near(kellyFraction({ p: 0.25, d: 5 }), (4 * 0.25 - 0.75) / 4);
+// Full Kelly maximises growth; twice Kelly grows at about zero.
+const k = kellyFraction(fav);
+assert.ok(growthRate(fav, k) > growthRate(fav, 0.9 * k) && growthRate(fav, k) > growthRate(fav, 1.1 * k));
+assert.ok(Math.abs(growthRate(fav, 2 * k)) < 0.001);
+// Thorp's drawdown odds: halving at full Kelly 50%, at half Kelly 12.5%; 2x Kelly certain.
+near(drawdownChance(0.5, 1), 0.5);
+near(drawdownChance(0.5, 0.5), 0.125);
+near(drawdownChance(0.5, 2), 1);
+assert.throws(() => drawdownChance(0, 1));
+// Simultaneous: one bet is plain Kelly; two independent copies each get less, together more.
+assert.ok(Math.abs(simultaneousKelly([fav])[0] - k) < 1e-6);
+const two = simultaneousKelly([fav, fav]);
+assert.ok(Math.abs(two[0] - two[1]) < 1e-6 && two[0] < k && two[0] + two[1] > k, `two bets: ${two}`);
+assert.deepEqual(simultaneousKelly([{ p: 0.5, d: 2 }, fav]).map((f) => Number(f.toFixed(4))), [0, Number(k.toFixed(4))]);
+console.log('kelly: all checks passed');

@@ -36,7 +36,10 @@ site/                 # ← the whole web app (Vercel Root Directory = site)
     tools.ts          # THE REGISTRY — single source of truth for every tool
     App.tsx           # BrowserRouter shell + slim HubNav; routes derived from the tools
     pages/Home.tsx    # hub landing = tile grid, maps over tools.ts
-    pages/OddsConverter.tsx, pages/ParlayCalculator.tsx   # Phase 6 standalone calculators
+    pages/OddsConverter.tsx, pages/ParlayCalculator.tsx, pages/KellyCalculator.tsx   # Phase 6 calculators
+    kelly.ts          # pure Kelly sizing: single, fractional, simultaneous, drawdown odds — held by
+                      #   scripts/check-odds.ts
+    ledgerCsv.ts      # the backtest game log's CSV download (every wager, bankroll after each)
     odds.ts           # pure odds/de-vig/parlay math behind the calculators; no imports — held by
                       #   scripts/check-odds.ts. Reuse it; do not re-derive conversions elsewhere
     stats.ts          # pure hit-rate inference (breakeven, Wilson CI, exact binomial p-value) the

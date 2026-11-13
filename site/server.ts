@@ -66,7 +66,7 @@ async function startServer() {
     app.use(express.static(distPath));
     // The SPA shell for every path, but only the routes it serves are a 200:
     // the rest render its not-found page with a 404 (same list as vercel.json).
-    const CLIENT_ROUTES = ['/', '/backtester', '/odds', '/parlay', '/setup'];
+    const CLIENT_ROUTES = ['/', '/backtester', '/odds', '/parlay', '/kelly', '/setup'];
     // Read once: the shell never changes while the server runs, so no request touches the disk for it.
     const shell = readFileSync(path.join(distPath, 'index.html'), 'utf8');
     app.get('*', (req, res) => {

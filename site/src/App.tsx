@@ -13,6 +13,7 @@ import { TOOLS } from './tools';
 const BacktesterApp = lazy(() => import('./BacktesterApp'));
 const OddsConverter = lazy(() => import('./pages/OddsConverter'));
 const ParlayCalculator = lazy(() => import('./pages/ParlayCalculator'));
+const KellyCalculator = lazy(() => import('./pages/KellyCalculator'));
 const Setup = lazy(() => import('./pages/Setup'));
 
 const SITE = 'Edge Spectrum';
@@ -129,6 +130,7 @@ function Shell() {
             <Route path="/backtester" element={<BacktesterApp />} />
             <Route path="/odds" element={<OddsConverter />} />
             <Route path="/parlay" element={<ParlayCalculator />} />
+            <Route path="/kelly" element={<KellyCalculator />} />
             <Route path="/setup" element={<Setup />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

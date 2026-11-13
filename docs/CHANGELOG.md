@@ -2,6 +2,24 @@
 
 ---
 
+## November 12, 2026 — Embeds anywhere, a backtest CSV, a Kelly calculator, a shorter roadmap
+
+From the 2026-11-11 project audit (INT-01, PROD-06, PROD-11, PROD-22).
+
+- **The Spectrum embed can sit on other sites.** `?embed=1` on the Spectrum page no longer sends
+  `X-Frame-Options: SAMEORIGIN` or `frame-ancestors 'self'`; every other route still does,
+  `/backtester?embed=1` included. `check:deployment` replays `vercel.json`'s header rules.
+- **The game log downloads every wager as CSV**, with the bankroll after each. The API still ships
+  only the last 250, so the browser replays the same seeded run and refuses to download if its row
+  count disagrees with the summary. `check:engine` and `check:spectrum-browser` hold it.
+- **`/kelly`, the Kelly & Bankroll Sizing Calculator** (roadmap 6.3): one bet, or up to eight
+  independent bets settled together, at full, half, quarter or tenth Kelly; growth per bet, bets to
+  double, and Thorp's odds of the bankroll ever falling to 75%, 50% or 25%. The math is
+  `site/src/kelly.ts`, held by `check:odds`.
+- **Roadmap pruned:** the React port of the Spectrum page (4.6) and user accounts (7.2) are dropped,
+  the export bundle (3.2) is shrunk to the CSV plus a `strategy.json`, and the quiz, share cards and
+  regional variants (6.5, 6.7, 6.8) wait for the provenance programme.
+
 ## November 12, 2026 — The estimate rows sourced, and the dataset published
 
 From the 2026-11-11 project audit (PROD-07, PROD-08, INT-07, GOV-03, PROD-16).

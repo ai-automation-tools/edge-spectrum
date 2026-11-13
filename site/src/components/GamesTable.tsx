@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SimulatedBetGame } from '../types';
-import { CheckCircle2, XCircle, Slash, Info } from 'lucide-react';
+import { CheckCircle2, XCircle, Slash, Info, Download } from 'lucide-react';
 
 interface GamesTableProps {
   /** The truncated tail of the ledger — `gamesPreview` from the API. */
@@ -9,6 +9,8 @@ interface GamesTableProps {
   totalGames: number;
   /** The cap the engine applied to `games`. */
   previewLimit: number;
+  /** Downloads every wager of the run as CSV, not just the preview. */
+  onDownloadCsv?: () => void;
 }
 
 /** Rows per page: 250 at once made the page 17,000px tall (audit UX-06). */
@@ -23,7 +25,7 @@ const compare: Record<SortKey, (a: SimulatedBetGame, b: SimulatedBetGame) => num
   status: (a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status],
 };
 
-export default function GamesTable({ games, totalGames, previewLimit }: GamesTableProps) {
+export default function GamesTable({ games, totalGames, previewLimit, onDownloadCsv }: GamesTableProps) {
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'push'>('all');
   // Newest first by default; the ledger arrives oldest first.
   const [sort, setSort] = useState<{ key: SortKey; dir: 'ascending' | 'descending' }>({ key: 'date', dir: 'descending' });
@@ -63,8 +65,19 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
           <p className="text-[10px] text-zinc-400 mt-0.5">Deep-dive review of individual simulated wagers and scoring lines</p>
         </div>
 
+        <div className="flex items-center gap-2 self-start sm:self-center">
+        {onDownloadCsv && (
+          <button
+            type="button"
+            onClick={onDownloadCsv}
+            title={`Download all ${totalGames.toLocaleString()} wagers as CSV`}
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg border border-zinc-800/70 text-zinc-300 hover:text-zinc-100 hover:border-zinc-700"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden="true" /> CSV
+          </button>
+        )}
         {/* Filters */}
-        <div role="group" aria-label="Show" className="flex p-0.5 bg-(--bg-2) rounded-lg border border-zinc-800/70 self-start sm:self-center">
+        <div role="group" aria-label="Show" className="flex p-0.5 bg-(--bg-2) rounded-lg border border-zinc-800/70">
           {(['all', 'win', 'loss', 'push'] as const).map((type) => (
             <button
               key={type}
@@ -80,6 +93,7 @@ export default function GamesTable({ games, totalGames, previewLimit }: GamesTab
               {type}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
