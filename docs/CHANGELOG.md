@@ -2,6 +2,20 @@
 
 ---
 
+## November 12, 2026 — Ask the advisor about the dataset
+
+From the 2026-11-11 project audit's long-term list (PROD-15).
+
+- In full mode the advisor answers questions about the Edge Spectrum dataset ("how bad is roulette
+  compared with keno?"). The question's words are matched against activity names and categories, by
+  whole-word prefix so "NFL" does not find "Inflation", and up to 12 rows go into the prompt with their
+  figure, basis, source and check date. The model is told to answer from them, name the sources, flag
+  uncited estimates, and not state figures for activities that are not listed. A strategy question
+  usually matches nothing and is asked as before.
+- Demo mode is unchanged: it never calls the model.
+- `check:deployment` asserts the rows and sources reach the model and that a strategy question
+  carries none. One live call answered from the rows with their sources.
+
 ## November 12, 2026 — A second line source: The Odds API, with your own key
 
 From the 2026-11-11 project audit's long-term list (INT-06).
