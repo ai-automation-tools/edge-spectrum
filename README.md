@@ -45,7 +45,7 @@
 
 **Edge Spectrum** is an interactive playground for exploring mathematical edges. It brings together four analytical applications:
 
-1. **The Edge Spectrum Expected-Return Visualizer** (`/spectrum/`): Compares **240 financial, investing, trading, and gambling activities** over **7 time horizons** (Single Event to 10 Years), standardized using the **DU/CED framework**. Return on capital is the primary axis and is floored at −100%; the unbounded turnover cost gets its own axis so the two are never compared as if they were the same quantity.
+1. **The Edge Spectrum Expected-Return Visualizer** (`/spectrum/`): Compares **more than 230 financial, investing, trading, and gambling activities** over **7 time horizons** (Single Event to 10 Years), standardized using the **DU/CED framework**. Return on capital is the primary axis and is floored at −100%; the unbounded turnover cost gets its own axis so the two are never compared as if they were the same quantity.
 2. **The Backtest Simulator** (`/backtester`): Backtests sports wagering strategies across **26 simulated seasons of MLB, NFL, NHL, and NBA games** (2000–2025), providing ROI diagnostics, equity curves, live ESPN scores, and an **AI Strategy Advisor** powered by Gemini.
 3. **Odds Converter & No-Vig Calculator** (`/odds`): Converts American, decimal, fractional and implied odds, and strips bookmaker margin from any multi-way market via **multiplicative, power, or Shin** de-vigging.
 4. **Parlay & SGP Hold Calculator** (`/parlay`): De-vigs each leg, multiplies out the true joint probability, and compares it with the book's parlay payout to expose how the margin compounds per leg.
@@ -58,6 +58,7 @@
 Served as a static page at `/spectrum/index.html` (internally routes to `public/spectrum/index.html`).
 
 - **15 asset and bet categories**, from index funds to lottery tickets. The generated [`data/edge_dataset.md`](data/edge_dataset.md) lists every record by category.
+- **The dataset is downloadable**: [`/spectrum/edges.csv`](https://edge-spectrum.ai-automation-tools.dev/spectrum/edges.csv), with its schema, version and licence in [`datapackage.json`](https://edge-spectrum.ai-automation-tools.dev/spectrum/datapackage.json), and attached to each `dataset-*` [release](https://github.com/ai-automation-tools/edge-spectrum/releases). The data is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); cite "Edge Spectrum" and keep each record's source.
 - **Universal DU/CED Framework:** Standardized expected returns via:
   $$\text{Expected Turnover Cost} = \text{Decision Units (DU)} \times \text{Capital Exposure per Decision (CED)} \times \text{Edge}$$
 - **Three named measures, never mixed on one axis:**
@@ -160,7 +161,7 @@ The [public demo](https://edge-spectrum.ai-automation-tools.dev) includes the in
 odds and parlay calculators, synthetic backtester, and live scoreboard. Its AI advisor
 shows **clearly labeled sample responses**, with no Gemini calls and no visitor API keys.
 
-The full application is included in this repository under [Apache-2.0](LICENSE).
+The full application is included in this repository under [Apache-2.0](LICENSE). The dataset (`edges.csv` and its copies) is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 [Create your own site](https://edge-spectrum.ai-automation-tools.dev/setup) to deploy a copy to
 Vercel with your own Gemini key, private advisor passcode, and live AI responses.
 Use **Use this template** on GitHub to create a complete copy you can customize.

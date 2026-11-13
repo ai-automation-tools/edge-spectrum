@@ -2,6 +2,30 @@
 
 ---
 
+## November 12, 2026 — The estimate rows sourced, and the dataset published
+
+From the 2026-11-11 project audit (PROD-07, PROD-08, INT-07, GOV-03, PROD-16).
+
+- **28 `estimate` rows found a published figure** and are `published` now; 198 of 239 records are
+  cited (was 170) and no category is under 50%, so new records are allowed again.
+  - **Prediction markets** use each venue's fee schedule at a 50c price: Kalshi −3.5, Polymarket −2.0
+    to −5.5 (fee plus half the published median spread), PredictIt −10 → −5 (its 5% withdrawal fee is gone).
+  - **Collectibles** use Knight Frank's luxury index and CKGSB's art index: fine art 5.0 → 1.9, wine
+    4.0 → 2.98, classic cars 3.5 → 2.76, watches 3.0 → 9.06 (to 2023), NFTs −50 → −39.9.
+  - **Insurance**: variable annuity 5.0 → 7.49 (S&P 500 less a 2.3% cost), FIA 3.5 → 3.23 (LIMRA),
+    UL 3.0 → 4.19 (a gross crediting rate), whole life 3.5 → 4.5, and via policy loans 3.5 → 1.9.
+  - **Poker and DFS**: skilled tournament players +2 → +9.8 (Levitt & Miles), DFS average −12 →
+    −14.31 (Massachusetts Gaming Commission), DFS casual −20 → −51 (McKinsey), sit & go −15 → −7.
+  - 11 estimates had no published figure and stay estimates, among them IUL, VUL, mid-stakes poker
+    and sneaker reselling.
+- **Metaculus Scientific is cut.** Metaculus is a forecasting site with no stakes, so a return per
+  dollar staked doesn't exist.
+- **The dataset is published.** `gen:edges` writes `site/public/spectrum/edges.csv` and a Frictionless
+  `datapackage.json` with the schema, a version (the newest check date), sha256 hashes and the licence,
+  CC BY 4.0. `gen:edges -- --check` covers both, the Spectrum footer links them, and each
+  `dataset-<version>` GitHub release attaches them.
+- `check:spectrum-browser` picks its undated example row from the data instead of naming one.
+
 ## November 12, 2026 — Every published row cited
 
 From the 2026-11-11 project audit (PROD-07). The last 33 `published` rows cite a source read on
