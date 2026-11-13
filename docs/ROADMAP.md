@@ -290,7 +290,7 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 - [x] 🟡 **Action 6.3 — Standalone Kelly & Bankroll Sizing Calculator** — done 2026-11-12 (audit PROD-11): `/kelly` sizes one bet, or up to eight independent bets settled together, at full, half, quarter or tenth Kelly, with growth per bet, bets to double, and Thorp's odds of the bankroll ever falling to 75%, 50% or 25%. The math is `site/src/kelly.ts` (pure), held by `check:odds`.
    - **Tool:** Single and simultaneous multi-event Kelly sizing with risk-of-ruin curves and fractional sizing recommendations.
 
-- [ ] 🟡 **Action 6.4 — Personal Edge Audit Tool** 🟡 *(first step shipped 2026-10-12: the Spectrum page's "Where do I sit?" form places one activity — a wager from any game or a custom edge with bankroll, stake and frequency, or a holding — on the chart as a "You" bar and reports it in dollars, kept in the URL. The blended multi-activity audit remains.)*
+- [ ] 🟡 **Action 6.4 — Personal Edge Audit Tool** 🟡 *(first step shipped 2026-10-12: the Spectrum page's "Where do I sit?" form places one activity — a wager from any game or a custom edge with bankroll, stake and frequency, or a holding — on the chart as a "You" bar and reports it in dollars, kept in the URL. The blended multi-activity audit remains. Opt-in counting of the form's use shipped 2026-11-12 (audit PROD-14): the audit gets built if the counts show the form is used.)*
    - **Tool:** User enters their personal activities (401k index funds, sports betting volume, poker hours, lottery tickets) and receives a blended annualized return and expected drag calculation.
 
 - [ ] 🟡 **Action 6.5 — "Guess the Edge" Quiz & Portfolio Blender** *(deferred until the provenance programme closes, audit PROD-07 and PROD-22: it puts dataset figures in front of more people)*
@@ -308,8 +308,7 @@ limits is deferred by the owner. Next up: **Cite the remaining `published` rows*
 ### 💰 Phase 7: Public Launch & Data Coverage ⚪
 *Real closing lines, share cards and the published dataset. Accounts are dropped (audit PROD-22): every tool keeps its state in the URL instead.*
 
-- [ ] 🟠 **Action 7.1 — Commercial Historical Odds Integration**
-   - **Integration:** Integrate verified historical closing lines and injury reports from commercial feeds (The Odds API / Sportradar) stored as static Parquet/JSON files for instant loading.
+- [x] 🟠 **Action 7.1 — Real Historical Lines in the Backtester** — closed 2026-11-12, not built (audit PROD-12): the owner chose to keep every sport simulated. The licences of 16 datasets are recorded in `docs/UPSTREAMS.md`; the only candidate was nflverse's NFL schedules, whose upstream states no licence and whose lines' source is undocumented. Real lines reach a user only through their own archive (`npm run capture:lines`, `npm run grade:lines`).
 
 
 - [ ] 🟡 **Action 7.3 — SEO, Social Meta Cards & Growth Loop** *(the static half shipped 2026-11-12: `robots.txt`, `sitemap.xml`, one share image, per-route titles and descriptions, real 404s. Per-result cards are what is left.)*
