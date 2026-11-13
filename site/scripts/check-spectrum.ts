@@ -64,9 +64,10 @@ const failures: string[] = [];
 const fail = (msg: string) => failures.push(msg);
 
 // ── 1. The page still carries the dataset the docs describe ──────────────────
-const EXPECTED_RECORDS = 240;
+// The one record count, in the baseline `check:edges -- --write-baseline` writes (audit AI-08).
+const EXPECTED_RECORDS: number = JSON.parse(readFileSync(resolve(HERE, '../src/data/provenance-baseline.json'), 'utf8')).totalRecords;
 if (RAW.length !== EXPECTED_RECORDS) {
-  fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (update docs/ROADMAP.md if intentional)`);
+  fail(`record count is ${RAW.length}, expected ${EXPECTED_RECORDS} (if intended, run npm run check:edges -- --write-baseline)`);
 }
 if (RUIN_FLOOR !== -100) fail(`RUIN_FLOOR is ${RUIN_FLOOR}; total capital loss is −100% by definition`);
 
