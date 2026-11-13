@@ -197,3 +197,7 @@ Do **not** push directly to `main`. Work on `mike_desktop`, then open a **PR →
 Use the repository-local neutral commit identity (`Edge Spectrum Maintainers`,
 `noreply@github.com`). Do not reintroduce pre-cleanup history by merging old clones
 or branches; start from a fresh clone or transplant reviewed file changes.
+
+History was rewritten again on 2026-11-13 (audit SEC-01): every commit hash before #119's merge
+changed. A clone, worktree or branch made before that date carries the old history; never push or
+merge from one. Re-clone instead.
