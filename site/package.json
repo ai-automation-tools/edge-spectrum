@@ -31,7 +31,7 @@
   "dependencies": {
     "@google/genai": "^2.32.0",
     "@tailwindcss/vite": "^4.3.5",
-    "@vitejs/plugin-react": "^5.0.4",
+    "@vitejs/plugin-react": "^6.3.0",
     "dotenv": "^17.2.3",
     "express": "^4.22.3",
     "lucide-react": "^0.577.0",
@@ -41,7 +41,7 @@
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.5",
     "recharts": "^3.10.1",
-    "vite": "^6.4.5",
+    "vite": "^8.3.8",
     "zod": "^4.6.7"
   },
   "devDependencies": {
