@@ -205,3 +205,32 @@ try {
   assert.deepEqual(bad, [], 'relative imports reachable from api/ must end in .js');
   console.log(`API import graph: ${seen.size} files, every relative import ends in .js.`);
 }
+
+// Framing (audit INT-01): only the Spectrum page asked for with ?embed may be framed by another
+// site; every other route keeps X-Frame-Options and frame-ancestors. Vercel's header sources here
+// are plain regex groups, so anchoring each one is enough to replay the matching.
+{
+  type Rule = { source: string; missing?: { type: string; key: string }[]; headers: { key: string; value: string }[] };
+  const { readFileSync } = await import('node:fs');
+  const rules: Rule[] = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8')).headers;
+  const headersFor = (url: string) => {
+    const { pathname, searchParams } = new URL(url, 'https://x.test');
+    const out: Record<string, string> = {};
+    for (const r of rules) {
+      if (!new RegExp(`^${r.source}$`).test(pathname)) continue;
+      if (r.missing?.some((m) => m.type === 'query' && searchParams.has(m.key))) continue;
+      for (const h of r.headers) out[h.key] = h.value;
+    }
+    return out;
+  };
+  for (const url of ['/', '/backtester', '/backtester?embed=1', '/?embed=1', '/spectrum/index.html', '/diagram/hub-data-flow.html?embed=1']) {
+    const h = headersFor(url);
+    assert.equal(h['X-Frame-Options'], 'SAMEORIGIN', `${url} can be framed`);
+    assert.equal(h['Content-Security-Policy'], "frame-ancestors 'self'", `${url} lost frame-ancestors`);
+  }
+  const embed = headersFor('/spectrum/index.html?embed=1');
+  assert.equal(embed['X-Frame-Options'], undefined, 'the Spectrum embed still sends X-Frame-Options');
+  assert.equal(embed['Content-Security-Policy'], undefined, 'the Spectrum embed still sends frame-ancestors');
+  assert.equal(embed['X-Content-Type-Options'], 'nosniff', 'the Spectrum embed lost nosniff');
+  console.log('Framing: only /spectrum/?embed can be framed elsewhere; every other route sends SAMEORIGIN.');
+}

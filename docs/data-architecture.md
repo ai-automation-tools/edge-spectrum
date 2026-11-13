@@ -22,7 +22,7 @@ site/src/data/edges.ts (Typed canonical dataset)  ← edit only this
           │  npm run gen:edges          (site/scripts/generate-edge-artifacts.ts)
           │
           ├──► site/public/spectrum/index.html  — the inlined `RAW` block the live page ships
-          ├──► site/public/spectrum/edges.json  — the page's short-key rows, for the React port (4.6)
+          ├──► site/public/spectrum/edges.json  — the page's short-key rows
           ├──► site/public/spectrum/edges.csv   — the published dataset
           ├──► site/public/spectrum/datapackage.json — its schema, version and licence
           └──► data/edge_dataset.md             — human-readable catalog of the inputs

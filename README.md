@@ -49,6 +49,7 @@
 2. **The Backtest Simulator** (`/backtester`): Backtests sports wagering strategies across **26 simulated seasons of MLB, NFL, NHL, and NBA games** (2000–2025), providing ROI diagnostics, equity curves, live ESPN scores, and an **AI Strategy Advisor** powered by Gemini.
 3. **Odds Converter & No-Vig Calculator** (`/odds`): Converts American, decimal, fractional and implied odds, and strips bookmaker margin from any multi-way market via **multiplicative, power, or Shin** de-vigging.
 4. **Parlay & SGP Hold Calculator** (`/parlay`): De-vigs each leg, multiplies out the true joint probability, and compares it with the book's parlay payout to expose how the margin compounds per leg.
+5. **Kelly & Bankroll Sizing Calculator** (`/kelly`): Sizes one bet, or several settled together, from the price and your win probability at full or fractional Kelly, with growth per bet and the odds of a halved bankroll.
 
 ---
 
@@ -168,7 +169,7 @@ Use **Use this template** on GitHub to create a complete copy you can customize.
 
 | Capability | Public demo | Your full instance |
 | --- | --- | --- |
-| Spectrum, odds & parlay tools | Interactive | Full access |
+| Spectrum, odds, parlay & Kelly tools | Interactive | Full access |
 | 26-season synthetic backtester | Interactive | Full access |
 | ESPN scoreboard | Live feed | Live feed |
 | Gemini advisor | Written samples | Live, passcode protected |

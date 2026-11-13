@@ -80,6 +80,7 @@ export interface SimulatedBetGame {
   stake: number;
   returnVal: number;
   netResult: number;    // stakeholder net, e.g. -100 or +150
+  bankroll: number;     // the bankroll after this wager settles
   status: 'win' | 'loss' | 'push';
 }
 

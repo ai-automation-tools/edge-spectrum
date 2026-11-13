@@ -10,6 +10,8 @@ import EspnFeed from './components/EspnFeed';
 import { Strategy, BacktestResponse, StrategyTemplate } from './types';
 import { strategyFromQuery, strategyToQuery } from './strategyUrl';
 import { rangeIssues } from './strategyBounds';
+import { runBacktest as runEngine } from './dataGenerator';
+import { ledgerCsv } from './ledgerCsv';
 import { AlertCircle, LineChart, Table, BookOpen } from 'lucide-react';
 import SiteFooter from './components/SiteFooter';
 
@@ -29,6 +31,8 @@ export default function App() {
   const [strategy, setStrategy] = useState<Strategy>(() => strategyFromQuery(searchParams));
 
   const [result, setResult] = useState<BacktestResponse | null>(null);
+  // The strategy that produced `result`, which the form may since have moved on from.
+  const [resultStrategy, setResultStrategy] = useState<Strategy | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'analytics' | 'espn'>('analytics');
@@ -70,6 +74,7 @@ export default function App() {
       // Superseded while we were parsing — the newer run owns the UI now.
       if (controller.signal.aborted) return;
       setResult(data);
+      setResultStrategy(targetStrategy);
     } catch (err: any) {
       if (controller.signal.aborted) return;
       console.error(err);
@@ -81,6 +86,23 @@ export default function App() {
       if (!controller.signal.aborted) setIsLoading(false);
     }
   }, []);
+
+  // The API returns only the last wagers. The engine is seeded, so the browser replays the
+  // same run for the full ledger, and refuses if it doesn't match the summary (audit PROD-06).
+  const downloadCsv = useCallback(() => {
+    if (!result || !resultStrategy) return;
+    const games = runEngine(resultStrategy, Infinity).gamesPreview;
+    if (games.length !== result.summary.totalBets) {
+      setError(`The CSV would have ${games.length} wagers but the run had ${result.summary.totalBets}; nothing was downloaded.`);
+      return;
+    }
+    const s = resultStrategy;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ledgerCsv(games)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `edge-spectrum-backtest-${s.sport}-${s.betType}-${s.sideSelection}-${s.startYear}-${s.endYear}.csv`.toLowerCase();
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 0);
+  }, [result, resultStrategy]);
 
   // Abort whatever is still running when the backtester unmounts.
   useEffect(() => () => inFlight.current?.abort(), []);
@@ -207,6 +229,7 @@ export default function App() {
                     games={result.gamesPreview}
                     totalGames={result.totalGames}
                     previewLimit={result.previewLimit}
+                    onDownloadCsv={downloadCsv}
                   />
                 )}
               </div>
