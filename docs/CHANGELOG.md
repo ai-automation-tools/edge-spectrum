@@ -2,6 +2,13 @@
 
 ---
 
+## November 12, 2026 — CI on the current GitHub Actions majors
+
+Roadmap Action 2.14b. Dependabot's first majors PR (#85) moved both workflows from `actions/checkout`
+and `actions/setup-node` v4.4.0 to v7.0.1 and v7.1.0, still pinned by commit SHA. It was rebased onto
+current `main` first, and CI's `check` job passed on the new versions. The Vercel preview could not
+build that day (the Hobby plan's daily deploy limit); the PR changes no site file.
+
 ## November 12, 2026 — Opt-in page counts
 
 From the 2026-11-11 project audit's long-term list (PROD-14), which says to learn whether the "Where
@@ -20,8 +27,9 @@ do I sit?" form is used before building the multi-activity audit (Action 6.4).
   embed (`?embed=1`) loads neither: a banner has no place inside someone else's page.
 - Forks are unaffected: the consent script is dropped from a fork's build, so the counter never loads.
 - `check:deployment` holds the gate: nothing before consent, no query string, nothing after a withdrawal.
-- **Counting starts once Web Analytics is enabled on the Vercel project** (Analytics tab). Until then
-  the script it loads answers 404 and nothing is sent.
+- **Web Analytics was enabled on the Vercel project the same day.** Counting starts with the first
+  production deploy after that; until then the script it loads answers 404 and nothing is sent.
+- The home page's "no telemetry" line now says "page counts only if you opt in" (audit INT-11).
 
 ## November 12, 2026 — Historical line licences recorded
 

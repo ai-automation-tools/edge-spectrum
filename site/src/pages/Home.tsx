@@ -146,7 +146,7 @@ export default function Home() {
         {/* ── Hero ── */}
         <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-9 py-14 md:grid-cols-[1.02fr_.98fr] md:gap-12 md:py-20 md:pb-10">
           <div className="min-w-0">
-            <Eyebrow><b>Open source</b> · {TOOLS.length} tools · {live} live · Apache-2.0 · no telemetry</Eyebrow>
+            <Eyebrow><b>Open source</b> · {TOOLS.length} tools · {live} live · Apache-2.0 · page counts only if you opt in</Eyebrow>
             <h1 className="mt-[18px] text-[clamp(34px,4.6vw,52px)] font-bold leading-[1.04] tracking-[-0.035em] text-zinc-100 [text-wrap:balance]">
               See where the edge <span className="h-grad">actually</span> is.
             </h1>

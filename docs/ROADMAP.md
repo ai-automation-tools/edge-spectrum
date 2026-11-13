@@ -139,7 +139,7 @@ Phase 7: Public Launch ⚪
     - **Where:** `site/package.json`, `site/package-lock.json`, and the call sites above. `.github/workflows/ci.yml` pins `actions/checkout@v4` / `actions/setup-node@v4` (latest tags v7.0.1 / v7.1.0 per api.github.com/repos/actions/*/releases/latest): a workflow edit, split out as Action 2.14b.
     - **Done when:** `npm run lint`, every `check:*`, and `npm run build` pass on the new versions, and `docs/UPSTREAMS.md` lists the new declared versions.
 
-- [ ] 🔵 **Action 2.14b — Bump the CI workflow's action pins** — both workflows pin `actions/checkout` and `actions/setup-node` to the v4.4.0 commit SHA (2026-11-12), and Dependabot now raises new versions, majors included. What is left is merging its first majors PR, which the sweep holds because it edits a workflow. **Done when:** CI is green on the current majors. 🔒 Needs owner
+- [x] 🔵 **Action 2.14b — Bump the CI workflow's action pins** — done 2026-11-12: Dependabot's first majors PR (#85) moved both workflows to `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, still pinned by commit SHA; CI's `check` job passed on them against current `main` before the merge. Dependabot keeps raising new versions, majors included.
 
 ## 🚦 Public release
 
