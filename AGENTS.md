@@ -24,6 +24,8 @@ tool is roughly *one registry entry + one page*.
   production branch (GitHub's deployment log shows every production deploy at a `main` merge commit),
   and each PR gets a preview. Do not run `vercel deploy --prod` by hand; it would ship code that skipped
   the PR and CI. Rolling back is in `docs/self-hosting.md`.
+- `site/server.ts` imports Vite only in its dev branch; `vite` and its plugins are `devDependencies`, and the
+  built `dist/server.cjs` exits unless `NODE_ENV=production` (self-hosting only).
 - `site/server.ts` (Express + Vite middleware) is **local dev only**; on Vercel the SPA is served from
   `site/dist/` and `site/api/*` run as serverless functions. `vercel.json` has an SPA rewrite so client
   routes deep-link.
@@ -110,6 +112,8 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 
 ## Conventions
 
+- **Standing decisions are in `docs/decisions.md`** (date, decision, why, where). Changing one edits its row
+  in the same PR; don't reopen a settled one without saying so.
 - Strict TS (`"strict": true` in `site/tsconfig.json` since 2026-11-12; `npm run lint` holds it);
   functional components + hooks; Tailwind; match existing `site/src/` style. `react-dom/client` is typed
   by `site/src/react-dom-client.d.ts`, because `@types/react-dom` is not installed.
