@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Sparkles, FlaskConical, Scale, KeyRound, BookOpen, CalendarClock } from 'lucide-react';
 import { TOOLS, type Tool, type ToolStatus } from '../tools';

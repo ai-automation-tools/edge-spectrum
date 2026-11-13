@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Strategy, StrategyTemplate } from '../types';
-import { Send, Sparkles, HelpCircle, ArrowUpRight, BrainCircuit, Play, History, RotateCcw, Lock, LoaderCircle, KeyRound } from 'lucide-react';
+import { Send, Sparkles, ArrowUpRight, BrainCircuit, Play, RotateCcw, Lock, LoaderCircle, KeyRound } from 'lucide-react';
 import { useDeployment } from '../deployment';
 import DemoAdvisor from './DemoAdvisor';
 

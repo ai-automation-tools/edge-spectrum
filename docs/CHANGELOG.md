@@ -2,6 +2,23 @@
 
 ---
 
+## November 12, 2026 — Cleanup: unused dependencies, AI Studio leftovers and dead code removed
+
+From the 2026-11-11 project audit (ARCH-04, ARCH-05, ARCH-07). No change in what the tools compute.
+
+- **Dependencies (ARCH-04).** `d3`, `@types/d3` and `autoprefixer` had no importer and are
+  uninstalled; `vite` is listed once, under `dependencies`. The `clean` script (`rm -rf`, and a
+  `server.js` that no longer exists) is gone.
+- **Leftovers (ARCH-05).** `vite.config.ts` loses the `DISABLE_HMR` switch, its garbled comment and
+  the unused `@/` alias; `tsconfig.json` loses the decorator flags and the alias.
+- **Dead code (ARCH-07).** The generator's `isPlayoff`, `starHomeInjured` and `starAwayInjured`
+  fields (never read), its copy of the American-to-decimal conversion (it now uses `odds.ts`) and
+  23 unused imports are removed, and `tsconfig.json` sets `noUnusedLocals` and `noUnusedParameters`
+  so they stay out. The calculators keep their row counter per page instead of in a module
+  variable. The game log's filter gains the Push button its state already allowed.
+- **Spectrum data.** The rows lose `g`, `vol`, `wp` and `sk`, which the page never read: the page
+  drops from 148,722 to 132,106 bytes and `edges.json` shrinks with it.
+
 ## November 12, 2026 — Accessibility: the palette, the game log, states, charts, calculator errors and the help-line notice
 
 From the 2026-11-11 project audit (UX-05, UX-06, UX-11, UX-12, UX-13, UX-16, UX-19).
