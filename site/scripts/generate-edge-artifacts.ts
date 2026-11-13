@@ -20,7 +20,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { EDGES, EDGE_CATEGORIES, toSpectrumRow, type EdgeRecord, type GameEdge } from '../src/data/edges.ts';
+import { EDGES, EDGE_CATEGORIES, MIN_CITED_SHARE, toSpectrumRow, type EdgeRecord, type GameEdge } from '../src/data/edges.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '../..');
@@ -29,6 +29,7 @@ const SOURCE = 'site/src/data/edges.ts';
 
 /** Annual returns and edges read as percentages; keep the decimal point on whole numbers. */
 const pct = (n: number) => (Number.isInteger(n) ? n.toFixed(1) : String(n));
+const cited = (r: EdgeRecord) => (r.source ? '✓' : '');
 
 /** The banner that opens each category, in whichever comment syntax the target uses. */
 const MODES = new Map<string, Set<string>>();
@@ -86,17 +87,31 @@ function datasetMarkdown(): string {
 
   const assetTable = (rows: EdgeRecord[]) =>
     [
-      '| # | Name | Annual return | Layer |',
-      '|---|------|--------------:|-------|',
-      ...rows.map((r, i) => `| ${i + 1} | ${r.n} | ${pct((r as Extract<EdgeRecord, { m: 'i' }>).a)}% | ${r.ly} |`),
+      '| # | Name | Annual return | Layer | Basis | Cited |',
+      '|---|------|--------------:|-------|-------|:-----:|',
+      ...rows.map((r, i) => `| ${i + 1} | ${r.n} | ${pct((r as Extract<EdgeRecord, { m: 'i' }>).a)}% | ${r.ly} | ${r.basis} | ${cited(r)} |`),
     ].join('\n');
 
   const gameTable = (rows: GameEdge[]) =>
     [
-      '| # | Name | Edge | DU/day | CED | Layer |',
-      '|---|------|-----:|-------:|----:|-------|',
-      ...rows.map((r, i) => `| ${i + 1} | ${r.n} | ${pct(r.e)}% | ${r.du} | ${r.ced}% | ${r.ly} |`),
+      '| # | Name | Edge | DU/day | CED | Layer | Basis | Cited |',
+      '|---|------|-----:|-------:|----:|-------|-------|:-----:|',
+      ...rows.map((r, i) => `| ${i + 1} | ${r.n} | ${pct(r.e)}% | ${r.du} | ${r.ced}% | ${r.ly} | ${r.basis} | ${cited(r)} |`),
     ].join('\n');
+
+  // The provenance burn-down (audit PROD-07): how much of each category cites a source.
+  const share = (rows: EdgeRecord[]) => rows.filter((r) => r.source).length / rows.length;
+  const thin = EDGE_CATEGORIES.filter((c) => share(EDGES.filter((r) => r.cat === c)) < MIN_CITED_SHARE);
+  const coverage = [
+    '| Category | Records | Cited | Share | math | published | estimate |',
+    '|----------|--------:|------:|------:|-----:|----------:|---------:|',
+    ...EDGE_CATEGORIES.map((c) => {
+      const rows = EDGES.filter((r) => r.cat === c);
+      const n = (b: string) => rows.filter((r) => r.basis === b).length;
+      const s = share(rows);
+      return `| ${c} | ${rows.length} | ${rows.filter((r) => r.source).length} | ${s < MIN_CITED_SHARE ? '**' : ''}${Math.round(100 * s)}%${s < MIN_CITED_SHARE ? '**' : ''} | ${n('math')} | ${n('published')} | ${n('estimate')} |`;
+    }),
+  ].join('\n');
 
   const sections = EDGE_CATEGORIES.map((c, n) => {
     const rows = EDGES.filter((r) => r.cat === c);
@@ -131,6 +146,17 @@ function datasetMarkdown(): string {
     'Projections belong to the code that draws them — `site/public/spectrum/index.html` — and are',
     'held there by `npm run check:spectrum`, which runs the page’s own functions over this same',
     'data. One place computes them, one guard checks them.',
+    '',
+    '## Provenance coverage',
+    '',
+    '`basis` says what kind of evidence a figure needs: `math` follows from the rules and payouts,',
+    '`published` is a rate, price, index or takeout someone publishes, `estimate` is a typical',
+    'outcome no one publishes as one figure. **Cited** means the record names a `source`.',
+    `\`npm run check:edges\` holds each category's cited count, and no record may be added while a`,
+    `category cites under ${MIN_CITED_SHARE * 100}% of its rows (bold below). ` +
+      (thin.length ? `**The dataset is frozen:** ${thin.length} of ${EDGE_CATEGORIES.length} categories are under it.` : 'No category is under it.'),
+    '',
+    coverage,
     '',
     '## Model reference',
     '',
