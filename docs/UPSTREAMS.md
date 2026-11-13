@@ -48,7 +48,7 @@ exact ranges are in `site/package.json`. *Latest* is the npm registry's on the *
 | TypeScript | 7.0 (`~`, minor pinned) | 7 | devblogs.microsoft.com/typescript | 2026-11-12 |
 | @google/genai | 2 | 3 (roadmap Action 2.14) | github.com/googleapis/js-genai/releases | 2026-11-12 |
 | motion | 12 | 14 (roadmap Action 2.14) | github.com/motiondivision/motion/releases | 2026-11-12 |
-| express (local dev server only) | 4 | 5 (roadmap Action 2.14) | github.com/expressjs/express/releases | 2026-11-12 |
+| express (local dev server only) | 5 | 5 | github.com/expressjs/express/releases | 2026-11-12 |
 | zod, recharts, react-markdown | 4, 3, 10 | 4, 3, 10 | each package's GitHub releases | 2026-11-12 |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are

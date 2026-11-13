@@ -2,6 +2,15 @@
 
 ---
 
+## November 12, 2026 — Express 5
+
+Roadmap Action 2.14, third of the batch: Express 4 → 5 (and `@types/express` 5) for `site/server.ts`,
+the local and self-hosted server; Vercel never runs it. The one change: the SPA fallback is
+`app.get('/{*splat}')`, because Express 5's router no longer accepts a bare `*`. Checked in both
+modes: dev (Vite middleware) and production (`npm run build && npm start`), where `/`, `/kelly`,
+`/kelly/` and `/backtester` are 200, an unknown path is the 404 shell, static files and a missing
+asset behave as before, and all four API routes answer as they did.
+
 ## November 12, 2026 — TypeScript 7
 
 Roadmap Action 2.14, second of the batch: TypeScript 5.9 → 7.0, the native compiler. `npm run

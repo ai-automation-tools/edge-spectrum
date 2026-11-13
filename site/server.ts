@@ -69,7 +69,8 @@ async function startServer() {
     const CLIENT_ROUTES = ['/', '/backtester', '/odds', '/parlay', '/kelly', '/setup'];
     // Read once: the shell never changes while the server runs, so no request touches the disk for it.
     const shell = readFileSync(path.join(distPath, 'index.html'), 'utf8');
-    app.get('*', (req, res) => {
+    // Express 5 (path-to-regexp 8) needs a named wildcard; the braces let it match "/" too.
+    app.get('/{*splat}', (req, res) => {
       const known = CLIENT_ROUTES.includes(req.path.replace(/\/+$/, '') || '/');
       res.status(known ? 200 : 404).type('html').send(shell);
     });
