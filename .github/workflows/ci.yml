@@ -23,23 +23,8 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      - run: npm run lint
-      - run: npm run gen:edges -- --check
-      - run: npm run check:market
-      - run: npm run check:engine
-      - run: npm run check:edges
-      - run: npm run check:spectrum
-      - run: npm run check:odds
-      - run: npm run check:stats
-      - run: npm run check:strategy-url
-      - run: npm run check:calc-url
-      - run: npm run check:lines
-      - run: npm run check:live-grading
-      - run: npm run build:registry -- --check
-      - run: npm run check:deployment
-      - run: npm run build
-      - run: npm run check:bundle
-      - run: npm run check:fork
-      # Browser smoke test of the built Spectrum page (Action 2.9); needs dist/ from build.
+      # For check:spectrum-browser, the last step of verify (a smoke test of the built pages).
       - run: npx playwright install --with-deps chromium
-      - run: npm run check:spectrum-browser
+      # Every check, in order: the list is the `verify` script in site/package.json, and
+      # docs/README.md says what each one holds (audit DOC-16).
+      - run: npm run verify

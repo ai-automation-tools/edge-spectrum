@@ -2,6 +2,19 @@
 
 ---
 
+## November 12, 2026 — One command for every check, an API reference, and contributor files
+
+From the 2026-11-11 project audit (DOC-15, DOC-16, DOC-17).
+
+- **`npm run verify`** runs every check CI runs, in CI's order, and CI now calls it: the ordered list
+  lives only in `site/package.json`. What each check holds is listed once, in `docs/README.md`;
+  `README.md` and `AGENTS.md` point there instead of keeping their own lists.
+- **`docs/api.md`** documents the five method and path pairs under `/api/`: body, response, status
+  codes, auth and cache headers.
+- **`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`**, a pull-request template, and bug-report and
+  dataset-correction issue forms. A correction needs a source.
+- The docs index no longer says the diagram is drift-checked in CI (that step went in the previous entry).
+
 ## November 12, 2026 — A registry skill, and job prompts that match the repo
 
 From the 2026-11-11 project audit (AI-07, AI-09, AI-10, AI-15).
