@@ -2,6 +2,20 @@
 
 ---
 
+## November 13, 2026 — Personal email removed from public history
+
+Audit SEC-01, done by the owner's decision. 30 commits had been authored with a personal address.
+
+- **Rewritten:** `git filter-repo --mailmap` moved those commits to the account's noreply address.
+  All 235 commits are kept and the file tree of `main` is unchanged, but every hash changed.
+- **Pushed:** `main`, `mike_desktop` and the `dataset-2026-11-12` tag (its release is still attached).
+  The org rulesets and the branch protection were lifted for this repo only during the push and
+  restored right after. The 13 other remote branches, all stale, were deleted.
+- **Re-cloned:** the local clone was reset to the new history. A clone made before this date must not
+  push or merge (`AGENTS.md`, Commit identity).
+- **Still to come:** closed pull requests keep refs to the old commits, so GitHub still shows them
+  until GitHub Support purges them. The owner files that request.
+
 ## November 12, 2026 — CI on the current GitHub Actions majors
 
 Roadmap Action 2.14b. Dependabot's first majors PR (#85) moved both workflows from `actions/checkout`
