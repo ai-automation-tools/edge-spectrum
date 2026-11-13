@@ -6,3 +6,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env?: ImportMetaEnv;
 }
+
+/** Stylesheets are side-effect imports Vite handles; TypeScript 6+ checks them (noUncheckedSideEffectImports). */
+declare module '*.css';
