@@ -8,7 +8,7 @@
     "output": "hub-data-flow.html",
     "repository": {
       "url": "https://github.com/ai-automation-tools/edge-spectrum.git",
-      "revision": "0b3c7583bff96ab1105de82d0331d77ad41e7214"
+      "revision": "33a6bb37b9a2a2b359bc00a6818e1e10b046e741"
     }
   },
   "stages": [
@@ -33,14 +33,14 @@
       "id": "edges",
       "type": "database",
       "label": "edges.ts",
-      "sublabel": "237 edge records",
+      "sublabel": "239 edge records",
       "stage": 0,
       "row": 0,
       "sources": [
         {
           "path": "site/src/data/edges.ts",
-          "line": 86,
-          "end_line": 101
+          "line": 122,
+          "end_line": 125
         }
       ]
     },
@@ -54,8 +54,8 @@
       "sources": [
         {
           "path": "site/src/tools.ts",
-          "line": 37,
-          "end_line": 88
+          "line": 38,
+          "end_line": 101
         }
       ]
     },
@@ -69,8 +69,8 @@
       "sources": [
         {
           "path": "site/scripts/generate-edge-artifacts.ts",
-          "line": 158,
-          "end_line": 199
+          "line": 263,
+          "end_line": 305
         }
       ]
     },
@@ -84,13 +84,18 @@
       "sources": [
         {
           "path": "site/src/pages/Home.tsx",
-          "line": 77,
-          "end_line": 132
+          "line": 101,
+          "end_line": 134
+        },
+        {
+          "path": "site/src/pages/Home.tsx",
+          "line": 189,
+          "end_line": 190
         },
         {
           "path": "site/src/App.tsx",
-          "line": 28,
-          "end_line": 36
+          "line": 141,
+          "end_line": 149
         }
       ]
     },
@@ -104,13 +109,13 @@
       "sources": [
         {
           "path": "site/public/spectrum/index.html",
-          "line": 514,
-          "end_line": 515
+          "line": 564,
+          "end_line": 565
         },
         {
           "path": "site/public/spectrum/index.html",
-          "line": 1168,
-          "end_line": 1187
+          "line": 1231,
+          "end_line": 1255
         }
       ]
     },
@@ -144,18 +149,18 @@
       "sources": [
         {
           "path": "site/src/BacktesterApp.tsx",
-          "line": 42,
-          "end_line": 50
+          "line": 50,
+          "end_line": 65
         },
         {
           "path": "site/src/components/EspnFeed.tsx",
-          "line": 84,
-          "end_line": 92
+          "line": 51,
+          "end_line": 55
         },
         {
           "path": "site/src/components/AiAdvisor.tsx",
-          "line": 151,
-          "end_line": 158
+          "line": 144,
+          "end_line": 154
         }
       ]
     },
@@ -170,17 +175,17 @@
         {
           "path": "site/api/backtest.ts",
           "line": 1,
-          "end_line": 18
+          "end_line": 24
         },
         {
           "path": "site/src/server/backtest.ts",
-          "line": 15,
-          "end_line": 29
+          "line": 16,
+          "end_line": 30
         },
         {
           "path": "site/src/server/strategySchema.ts",
-          "line": 156,
-          "end_line": 169
+          "line": 137,
+          "end_line": 147
         }
       ]
     },
@@ -199,7 +204,7 @@
         },
         {
           "path": "site/src/server/espn.ts",
-          "line": 27,
+          "line": 34,
           "end_line": 48
         }
       ]
@@ -215,12 +220,12 @@
         {
           "path": "site/api/strategy-advisor.ts",
           "line": 1,
-          "end_line": 27
+          "end_line": 17
         },
         {
           "path": "site/src/server/auth.ts",
-          "line": 250,
-          "end_line": 281
+          "line": 294,
+          "end_line": 332
         },
         {
           "path": "site/src/server/deployment.ts",
@@ -248,14 +253,19 @@
       "id": "gemini",
       "type": "cloud",
       "label": "Gemini",
-      "sublabel": "gemini-2.5-flash, JSON",
+      "sublabel": "gemini-3.5-flash-lite, JSON",
       "stage": 4,
       "row": 4,
       "sources": [
         {
           "path": "site/src/server/advisor.ts",
-          "line": 47,
-          "end_line": 76
+          "line": 28,
+          "end_line": 29
+        },
+        {
+          "path": "site/src/server/advisor.ts",
+          "line": 183,
+          "end_line": 191
         }
       ]
     }
@@ -332,7 +342,7 @@
       "dot": "cyan",
       "title": "One dataset, generated copies",
       "items": [
-        "site/src/data/edges.ts is the only place the edge records are authored. npm run gen:edges rewrites the Spectrum page's inlined RAW block, site/public/spectrum/edges.json and data/edge_dataset.md from it.",
+        "site/src/data/edges.ts is the only place the edge records are authored. npm run gen:edges rewrites the Spectrum page's inlined RAW block, site/public/spectrum/edges.json and edges.csv, datapackage.json and data/edge_dataset.md from it.",
         "CI runs gen:edges --check and fails on any artifact that drifted. The page keeps its data inlined so check:spectrum tests the file that actually deploys."
       ]
     },
@@ -340,7 +350,7 @@
       "dot": "violet",
       "title": "One registry, every tile and route",
       "items": [
-        "Home maps over TOOLS for the tile grid; route tools get a React Router route in App.tsx, static tools are served from site/public/. Adding a tool is one entry in tools.ts plus one page.",
+        "Home maps over TOOLS for the tile grid; route tools need a <Route> in App.tsx (their page titles come from TOOLS), static tools are served from site/public/. Adding a tool is one entry in tools.ts plus one page.",
         "The odds and parlay calculators run entirely in the browser on the pure functions in odds.ts. The Spectrum inspector opens them pre-filled through query strings that calcUrl.ts parses as untrusted input."
       ]
     },
@@ -349,7 +359,7 @@
       "title": "What the server does",
       "items": [
         "On Vercel, site/api/* run as serverless functions; locally server.ts mirrors the same routes. Both call the shared modules in site/src/server/.",
-        "/api/backtest validates the strategy with Zod, rejecting out-of-bounds input with a 400, then runs the engine over synthetic seasons. The lines are priced off the same distribution the scores come from, so the book's hold is the only edge.",
+        "/api/backtest validates the strategy with Zod, rejecting out-of-bounds input with a 400, then runs the engine over synthetic seasons. Both open endpoints cap each client at 60 requests a minute with a 429. The lines are priced off the same distribution the scores come from, so the book's hold is the only edge.",
         "/api/espn-scoreboard proxies ESPN's public scoreboard to get around browser CORS, and only forwards a YYYYMMDD or YYYYMMDD-YYYYMMDD date."
       ]
     },
@@ -358,7 +368,7 @@
       "title": "The advisor fails closed",
       "items": [
         "EDGE_SPECTRUM_MODE defaults to demo, which answers 403; only the exact value full enables live AI. The public demo stays in demo mode and holds no Gemini key.",
-        "In full mode the endpoint needs ADVISOR_PASSCODE set (otherwise 503) and a valid session cookie (otherwise 401) before it calls Gemini with the server-side GEMINI_API_KEY. The current-strategy fields in the prompt are clipped to 20 characters each."
+        "In full mode the endpoint needs ADVISOR_PASSCODE and ADVISOR_SECRET set (otherwise 503) and a valid session cookie (otherwise 401). A prompt over 1000 characters is a 400, each session or address gets 10 calls an hour (429) and everyone together 200 a day by default (503). Only then does it call Gemini with the server-side GEMINI_API_KEY. The current-strategy fields in the prompt are clipped to 20 characters each."
       ]
     }
   ]

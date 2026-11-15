@@ -2,6 +2,16 @@
 
 ---
 
+## November 14, 2026 — Hub data-flow diagram re-pinned
+
+- **Diagram re-read against the code.** Line ranges re-cited for the 239-record edge list, the tool
+  registry, the generator, the hub home and router, the Spectrum page, the backtester and the three
+  API routes. The Gemini node now names `gemini-3.5-flash-lite`, and the cards add the 60 a minute cap
+  on the open endpoints and the advisor's `ADVISOR_SECRET`, prompt-length and hourly and daily limits.
+  Weekly org upkeep PR.
+
+---
+
 ## November 13, 2026 — The audit's remaining work leads the roadmap
 
 - **Audit follow-ups first.** The section now opens *After public release*, and its open lines come
