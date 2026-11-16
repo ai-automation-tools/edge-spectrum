@@ -136,6 +136,8 @@ function Shell() {
       {/* The org source bar sits above every other piece of chrome, in flow, and scrolls away under the sticky topbar. */}
       <SourceBar />
       <Topbar onPalette={openPal} />
+      {/* The skip link's no-JS target; the routes render their own `main` inside it. */}
+      <div id="main">
       <ErrorBoundary resetKey={pathname}>
         <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
           <Routes>
@@ -150,6 +152,7 @@ function Shell() {
           <RouteMeta />
         </Suspense>
       </ErrorBoundary>
+      </div>
       <CommandPalette open={pal} onClose={closePal} />
     </div>
   );
