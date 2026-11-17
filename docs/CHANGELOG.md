@@ -2,6 +2,14 @@
 
 ---
 
+## November 17, 2026 — Diagram lock false positives suppressed
+
+- **`.gitleaksignore`** suppresses the diagram lock's git blob hash at its re-pinned commit
+  (`0c6f99e`), and the two earlier locks under their commit IDs after the SEC-01 history rewrite
+  (`c1064f0`, `04a6417`). None is a key. Security sweep PR.
+
+---
+
 ## November 16, 2026 — Skip link has a target
 
 - **"Skip to content" pointed at `#main`, which no element had.** The click handler focuses the
