@@ -2,6 +2,21 @@
 
 ---
 
+## November 16, 2026 — DFS Top 5% is a tournament player
+
+- **Payoff shape on DFS Top 5%.** The owner settled the open question: the row models a GPP
+  (tournament) player, not a cash-game one. It now carries `payout: 3.3`, from DraftKings' NFL
+  Millionaire Maker, which paid 20.4% of 126,000 $27 entries from a $3,000,000 pool, an average
+  cash of 4.3× the entry (Footballguys, *Tournaments*, 2015-09-11). On the Spectrum page its ruin
+  risk rises from 13.5% to **54.9%** and its stake from 1× to **3.3×** Kelly. The 5% edge is still
+  an estimate, so the row stays `estimate` and the payoff figure is cited in its methodology.
+- **Roadmap runs leave `site/` alone (AI-15).** After a full `npm run verify` through the junctioned
+  `site/node_modules`, the owner's clone shows no change to `site/package.json` or
+  `site/package-lock.json`, and `npm ls` reports nothing missing or extraneous.
+- **Diagram re-pin ticked (OPS-08).** #138 did the work on November 15; `--check` passes on `main`.
+
+---
+
 ## November 14, 2026 — Hub data-flow diagram re-pinned
 
 - **Diagram re-read against the code.** Line ranges re-cited for the 239-record edge list, the tool
