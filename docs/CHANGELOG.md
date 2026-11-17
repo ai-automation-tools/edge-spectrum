@@ -2,6 +2,14 @@
 
 ---
 
+## November 16, 2026 — Skip link has a target
+
+- **"Skip to content" pointed at `#main`, which no element had.** The click handler focuses the
+  route's `main`, but without JavaScript (and for the site checks) the link went nowhere. A
+  `<div id="main">` now wraps the routes in `site/src/App.tsx`. Report fixes PR.
+
+---
+
 ## November 14, 2026 — Hub data-flow diagram re-pinned
 
 - **Diagram re-read against the code.** Line ranges re-cited for the 239-record edge list, the tool
