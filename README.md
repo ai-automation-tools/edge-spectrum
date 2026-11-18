@@ -214,7 +214,7 @@ shows **clearly labeled sample responses**, with no Gemini calls and no visitor 
 The full application is included in this repository under [Apache-2.0](LICENSE). The dataset (`edges.csv` and its copies) is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 **Third-party code.** The Spectrum page ships a copy of
-[plotly.js](https://github.com/plotly/plotly.js) basic 4.2.0 (`site/public/spectrum/plotly-basic-4.2.0.min.js`,
+[plotly.js](https://github.com/plotly/plotly.js) basic 4.3.0 (`site/public/spectrum/plotly-basic-4.3.0.min.js`,
 MIT, © Plotly, Inc.; the licence header is kept in the file). The app bundles its runtime dependencies from
 `site/package.json`, each under its own licence: MIT (React, React Router, Recharts, Express,
 react-markdown, zod), ISC (lucide-react), BSD-2-Clause (dotenv) and Apache-2.0 (`@google/genai`).
