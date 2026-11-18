@@ -2,6 +2,11 @@
 
 ---
 
+## November 17, 2026 — Diagram lock false positives suppressed
+
+- **`.gitleaksignore`** suppresses the diagram lock's git blob hash at its re-pinned commit
+  (`0c6f99e`), and the two earlier locks under their commit IDs after the SEC-01 history rewrite
+  (`c1064f0`, `04a6417`). None is a key. Security sweep PR.
 ## November 17, 2026 — Spectrum page on Plotly 4.3.0
 
 - **Spectrum** loads `plotly-basic-4.3.0.min.js` (npm `plotly.js-basic-dist-min@4.3.0`) instead of 4.2.0. The release adds an axis
