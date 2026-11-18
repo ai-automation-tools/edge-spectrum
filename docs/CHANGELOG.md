@@ -2,6 +2,14 @@
 
 ---
 
+## November 17, 2026 — Spectrum page on Plotly 4.3.0
+
+- **Spectrum** loads `plotly-basic-4.3.0.min.js` (npm `plotly.js-basic-dist-min@4.3.0`) instead of 4.2.0. The release adds an axis
+  option, fixes two axis bugs and closes a prototype-pollution path in the plot API calls
+  (https://github.com/plotly/plotly.js/releases/tag/v4.3.0). No page code changed.
+- **UPSTREAMS** The Gemini docs moved: the `ai.google.dev/gemini-api/docs/` URLs now redirect to `aistudio.google.com/docs/`.
+  Vercel lists Node 26.x as its default; the project stays on 24.x.
+
 ## November 17, 2026 — A refresh rule for cited figures
 
 Audit PROD-07, the rule half.
