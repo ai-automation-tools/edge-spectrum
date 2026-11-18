@@ -2,6 +2,7 @@
 
 ---
 
+<<<<<<< HEAD
 ## November 17, 2026 — A refresh rule for cited figures
 
 Audit PROD-07, the rule half.
@@ -12,6 +13,13 @@ Audit PROD-07, the rule half.
   oldest is 2026-10-12. `--as-of=2027-11-01` shows 23.
 - **The weekly content job re-verifies them first.** Its prompt (claude-routines) now takes 2-3 due
   rows before adding or citing anything. The estimate-row half of PROD-07 is still open.
+=======
+## November 16, 2026 — Skip link has a target
+
+- **"Skip to content" pointed at `#main`, which no element had.** The click handler focuses the
+  route's `main`, but without JavaScript (and for the site checks) the link went nowhere. A
+  `<div id="main">` now wraps the routes in `site/src/App.tsx`. Report fixes PR.
+>>>>>>> origin/main
 
 ---
 
