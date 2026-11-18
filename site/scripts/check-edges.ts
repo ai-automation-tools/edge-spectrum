@@ -7,7 +7,7 @@
  * its basis. Also enforces a per-category citation ratchet (audit PROD-07): the
  * cited count recorded in provenance-baseline.json may only go up, never regress,
  * and a dataset freeze (PROD-08): no new record while any category cites fewer
- * than MIN_CITED_SHARE of its rows.
+ * than MIN_CITED_SHARE of its rows. Warns (never fails) on a published row verified over a year ago.
  *
  *   npm run check:edges                  verify (CI)
  *   npm run check:edges -- --write-baseline   record new counts and citations
@@ -101,6 +101,15 @@ for (const c of EDGE_CATEGORIES) {
 }
 const withSource = EDGES.filter((r) => r.source).length;
 
+// ── Refresh rule (audit PROD-07): a published figure verified over a year ago is due a re-check ──
+// A warning, not a failure: the calendar alone must not break an unrelated PR. The weekly content
+// job re-verifies these first. Same 365 days as STALE_DAYS on the Spectrum page; math rows never age.
+// `--as-of=YYYY-MM-DD` previews a future date.
+const asOfArg = process.argv.find((a) => a.startsWith('--as-of='))?.slice(8);
+const today = asOfArg ? Date.parse(asOfArg) : Date.now();
+const due = EDGES.filter((r) => r.basis === 'published' && (!r.asOf || (today - Date.parse(r.asOf)) / 864e5 > 365));
+for (const r of due) console.warn(`stale: ${r.n} (${r.cat}), last verified ${r.asOf ?? 'never'}`);
+
 if (writeBaseline) {
   writeFileSync(BASELINE_PATH, JSON.stringify({ totalRecords: EDGES.length, categories: now }, null, 2) + '\n');
   console.log(`provenance-baseline.json updated: ${withSource}/${EDGES.length} records cite a source.`);
@@ -108,6 +117,7 @@ if (writeBaseline) {
 
 console.log(
   `edges.ts: ${EDGES.length} records across ${byCategory.size} categories, ${withSource} cite a source; ` +
-    (thin.length ? `growth frozen, ${thin.length} categories below ${MIN_CITED_SHARE * 100}% cited.` : 'growth open.'),
+    (thin.length ? `growth frozen, ${thin.length} categories below ${MIN_CITED_SHARE * 100}% cited.` : 'growth open.') +
+    ` ${due.length} published rows due a re-check.`,
 );
 console.log('edges.ts: all checks passed');
