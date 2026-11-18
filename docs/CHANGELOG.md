@@ -2,6 +2,10 @@
 
 ---
 
+## November 18, 2026 — Two new activities
+
+- **Data** Added **Pai Gow Poker Insurance** (−7.35%, Casino Gambling) and **Horse Racing Pick 5** (−15%, Horse Racing & Pari-Mutuel). Sources: Wizard of Odds' Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`) and NYRA's wagering info page (`nyra.com/saratoga/racing/nyra-wagering-info/`), both read 2026-11-18. Record count and cited count in the baseline move to 241 and 220.
+
 ## November 17, 2026 — Diagram lock false positives suppressed
 
 - **`.gitleaksignore`** suppresses the diagram lock's git blob hash at its re-pinned commit
