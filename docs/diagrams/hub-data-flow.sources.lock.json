@@ -1,12 +1,12 @@
 {
-  "revision": "33a6bb37b9a2a2b359bc00a6818e1e10b046e741",
+  "revision": "cd9ea62f163ad3d2a4cee210919a4089d09cbe41",
   "files": {
     "site/api/backtest.ts": "f44000aa2f1900edef0715f7cffcd326e7ccc380",
     "site/api/espn-scoreboard.ts": "0caaea14bd33121af6af3c3882df9b70c3cfd39f",
     "site/api/strategy-advisor.ts": "aca26945d33ff894fbd8f06bb12e407d000595fc",
-    "site/public/spectrum/index.html": "12dea5a17fc97288b67150fc523bace05332f935",
+    "site/public/spectrum/index.html": "cda66d47cffee30956a7b8510013c81069c45678",
     "site/scripts/generate-edge-artifacts.ts": "dcffb786f2dcef26f377ddedb64583eb100c7f20",
-    "site/src/App.tsx": "c985b1c601860e557a5b48cbe237d2c4d0fc027c",
+    "site/src/App.tsx": "dae8717e50052c45b87257e51e791636a9345553",
     "site/src/BacktesterApp.tsx": "33703e24158162a450ccacf852f29dc96de5b68a",
     "site/src/calcUrl.ts": "746a6002f7faf87df6dfbb17faddf407a463f1ec",
     "site/src/components/AiAdvisor.tsx": "6b20b47e9a6df074f677005669e9229d744cd81a",

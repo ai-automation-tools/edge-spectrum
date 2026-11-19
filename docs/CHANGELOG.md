@@ -2,6 +2,10 @@
 
 ---
 
+## November 18, 2026 — Hub data-flow diagram re-pinned
+
+- **Diagram** re-pinned to `cd9ea62`: the routes block in `App.tsx` moved to lines 143-151 (new `#main` wrapper). The Spectrum page change was only the Plotly 4.3.0 script tag, so no label changed. Org upkeep job.
+
 ## November 17, 2026 — Diagram lock false positives suppressed
 
 - **`.gitleaksignore`** suppresses the diagram lock's git blob hash at its re-pinned commit
