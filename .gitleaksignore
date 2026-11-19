@@ -2,3 +2,8 @@
 f3c0fe38347fe04b38b900a8ee296abd421475ef:Docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
 ee72291e7b46df07198c1fbf1d906c4f59e1dae4:docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
 56ea039efe23f2922a4f89ca71e1c9fc4253ba5b:docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
+# Same drift lock, re-pinned in #138: line 18 is the blob SHA-1 of site/src/server/auth.ts, not a key.
+0c6f99e367827e35107ceb4d23d6fe89799b4db2:docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
+# The first two locks above under their new commit IDs after the SEC-01 history rewrite: same blob SHA-1s, not keys.
+c1064f084317a17b7ac0916fc536486767784b3d:Docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
+04a6417dda58e2da3724ffce64726a43a79d7754:docs/diagrams/hub-data-flow.sources.lock.json:generic-api-key:18
