@@ -205,7 +205,7 @@ Big Six Wheel,Casino Gambling,g,raw,math,,-11.11,20,2,,"Wizard of Odds, Big Six 
 Craps Any Seven,Casino Gambling,g,raw,math,,-16.67,40,2,,"Wizard of Odds, Craps house edge table (wizardofodds.com/games/craps/appendix/2/)",2026-10-07,,"Exact single-roll expectation; pays 4 to 1, per bet made."
 Keno 4-Spot,Casino Gambling,g,raw,math,,-25.94,10,1,,"Wizard of Odds, Keno pay tables (wizardofodds.com/games/keno/appendix/3/)",2026-11-12,,"Tropicana Atlantic City 4-spot table (2 catch 1, 3 catch 3, 4 catch 130) returns 74.06%."
 Keno 10-Spot,Casino Gambling,g,raw,math,,-27.71,10,1,,"Wizard of Odds, Keno pay tables (wizardofodds.com/games/keno/appendix/3/)",2026-11-12,,"Tropicana Atlantic City 10-spot table (top prize 100,000) returns 72.29%; live keno ranges 20-35%."
-DFS Top 5%,Poker & Skill-Based,g,raw,estimate,,5,5,5,,,,,
+DFS Top 5%,Poker & Skill-Based,g,raw,estimate,,5,5,5,3.3,,2026-11-16,,"Models a GPP (tournament) player. The 5% edge is an estimate. Payoff shape from DraftKings' NFL Millionaire Maker (Footballguys, Tournaments, 2015-09-11, Week 16 of 2014): 20.4% of 126,000 $27 entries cashed from a $3,000,000 pool, 3,000,000 / (0.204 x 126,000 x 27) = 4.3x the entry (3.3x net)."
 Poker Skilled Tournaments,Poker & Skill-Based,g,raw,published,,9.8,5,10,5.7,"Levitt & Miles, The Role of Skill versus Luck in Poker: Evidence from the World Series of Poker (NBER Working Paper 17023, Table 3)",2026-11-12,2010 WSOP,"ROI of players rated skilled in advance, Main Event excluded: 32.89 / 29.97 - 1. With the Main Event it is 30.5%. Payoff shape: about the top 15% cash, at about 6.7x the buy-in (5.7x net)."
 Poker Mid-Stakes Reg,Poker & Skill-Based,g,raw,estimate,,1.5,40,2,,,,,
 Poker Average Live Cash,Poker & Skill-Based,g,raw,estimate,,-5,25,3,,,,,
