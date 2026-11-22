@@ -2,6 +2,34 @@
 
 ---
 
+## November 18, 2026 — Hub data-flow diagram re-pinned
+
+- **Diagram** re-pinned to `cd9ea62`: the routes block in `App.tsx` moved to lines 143-151 (new `#main` wrapper). The Spectrum page change was only the Plotly 4.3.0 script tag, so no label changed. Org upkeep job.
+
+## November 17, 2026 — Diagram lock false positives suppressed
+
+- **`.gitleaksignore`** suppresses the diagram lock's git blob hash at its re-pinned commit
+  (`0c6f99e`), and the two earlier locks under their commit IDs after the SEC-01 history rewrite
+  (`c1064f0`, `04a6417`). None is a key. Security sweep PR.
+## November 17, 2026 — Spectrum page on Plotly 4.3.0
+
+- **Spectrum** loads `plotly-basic-4.3.0.min.js` (npm `plotly.js-basic-dist-min@4.3.0`) instead of 4.2.0. The release adds an axis
+  option, fixes two axis bugs and closes a prototype-pollution path in the plot API calls
+  (https://github.com/plotly/plotly.js/releases/tag/v4.3.0). No page code changed.
+- **UPSTREAMS** The Gemini docs moved: the `ai.google.dev/gemini-api/docs/` URLs now redirect to `aistudio.google.com/docs/`.
+  Vercel lists Node 26.x as its default; the project stays on 24.x.
+
+## November 17, 2026 — A refresh rule for cited figures
+
+Audit PROD-07, the rule half.
+
+- **`check:edges` flags aging figures.** Each `published` row whose `asOf` is over 365 days old (the
+  Spectrum page's `STALE_DAYS`) prints a `stale:` line, and the summary line ends with how many are
+  due. It warns and never fails, so the calendar can't break an unrelated PR. None are due today; the
+  oldest is 2026-10-12. `--as-of=2027-11-01` shows 23.
+- **The weekly content job re-verifies them first.** Its prompt (claude-routines) now takes 2-3 due
+  rows before adding or citing anything. The estimate-row half of PROD-07 is still open.
+
 ## November 16, 2026 — DFS Top 5% is a tournament player
 
 - **Payoff shape on DFS Top 5%.** The owner settled the open question: the row models a GPP
@@ -14,6 +42,14 @@
   `site/node_modules`, the owner's clone shows no change to `site/package.json` or
   `site/package-lock.json`, and `npm ls` reports nothing missing or extraneous.
 - **Diagram re-pin ticked (OPS-08).** #138 did the work on November 15; `--check` passes on `main`.
+
+---
+
+## November 16, 2026 — Skip link has a target
+
+- **"Skip to content" pointed at `#main`, which no element had.** The click handler focuses the
+  route's `main`, but without JavaScript (and for the site checks) the link went nowhere. A
+  `<div id="main">` now wraps the routes in `site/src/App.tsx`. Report fixes PR.
 
 ---
 
