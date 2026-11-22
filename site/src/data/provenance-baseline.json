@@ -1,5 +1,5 @@
 {
-  "totalRecords": 239,
+  "totalRecords": 241,
   "categories": {
     "Stock Market": {
       "records": 32,
@@ -42,12 +42,12 @@
       "cited": 20
     },
     "Horse Racing & Pari-Mutuel": {
-      "records": 6,
-      "cited": 6
+      "records": 7,
+      "cited": 7
     },
     "Casino Gambling": {
-      "records": 44,
-      "cited": 44
+      "records": 45,
+      "cited": 45
     },
     "Poker & Skill-Based": {
       "records": 9,

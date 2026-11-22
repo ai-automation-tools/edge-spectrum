@@ -2,6 +2,10 @@
 
 ---
 
+## November 18, 2026 — Two new activities
+
+- **Data** Added **Pai Gow Poker Insurance** (−7.35%, Casino Gambling) and **Horse Racing Pick 5** (−15%, Horse Racing & Pari-Mutuel). Sources: Wizard of Odds' Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`) and NYRA's wagering info page (`nyra.com/saratoga/racing/nyra-wagering-info/`), both read 2026-11-18. Record count and cited count in the baseline move to 241 and 220.
+
 ## November 18, 2026 — Hub data-flow diagram re-pinned
 
 - **Diagram** re-pinned to `cd9ea62`: the routes block in `App.tsx` moved to lines 143-151 (new `#main` wrapper). The Spectrum page change was only the Plotly 4.3.0 script tag, so no label changed. Org upkeep job.
