@@ -357,7 +357,7 @@ export const EDGES: readonly EdgeRecord[] = [
   { n: "Keno 10-Spot", cat: "Casino Gambling", m: 'g', ly: 'raw', basis: 'math', e: -27.71, du: 10, ced: 1, source: "Wizard of Odds, Keno pay tables (wizardofodds.com/games/keno/appendix/3/)", asOf: "2026-11-12", methodology: "Tropicana Atlantic City 10-spot table (top prize 100,000) returns 72.29%; live keno ranges 20-35%." },
 
   // --- POKER & SKILL-BASED (Linear) ---
-  { n: "DFS Top 5%", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', basis: 'estimate', e: 5.0, du: 5, ced: 5 },
+  { n: "DFS Top 5%", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', basis: 'estimate', e: 5.0, du: 5, ced: 5, payout: 3.3, asOf: "2026-11-16", methodology: "Models a GPP (tournament) player. The 5% edge is an estimate. Payoff shape from DraftKings' NFL Millionaire Maker (Footballguys, Tournaments, 2015-09-11, Week 16 of 2014): 20.4% of 126,000 $27 entries cashed from a $3,000,000 pool, 3,000,000 / (0.204 x 126,000 x 27) = 4.3x the entry (3.3x net)." },
   { n: "Poker Skilled Tournaments", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', basis: 'published', e: 9.8, du: 5, ced: 10, payout: 5.7, source: "Levitt & Miles, The Role of Skill versus Luck in Poker: Evidence from the World Series of Poker (NBER Working Paper 17023, Table 3)", asOf: "2026-11-12", window: "2010 WSOP", methodology: "ROI of players rated skilled in advance, Main Event excluded: 32.89 / 29.97 - 1. With the Main Event it is 30.5%. Payoff shape: about the top 15% cash, at about 6.7x the buy-in (5.7x net)." },
   { n: "Poker Mid-Stakes Reg", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', basis: 'estimate', e: 1.5, du: 40, ced: 2 },
   { n: "Poker Average Live Cash", cat: "Poker & Skill-Based", m: 'g', ly: 'raw', basis: 'estimate', e: -5.0, du: 25, ced: 3 },
