@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 239 · **Categories:** 15 · **Layers:** 211 raw · 9 fee · 19 tax
+**Records:** 241 · **Categories:** 15 · **Layers:** 213 raw · 9 fee · 19 tax
 
 **Licence:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (`CC-BY-4.0`). Credit "Edge Spectrum" and keep each
 record's `source`: the figures are facts compiled from the publishers named there. The code is Apache-2.0.
@@ -46,8 +46,8 @@ category cites under 50% of its rows (bold below). No category is under it.
 | Insurance & Annuities | 11 | 8 | 73% | 0 | 8 | 3 |
 | Trading & Derivatives | 10 | 8 | 80% | 0 | 6 | 4 |
 | Sports Betting | 22 | 20 | 91% | 12 | 8 | 2 |
-| Horse Racing & Pari-Mutuel | 6 | 6 | 100% | 0 | 6 | 0 |
-| Casino Gambling | 44 | 44 | 100% | 42 | 1 | 1 |
+| Horse Racing & Pari-Mutuel | 7 | 7 | 100% | 0 | 7 | 0 |
+| Casino Gambling | 45 | 45 | 100% | 43 | 1 | 1 |
 | Poker & Skill-Based | 9 | 5 | 56% | 0 | 5 | 4 |
 | Prediction Markets | 11 | 11 | 100% | 0 | 11 | 0 |
 | Lottery | 13 | 13 | 100% | 5 | 8 | 0 |
@@ -318,7 +318,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 11. Horse Racing & Pari-Mutuel
 
-**Records:** 6
+**Records:** 7
 
 ### Games — linear model
 
@@ -329,11 +329,12 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 3 | Horse Racing Exacta / Daily Double | -20.0% | 2 | 2% | raw | published | ✓ |
 | 4 | Greyhound Racing | -20.0% | 3 | 2% | raw | published | ✓ |
 | 5 | Horse Racing Trifecta / Superfecta | -25.0% | 2 | 1% | raw | published | ✓ |
-| 6 | Horse Racing Pick 4 / Pick 6 | -24.0% | 0.5 | 1% | raw | published | ✓ |
+| 6 | Horse Racing Pick 5 | -15.0% | 0.5 | 1% | raw | published | ✓ |
+| 7 | Horse Racing Pick 4 / Pick 6 | -24.0% | 0.5 | 1% | raw | published | ✓ |
 
 ## 12. Casino Gambling
 
-**Records:** 44
+**Records:** 45
 
 ### Games — linear model
 
@@ -361,28 +362,29 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 20 | Ultimate Texas Hold'em | -2.19% | 30 | 3% | raw | math | ✓ |
 | 21 | Craps Field (3:1 on 12) | -2.78% | 40 | 2% | raw | math | ✓ |
 | 22 | Craps Lay 4 / Lay 10 (Commission on Win) | -1.67% | 40 | 2% | raw | math | ✓ |
-| 23 | Pai Gow Poker Emperor's Challenge | -4.17% | 30 | 1% | raw | math | ✓ |
-| 24 | Craps Hard 4 / Hard 10 | -11.11% | 40 | 1% | raw | math | ✓ |
-| 25 | Pai Gow Poker | -2.51% | 30 | 3% | raw | math | ✓ |
-| 26 | Roulette Single Zero | -2.7% | 40 | 3% | raw | math | ✓ |
-| 27 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw | math | ✓ |
-| 28 | Four Card Poker Ante | -2.79% | 30 | 3% | raw | math | ✓ |
-| 29 | Casino War | -2.88% | 50 | 2% | raw | math | ✓ |
-| 30 | Three Card Poker | -3.37% | 40 | 3% | raw | math | ✓ |
-| 31 | Let It Ride | -3.51% | 30 | 3% | raw | math | ✓ |
-| 32 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw | math | ✓ |
-| 33 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw | math | ✓ |
-| 34 | Mississippi Stud | -4.91% | 30 | 3% | raw | math | ✓ |
-| 35 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw | math | ✓ |
-| 36 | Caribbean Stud | -5.22% | 30 | 3% | raw | math | ✓ |
-| 37 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math | ✓ |
-| 38 | Slots Average 92% | -7.13% | 500 | 0.5% | raw | published | ✓ |
-| 39 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math | ✓ |
-| 40 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
-| 41 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
-| 42 | Craps Any Seven | -16.67% | 40 | 2% | raw | math | ✓ |
-| 43 | Keno 4-Spot | -25.94% | 10 | 1% | raw | math | ✓ |
-| 44 | Keno 10-Spot | -27.71% | 10 | 1% | raw | math | ✓ |
+| 23 | Pai Gow Poker Insurance | -7.35% | 30 | 1% | raw | math | ✓ |
+| 24 | Pai Gow Poker Emperor's Challenge | -4.17% | 30 | 1% | raw | math | ✓ |
+| 25 | Craps Hard 4 / Hard 10 | -11.11% | 40 | 1% | raw | math | ✓ |
+| 26 | Pai Gow Poker | -2.51% | 30 | 3% | raw | math | ✓ |
+| 27 | Roulette Single Zero | -2.7% | 40 | 3% | raw | math | ✓ |
+| 28 | Sic Bo Big / Small | -2.78% | 40 | 2% | raw | math | ✓ |
+| 29 | Four Card Poker Ante | -2.79% | 30 | 3% | raw | math | ✓ |
+| 30 | Casino War | -2.88% | 50 | 2% | raw | math | ✓ |
+| 31 | Three Card Poker | -3.37% | 40 | 3% | raw | math | ✓ |
+| 32 | Let It Ride | -3.51% | 30 | 3% | raw | math | ✓ |
+| 33 | Four Card Poker Aces Up | -3.89% | 30 | 1% | raw | math | ✓ |
+| 34 | Online Slots 96% RTP | -4.0% | 600 | 0.5% | raw | math | ✓ |
+| 35 | Mississippi Stud | -4.91% | 30 | 3% | raw | math | ✓ |
+| 36 | Slots Loose 95% | -5.0% | 500 | 0.5% | raw | math | ✓ |
+| 37 | Caribbean Stud | -5.22% | 30 | 3% | raw | math | ✓ |
+| 38 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math | ✓ |
+| 39 | Slots Average 92% | -7.13% | 500 | 0.5% | raw | published | ✓ |
+| 40 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math | ✓ |
+| 41 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
+| 42 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
+| 43 | Craps Any Seven | -16.67% | 40 | 2% | raw | math | ✓ |
+| 44 | Keno 4-Spot | -25.94% | 10 | 1% | raw | math | ✓ |
+| 45 | Keno 10-Spot | -27.71% | 10 | 1% | raw | math | ✓ |
 
 ## 13. Poker & Skill-Based
 

@@ -2,6 +2,10 @@
 
 ---
 
+## November 18, 2026 — Two new activities
+
+- **Data** Added **Pai Gow Poker Insurance** (−7.35%, Casino Gambling) and **Horse Racing Pick 5** (−15%, Horse Racing & Pari-Mutuel). Sources: Wizard of Odds' Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`) and NYRA's wagering info page (`nyra.com/saratoga/racing/nyra-wagering-info/`), both read 2026-11-18. Record count and cited count in the baseline move to 241 and 220.
+
 ## November 18, 2026 — Hub data-flow diagram re-pinned
 
 - **Diagram** re-pinned to `cd9ea62`: the routes block in `App.tsx` moved to lines 143-151 (new `#main` wrapper). The Spectrum page change was only the Plotly 4.3.0 script tag, so no label changed. Org upkeep job.
@@ -29,6 +33,19 @@ Audit PROD-07, the rule half.
   oldest is 2026-10-12. `--as-of=2027-11-01` shows 23.
 - **The weekly content job re-verifies them first.** Its prompt (claude-routines) now takes 2-3 due
   rows before adding or citing anything. The estimate-row half of PROD-07 is still open.
+
+## November 16, 2026 — DFS Top 5% is a tournament player
+
+- **Payoff shape on DFS Top 5%.** The owner settled the open question: the row models a GPP
+  (tournament) player, not a cash-game one. It now carries `payout: 3.3`, from DraftKings' NFL
+  Millionaire Maker, which paid 20.4% of 126,000 $27 entries from a $3,000,000 pool, an average
+  cash of 4.3× the entry (Footballguys, *Tournaments*, 2015-09-11). On the Spectrum page its ruin
+  risk rises from 13.5% to **54.9%** and its stake from 1× to **3.3×** Kelly. The 5% edge is still
+  an estimate, so the row stays `estimate` and the payoff figure is cited in its methodology.
+- **Roadmap runs leave `site/` alone (AI-15).** After a full `npm run verify` through the junctioned
+  `site/node_modules`, the owner's clone shows no change to `site/package.json` or
+  `site/package-lock.json`, and `npm ls` reports nothing missing or extraneous.
+- **Diagram re-pin ticked (OPS-08).** #138 did the work on November 15; `--check` passes on `main`.
 
 ---
 
