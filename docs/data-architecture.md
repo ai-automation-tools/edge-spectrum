@@ -93,7 +93,10 @@ Every record declares its `basis` and may carry a citation. The coverage table i
 cites a source (November 2026); the uncited rows are `estimate` rows, and every category cites at
 least half its rows, so the dataset is not frozen. The Spectrum inspector shows the citation under **Provenance** and puts a **verify** badge on any
 row whose `asOf` is missing or more than a year old, except a `math` row with a methodology: a
-figure that follows from the rules does not age. Every `math` row is cited (2026-11-12).
+figure that follows from the rules does not age. Every `math` row is cited (2026-11-12). Every
+uncited `estimate` row carries a plausible range (`lo` / `hi`, in the figure's own units) with the
+reasoning in `methodology` (2026-11-23, audit PROD-07); the inspector shows it as **Plausible range**
+and the published CSV as `range_low` / `range_high`.
 
 ```typescript
 export type Provenance = {
@@ -102,6 +105,8 @@ export type Provenance = {
   asOf?: string;         // ISO date the figure was last checked against that source
   window?: string;       // the period it was computed over, e.g. "1928-2025"
   methodology?: string;  // how it was derived, in a sentence
+  lo?: number;           // a plausible span around `a` or `e`, set with `hi` (2026-11-23)
+  hi?: number;
 };
 ```
 
@@ -159,6 +164,8 @@ asserts:
    skilled-play rows (card counting, a sharp bettor) are positive on purpose.
 3. **The Provenance Ratchet (per category since 2026-11-12):**
    - Every record declares a `basis`: `math`, `published` or `estimate`.
+   - An `estimate` row without a `source` needs a range and a `methodology`; any range has both
+     ends, `lo` below `hi`, and contains the figure.
    - `site/src/data/provenance-baseline.json` holds each category's record count and how many of them cite a `source`.
      A category's cited count can never fall below it.
    - `--write-baseline` records new counts, and refuses a new record anywhere while any category cites under
