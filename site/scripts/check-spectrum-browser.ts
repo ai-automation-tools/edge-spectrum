@@ -116,6 +116,12 @@ try {
   const undated = EDGES.find(r => !r.asOf);
   check(!!undated && (await verifyBadge(undated.n)) === 1, 'an undated row shows no "verify" badge');
   check((await verifyBadge('S&P 500 Index (SPY/VOO)')) === 0, 'a cited, dated row shows a "verify" badge');
+  check(!(await page.locator('#insp').textContent())?.includes('Plausible range'), 'a row without a range shows one');
+  // An estimate's span (Action 4.8): any ranged row, since a fixed name breaks once it is cited.
+  const ranged = EDGES.find(r => r.lo !== undefined);
+  if (ranged) await open(page, '?l=all&pin=' + encodeURIComponent(ranged.n));
+  const rangeRow = await page.locator('#insp .row', { hasText: 'Plausible range' }).textContent().catch(() => null);
+  check(!!ranged && !!rangeRow?.includes(`${ranged.lo! >= 0 ? '+' : ''}${ranged.lo!.toFixed(2)}%`), `the inspector does not show ${ranged?.n}'s range (${rangeRow})`);
 
   // ── 4. The theme switch redraws the chart in the other palette ─────────────
   const tick = () => page.evaluate(() => (document.getElementById('chart') as any).layout.yaxis.tickfont.color as string);
