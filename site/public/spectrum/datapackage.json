@@ -2,8 +2,8 @@
   "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
   "name": "edge-spectrum",
   "title": "Edge Spectrum: returns and house edges across investing and gambling",
-  "description": "241 activities, from index funds to keno, each with an annual return (held assets) or an edge per decision (wagers), the evidence behind it, and where cited, its source, check date, window and method. Education only, not advice.",
-  "version": "2026-11-18+42e88752",
+  "description": "244 activities, from index funds to keno, each with an annual return (held assets) or an edge per decision (wagers), the evidence behind it, and where cited, its source, check date, window and method. Education only, not advice.",
+  "version": "2026-11-25+0d6a899f",
   "licenses": [
     {
       "name": "CC-BY-4.0",
@@ -23,7 +23,7 @@
       "format": "csv",
       "mediatype": "text/csv",
       "encoding": "utf-8",
-      "hash": "sha256:42e887526fae4022bd2e6c943fc3239575b805223e05109d4e909c65a5423872",
+      "hash": "sha256:0d6a899f41a11c8d6b8c9bfe6e7120a261c3485e60765d42067e2f28e4575e1a",
       "dialect": {
         "delimiter": ",",
         "lineTerminator": "\n",
@@ -170,7 +170,7 @@
       "format": "json",
       "mediatype": "application/json",
       "encoding": "utf-8",
-      "hash": "sha256:c3c3916b485a202fba80d41580093c3cf2910f6729d1213e3c2c1eb05d69f075",
+      "hash": "sha256:6eee25daf3d5ba77bb41365455f3a9e323b4a79192183c86069d20763533b52f",
       "description": "The same records in the short-key shape the Spectrum page uses: n, cat, m, a (or e, du, ced, pay), ly, type, src, asOf, win, how, and b on math rows. Prefer edges.csv; this shape may change with the page."
     }
   ]

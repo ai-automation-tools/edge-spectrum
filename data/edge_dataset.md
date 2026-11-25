@@ -5,7 +5,7 @@
 > `site/src/data/edges.ts`, the single source of truth for this dataset. Edit that file and regenerate;
 > CI runs `npm run gen:edges -- --check` and fails the build on drift.
 
-**Records:** 241 · **Categories:** 15 · **Layers:** 213 raw · 9 fee · 19 tax
+**Records:** 244 · **Categories:** 15 · **Layers:** 216 raw · 9 fee · 19 tax
 
 **Licence:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (`CC-BY-4.0`). Credit "Edge Spectrum" and keep each
 record's `source`: the figures are facts compiled from the publishers named there. The code is Apache-2.0.
@@ -47,7 +47,7 @@ category cites under 50% of its rows (bold below). No category is under it.
 | Trading & Derivatives | 10 | 8 | 80% | 0 | 6 | 4 |
 | Sports Betting | 22 | 20 | 91% | 12 | 8 | 2 |
 | Horse Racing & Pari-Mutuel | 7 | 7 | 100% | 0 | 7 | 0 |
-| Casino Gambling | 45 | 45 | 100% | 43 | 1 | 1 |
+| Casino Gambling | 48 | 48 | 100% | 46 | 1 | 1 |
 | Poker & Skill-Based | 9 | 5 | 56% | 0 | 5 | 4 |
 | Prediction Markets | 11 | 11 | 100% | 0 | 11 | 0 |
 | Lottery | 13 | 13 | 100% | 5 | 8 | 0 |
@@ -334,7 +334,7 @@ section 8 for why the two measures are no longer plotted on one axis.
 
 ## 12. Casino Gambling
 
-**Records:** 45
+**Records:** 48
 
 ### Games — linear model
 
@@ -380,11 +380,14 @@ section 8 for why the two measures are no longer plotted on one axis.
 | 38 | Roulette Double Zero | -5.26% | 40 | 3% | raw | math | ✓ |
 | 39 | Slots Average 92% | -7.13% | 500 | 0.5% | raw | published | ✓ |
 | 40 | Slots Tight 85% | -15.0% | 500 | 0.5% | raw | math | ✓ |
-| 41 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
-| 42 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
-| 43 | Craps Any Seven | -16.67% | 40 | 2% | raw | math | ✓ |
-| 44 | Keno 4-Spot | -25.94% | 10 | 1% | raw | math | ✓ |
-| 45 | Keno 10-Spot | -27.71% | 10 | 1% | raw | math | ✓ |
+| 41 | Blackjack 21+3 | -3.24% | 60 | 1% | raw | math | ✓ |
+| 42 | Blackjack Perfect Pairs | -4.1% | 60 | 1% | raw | math | ✓ |
+| 43 | Baccarat Dragon Bonus (Player) | -2.65% | 50 | 1% | raw | math | ✓ |
+| 44 | Baccarat Tie (8:1) | -14.36% | 50 | 3% | raw | math | ✓ |
+| 45 | Big Six Wheel | -11.11% | 20 | 2% | raw | math | ✓ |
+| 46 | Craps Any Seven | -16.67% | 40 | 2% | raw | math | ✓ |
+| 47 | Keno 4-Spot | -25.94% | 10 | 1% | raw | math | ✓ |
+| 48 | Keno 10-Spot | -27.71% | 10 | 1% | raw | math | ✓ |
 
 ## 13. Poker & Skill-Based
 

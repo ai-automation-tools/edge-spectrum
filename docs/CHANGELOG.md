@@ -2,6 +2,10 @@
 
 ---
 
+## November 25, 2026 — Three new activities
+
+- **Data** Added **Blackjack 21+3** (−3.24%), **Blackjack Perfect Pairs** (−4.10%) and **Baccarat Dragon Bonus (Player)** (−2.65%), all Casino Gambling. Sources: Wizard of Odds' `/games/blackjack/side-bets/21plus3/`, `/games/blackjack/side-bets/perfect-pairs/` and `/games/baccarat/side-bets/`, read 2026-11-25. Record count and cited count in the baseline move to 244 and 223.
+
 ## November 23, 2026 — Every uncited estimate carries a range
 
 - **Data** The 21 `estimate` rows with no published figure to cite now each carry a plausible range (`lo` / `hi`) with the reasoning in `methodology`: the ten crypto, collectibles and short-term rental rows, the three cash-value life policies, the two retail options rows, the two sports-betting rows, DFS Top 5% and the three poker rows. Point figures are unchanged. Example: Player Prop Bet −7% sits in −10% to −4.5%, because a bettor with no edge loses 4.55% a bet at −110, 6.5% at −115 and 8.3% at −120. The ranges are reasoned, not measured, and say so; none was given an `asOf`, so the **verify** badge stays on them. Closes audit PROD-07.
