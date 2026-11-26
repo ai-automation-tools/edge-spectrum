@@ -71,6 +71,16 @@ for (const r of EDGES) {
   assert.ok(['math', 'published', 'estimate'].includes(r.basis), `${r.n}: basis must be math, published or estimate`);
   // A math figure follows from rules someone publishes: name them and show the derivation (audit PROD-07).
   if (r.basis === 'math') assert.ok(r.source && r.methodology, `${r.n}: a math row needs a source for its rules and a methodology`);
+  // A figure no one publishes carries a span and the reasoning for it (audit PROD-07, Action 4.8).
+  if (r.basis === 'estimate' && !r.source) {
+    assert.ok(r.lo !== undefined && r.methodology, `${r.n}: an uncited estimate needs a range (lo/hi) and a methodology`);
+  }
+  if (r.lo !== undefined || r.hi !== undefined) {
+    const v = r.m === 'i' ? r.a : r.e;
+    assert.ok(r.lo !== undefined && r.hi !== undefined && r.lo < r.hi, `${r.n}: set both lo and hi, lo below hi`);
+    assert.ok(r.lo <= v && v <= r.hi, `${r.n}: the figure ${v} must lie inside its range ${r.lo} to ${r.hi}`);
+    if (r.m === 'i') assert.ok(r.lo > -100, `${r.n}: an annual return range cannot reach -100%`);
+  }
 }
 const now: Record<string, Coverage> = {};
 for (const c of EDGE_CATEGORIES) {

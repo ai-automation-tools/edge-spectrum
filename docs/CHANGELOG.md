@@ -2,6 +2,13 @@
 
 ---
 
+## November 23, 2026 — Every uncited estimate carries a range
+
+- **Data** The 21 `estimate` rows with no published figure to cite now each carry a plausible range (`lo` / `hi`) with the reasoning in `methodology`: the ten crypto, collectibles and short-term rental rows, the three cash-value life policies, the two retail options rows, the two sports-betting rows, DFS Top 5% and the three poker rows. Point figures are unchanged. Example: Player Prop Bet −7% sits in −10% to −4.5%, because a bettor with no edge loses 4.55% a bet at −110, 6.5% at −115 and 8.3% at −120. The ranges are reasoned, not measured, and say so; none was given an `asOf`, so the **verify** badge stays on them. Closes audit PROD-07.
+- **Spectrum page** The inspector shows a **Plausible range** row under the figure on any ranged record. The chart's error bars (the rest of roadmap Action 4.8) are not built.
+- **Published dataset** `edges.csv` and its `datapackage.json` gain two columns at the end, `range_low` and `range_high`; no existing column moved.
+- **Checks** `check:edges` fails an uncited `estimate` row without a range and a methodology, a range with one end, and a range that does not contain its figure. `check:spectrum-browser` pins a ranged row and reads the range off the inspector.
+
 ## November 18, 2026 — Two new activities
 
 - **Data** Added **Pai Gow Poker Insurance** (−7.35%, Casino Gambling) and **Horse Racing Pick 5** (−15%, Horse Racing & Pari-Mutuel). Sources: Wizard of Odds' Pai Gow Poker side-bet appendix (`/games/pai-gow-poker/appendix/3/`) and NYRA's wagering info page (`nyra.com/saratoga/racing/nyra-wagering-info/`), both read 2026-11-18. Record count and cited count in the baseline move to 241 and 220.
