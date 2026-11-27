@@ -2,6 +2,10 @@
 
 ---
 
+## November 27, 2026 — Project skills live here
+
+- **Skills** The four project skills (`edge-spectrum-hub-tool`, `-dataset`, `-endpoint`, `-registry`) move from `agent-skills/skills/projects/edge-spectrum/` into `skills/`, unchanged. This repo is now their source; `agent-skills` stops keeping project skills (org skills landscape audit, decision D1). `CLAUDE.md` links them into the gitignored `.claude/skills/` with junctions instead of installing copies.
+
 ## November 23, 2026 — Every uncited estimate carries a range
 
 - **Data** The 21 `estimate` rows with no published figure to cite now each carry a plausible range (`lo` / `hi`) with the reasoning in `methodology`: the ten crypto, collectibles and short-term rental rows, the three cash-value life policies, the two retail options rows, the two sports-betting rows, DFS Top 5% and the three poker rows. Point figures are unchanged. Example: Player Prop Bet −7% sits in −10% to −4.5%, because a bettor with no edge loses 4.55% a bet at −110, 6.5% at −115 and 8.3% at −120. The ranges are reasoned, not measured, and say so; none was given an `asOf`, so the **verify** badge stays on them. Closes audit PROD-07.
