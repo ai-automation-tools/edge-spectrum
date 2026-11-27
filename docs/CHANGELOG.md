@@ -2,6 +2,10 @@
 
 ---
 
+## November 27, 2026 — AGENTS.md is the only agent doc
+
+- `CLAUDE.md` is gone: Claude Code reads `AGENTS.md` directly, and its Claude-only notes are the closing *Claude Code only* section of `AGENTS.md`.
+
 ## November 27, 2026 — Project skills live here
 
 - **Skills** The four project skills (`edge-spectrum-hub-tool`, `-dataset`, `-endpoint`, `-registry`) move from `agent-skills/skills/projects/edge-spectrum/` into `skills/`, unchanged. This repo is now their source; `agent-skills` stops keeping project skills (org skills landscape audit, decision D1). `CLAUDE.md` links them into the gitignored `.claude/skills/` with junctions instead of installing copies.
