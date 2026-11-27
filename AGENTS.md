@@ -205,10 +205,9 @@ scripts/build-diagram.mjs  # builds it and copies HTML+PNG into site/public/diag
 
 ## Project skills
 
-Four repo-specific skills live in the org's skills repo, not here — `agent-skills` under
-[`skills/projects/edge-spectrum/`](../../Tools/agent-skills/skills/projects/edge-spectrum/README.md)
-([GitHub](https://github.com/ai-automation-tools/agent-skills/tree/main/skills/projects/edge-spectrum)).
-That repo is canonical: **edit them there, never in `.claude/skills/`.**
+Four repo-specific skills live in [`skills/`](skills/). This repo is canonical for them since
+2026-11-27 (they moved here from `agent-skills`, which no longer keeps project skills): **edit them in
+`skills/`, never in `.claude/skills/`.**
 
 | Skill | Reach for it when |
 |:---|:---|
@@ -217,7 +216,7 @@ That repo is canonical: **edit them there, never in `.claude/skills/`.**
 | `edge-spectrum-endpoint` | Anything under `site/api/`, `site/server.ts`, `site/src/server/` |
 | `edge-spectrum-registry` | The Cronsole templates (`build-registry.mjs`, `site/public/registry/`), `capture-lines.ts`, `digest-lines.ts`, `capture-closes.ts`, the registry-drift workflow. Owner-held files |
 
-Any agent can read a skill's `SKILL.md` there directly; the three scheduled jobs do, by path. Installing them for Claude Code is covered in
+Any agent can read a skill's `skills/<name>/SKILL.md` directly; the three scheduled jobs do, by path. Installing them for Claude Code is covered in
 `CLAUDE.md`.
 
 ## Branch workflow (PR flow)

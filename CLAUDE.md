@@ -5,12 +5,12 @@
 Everything about the repo lives in `AGENTS.md` (imported above). This file holds only what is specific
 to Claude Code.
 
-## Installed project skills
+## Project skills
 
-The four project skills listed in `AGENTS.md` are installed into `.claude/skills/`. `.claude/` is
-**gitignored here**, so the installed copies are local to your clone and a fresh clone starts without
-them. Re-install after cloning, and after editing them upstream:
+The four project skills listed in `AGENTS.md` live in `skills/`. Claude Code loads them from
+`.claude/skills/`, which is **gitignored here**, so link each one once per clone (a junction, so an
+edit in `skills/` is live at once):
 
 ```powershell
-pwsh <agent-skills>/scripts/install-skills.ps1 -Project edge-spectrum -Destination <clone>/.claude/skills
+Get-ChildItem skills -Directory | ForEach-Object { New-Item -ItemType Junction -Path ".claude/skills/$($_.Name)" -Target $_.FullName -Force }
 ```
