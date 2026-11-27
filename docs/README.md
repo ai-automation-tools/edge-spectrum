@@ -27,6 +27,7 @@
 | [**⚖️ Decisions**](decisions.md) | The standing choices in one table: date, decision, why, and where it's enforced. | All Hub Tools |
 | [**🗄️ Data Architecture**](data-architecture.md) | Canonical dataset schema (`EdgeRecord`), 15 asset/wagering categories, CI provenance ratchet, and collection pipelines. | Data Layer |
 | [**💡 Hub Improvement Plan**](ideas/hub_improvement_plan.md) | Archived 2026-08 review: the evidence behind the early fixes, and the ideas never scheduled. | Archive |
+| [**❓ Open Questions**](OPEN-QUESTIONS.md) | Questions the roadmap runs have raised for the maintainer, with the answers and what was applied. | All Hub Tools |
 | [**📋 Change Log**](CHANGELOG.md) | Historical version notes and feature evolution from standalone Plotly versions to the Vite hub. | Project History |
 
 ---
