@@ -2,6 +2,10 @@
 
 ---
 
+## November 27, 2026 — Open questions linked from the docs hub
+
+- **Docs** `docs/README.md` now lists `OPEN-QUESTIONS.md` in its directory table; no doc linked to it before.
+
 ## November 27, 2026 — AGENTS.md is the only agent doc
 
 - `CLAUDE.md` is gone: Claude Code reads `AGENTS.md` directly, and its Claude-only notes are the closing *Claude Code only* section of `AGENTS.md`.
