@@ -1,7 +1,7 @@
 # AGENTS.md — Edge Spectrum (hub)
 
-> Repository-specific guidance for Edge Spectrum, for every coding agent. Claude-only notes live in
-> `CLAUDE.md`, which imports this file.
+> Repository-specific guidance for Edge Spectrum, for every coding agent, Claude Code included. Claude-only notes are under
+> [*Claude Code only*](#claude-code-only) at the end.
 
 ## What this is
 
@@ -15,7 +15,7 @@ tool is roughly *one registry entry + one page*.
 - **Vite + React 19 + TS**, Tailwind v4 (`@tailwindcss/vite`), Recharts, `@google/genai` (Gemini),
   `zod` (request validation, server-side only — keep it out of the client bundle).
 - **The entire web app lives in `site/`.** The repo root holds only docs/archives (`README.md`,
-  `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `LICENSE`, `data/`, `docs/`, `images/`, plus
+  `AGENTS.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `LICENSE`, `data/`, `docs/`, `images/`, plus
   `scripts/build-diagram.mjs` for the docs diagram) — nothing app-related. Run all app commands
   (`npm install`, `npm run dev`, `npm run build`, `vercel …`) from **inside `site/`**.
 - **Host: Vercel** (project `edge-spectrum`). The Vercel project's **Root Directory is set to `site`**
@@ -217,7 +217,7 @@ Four repo-specific skills live in [`skills/`](skills/). This repo is canonical f
 | `edge-spectrum-registry` | The Cronsole templates (`build-registry.mjs`, `site/public/registry/`), `capture-lines.ts`, `digest-lines.ts`, `capture-closes.ts`, the registry-drift workflow. Owner-held files |
 
 Any agent can read a skill's `skills/<name>/SKILL.md` directly; the three scheduled jobs do, by path. Installing them for Claude Code is covered in
-`CLAUDE.md`.
+[*Claude Code only*](#claude-code-only).
 
 ## Branch workflow (PR flow)
 
@@ -233,3 +233,15 @@ or branches; start from a fresh clone or transplant reviewed file changes.
 History was rewritten again on 2026-11-13 (audit SEC-01): every commit hash before #119's merge
 changed. A clone, worktree or branch made before that date carries the old history; never push or
 merge from one. Re-clone instead.
+
+## Claude Code only
+
+### Project skills
+
+The four project skills listed in `AGENTS.md` live in `skills/`. Claude Code loads them from
+`.claude/skills/`, which is **gitignored here**, so link each one once per clone (a junction, so an
+edit in `skills/` is live at once):
+
+```powershell
+Get-ChildItem skills -Directory | ForEach-Object { New-Item -ItemType Junction -Path ".claude/skills/$($_.Name)" -Target $_.FullName -Force }
+```
