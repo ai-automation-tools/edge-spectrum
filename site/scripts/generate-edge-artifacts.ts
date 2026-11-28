@@ -100,6 +100,8 @@ const COLUMNS: Array<{ name: string; type: string; description: string; get: (r:
   { name: 'as_of', type: 'date', description: 'The date the figure was last checked against its source.', get: (r) => r.asOf },
   { name: 'window', type: 'string', description: 'The period the figure covers.', get: (r) => r.window },
   { name: 'methodology', type: 'string', description: 'How the figure was derived.', get: (r) => r.methodology },
+  { name: 'range_low', type: 'number', description: 'Low end of a plausible span around the figure (annual_return_pct or edge_pct), on rows no one publishes. The reasoning is in methodology.', get: (r) => r.lo },
+  { name: 'range_high', type: 'number', description: 'High end of that span.', get: (r) => r.hi },
 ];
 
 const csvCell = (v: Cell) => (v === undefined ? '' : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
