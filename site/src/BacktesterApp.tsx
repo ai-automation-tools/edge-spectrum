@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import Header from './components/Header';
 import StrategyBuilder from './components/StrategyBuilder';
 import ResultsDashboard from './components/ResultsDashboard';
-import ProfitChart from './components/ProfitChart';
 
 import GamesTable from './components/GamesTable';
 import AiAdvisor from './components/AiAdvisor';
@@ -16,7 +15,8 @@ import { ledgerCsv } from './ledgerCsv';
 import { AlertCircle, LineChart, Table, BookOpen } from 'lucide-react';
 import SiteFooter from './components/SiteFooter';
 
-// Its chart pieces are a chunk of their own, so the backtester stays under the 500 kB chunk budget.
+// The chart pieces (recharts) are chunks of their own, so the backtester stays under the 500 kB chunk budget.
+const ProfitChart = lazy(() => import('./components/ProfitChart'));
 const PathVariance = lazy(() => import('./components/PathVariance'));
 
 // Keystroke-to-request grace period for the auto-rerun effect.
@@ -225,7 +225,9 @@ export default function App() {
             <div role="tabpanel" id="ws-panel" aria-labelledby={`tab-${activeTab}`}>
             {activeTab === 'analytics' ? (
               <div className="flex flex-col gap-6 animate-fadeIn">
-                <ProfitChart data={result?.profitHistory || []} />
+                <Suspense fallback={<div className="panel h-[350px]" aria-hidden="true" />}>
+                  <ProfitChart data={result?.profitHistory || []} />
+                </Suspense>
                 {result?.fan && (
                   <Suspense fallback={null}>
                     <PathVariance fan={result.fan} walkForward={result.walkForward} />
