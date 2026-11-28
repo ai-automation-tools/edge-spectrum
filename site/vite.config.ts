@@ -68,6 +68,15 @@ function siteUrls(): Plugin {
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss(), siteUrls()],
+    // recharts (and its d3 deps) in their own chunk keeps the Backtester route under the 500 kB
+    // per-chunk budget in scripts/check-bundle.mjs; only the chart routes load it.
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: { groups: [{ name: 'charts', includeDependenciesRecursively: false, test: /node_modules[\\/](recharts|d3-|victory-vendor|decimal\.js-light)/ }] },
+        },
+      },
+    },
     server: {
       // server.ts runs Vite in middleware mode, which opens the HMR WebSocket on its own
       // port (default 24678). Pin it so this app and my-prompt-library can run side by side.
